@@ -1,0 +1,2 @@
+gom "github.com/zenazn/goji"
+gom "github.com/go-sql-driver/mysql"
