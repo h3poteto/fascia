@@ -2,15 +2,18 @@ package main
 import (
 	"flag"
 	"net/http"
-	"html/template"
 	"github.com/zenazn/goji"
 	"github.com/zenazn/goji/web"
+	"github.com/flosch/pongo2"
 )
 
 func SignIn(c web.C, w http.ResponseWriter, r *http.Request) {
-	template := template.Must(template.ParseFiles("views/sign_in.html"))
-	body := "hoge"
-	template.Execute(w, body)
+	tpl, err := pongo2.DefaultSet.FromFile("views/sign_in.tpl")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	tpl.ExecuteWriter(pongo2.Context{}, w)
 }
 
 func Routes(m *web.Mux) {
