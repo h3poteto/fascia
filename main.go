@@ -16,9 +16,13 @@ func SignIn(c web.C, w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteWriter(pongo2.Context{"title": "SignIn"}, w)
 }
 
+func newSession(c web.C, w http.ResponseWriter, r *http.Request) {
+}
+
 
 func Routes(m *web.Mux) {
 	m.Get("/sign_in", SignIn)
+	m.Post("/sign_in", newSession)
 }
 
 func main() {
