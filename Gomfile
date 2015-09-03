@@ -1,3 +1,4 @@
 gom "github.com/zenazn/goji"
 gom "github.com/go-sql-driver/mysql"
 gom "github.com/flosch/pongo2"
+gom "github.com/goji/param"
