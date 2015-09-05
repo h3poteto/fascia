@@ -23,11 +23,12 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func TestRegistrationAndLogin(t *testing.T) {
+
+func TestRegistration(t *testing.T) {
 	aUser := user.NewUser()
 	var u user.User = aUser
 
-	email := "sample@example.com"
+	email := "registration@example.com"
 	password := "hogehoge"
 
 	reg := u.Registration(email, password)
@@ -35,12 +36,55 @@ func TestRegistrationAndLogin(t *testing.T) {
 		t.Fatalf("登録できない")
 	}
 
+	mydb := &db.Database{}
+	var database db.DB = mydb
+	sql := database.Init()
+	rows, _ := sql.Query("select * from users where email = ?;", email)
+
+	id, dbemail, dbpassword, created_at, updated_at := 0, "", "", "", ""
+	for rows.Next() {
+		_ = rows.Scan(&id, &dbemail, &dbpassword, &created_at, &updated_at)
+	}
+	if dbemail == "" {
+		t.Error("ユーザが登録できていない")
+	}
+
+	reg = u.Registration(email, password)
+	if reg != false {
+		t.Error("ユーザが二重登録できている")
+	}
+}
+
+func TestLogin(t *testing.T) {
+	aUser := user.NewUser()
+	var u user.User = aUser
+
+	email := "login@example.com"
+	password := "hogehoge"
+
+	_ = u.Registration(email, password)
+
 	current_user, err := u.Login(email, password)
 	if err != nil {
-		t.Error("登録後ログインできない")
+		t.Error("ログイン時にエラー発生")
 	}
 
 	if current_user.Email != email {
-		t.Error("登録ユーザが見つからない")
+		t.Error("ログインできない")
+	}
+
+	current_user, err = u.Login(email, "fugafuga")
+	if current_user.Email == email {
+		t.Error("パスワードが違うはずなのにログインできる")
+	}
+
+	current_user, err = u.Login("hogehoge@example.com", password)
+	if current_user.Email == email {
+		t.Error("メールアドレスが違うはずなのにログインできる")
+	}
+
+	current_user, err = u.Login("hogehoge@example.com", "fugafuga")
+	if current_user.Email == email {
+		t.Error("メールアドレスもパスワードも違うはずなのにログインできる")
 	}
 }
