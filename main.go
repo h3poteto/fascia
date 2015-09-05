@@ -17,6 +17,9 @@ type SignUpForm struct {
 }
 
 
+func Root(c web.C, w http.ResponseWriter, r *http.Request) {
+}
+
 func SignIn(c web.C, w http.ResponseWriter, r *http.Request) {
 	tpl, err := pongo2.DefaultSet.FromFile("views/sign_in.html.tpl")
 	if err != nil {
@@ -55,9 +58,20 @@ func Registration(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Printf("%+v\n", signUpForm)
-	_ = &userModel.UserStruct{}
-
-	http.Redirect(w, r, "/sign_in", 301)
+	if signUpForm.Password == signUpForm.PasswordConfirm {
+		// login
+		userStruct := &userModel.UserStruct{}
+		var user userModel.User = userStruct
+		res := user.Registration(signUpForm.Email, signUpForm.Password)
+		if !res {
+			http.Redirect(w, r, "/sign_up", 301)
+		} else {
+			http.Redirect(w, r, "/sign_in", 301)
+		}
+	} else {
+		// error
+		http.Redirect(w, r, "/sign_up", 301)
+	}
 }
 
 

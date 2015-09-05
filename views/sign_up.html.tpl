@@ -23,5 +23,5 @@
         <button class="btn" type="submit">SignUp</button>
     </div>
 </form>
-<p><a href="sign_in">SignIp</a></p>
+<p><a href="sign_in">SignIn</a></p>
 {% endblock %}
