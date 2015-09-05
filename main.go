@@ -16,6 +16,10 @@ type SignUpForm struct {
 	PasswordConfirm string `param:"password-confirm"`
 }
 
+type SignInForm struct {
+	Email string `param:"email"`
+	Password string `param:"password"`
+}
 
 func Root(c web.C, w http.ResponseWriter, r *http.Request) {
 }
@@ -30,6 +34,28 @@ func SignIn(c web.C, w http.ResponseWriter, r *http.Request) {
 }
 
 func newSession(c web.C, w http.ResponseWriter, r *http.Request) {
+	// TODO: sessionチェックと保存
+	userStruct := userModel.NewUser()
+	var user userModel.User = userStruct
+
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "No good!", 400)
+		return
+	}
+	var signInForm SignInForm
+	err = param.Parse(r.PostForm, &signInForm)
+	if err != nil {
+		http.Error(w, "Real bad", 500)
+		return
+	}
+
+	current_user, err := user.Login(signInForm.Email, signInForm.Password)
+	if err != nil {
+		http.Redirect(w, r, "/sign_in", 301)
+	}
+	fmt.Printf("%+v\n", current_user)
+	http.Redirect(w, r, "/", 301)
 }
 
 func SignUp(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -60,7 +86,7 @@ func Registration(c web.C, w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("%+v\n", signUpForm)
 	if signUpForm.Password == signUpForm.PasswordConfirm {
 		// login
-		userStruct := &userModel.UserStruct{}
+		userStruct := userModel.NewUser()
 		var user userModel.User = userStruct
 		res := user.Registration(signUpForm.Email, signUpForm.Password)
 		if !res {
