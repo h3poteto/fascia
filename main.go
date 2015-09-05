@@ -35,8 +35,6 @@ func SignIn(c web.C, w http.ResponseWriter, r *http.Request) {
 
 func newSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	// TODO: sessionチェックと保存
-	userStruct := userModel.NewUser()
-	var user userModel.User = userStruct
 
 	err := r.ParseForm()
 	if err != nil {
@@ -50,7 +48,7 @@ func newSession(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	current_user, err := user.Login(signInForm.Email, signInForm.Password)
+	current_user, err := userModel.Login(signInForm.Email, signInForm.Password)
 	if err != nil {
 		http.Redirect(w, r, "/sign_in", 301)
 	}
@@ -86,9 +84,7 @@ func Registration(c web.C, w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("%+v\n", signUpForm)
 	if signUpForm.Password == signUpForm.PasswordConfirm {
 		// login
-		userStruct := userModel.NewUser()
-		var user userModel.User = userStruct
-		res := user.Registration(signUpForm.Email, signUpForm.Password)
+		res := userModel.Registration(signUpForm.Email, signUpForm.Password)
 		if !res {
 			http.Redirect(w, r, "/sign_up", 301)
 		} else {

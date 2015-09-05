@@ -25,13 +25,10 @@ func TestMain(m *testing.M) {
 
 
 func TestRegistration(t *testing.T) {
-	aUser := user.NewUser()
-	var u user.User = aUser
-
 	email := "registration@example.com"
 	password := "hogehoge"
 
-	reg := u.Registration(email, password)
+	reg := user.Registration(email, password)
 	if reg != true {
 		t.Fatalf("登録できない")
 	}
@@ -49,22 +46,19 @@ func TestRegistration(t *testing.T) {
 		t.Error("ユーザが登録できていない")
 	}
 
-	reg = u.Registration(email, password)
+	reg = user.Registration(email, password)
 	if reg != false {
 		t.Error("ユーザが二重登録できている")
 	}
 }
 
 func TestLogin(t *testing.T) {
-	aUser := user.NewUser()
-	var u user.User = aUser
-
 	email := "login@example.com"
 	password := "hogehoge"
 
-	_ = u.Registration(email, password)
+	_ = user.Registration(email, password)
 
-	current_user, err := u.Login(email, password)
+	current_user, err := user.Login(email, password)
 	if err != nil {
 		t.Error("ログイン時にエラー発生")
 	}
@@ -73,17 +67,17 @@ func TestLogin(t *testing.T) {
 		t.Error("ログインできない")
 	}
 
-	current_user, err = u.Login(email, "fugafuga")
+	current_user, err = user.Login(email, "fugafuga")
 	if current_user.Email == email {
 		t.Error("パスワードが違うはずなのにログインできる")
 	}
 
-	current_user, err = u.Login("hogehoge@example.com", password)
+	current_user, err = user.Login("hogehoge@example.com", password)
 	if current_user.Email == email {
 		t.Error("メールアドレスが違うはずなのにログインできる")
 	}
 
-	current_user, err = u.Login("hogehoge@example.com", "fugafuga")
+	current_user, err = user.Login("hogehoge@example.com", "fugafuga")
 	if current_user.Email == email {
 		t.Error("メールアドレスもパスワードも違うはずなのにログインできる")
 	}

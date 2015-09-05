@@ -9,8 +9,6 @@ import(
 )
 
 type User interface {
-	Registration(string, string) bool
-	Login(string, string) (UserStruct, error)
 }
 
 type UserStruct struct {
@@ -19,8 +17,8 @@ type UserStruct struct {
 	database db.DB
 }
 
-func NewUser() *UserStruct {
-	user := &UserStruct{}
+func NewUser(id int, email string) *UserStruct {
+	user := &UserStruct{Id: id, Email: email}
 	user.Initialize()
 	return user
 }
@@ -31,8 +29,10 @@ func (u *UserStruct) Initialize() {
 	u.database = interfaceDB
 }
 
-func (u *UserStruct) Registration(email string, password string) bool {
-	table := u.database.Init()
+func Registration(email string, password string) bool {
+	objectDB := &db.Database{}
+	var interfaceDB db.DB = objectDB
+	table := interfaceDB.Init()
 	defer table.Close()
 
 	bytePassword := []byte(password)
@@ -51,8 +51,10 @@ func (u *UserStruct) Registration(email string, password string) bool {
 	return true
 }
 
-func (u *UserStruct) Login(userEmail string, userPassword string) (UserStruct, error) {
-	table := u.database.Init()
+func Login(userEmail string, userPassword string) (UserStruct, error) {
+	objectDB := &db.Database{}
+	var interfaceDB db.DB = objectDB
+	table := interfaceDB.Init()
 	defer table.Close()
 
 	id, email, password, created_at, updated_at := 0, "", "", "", ""
@@ -63,7 +65,7 @@ func (u *UserStruct) Login(userEmail string, userPassword string) (UserStruct, e
 			panic(err.Error())
 		}
 	}
-	user := UserStruct{Id: id, Email: email}
+	user := NewUser(id, email)
 	bytePassword := []byte(userPassword)
 	err := bcrypt.CompareHashAndPassword([]byte(password), bytePassword)
 	if err != nil {
@@ -71,5 +73,5 @@ func (u *UserStruct) Login(userEmail string, userPassword string) (UserStruct, e
 		return UserStruct{}, errors.New("cannot login")
 	}
 	fmt.Printf("login success\n")
-	return user, nil
+	return *user, nil
 }
