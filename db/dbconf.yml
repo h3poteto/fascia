@@ -1,0 +1,15 @@
+test:
+    driver: mymysql
+    open: fascia_test/$DB_USER/$DB_PASSWORD
+
+development:
+    driver: mymysql
+    open: fascia/$DB_USER/$DB_PASSWORD
+
+production:
+    driver: mymysql
+    open: fascia/$DB_USER/$DB_PASSWORD
+
+environment_variable_config:
+    driver: $DB_DRIVER
+    open: $DATABASE_URL
