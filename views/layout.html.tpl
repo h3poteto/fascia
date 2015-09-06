@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Fascia{% endblock %}</title>
+    <link rel="stylesheet" href="/stylesheets/pure-min.css" media="all">
 </head>
 <body>
     <div id="content">
