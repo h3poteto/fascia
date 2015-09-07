@@ -102,6 +102,7 @@ func Routes(m *web.Mux) {
 	m.Post("/sign_in", newSession)
 	m.Get("/sign_up", SignUp)
 	m.Post("/sign_up", Registration)
+	m.Get("/stylesheets/*", http.FileServer(http.Dir("./public/assets/")))
 }
 
 func main() {

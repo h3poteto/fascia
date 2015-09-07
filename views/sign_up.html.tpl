@@ -3,25 +3,19 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<form action="/sign_up" method="post" role="form" name="sign_up" id="sign_up">
-    <div class="form-group">
+<form action="/sign_up" method="post" role="form" name="sign_up" id="sign_up" class="pure-form pure-form-stacked">
+    <fieldset>
         <label for="email">Email:</label>
         <input class="form-control" name="email" type="email" />
-    </div>
 
-    <div class="form-group">
         <label for="password">Password:</label>
         <input class="form-control" name="password" type="password" />
-    </div>
 
-    <div class="form-group">
         <label for="password-confirm">Password:</label>
         <input class="form-control" name="password-confirm" type="password" />
-    </div>
 
-    <div class="form-action">
-        <button class="btn" type="submit">SignUp</button>
-    </div>
+        <button class="pure-button pure-button-primary" type="submit">SignUp</button>
+    </fieldset>
 </form>
 <p><a href="sign_in">SignIn</a></p>
 {% endblock %}
