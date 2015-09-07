@@ -1,0 +1,11 @@
+dependencies:
+  pre:
+    - go get github.com/mattn/gom
+  override:
+    - gom install
+  post:
+    - gom build main.go
+
+test:
+  override:
+    - gom test test/*_test.go
