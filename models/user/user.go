@@ -29,6 +29,30 @@ func (u *UserStruct) Initialize() {
 	u.database = interfaceDB
 }
 
+
+func CurrentUser(user_id int) (UserStruct, error) {
+	user := UserStruct{}
+	user.Initialize()
+
+	table := user.database.Init()
+	defer table.Close()
+
+	id, email, password, created_at, updated_at := 0, "", "", "", ""
+	rows, _ := table.Query("select * from users where id = ?;", user_id)
+	for rows.Next() {
+		err := rows.Scan(&id, &email, &password, &created_at, &updated_at)
+		if err != nil {
+			panic(err.Error())
+		}
+	}
+	user.Id = id
+	user.Email = email
+	if id == 0 {
+		return user, errors.New("cannot find user")
+	}
+	return user, nil
+}
+
 func Registration(email string, password string) bool {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB

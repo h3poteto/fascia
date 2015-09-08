@@ -7,8 +7,11 @@ import (
 	"github.com/zenazn/goji/web"
 	"github.com/goji/param"
 	"github.com/flosch/pongo2"
+	"github.com/gorilla/sessions"
 	userModel "./models/user"
 )
+
+var cookieStore = sessions.NewCookieStore([]byte("session-kesy"))
 
 type SignUpForm struct {
 	Email string `param:"email"`
@@ -22,6 +25,10 @@ type SignInForm struct {
 }
 
 func Root(c web.C, w http.ResponseWriter, r *http.Request) {
+	current_user, result := LoginRequired(c, w, r)
+	if result {
+		fmt.Printf("current_user: %+v\n", *current_user)
+	}
 }
 
 func SignIn(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -33,10 +40,29 @@ func SignIn(c web.C, w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteWriter(pongo2.Context{"title": "SignIn"}, w)
 }
 
-func newSession(c web.C, w http.ResponseWriter, r *http.Request) {
-	// TODO: sessionチェックと保存
+func LoginRequired(c web.C, w http.ResponseWriter, r *http.Request) (*userModel.UserStruct, bool) {
+	session, err := cookieStore.Get(r, "fascia")
+	if err != nil {
+		return nil, false
+	}
+	id := session.Values["current_user_id"]
+	if id == nil {
+		http.Redirect(w, r, "/sign_in", 301)
+		return nil, false
+	}
+	current_user, err := userModel.CurrentUser(id.(int))
+	if err != nil {
+		return nil, false
+	}
+	return &current_user, true
+}
 
-	err := r.ParseForm()
+func newSession(c web.C, w http.ResponseWriter, r *http.Request) {
+	// 旧セッションの削除
+	session, err := cookieStore.Get(r, "fascia")
+	session.Options = &sessions.Options{MaxAge: -1}
+	session.Save(r, w)
+	err = r.ParseForm()
 	if err != nil {
 		http.Error(w, "No good!", 400)
 		return
@@ -53,6 +79,10 @@ func newSession(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/sign_in", 301)
 	}
 	fmt.Printf("%+v\n", current_user)
+	session, err = cookieStore.Get(r, "fascia")
+	session.Options = &sessions.Options{MaxAge: 3600}
+	session.Values["current_user_id"] = current_user.Id
+	session.Save(r, w)
 	http.Redirect(w, r, "/", 301)
 }
 
@@ -103,6 +133,7 @@ func Routes(m *web.Mux) {
 	m.Get("/sign_up", SignUp)
 	m.Post("/sign_up", Registration)
 	m.Get("/stylesheets/*", http.FileServer(http.Dir("./public/assets/")))
+	m.Get("/", Root)
 }
 
 func main() {
