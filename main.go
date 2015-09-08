@@ -9,6 +9,7 @@ import (
 	"github.com/flosch/pongo2"
 	"github.com/gorilla/sessions"
 	userModel "./models/user"
+	"./controllers"
 )
 
 var cookieStore = sessions.NewCookieStore([]byte("session-kesy"))
@@ -139,7 +140,7 @@ func Routes(m *web.Mux) {
 	m.Get("/sign_up", SignUp)
 	m.Post("/sign_up", Registration)
 	m.Get("/stylesheets/*", http.FileServer(http.Dir("./public/assets/")))
-	m.Get("/", Root)
+	m.Get("/", controllers.RootController(controllers.Index))
 }
 
 func main() {
