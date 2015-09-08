@@ -1,0 +1,16 @@
+dependencies:
+  pre:
+    - go get github.com/mattn/gom
+  override:
+    - gom install
+  post:
+    - gom build main.go
+database:
+  pre:
+    - mysql -u $DB_USER -e "CREATE DATABASE $DB_TEST_NAME;"
+  override:
+    - gom exec goose -env test up
+
+test:
+  override:
+    - gom test test/*_test.go
