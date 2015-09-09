@@ -29,6 +29,12 @@ func Root(c web.C, w http.ResponseWriter, r *http.Request) {
 	if result {
 		fmt.Printf("current_user: %+v\n", *current_user)
 	}
+	tpl, err := pongo2.DefaultSet.FromFile("views/home.html.tpl")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	tpl.ExecuteWriter(pongo2.Context{"title": "Fascia"}, w)
 }
 
 func SignIn(c web.C, w http.ResponseWriter, r *http.Request) {
