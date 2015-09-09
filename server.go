@@ -15,6 +15,7 @@ func Routes(m *web.Mux) {
 	m.Post("/sign_up", controllers.CallController(&controllers.Registrations{}, "Registration"))
 	m.Get("/stylesheets/*", http.FileServer(http.Dir("./public/assets/")))
 	m.Get("/", controllers.CallController(&controllers.Root{}, "Index"))
+	m.Post("/projects/", controllers.CallController(&controllers.Projects{}, "Create"))
 }
 
 func main() {
