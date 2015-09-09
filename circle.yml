@@ -4,7 +4,7 @@ dependencies:
   override:
     - gom install
   post:
-    - gom build main.go
+    - gom build server.go
 database:
   pre:
     - mysql -u $DB_USER -e "CREATE DATABASE $DB_TEST_NAME;"
