@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"reflect"
 	"github.com/zenazn/goji/web"

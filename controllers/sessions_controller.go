@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"github.com/zenazn/goji/web"
 	"github.com/flosch/pongo2"
+	"github.com/gorilla/sessions"
 	"github.com/goji/param"
 	userModel "../models/user"
 )
