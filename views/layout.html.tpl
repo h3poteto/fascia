@@ -9,4 +9,5 @@
     <div id="content">
         {% block content %}{% endblock %}
     </div>
+    <script src="/javascripts/bundle.js">
 </body>

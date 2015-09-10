@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/vagrant/fascia/frontend/javascripts/src/bundle.js":[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/home/akira/projects/fascia/frontend/javascripts/src/bundle.js":[function(require,module,exports){
 "use strict";
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
@@ -9,7 +9,7 @@ var _react2 = _interopRequireDefault(_react);
 
 console.log("foo");
 
-},{"react":"/vagrant/fascia/node_modules/react/react.js"}],"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js":[function(require,module,exports){
+},{"react":"/home/akira/projects/fascia/node_modules/react/react.js"}],"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js":[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -101,7 +101,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],"/vagrant/fascia/node_modules/react/lib/AutoFocusMixin.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/AutoFocusMixin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -128,7 +128,7 @@ var AutoFocusMixin = {
 
 module.exports = AutoFocusMixin;
 
-},{"./focusNode":"/vagrant/fascia/node_modules/react/lib/focusNode.js"}],"/vagrant/fascia/node_modules/react/lib/BeforeInputEventPlugin.js":[function(require,module,exports){
+},{"./focusNode":"/home/akira/projects/fascia/node_modules/react/lib/focusNode.js"}],"/home/akira/projects/fascia/node_modules/react/lib/BeforeInputEventPlugin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015 Facebook, Inc.
  * All rights reserved.
@@ -623,7 +623,7 @@ var BeforeInputEventPlugin = {
 
 module.exports = BeforeInputEventPlugin;
 
-},{"./EventConstants":"/vagrant/fascia/node_modules/react/lib/EventConstants.js","./EventPropagators":"/vagrant/fascia/node_modules/react/lib/EventPropagators.js","./ExecutionEnvironment":"/vagrant/fascia/node_modules/react/lib/ExecutionEnvironment.js","./FallbackCompositionState":"/vagrant/fascia/node_modules/react/lib/FallbackCompositionState.js","./SyntheticCompositionEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticCompositionEvent.js","./SyntheticInputEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticInputEvent.js","./keyOf":"/vagrant/fascia/node_modules/react/lib/keyOf.js"}],"/vagrant/fascia/node_modules/react/lib/CSSProperty.js":[function(require,module,exports){
+},{"./EventConstants":"/home/akira/projects/fascia/node_modules/react/lib/EventConstants.js","./EventPropagators":"/home/akira/projects/fascia/node_modules/react/lib/EventPropagators.js","./ExecutionEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ExecutionEnvironment.js","./FallbackCompositionState":"/home/akira/projects/fascia/node_modules/react/lib/FallbackCompositionState.js","./SyntheticCompositionEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticCompositionEvent.js","./SyntheticInputEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticInputEvent.js","./keyOf":"/home/akira/projects/fascia/node_modules/react/lib/keyOf.js"}],"/home/akira/projects/fascia/node_modules/react/lib/CSSProperty.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -748,7 +748,7 @@ var CSSProperty = {
 
 module.exports = CSSProperty;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/CSSPropertyOperations.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/CSSPropertyOperations.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -931,7 +931,7 @@ module.exports = CSSPropertyOperations;
 
 }).call(this,require('_process'))
 
-},{"./CSSProperty":"/vagrant/fascia/node_modules/react/lib/CSSProperty.js","./ExecutionEnvironment":"/vagrant/fascia/node_modules/react/lib/ExecutionEnvironment.js","./camelizeStyleName":"/vagrant/fascia/node_modules/react/lib/camelizeStyleName.js","./dangerousStyleValue":"/vagrant/fascia/node_modules/react/lib/dangerousStyleValue.js","./hyphenateStyleName":"/vagrant/fascia/node_modules/react/lib/hyphenateStyleName.js","./memoizeStringOnly":"/vagrant/fascia/node_modules/react/lib/memoizeStringOnly.js","./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/CallbackQueue.js":[function(require,module,exports){
+},{"./CSSProperty":"/home/akira/projects/fascia/node_modules/react/lib/CSSProperty.js","./ExecutionEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ExecutionEnvironment.js","./camelizeStyleName":"/home/akira/projects/fascia/node_modules/react/lib/camelizeStyleName.js","./dangerousStyleValue":"/home/akira/projects/fascia/node_modules/react/lib/dangerousStyleValue.js","./hyphenateStyleName":"/home/akira/projects/fascia/node_modules/react/lib/hyphenateStyleName.js","./memoizeStringOnly":"/home/akira/projects/fascia/node_modules/react/lib/memoizeStringOnly.js","./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/CallbackQueue.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -1032,7 +1032,7 @@ module.exports = CallbackQueue;
 
 }).call(this,require('_process'))
 
-},{"./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./PooledClass":"/vagrant/fascia/node_modules/react/lib/PooledClass.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ChangeEventPlugin.js":[function(require,module,exports){
+},{"./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./PooledClass":"/home/akira/projects/fascia/node_modules/react/lib/PooledClass.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ChangeEventPlugin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -1414,7 +1414,7 @@ var ChangeEventPlugin = {
 
 module.exports = ChangeEventPlugin;
 
-},{"./EventConstants":"/vagrant/fascia/node_modules/react/lib/EventConstants.js","./EventPluginHub":"/vagrant/fascia/node_modules/react/lib/EventPluginHub.js","./EventPropagators":"/vagrant/fascia/node_modules/react/lib/EventPropagators.js","./ExecutionEnvironment":"/vagrant/fascia/node_modules/react/lib/ExecutionEnvironment.js","./ReactUpdates":"/vagrant/fascia/node_modules/react/lib/ReactUpdates.js","./SyntheticEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticEvent.js","./isEventSupported":"/vagrant/fascia/node_modules/react/lib/isEventSupported.js","./isTextInputElement":"/vagrant/fascia/node_modules/react/lib/isTextInputElement.js","./keyOf":"/vagrant/fascia/node_modules/react/lib/keyOf.js"}],"/vagrant/fascia/node_modules/react/lib/ClientReactRootIndex.js":[function(require,module,exports){
+},{"./EventConstants":"/home/akira/projects/fascia/node_modules/react/lib/EventConstants.js","./EventPluginHub":"/home/akira/projects/fascia/node_modules/react/lib/EventPluginHub.js","./EventPropagators":"/home/akira/projects/fascia/node_modules/react/lib/EventPropagators.js","./ExecutionEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ExecutionEnvironment.js","./ReactUpdates":"/home/akira/projects/fascia/node_modules/react/lib/ReactUpdates.js","./SyntheticEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticEvent.js","./isEventSupported":"/home/akira/projects/fascia/node_modules/react/lib/isEventSupported.js","./isTextInputElement":"/home/akira/projects/fascia/node_modules/react/lib/isTextInputElement.js","./keyOf":"/home/akira/projects/fascia/node_modules/react/lib/keyOf.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ClientReactRootIndex.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -1439,7 +1439,7 @@ var ClientReactRootIndex = {
 
 module.exports = ClientReactRootIndex;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/DOMChildrenOperations.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/DOMChildrenOperations.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -1578,7 +1578,7 @@ module.exports = DOMChildrenOperations;
 
 }).call(this,require('_process'))
 
-},{"./Danger":"/vagrant/fascia/node_modules/react/lib/Danger.js","./ReactMultiChildUpdateTypes":"/vagrant/fascia/node_modules/react/lib/ReactMultiChildUpdateTypes.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","./setTextContent":"/vagrant/fascia/node_modules/react/lib/setTextContent.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/DOMProperty.js":[function(require,module,exports){
+},{"./Danger":"/home/akira/projects/fascia/node_modules/react/lib/Danger.js","./ReactMultiChildUpdateTypes":"/home/akira/projects/fascia/node_modules/react/lib/ReactMultiChildUpdateTypes.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","./setTextContent":"/home/akira/projects/fascia/node_modules/react/lib/setTextContent.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/DOMProperty.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -1878,7 +1878,7 @@ module.exports = DOMProperty;
 
 }).call(this,require('_process'))
 
-},{"./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/DOMPropertyOperations.js":[function(require,module,exports){
+},{"./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/DOMPropertyOperations.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -2071,7 +2071,7 @@ module.exports = DOMPropertyOperations;
 
 }).call(this,require('_process'))
 
-},{"./DOMProperty":"/vagrant/fascia/node_modules/react/lib/DOMProperty.js","./quoteAttributeValueForBrowser":"/vagrant/fascia/node_modules/react/lib/quoteAttributeValueForBrowser.js","./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/Danger.js":[function(require,module,exports){
+},{"./DOMProperty":"/home/akira/projects/fascia/node_modules/react/lib/DOMProperty.js","./quoteAttributeValueForBrowser":"/home/akira/projects/fascia/node_modules/react/lib/quoteAttributeValueForBrowser.js","./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/Danger.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -2259,7 +2259,7 @@ module.exports = Danger;
 
 }).call(this,require('_process'))
 
-},{"./ExecutionEnvironment":"/vagrant/fascia/node_modules/react/lib/ExecutionEnvironment.js","./createNodesFromMarkup":"/vagrant/fascia/node_modules/react/lib/createNodesFromMarkup.js","./emptyFunction":"/vagrant/fascia/node_modules/react/lib/emptyFunction.js","./getMarkupWrap":"/vagrant/fascia/node_modules/react/lib/getMarkupWrap.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/DefaultEventPluginOrder.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ExecutionEnvironment.js","./createNodesFromMarkup":"/home/akira/projects/fascia/node_modules/react/lib/createNodesFromMarkup.js","./emptyFunction":"/home/akira/projects/fascia/node_modules/react/lib/emptyFunction.js","./getMarkupWrap":"/home/akira/projects/fascia/node_modules/react/lib/getMarkupWrap.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/DefaultEventPluginOrder.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -2298,7 +2298,7 @@ var DefaultEventPluginOrder = [
 
 module.exports = DefaultEventPluginOrder;
 
-},{"./keyOf":"/vagrant/fascia/node_modules/react/lib/keyOf.js"}],"/vagrant/fascia/node_modules/react/lib/EnterLeaveEventPlugin.js":[function(require,module,exports){
+},{"./keyOf":"/home/akira/projects/fascia/node_modules/react/lib/keyOf.js"}],"/home/akira/projects/fascia/node_modules/react/lib/EnterLeaveEventPlugin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -2438,7 +2438,7 @@ var EnterLeaveEventPlugin = {
 
 module.exports = EnterLeaveEventPlugin;
 
-},{"./EventConstants":"/vagrant/fascia/node_modules/react/lib/EventConstants.js","./EventPropagators":"/vagrant/fascia/node_modules/react/lib/EventPropagators.js","./ReactMount":"/vagrant/fascia/node_modules/react/lib/ReactMount.js","./SyntheticMouseEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticMouseEvent.js","./keyOf":"/vagrant/fascia/node_modules/react/lib/keyOf.js"}],"/vagrant/fascia/node_modules/react/lib/EventConstants.js":[function(require,module,exports){
+},{"./EventConstants":"/home/akira/projects/fascia/node_modules/react/lib/EventConstants.js","./EventPropagators":"/home/akira/projects/fascia/node_modules/react/lib/EventPropagators.js","./ReactMount":"/home/akira/projects/fascia/node_modules/react/lib/ReactMount.js","./SyntheticMouseEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticMouseEvent.js","./keyOf":"/home/akira/projects/fascia/node_modules/react/lib/keyOf.js"}],"/home/akira/projects/fascia/node_modules/react/lib/EventConstants.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -2510,7 +2510,7 @@ var EventConstants = {
 
 module.exports = EventConstants;
 
-},{"./keyMirror":"/vagrant/fascia/node_modules/react/lib/keyMirror.js"}],"/vagrant/fascia/node_modules/react/lib/EventListener.js":[function(require,module,exports){
+},{"./keyMirror":"/home/akira/projects/fascia/node_modules/react/lib/keyMirror.js"}],"/home/akira/projects/fascia/node_modules/react/lib/EventListener.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -2601,7 +2601,7 @@ module.exports = EventListener;
 
 }).call(this,require('_process'))
 
-},{"./emptyFunction":"/vagrant/fascia/node_modules/react/lib/emptyFunction.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/EventPluginHub.js":[function(require,module,exports){
+},{"./emptyFunction":"/home/akira/projects/fascia/node_modules/react/lib/emptyFunction.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/EventPluginHub.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -2880,7 +2880,7 @@ module.exports = EventPluginHub;
 
 }).call(this,require('_process'))
 
-},{"./EventPluginRegistry":"/vagrant/fascia/node_modules/react/lib/EventPluginRegistry.js","./EventPluginUtils":"/vagrant/fascia/node_modules/react/lib/EventPluginUtils.js","./accumulateInto":"/vagrant/fascia/node_modules/react/lib/accumulateInto.js","./forEachAccumulated":"/vagrant/fascia/node_modules/react/lib/forEachAccumulated.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/EventPluginRegistry.js":[function(require,module,exports){
+},{"./EventPluginRegistry":"/home/akira/projects/fascia/node_modules/react/lib/EventPluginRegistry.js","./EventPluginUtils":"/home/akira/projects/fascia/node_modules/react/lib/EventPluginUtils.js","./accumulateInto":"/home/akira/projects/fascia/node_modules/react/lib/accumulateInto.js","./forEachAccumulated":"/home/akira/projects/fascia/node_modules/react/lib/forEachAccumulated.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/EventPluginRegistry.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -3161,7 +3161,7 @@ module.exports = EventPluginRegistry;
 
 }).call(this,require('_process'))
 
-},{"./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/EventPluginUtils.js":[function(require,module,exports){
+},{"./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/EventPluginUtils.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -3383,7 +3383,7 @@ module.exports = EventPluginUtils;
 
 }).call(this,require('_process'))
 
-},{"./EventConstants":"/vagrant/fascia/node_modules/react/lib/EventConstants.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/EventPropagators.js":[function(require,module,exports){
+},{"./EventConstants":"/home/akira/projects/fascia/node_modules/react/lib/EventConstants.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/EventPropagators.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -3526,7 +3526,7 @@ module.exports = EventPropagators;
 
 }).call(this,require('_process'))
 
-},{"./EventConstants":"/vagrant/fascia/node_modules/react/lib/EventConstants.js","./EventPluginHub":"/vagrant/fascia/node_modules/react/lib/EventPluginHub.js","./accumulateInto":"/vagrant/fascia/node_modules/react/lib/accumulateInto.js","./forEachAccumulated":"/vagrant/fascia/node_modules/react/lib/forEachAccumulated.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ExecutionEnvironment.js":[function(require,module,exports){
+},{"./EventConstants":"/home/akira/projects/fascia/node_modules/react/lib/EventConstants.js","./EventPluginHub":"/home/akira/projects/fascia/node_modules/react/lib/EventPluginHub.js","./accumulateInto":"/home/akira/projects/fascia/node_modules/react/lib/accumulateInto.js","./forEachAccumulated":"/home/akira/projects/fascia/node_modules/react/lib/forEachAccumulated.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ExecutionEnvironment.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -3570,7 +3570,7 @@ var ExecutionEnvironment = {
 
 module.exports = ExecutionEnvironment;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/FallbackCompositionState.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/FallbackCompositionState.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -3661,7 +3661,7 @@ PooledClass.addPoolingTo(FallbackCompositionState);
 
 module.exports = FallbackCompositionState;
 
-},{"./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./PooledClass":"/vagrant/fascia/node_modules/react/lib/PooledClass.js","./getTextContentAccessor":"/vagrant/fascia/node_modules/react/lib/getTextContentAccessor.js"}],"/vagrant/fascia/node_modules/react/lib/HTMLDOMPropertyConfig.js":[function(require,module,exports){
+},{"./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./PooledClass":"/home/akira/projects/fascia/node_modules/react/lib/PooledClass.js","./getTextContentAccessor":"/home/akira/projects/fascia/node_modules/react/lib/getTextContentAccessor.js"}],"/home/akira/projects/fascia/node_modules/react/lib/HTMLDOMPropertyConfig.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -3872,7 +3872,7 @@ var HTMLDOMPropertyConfig = {
 
 module.exports = HTMLDOMPropertyConfig;
 
-},{"./DOMProperty":"/vagrant/fascia/node_modules/react/lib/DOMProperty.js","./ExecutionEnvironment":"/vagrant/fascia/node_modules/react/lib/ExecutionEnvironment.js"}],"/vagrant/fascia/node_modules/react/lib/LinkedValueUtils.js":[function(require,module,exports){
+},{"./DOMProperty":"/home/akira/projects/fascia/node_modules/react/lib/DOMProperty.js","./ExecutionEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ExecutionEnvironment.js"}],"/home/akira/projects/fascia/node_modules/react/lib/LinkedValueUtils.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -4029,7 +4029,7 @@ module.exports = LinkedValueUtils;
 
 }).call(this,require('_process'))
 
-},{"./ReactPropTypes":"/vagrant/fascia/node_modules/react/lib/ReactPropTypes.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/LocalEventTrapMixin.js":[function(require,module,exports){
+},{"./ReactPropTypes":"/home/akira/projects/fascia/node_modules/react/lib/ReactPropTypes.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/LocalEventTrapMixin.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -4087,7 +4087,7 @@ module.exports = LocalEventTrapMixin;
 
 }).call(this,require('_process'))
 
-},{"./ReactBrowserEventEmitter":"/vagrant/fascia/node_modules/react/lib/ReactBrowserEventEmitter.js","./accumulateInto":"/vagrant/fascia/node_modules/react/lib/accumulateInto.js","./forEachAccumulated":"/vagrant/fascia/node_modules/react/lib/forEachAccumulated.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/MobileSafariClickEventPlugin.js":[function(require,module,exports){
+},{"./ReactBrowserEventEmitter":"/home/akira/projects/fascia/node_modules/react/lib/ReactBrowserEventEmitter.js","./accumulateInto":"/home/akira/projects/fascia/node_modules/react/lib/accumulateInto.js","./forEachAccumulated":"/home/akira/projects/fascia/node_modules/react/lib/forEachAccumulated.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/MobileSafariClickEventPlugin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -4145,7 +4145,7 @@ var MobileSafariClickEventPlugin = {
 
 module.exports = MobileSafariClickEventPlugin;
 
-},{"./EventConstants":"/vagrant/fascia/node_modules/react/lib/EventConstants.js","./emptyFunction":"/vagrant/fascia/node_modules/react/lib/emptyFunction.js"}],"/vagrant/fascia/node_modules/react/lib/Object.assign.js":[function(require,module,exports){
+},{"./EventConstants":"/home/akira/projects/fascia/node_modules/react/lib/EventConstants.js","./emptyFunction":"/home/akira/projects/fascia/node_modules/react/lib/emptyFunction.js"}],"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js":[function(require,module,exports){
 /**
  * Copyright 2014-2015, Facebook, Inc.
  * All rights reserved.
@@ -4194,7 +4194,7 @@ function assign(target, sources) {
 
 module.exports = assign;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/PooledClass.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/PooledClass.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -4311,7 +4311,7 @@ module.exports = PooledClass;
 
 }).call(this,require('_process'))
 
-},{"./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/React.js":[function(require,module,exports){
+},{"./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/React.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -4464,7 +4464,7 @@ module.exports = React;
 
 }).call(this,require('_process'))
 
-},{"./EventPluginUtils":"/vagrant/fascia/node_modules/react/lib/EventPluginUtils.js","./ExecutionEnvironment":"/vagrant/fascia/node_modules/react/lib/ExecutionEnvironment.js","./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./ReactChildren":"/vagrant/fascia/node_modules/react/lib/ReactChildren.js","./ReactClass":"/vagrant/fascia/node_modules/react/lib/ReactClass.js","./ReactComponent":"/vagrant/fascia/node_modules/react/lib/ReactComponent.js","./ReactContext":"/vagrant/fascia/node_modules/react/lib/ReactContext.js","./ReactCurrentOwner":"/vagrant/fascia/node_modules/react/lib/ReactCurrentOwner.js","./ReactDOM":"/vagrant/fascia/node_modules/react/lib/ReactDOM.js","./ReactDOMTextComponent":"/vagrant/fascia/node_modules/react/lib/ReactDOMTextComponent.js","./ReactDefaultInjection":"/vagrant/fascia/node_modules/react/lib/ReactDefaultInjection.js","./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js","./ReactElementValidator":"/vagrant/fascia/node_modules/react/lib/ReactElementValidator.js","./ReactInstanceHandles":"/vagrant/fascia/node_modules/react/lib/ReactInstanceHandles.js","./ReactMount":"/vagrant/fascia/node_modules/react/lib/ReactMount.js","./ReactPerf":"/vagrant/fascia/node_modules/react/lib/ReactPerf.js","./ReactPropTypes":"/vagrant/fascia/node_modules/react/lib/ReactPropTypes.js","./ReactReconciler":"/vagrant/fascia/node_modules/react/lib/ReactReconciler.js","./ReactServerRendering":"/vagrant/fascia/node_modules/react/lib/ReactServerRendering.js","./findDOMNode":"/vagrant/fascia/node_modules/react/lib/findDOMNode.js","./onlyChild":"/vagrant/fascia/node_modules/react/lib/onlyChild.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactBrowserComponentMixin.js":[function(require,module,exports){
+},{"./EventPluginUtils":"/home/akira/projects/fascia/node_modules/react/lib/EventPluginUtils.js","./ExecutionEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ExecutionEnvironment.js","./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./ReactChildren":"/home/akira/projects/fascia/node_modules/react/lib/ReactChildren.js","./ReactClass":"/home/akira/projects/fascia/node_modules/react/lib/ReactClass.js","./ReactComponent":"/home/akira/projects/fascia/node_modules/react/lib/ReactComponent.js","./ReactContext":"/home/akira/projects/fascia/node_modules/react/lib/ReactContext.js","./ReactCurrentOwner":"/home/akira/projects/fascia/node_modules/react/lib/ReactCurrentOwner.js","./ReactDOM":"/home/akira/projects/fascia/node_modules/react/lib/ReactDOM.js","./ReactDOMTextComponent":"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMTextComponent.js","./ReactDefaultInjection":"/home/akira/projects/fascia/node_modules/react/lib/ReactDefaultInjection.js","./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js","./ReactElementValidator":"/home/akira/projects/fascia/node_modules/react/lib/ReactElementValidator.js","./ReactInstanceHandles":"/home/akira/projects/fascia/node_modules/react/lib/ReactInstanceHandles.js","./ReactMount":"/home/akira/projects/fascia/node_modules/react/lib/ReactMount.js","./ReactPerf":"/home/akira/projects/fascia/node_modules/react/lib/ReactPerf.js","./ReactPropTypes":"/home/akira/projects/fascia/node_modules/react/lib/ReactPropTypes.js","./ReactReconciler":"/home/akira/projects/fascia/node_modules/react/lib/ReactReconciler.js","./ReactServerRendering":"/home/akira/projects/fascia/node_modules/react/lib/ReactServerRendering.js","./findDOMNode":"/home/akira/projects/fascia/node_modules/react/lib/findDOMNode.js","./onlyChild":"/home/akira/projects/fascia/node_modules/react/lib/onlyChild.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactBrowserComponentMixin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -4495,7 +4495,7 @@ var ReactBrowserComponentMixin = {
 
 module.exports = ReactBrowserComponentMixin;
 
-},{"./findDOMNode":"/vagrant/fascia/node_modules/react/lib/findDOMNode.js"}],"/vagrant/fascia/node_modules/react/lib/ReactBrowserEventEmitter.js":[function(require,module,exports){
+},{"./findDOMNode":"/home/akira/projects/fascia/node_modules/react/lib/findDOMNode.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactBrowserEventEmitter.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -4848,7 +4848,7 @@ var ReactBrowserEventEmitter = assign({}, ReactEventEmitterMixin, {
 
 module.exports = ReactBrowserEventEmitter;
 
-},{"./EventConstants":"/vagrant/fascia/node_modules/react/lib/EventConstants.js","./EventPluginHub":"/vagrant/fascia/node_modules/react/lib/EventPluginHub.js","./EventPluginRegistry":"/vagrant/fascia/node_modules/react/lib/EventPluginRegistry.js","./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./ReactEventEmitterMixin":"/vagrant/fascia/node_modules/react/lib/ReactEventEmitterMixin.js","./ViewportMetrics":"/vagrant/fascia/node_modules/react/lib/ViewportMetrics.js","./isEventSupported":"/vagrant/fascia/node_modules/react/lib/isEventSupported.js"}],"/vagrant/fascia/node_modules/react/lib/ReactChildReconciler.js":[function(require,module,exports){
+},{"./EventConstants":"/home/akira/projects/fascia/node_modules/react/lib/EventConstants.js","./EventPluginHub":"/home/akira/projects/fascia/node_modules/react/lib/EventPluginHub.js","./EventPluginRegistry":"/home/akira/projects/fascia/node_modules/react/lib/EventPluginRegistry.js","./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./ReactEventEmitterMixin":"/home/akira/projects/fascia/node_modules/react/lib/ReactEventEmitterMixin.js","./ViewportMetrics":"/home/akira/projects/fascia/node_modules/react/lib/ViewportMetrics.js","./isEventSupported":"/home/akira/projects/fascia/node_modules/react/lib/isEventSupported.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactChildReconciler.js":[function(require,module,exports){
 /**
  * Copyright 2014-2015, Facebook, Inc.
  * All rights reserved.
@@ -4975,7 +4975,7 @@ var ReactChildReconciler = {
 
 module.exports = ReactChildReconciler;
 
-},{"./ReactReconciler":"/vagrant/fascia/node_modules/react/lib/ReactReconciler.js","./flattenChildren":"/vagrant/fascia/node_modules/react/lib/flattenChildren.js","./instantiateReactComponent":"/vagrant/fascia/node_modules/react/lib/instantiateReactComponent.js","./shouldUpdateReactComponent":"/vagrant/fascia/node_modules/react/lib/shouldUpdateReactComponent.js"}],"/vagrant/fascia/node_modules/react/lib/ReactChildren.js":[function(require,module,exports){
+},{"./ReactReconciler":"/home/akira/projects/fascia/node_modules/react/lib/ReactReconciler.js","./flattenChildren":"/home/akira/projects/fascia/node_modules/react/lib/flattenChildren.js","./instantiateReactComponent":"/home/akira/projects/fascia/node_modules/react/lib/instantiateReactComponent.js","./shouldUpdateReactComponent":"/home/akira/projects/fascia/node_modules/react/lib/shouldUpdateReactComponent.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactChildren.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -5129,7 +5129,7 @@ module.exports = ReactChildren;
 
 }).call(this,require('_process'))
 
-},{"./PooledClass":"/vagrant/fascia/node_modules/react/lib/PooledClass.js","./ReactFragment":"/vagrant/fascia/node_modules/react/lib/ReactFragment.js","./traverseAllChildren":"/vagrant/fascia/node_modules/react/lib/traverseAllChildren.js","./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactClass.js":[function(require,module,exports){
+},{"./PooledClass":"/home/akira/projects/fascia/node_modules/react/lib/PooledClass.js","./ReactFragment":"/home/akira/projects/fascia/node_modules/react/lib/ReactFragment.js","./traverseAllChildren":"/home/akira/projects/fascia/node_modules/react/lib/traverseAllChildren.js","./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactClass.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -6076,7 +6076,7 @@ module.exports = ReactClass;
 
 }).call(this,require('_process'))
 
-},{"./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./ReactComponent":"/vagrant/fascia/node_modules/react/lib/ReactComponent.js","./ReactCurrentOwner":"/vagrant/fascia/node_modules/react/lib/ReactCurrentOwner.js","./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js","./ReactErrorUtils":"/vagrant/fascia/node_modules/react/lib/ReactErrorUtils.js","./ReactInstanceMap":"/vagrant/fascia/node_modules/react/lib/ReactInstanceMap.js","./ReactLifeCycle":"/vagrant/fascia/node_modules/react/lib/ReactLifeCycle.js","./ReactPropTypeLocationNames":"/vagrant/fascia/node_modules/react/lib/ReactPropTypeLocationNames.js","./ReactPropTypeLocations":"/vagrant/fascia/node_modules/react/lib/ReactPropTypeLocations.js","./ReactUpdateQueue":"/vagrant/fascia/node_modules/react/lib/ReactUpdateQueue.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","./keyMirror":"/vagrant/fascia/node_modules/react/lib/keyMirror.js","./keyOf":"/vagrant/fascia/node_modules/react/lib/keyOf.js","./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactComponent.js":[function(require,module,exports){
+},{"./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./ReactComponent":"/home/akira/projects/fascia/node_modules/react/lib/ReactComponent.js","./ReactCurrentOwner":"/home/akira/projects/fascia/node_modules/react/lib/ReactCurrentOwner.js","./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js","./ReactErrorUtils":"/home/akira/projects/fascia/node_modules/react/lib/ReactErrorUtils.js","./ReactInstanceMap":"/home/akira/projects/fascia/node_modules/react/lib/ReactInstanceMap.js","./ReactLifeCycle":"/home/akira/projects/fascia/node_modules/react/lib/ReactLifeCycle.js","./ReactPropTypeLocationNames":"/home/akira/projects/fascia/node_modules/react/lib/ReactPropTypeLocationNames.js","./ReactPropTypeLocations":"/home/akira/projects/fascia/node_modules/react/lib/ReactPropTypeLocations.js","./ReactUpdateQueue":"/home/akira/projects/fascia/node_modules/react/lib/ReactUpdateQueue.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","./keyMirror":"/home/akira/projects/fascia/node_modules/react/lib/keyMirror.js","./keyOf":"/home/akira/projects/fascia/node_modules/react/lib/keyOf.js","./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactComponent.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -6231,7 +6231,7 @@ module.exports = ReactComponent;
 
 }).call(this,require('_process'))
 
-},{"./ReactUpdateQueue":"/vagrant/fascia/node_modules/react/lib/ReactUpdateQueue.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactComponentBrowserEnvironment.js":[function(require,module,exports){
+},{"./ReactUpdateQueue":"/home/akira/projects/fascia/node_modules/react/lib/ReactUpdateQueue.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactComponentBrowserEnvironment.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -6278,7 +6278,7 @@ var ReactComponentBrowserEnvironment = {
 
 module.exports = ReactComponentBrowserEnvironment;
 
-},{"./ReactDOMIDOperations":"/vagrant/fascia/node_modules/react/lib/ReactDOMIDOperations.js","./ReactMount":"/vagrant/fascia/node_modules/react/lib/ReactMount.js"}],"/vagrant/fascia/node_modules/react/lib/ReactComponentEnvironment.js":[function(require,module,exports){
+},{"./ReactDOMIDOperations":"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMIDOperations.js","./ReactMount":"/home/akira/projects/fascia/node_modules/react/lib/ReactMount.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactComponentEnvironment.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -6340,7 +6340,7 @@ module.exports = ReactComponentEnvironment;
 
 }).call(this,require('_process'))
 
-},{"./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactCompositeComponent.js":[function(require,module,exports){
+},{"./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactCompositeComponent.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -7254,7 +7254,7 @@ module.exports = ReactCompositeComponent;
 
 }).call(this,require('_process'))
 
-},{"./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./ReactComponentEnvironment":"/vagrant/fascia/node_modules/react/lib/ReactComponentEnvironment.js","./ReactContext":"/vagrant/fascia/node_modules/react/lib/ReactContext.js","./ReactCurrentOwner":"/vagrant/fascia/node_modules/react/lib/ReactCurrentOwner.js","./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js","./ReactElementValidator":"/vagrant/fascia/node_modules/react/lib/ReactElementValidator.js","./ReactInstanceMap":"/vagrant/fascia/node_modules/react/lib/ReactInstanceMap.js","./ReactLifeCycle":"/vagrant/fascia/node_modules/react/lib/ReactLifeCycle.js","./ReactNativeComponent":"/vagrant/fascia/node_modules/react/lib/ReactNativeComponent.js","./ReactPerf":"/vagrant/fascia/node_modules/react/lib/ReactPerf.js","./ReactPropTypeLocationNames":"/vagrant/fascia/node_modules/react/lib/ReactPropTypeLocationNames.js","./ReactPropTypeLocations":"/vagrant/fascia/node_modules/react/lib/ReactPropTypeLocations.js","./ReactReconciler":"/vagrant/fascia/node_modules/react/lib/ReactReconciler.js","./ReactUpdates":"/vagrant/fascia/node_modules/react/lib/ReactUpdates.js","./emptyObject":"/vagrant/fascia/node_modules/react/lib/emptyObject.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","./shouldUpdateReactComponent":"/vagrant/fascia/node_modules/react/lib/shouldUpdateReactComponent.js","./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactContext.js":[function(require,module,exports){
+},{"./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./ReactComponentEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ReactComponentEnvironment.js","./ReactContext":"/home/akira/projects/fascia/node_modules/react/lib/ReactContext.js","./ReactCurrentOwner":"/home/akira/projects/fascia/node_modules/react/lib/ReactCurrentOwner.js","./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js","./ReactElementValidator":"/home/akira/projects/fascia/node_modules/react/lib/ReactElementValidator.js","./ReactInstanceMap":"/home/akira/projects/fascia/node_modules/react/lib/ReactInstanceMap.js","./ReactLifeCycle":"/home/akira/projects/fascia/node_modules/react/lib/ReactLifeCycle.js","./ReactNativeComponent":"/home/akira/projects/fascia/node_modules/react/lib/ReactNativeComponent.js","./ReactPerf":"/home/akira/projects/fascia/node_modules/react/lib/ReactPerf.js","./ReactPropTypeLocationNames":"/home/akira/projects/fascia/node_modules/react/lib/ReactPropTypeLocationNames.js","./ReactPropTypeLocations":"/home/akira/projects/fascia/node_modules/react/lib/ReactPropTypeLocations.js","./ReactReconciler":"/home/akira/projects/fascia/node_modules/react/lib/ReactReconciler.js","./ReactUpdates":"/home/akira/projects/fascia/node_modules/react/lib/ReactUpdates.js","./emptyObject":"/home/akira/projects/fascia/node_modules/react/lib/emptyObject.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","./shouldUpdateReactComponent":"/home/akira/projects/fascia/node_modules/react/lib/shouldUpdateReactComponent.js","./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactContext.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -7333,7 +7333,7 @@ module.exports = ReactContext;
 
 }).call(this,require('_process'))
 
-},{"./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./emptyObject":"/vagrant/fascia/node_modules/react/lib/emptyObject.js","./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactCurrentOwner.js":[function(require,module,exports){
+},{"./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./emptyObject":"/home/akira/projects/fascia/node_modules/react/lib/emptyObject.js","./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactCurrentOwner.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -7367,7 +7367,7 @@ var ReactCurrentOwner = {
 
 module.exports = ReactCurrentOwner;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/ReactDOM.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/ReactDOM.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -7547,7 +7547,7 @@ module.exports = ReactDOM;
 
 }).call(this,require('_process'))
 
-},{"./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js","./ReactElementValidator":"/vagrant/fascia/node_modules/react/lib/ReactElementValidator.js","./mapObject":"/vagrant/fascia/node_modules/react/lib/mapObject.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactDOMButton.js":[function(require,module,exports){
+},{"./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js","./ReactElementValidator":"/home/akira/projects/fascia/node_modules/react/lib/ReactElementValidator.js","./mapObject":"/home/akira/projects/fascia/node_modules/react/lib/mapObject.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMButton.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -7611,7 +7611,7 @@ var ReactDOMButton = ReactClass.createClass({
 
 module.exports = ReactDOMButton;
 
-},{"./AutoFocusMixin":"/vagrant/fascia/node_modules/react/lib/AutoFocusMixin.js","./ReactBrowserComponentMixin":"/vagrant/fascia/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactClass":"/vagrant/fascia/node_modules/react/lib/ReactClass.js","./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js","./keyMirror":"/vagrant/fascia/node_modules/react/lib/keyMirror.js"}],"/vagrant/fascia/node_modules/react/lib/ReactDOMComponent.js":[function(require,module,exports){
+},{"./AutoFocusMixin":"/home/akira/projects/fascia/node_modules/react/lib/AutoFocusMixin.js","./ReactBrowserComponentMixin":"/home/akira/projects/fascia/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactClass":"/home/akira/projects/fascia/node_modules/react/lib/ReactClass.js","./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js","./keyMirror":"/home/akira/projects/fascia/node_modules/react/lib/keyMirror.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMComponent.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -8122,7 +8122,7 @@ module.exports = ReactDOMComponent;
 
 }).call(this,require('_process'))
 
-},{"./CSSPropertyOperations":"/vagrant/fascia/node_modules/react/lib/CSSPropertyOperations.js","./DOMProperty":"/vagrant/fascia/node_modules/react/lib/DOMProperty.js","./DOMPropertyOperations":"/vagrant/fascia/node_modules/react/lib/DOMPropertyOperations.js","./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./ReactBrowserEventEmitter":"/vagrant/fascia/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactComponentBrowserEnvironment":"/vagrant/fascia/node_modules/react/lib/ReactComponentBrowserEnvironment.js","./ReactMount":"/vagrant/fascia/node_modules/react/lib/ReactMount.js","./ReactMultiChild":"/vagrant/fascia/node_modules/react/lib/ReactMultiChild.js","./ReactPerf":"/vagrant/fascia/node_modules/react/lib/ReactPerf.js","./escapeTextContentForBrowser":"/vagrant/fascia/node_modules/react/lib/escapeTextContentForBrowser.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","./isEventSupported":"/vagrant/fascia/node_modules/react/lib/isEventSupported.js","./keyOf":"/vagrant/fascia/node_modules/react/lib/keyOf.js","./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactDOMForm.js":[function(require,module,exports){
+},{"./CSSPropertyOperations":"/home/akira/projects/fascia/node_modules/react/lib/CSSPropertyOperations.js","./DOMProperty":"/home/akira/projects/fascia/node_modules/react/lib/DOMProperty.js","./DOMPropertyOperations":"/home/akira/projects/fascia/node_modules/react/lib/DOMPropertyOperations.js","./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./ReactBrowserEventEmitter":"/home/akira/projects/fascia/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactComponentBrowserEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ReactComponentBrowserEnvironment.js","./ReactMount":"/home/akira/projects/fascia/node_modules/react/lib/ReactMount.js","./ReactMultiChild":"/home/akira/projects/fascia/node_modules/react/lib/ReactMultiChild.js","./ReactPerf":"/home/akira/projects/fascia/node_modules/react/lib/ReactPerf.js","./escapeTextContentForBrowser":"/home/akira/projects/fascia/node_modules/react/lib/escapeTextContentForBrowser.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","./isEventSupported":"/home/akira/projects/fascia/node_modules/react/lib/isEventSupported.js","./keyOf":"/home/akira/projects/fascia/node_modules/react/lib/keyOf.js","./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMForm.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -8171,7 +8171,7 @@ var ReactDOMForm = ReactClass.createClass({
 
 module.exports = ReactDOMForm;
 
-},{"./EventConstants":"/vagrant/fascia/node_modules/react/lib/EventConstants.js","./LocalEventTrapMixin":"/vagrant/fascia/node_modules/react/lib/LocalEventTrapMixin.js","./ReactBrowserComponentMixin":"/vagrant/fascia/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactClass":"/vagrant/fascia/node_modules/react/lib/ReactClass.js","./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js"}],"/vagrant/fascia/node_modules/react/lib/ReactDOMIDOperations.js":[function(require,module,exports){
+},{"./EventConstants":"/home/akira/projects/fascia/node_modules/react/lib/EventConstants.js","./LocalEventTrapMixin":"/home/akira/projects/fascia/node_modules/react/lib/LocalEventTrapMixin.js","./ReactBrowserComponentMixin":"/home/akira/projects/fascia/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactClass":"/home/akira/projects/fascia/node_modules/react/lib/ReactClass.js","./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMIDOperations.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -8340,7 +8340,7 @@ module.exports = ReactDOMIDOperations;
 
 }).call(this,require('_process'))
 
-},{"./CSSPropertyOperations":"/vagrant/fascia/node_modules/react/lib/CSSPropertyOperations.js","./DOMChildrenOperations":"/vagrant/fascia/node_modules/react/lib/DOMChildrenOperations.js","./DOMPropertyOperations":"/vagrant/fascia/node_modules/react/lib/DOMPropertyOperations.js","./ReactMount":"/vagrant/fascia/node_modules/react/lib/ReactMount.js","./ReactPerf":"/vagrant/fascia/node_modules/react/lib/ReactPerf.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","./setInnerHTML":"/vagrant/fascia/node_modules/react/lib/setInnerHTML.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactDOMIframe.js":[function(require,module,exports){
+},{"./CSSPropertyOperations":"/home/akira/projects/fascia/node_modules/react/lib/CSSPropertyOperations.js","./DOMChildrenOperations":"/home/akira/projects/fascia/node_modules/react/lib/DOMChildrenOperations.js","./DOMPropertyOperations":"/home/akira/projects/fascia/node_modules/react/lib/DOMPropertyOperations.js","./ReactMount":"/home/akira/projects/fascia/node_modules/react/lib/ReactMount.js","./ReactPerf":"/home/akira/projects/fascia/node_modules/react/lib/ReactPerf.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","./setInnerHTML":"/home/akira/projects/fascia/node_modules/react/lib/setInnerHTML.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMIframe.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -8385,7 +8385,7 @@ var ReactDOMIframe = ReactClass.createClass({
 
 module.exports = ReactDOMIframe;
 
-},{"./EventConstants":"/vagrant/fascia/node_modules/react/lib/EventConstants.js","./LocalEventTrapMixin":"/vagrant/fascia/node_modules/react/lib/LocalEventTrapMixin.js","./ReactBrowserComponentMixin":"/vagrant/fascia/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactClass":"/vagrant/fascia/node_modules/react/lib/ReactClass.js","./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js"}],"/vagrant/fascia/node_modules/react/lib/ReactDOMImg.js":[function(require,module,exports){
+},{"./EventConstants":"/home/akira/projects/fascia/node_modules/react/lib/EventConstants.js","./LocalEventTrapMixin":"/home/akira/projects/fascia/node_modules/react/lib/LocalEventTrapMixin.js","./ReactBrowserComponentMixin":"/home/akira/projects/fascia/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactClass":"/home/akira/projects/fascia/node_modules/react/lib/ReactClass.js","./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMImg.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -8431,7 +8431,7 @@ var ReactDOMImg = ReactClass.createClass({
 
 module.exports = ReactDOMImg;
 
-},{"./EventConstants":"/vagrant/fascia/node_modules/react/lib/EventConstants.js","./LocalEventTrapMixin":"/vagrant/fascia/node_modules/react/lib/LocalEventTrapMixin.js","./ReactBrowserComponentMixin":"/vagrant/fascia/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactClass":"/vagrant/fascia/node_modules/react/lib/ReactClass.js","./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js"}],"/vagrant/fascia/node_modules/react/lib/ReactDOMInput.js":[function(require,module,exports){
+},{"./EventConstants":"/home/akira/projects/fascia/node_modules/react/lib/EventConstants.js","./LocalEventTrapMixin":"/home/akira/projects/fascia/node_modules/react/lib/LocalEventTrapMixin.js","./ReactBrowserComponentMixin":"/home/akira/projects/fascia/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactClass":"/home/akira/projects/fascia/node_modules/react/lib/ReactClass.js","./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMInput.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -8609,7 +8609,7 @@ module.exports = ReactDOMInput;
 
 }).call(this,require('_process'))
 
-},{"./AutoFocusMixin":"/vagrant/fascia/node_modules/react/lib/AutoFocusMixin.js","./DOMPropertyOperations":"/vagrant/fascia/node_modules/react/lib/DOMPropertyOperations.js","./LinkedValueUtils":"/vagrant/fascia/node_modules/react/lib/LinkedValueUtils.js","./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./ReactBrowserComponentMixin":"/vagrant/fascia/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactClass":"/vagrant/fascia/node_modules/react/lib/ReactClass.js","./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js","./ReactMount":"/vagrant/fascia/node_modules/react/lib/ReactMount.js","./ReactUpdates":"/vagrant/fascia/node_modules/react/lib/ReactUpdates.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactDOMOption.js":[function(require,module,exports){
+},{"./AutoFocusMixin":"/home/akira/projects/fascia/node_modules/react/lib/AutoFocusMixin.js","./DOMPropertyOperations":"/home/akira/projects/fascia/node_modules/react/lib/DOMPropertyOperations.js","./LinkedValueUtils":"/home/akira/projects/fascia/node_modules/react/lib/LinkedValueUtils.js","./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./ReactBrowserComponentMixin":"/home/akira/projects/fascia/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactClass":"/home/akira/projects/fascia/node_modules/react/lib/ReactClass.js","./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js","./ReactMount":"/home/akira/projects/fascia/node_modules/react/lib/ReactMount.js","./ReactUpdates":"/home/akira/projects/fascia/node_modules/react/lib/ReactUpdates.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMOption.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -8662,7 +8662,7 @@ module.exports = ReactDOMOption;
 
 }).call(this,require('_process'))
 
-},{"./ReactBrowserComponentMixin":"/vagrant/fascia/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactClass":"/vagrant/fascia/node_modules/react/lib/ReactClass.js","./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js","./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactDOMSelect.js":[function(require,module,exports){
+},{"./ReactBrowserComponentMixin":"/home/akira/projects/fascia/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactClass":"/home/akira/projects/fascia/node_modules/react/lib/ReactClass.js","./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js","./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMSelect.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -8840,7 +8840,7 @@ var ReactDOMSelect = ReactClass.createClass({
 
 module.exports = ReactDOMSelect;
 
-},{"./AutoFocusMixin":"/vagrant/fascia/node_modules/react/lib/AutoFocusMixin.js","./LinkedValueUtils":"/vagrant/fascia/node_modules/react/lib/LinkedValueUtils.js","./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./ReactBrowserComponentMixin":"/vagrant/fascia/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactClass":"/vagrant/fascia/node_modules/react/lib/ReactClass.js","./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js","./ReactUpdates":"/vagrant/fascia/node_modules/react/lib/ReactUpdates.js"}],"/vagrant/fascia/node_modules/react/lib/ReactDOMSelection.js":[function(require,module,exports){
+},{"./AutoFocusMixin":"/home/akira/projects/fascia/node_modules/react/lib/AutoFocusMixin.js","./LinkedValueUtils":"/home/akira/projects/fascia/node_modules/react/lib/LinkedValueUtils.js","./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./ReactBrowserComponentMixin":"/home/akira/projects/fascia/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactClass":"/home/akira/projects/fascia/node_modules/react/lib/ReactClass.js","./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js","./ReactUpdates":"/home/akira/projects/fascia/node_modules/react/lib/ReactUpdates.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMSelection.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -9053,7 +9053,7 @@ var ReactDOMSelection = {
 
 module.exports = ReactDOMSelection;
 
-},{"./ExecutionEnvironment":"/vagrant/fascia/node_modules/react/lib/ExecutionEnvironment.js","./getNodeForCharacterOffset":"/vagrant/fascia/node_modules/react/lib/getNodeForCharacterOffset.js","./getTextContentAccessor":"/vagrant/fascia/node_modules/react/lib/getTextContentAccessor.js"}],"/vagrant/fascia/node_modules/react/lib/ReactDOMTextComponent.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ExecutionEnvironment.js","./getNodeForCharacterOffset":"/home/akira/projects/fascia/node_modules/react/lib/getNodeForCharacterOffset.js","./getTextContentAccessor":"/home/akira/projects/fascia/node_modules/react/lib/getTextContentAccessor.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMTextComponent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -9170,7 +9170,7 @@ assign(ReactDOMTextComponent.prototype, {
 
 module.exports = ReactDOMTextComponent;
 
-},{"./DOMPropertyOperations":"/vagrant/fascia/node_modules/react/lib/DOMPropertyOperations.js","./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./ReactComponentBrowserEnvironment":"/vagrant/fascia/node_modules/react/lib/ReactComponentBrowserEnvironment.js","./ReactDOMComponent":"/vagrant/fascia/node_modules/react/lib/ReactDOMComponent.js","./escapeTextContentForBrowser":"/vagrant/fascia/node_modules/react/lib/escapeTextContentForBrowser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactDOMTextarea.js":[function(require,module,exports){
+},{"./DOMPropertyOperations":"/home/akira/projects/fascia/node_modules/react/lib/DOMPropertyOperations.js","./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./ReactComponentBrowserEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ReactComponentBrowserEnvironment.js","./ReactDOMComponent":"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMComponent.js","./escapeTextContentForBrowser":"/home/akira/projects/fascia/node_modules/react/lib/escapeTextContentForBrowser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMTextarea.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -9311,7 +9311,7 @@ module.exports = ReactDOMTextarea;
 
 }).call(this,require('_process'))
 
-},{"./AutoFocusMixin":"/vagrant/fascia/node_modules/react/lib/AutoFocusMixin.js","./DOMPropertyOperations":"/vagrant/fascia/node_modules/react/lib/DOMPropertyOperations.js","./LinkedValueUtils":"/vagrant/fascia/node_modules/react/lib/LinkedValueUtils.js","./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./ReactBrowserComponentMixin":"/vagrant/fascia/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactClass":"/vagrant/fascia/node_modules/react/lib/ReactClass.js","./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js","./ReactUpdates":"/vagrant/fascia/node_modules/react/lib/ReactUpdates.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactDefaultBatchingStrategy.js":[function(require,module,exports){
+},{"./AutoFocusMixin":"/home/akira/projects/fascia/node_modules/react/lib/AutoFocusMixin.js","./DOMPropertyOperations":"/home/akira/projects/fascia/node_modules/react/lib/DOMPropertyOperations.js","./LinkedValueUtils":"/home/akira/projects/fascia/node_modules/react/lib/LinkedValueUtils.js","./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./ReactBrowserComponentMixin":"/home/akira/projects/fascia/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactClass":"/home/akira/projects/fascia/node_modules/react/lib/ReactClass.js","./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js","./ReactUpdates":"/home/akira/projects/fascia/node_modules/react/lib/ReactUpdates.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactDefaultBatchingStrategy.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -9384,7 +9384,7 @@ var ReactDefaultBatchingStrategy = {
 
 module.exports = ReactDefaultBatchingStrategy;
 
-},{"./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./ReactUpdates":"/vagrant/fascia/node_modules/react/lib/ReactUpdates.js","./Transaction":"/vagrant/fascia/node_modules/react/lib/Transaction.js","./emptyFunction":"/vagrant/fascia/node_modules/react/lib/emptyFunction.js"}],"/vagrant/fascia/node_modules/react/lib/ReactDefaultInjection.js":[function(require,module,exports){
+},{"./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./ReactUpdates":"/home/akira/projects/fascia/node_modules/react/lib/ReactUpdates.js","./Transaction":"/home/akira/projects/fascia/node_modules/react/lib/Transaction.js","./emptyFunction":"/home/akira/projects/fascia/node_modules/react/lib/emptyFunction.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactDefaultInjection.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -9544,7 +9544,7 @@ module.exports = {
 
 }).call(this,require('_process'))
 
-},{"./BeforeInputEventPlugin":"/vagrant/fascia/node_modules/react/lib/BeforeInputEventPlugin.js","./ChangeEventPlugin":"/vagrant/fascia/node_modules/react/lib/ChangeEventPlugin.js","./ClientReactRootIndex":"/vagrant/fascia/node_modules/react/lib/ClientReactRootIndex.js","./DefaultEventPluginOrder":"/vagrant/fascia/node_modules/react/lib/DefaultEventPluginOrder.js","./EnterLeaveEventPlugin":"/vagrant/fascia/node_modules/react/lib/EnterLeaveEventPlugin.js","./ExecutionEnvironment":"/vagrant/fascia/node_modules/react/lib/ExecutionEnvironment.js","./HTMLDOMPropertyConfig":"/vagrant/fascia/node_modules/react/lib/HTMLDOMPropertyConfig.js","./MobileSafariClickEventPlugin":"/vagrant/fascia/node_modules/react/lib/MobileSafariClickEventPlugin.js","./ReactBrowserComponentMixin":"/vagrant/fascia/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactClass":"/vagrant/fascia/node_modules/react/lib/ReactClass.js","./ReactComponentBrowserEnvironment":"/vagrant/fascia/node_modules/react/lib/ReactComponentBrowserEnvironment.js","./ReactDOMButton":"/vagrant/fascia/node_modules/react/lib/ReactDOMButton.js","./ReactDOMComponent":"/vagrant/fascia/node_modules/react/lib/ReactDOMComponent.js","./ReactDOMForm":"/vagrant/fascia/node_modules/react/lib/ReactDOMForm.js","./ReactDOMIDOperations":"/vagrant/fascia/node_modules/react/lib/ReactDOMIDOperations.js","./ReactDOMIframe":"/vagrant/fascia/node_modules/react/lib/ReactDOMIframe.js","./ReactDOMImg":"/vagrant/fascia/node_modules/react/lib/ReactDOMImg.js","./ReactDOMInput":"/vagrant/fascia/node_modules/react/lib/ReactDOMInput.js","./ReactDOMOption":"/vagrant/fascia/node_modules/react/lib/ReactDOMOption.js","./ReactDOMSelect":"/vagrant/fascia/node_modules/react/lib/ReactDOMSelect.js","./ReactDOMTextComponent":"/vagrant/fascia/node_modules/react/lib/ReactDOMTextComponent.js","./ReactDOMTextarea":"/vagrant/fascia/node_modules/react/lib/ReactDOMTextarea.js","./ReactDefaultBatchingStrategy":"/vagrant/fascia/node_modules/react/lib/ReactDefaultBatchingStrategy.js","./ReactDefaultPerf":"/vagrant/fascia/node_modules/react/lib/ReactDefaultPerf.js","./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js","./ReactEventListener":"/vagrant/fascia/node_modules/react/lib/ReactEventListener.js","./ReactInjection":"/vagrant/fascia/node_modules/react/lib/ReactInjection.js","./ReactInstanceHandles":"/vagrant/fascia/node_modules/react/lib/ReactInstanceHandles.js","./ReactMount":"/vagrant/fascia/node_modules/react/lib/ReactMount.js","./ReactReconcileTransaction":"/vagrant/fascia/node_modules/react/lib/ReactReconcileTransaction.js","./SVGDOMPropertyConfig":"/vagrant/fascia/node_modules/react/lib/SVGDOMPropertyConfig.js","./SelectEventPlugin":"/vagrant/fascia/node_modules/react/lib/SelectEventPlugin.js","./ServerReactRootIndex":"/vagrant/fascia/node_modules/react/lib/ServerReactRootIndex.js","./SimpleEventPlugin":"/vagrant/fascia/node_modules/react/lib/SimpleEventPlugin.js","./createFullPageComponent":"/vagrant/fascia/node_modules/react/lib/createFullPageComponent.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactDefaultPerf.js":[function(require,module,exports){
+},{"./BeforeInputEventPlugin":"/home/akira/projects/fascia/node_modules/react/lib/BeforeInputEventPlugin.js","./ChangeEventPlugin":"/home/akira/projects/fascia/node_modules/react/lib/ChangeEventPlugin.js","./ClientReactRootIndex":"/home/akira/projects/fascia/node_modules/react/lib/ClientReactRootIndex.js","./DefaultEventPluginOrder":"/home/akira/projects/fascia/node_modules/react/lib/DefaultEventPluginOrder.js","./EnterLeaveEventPlugin":"/home/akira/projects/fascia/node_modules/react/lib/EnterLeaveEventPlugin.js","./ExecutionEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ExecutionEnvironment.js","./HTMLDOMPropertyConfig":"/home/akira/projects/fascia/node_modules/react/lib/HTMLDOMPropertyConfig.js","./MobileSafariClickEventPlugin":"/home/akira/projects/fascia/node_modules/react/lib/MobileSafariClickEventPlugin.js","./ReactBrowserComponentMixin":"/home/akira/projects/fascia/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactClass":"/home/akira/projects/fascia/node_modules/react/lib/ReactClass.js","./ReactComponentBrowserEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ReactComponentBrowserEnvironment.js","./ReactDOMButton":"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMButton.js","./ReactDOMComponent":"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMComponent.js","./ReactDOMForm":"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMForm.js","./ReactDOMIDOperations":"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMIDOperations.js","./ReactDOMIframe":"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMIframe.js","./ReactDOMImg":"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMImg.js","./ReactDOMInput":"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMInput.js","./ReactDOMOption":"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMOption.js","./ReactDOMSelect":"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMSelect.js","./ReactDOMTextComponent":"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMTextComponent.js","./ReactDOMTextarea":"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMTextarea.js","./ReactDefaultBatchingStrategy":"/home/akira/projects/fascia/node_modules/react/lib/ReactDefaultBatchingStrategy.js","./ReactDefaultPerf":"/home/akira/projects/fascia/node_modules/react/lib/ReactDefaultPerf.js","./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js","./ReactEventListener":"/home/akira/projects/fascia/node_modules/react/lib/ReactEventListener.js","./ReactInjection":"/home/akira/projects/fascia/node_modules/react/lib/ReactInjection.js","./ReactInstanceHandles":"/home/akira/projects/fascia/node_modules/react/lib/ReactInstanceHandles.js","./ReactMount":"/home/akira/projects/fascia/node_modules/react/lib/ReactMount.js","./ReactReconcileTransaction":"/home/akira/projects/fascia/node_modules/react/lib/ReactReconcileTransaction.js","./SVGDOMPropertyConfig":"/home/akira/projects/fascia/node_modules/react/lib/SVGDOMPropertyConfig.js","./SelectEventPlugin":"/home/akira/projects/fascia/node_modules/react/lib/SelectEventPlugin.js","./ServerReactRootIndex":"/home/akira/projects/fascia/node_modules/react/lib/ServerReactRootIndex.js","./SimpleEventPlugin":"/home/akira/projects/fascia/node_modules/react/lib/SimpleEventPlugin.js","./createFullPageComponent":"/home/akira/projects/fascia/node_modules/react/lib/createFullPageComponent.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactDefaultPerf.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -9810,7 +9810,7 @@ var ReactDefaultPerf = {
 
 module.exports = ReactDefaultPerf;
 
-},{"./DOMProperty":"/vagrant/fascia/node_modules/react/lib/DOMProperty.js","./ReactDefaultPerfAnalysis":"/vagrant/fascia/node_modules/react/lib/ReactDefaultPerfAnalysis.js","./ReactMount":"/vagrant/fascia/node_modules/react/lib/ReactMount.js","./ReactPerf":"/vagrant/fascia/node_modules/react/lib/ReactPerf.js","./performanceNow":"/vagrant/fascia/node_modules/react/lib/performanceNow.js"}],"/vagrant/fascia/node_modules/react/lib/ReactDefaultPerfAnalysis.js":[function(require,module,exports){
+},{"./DOMProperty":"/home/akira/projects/fascia/node_modules/react/lib/DOMProperty.js","./ReactDefaultPerfAnalysis":"/home/akira/projects/fascia/node_modules/react/lib/ReactDefaultPerfAnalysis.js","./ReactMount":"/home/akira/projects/fascia/node_modules/react/lib/ReactMount.js","./ReactPerf":"/home/akira/projects/fascia/node_modules/react/lib/ReactPerf.js","./performanceNow":"/home/akira/projects/fascia/node_modules/react/lib/performanceNow.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactDefaultPerfAnalysis.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -10016,7 +10016,7 @@ var ReactDefaultPerfAnalysis = {
 
 module.exports = ReactDefaultPerfAnalysis;
 
-},{"./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js"}],"/vagrant/fascia/node_modules/react/lib/ReactElement.js":[function(require,module,exports){
+},{"./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -10325,7 +10325,7 @@ module.exports = ReactElement;
 
 }).call(this,require('_process'))
 
-},{"./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./ReactContext":"/vagrant/fascia/node_modules/react/lib/ReactContext.js","./ReactCurrentOwner":"/vagrant/fascia/node_modules/react/lib/ReactCurrentOwner.js","./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactElementValidator.js":[function(require,module,exports){
+},{"./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./ReactContext":"/home/akira/projects/fascia/node_modules/react/lib/ReactContext.js","./ReactCurrentOwner":"/home/akira/projects/fascia/node_modules/react/lib/ReactCurrentOwner.js","./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactElementValidator.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -10791,7 +10791,7 @@ module.exports = ReactElementValidator;
 
 }).call(this,require('_process'))
 
-},{"./ReactCurrentOwner":"/vagrant/fascia/node_modules/react/lib/ReactCurrentOwner.js","./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js","./ReactFragment":"/vagrant/fascia/node_modules/react/lib/ReactFragment.js","./ReactNativeComponent":"/vagrant/fascia/node_modules/react/lib/ReactNativeComponent.js","./ReactPropTypeLocationNames":"/vagrant/fascia/node_modules/react/lib/ReactPropTypeLocationNames.js","./ReactPropTypeLocations":"/vagrant/fascia/node_modules/react/lib/ReactPropTypeLocations.js","./getIteratorFn":"/vagrant/fascia/node_modules/react/lib/getIteratorFn.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactEmptyComponent.js":[function(require,module,exports){
+},{"./ReactCurrentOwner":"/home/akira/projects/fascia/node_modules/react/lib/ReactCurrentOwner.js","./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js","./ReactFragment":"/home/akira/projects/fascia/node_modules/react/lib/ReactFragment.js","./ReactNativeComponent":"/home/akira/projects/fascia/node_modules/react/lib/ReactNativeComponent.js","./ReactPropTypeLocationNames":"/home/akira/projects/fascia/node_modules/react/lib/ReactPropTypeLocationNames.js","./ReactPropTypeLocations":"/home/akira/projects/fascia/node_modules/react/lib/ReactPropTypeLocations.js","./getIteratorFn":"/home/akira/projects/fascia/node_modules/react/lib/getIteratorFn.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactEmptyComponent.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -10887,7 +10887,7 @@ module.exports = ReactEmptyComponent;
 
 }).call(this,require('_process'))
 
-},{"./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js","./ReactInstanceMap":"/vagrant/fascia/node_modules/react/lib/ReactInstanceMap.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactErrorUtils.js":[function(require,module,exports){
+},{"./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js","./ReactInstanceMap":"/home/akira/projects/fascia/node_modules/react/lib/ReactInstanceMap.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactErrorUtils.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -10919,7 +10919,7 @@ var ReactErrorUtils = {
 
 module.exports = ReactErrorUtils;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/ReactEventEmitterMixin.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/ReactEventEmitterMixin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -10969,7 +10969,7 @@ var ReactEventEmitterMixin = {
 
 module.exports = ReactEventEmitterMixin;
 
-},{"./EventPluginHub":"/vagrant/fascia/node_modules/react/lib/EventPluginHub.js"}],"/vagrant/fascia/node_modules/react/lib/ReactEventListener.js":[function(require,module,exports){
+},{"./EventPluginHub":"/home/akira/projects/fascia/node_modules/react/lib/EventPluginHub.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactEventListener.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -11152,7 +11152,7 @@ var ReactEventListener = {
 
 module.exports = ReactEventListener;
 
-},{"./EventListener":"/vagrant/fascia/node_modules/react/lib/EventListener.js","./ExecutionEnvironment":"/vagrant/fascia/node_modules/react/lib/ExecutionEnvironment.js","./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./PooledClass":"/vagrant/fascia/node_modules/react/lib/PooledClass.js","./ReactInstanceHandles":"/vagrant/fascia/node_modules/react/lib/ReactInstanceHandles.js","./ReactMount":"/vagrant/fascia/node_modules/react/lib/ReactMount.js","./ReactUpdates":"/vagrant/fascia/node_modules/react/lib/ReactUpdates.js","./getEventTarget":"/vagrant/fascia/node_modules/react/lib/getEventTarget.js","./getUnboundedScrollPosition":"/vagrant/fascia/node_modules/react/lib/getUnboundedScrollPosition.js"}],"/vagrant/fascia/node_modules/react/lib/ReactFragment.js":[function(require,module,exports){
+},{"./EventListener":"/home/akira/projects/fascia/node_modules/react/lib/EventListener.js","./ExecutionEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ExecutionEnvironment.js","./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./PooledClass":"/home/akira/projects/fascia/node_modules/react/lib/PooledClass.js","./ReactInstanceHandles":"/home/akira/projects/fascia/node_modules/react/lib/ReactInstanceHandles.js","./ReactMount":"/home/akira/projects/fascia/node_modules/react/lib/ReactMount.js","./ReactUpdates":"/home/akira/projects/fascia/node_modules/react/lib/ReactUpdates.js","./getEventTarget":"/home/akira/projects/fascia/node_modules/react/lib/getEventTarget.js","./getUnboundedScrollPosition":"/home/akira/projects/fascia/node_modules/react/lib/getUnboundedScrollPosition.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactFragment.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2015, Facebook, Inc.
@@ -11338,7 +11338,7 @@ module.exports = ReactFragment;
 
 }).call(this,require('_process'))
 
-},{"./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js","./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactInjection.js":[function(require,module,exports){
+},{"./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js","./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactInjection.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -11380,7 +11380,7 @@ var ReactInjection = {
 
 module.exports = ReactInjection;
 
-},{"./DOMProperty":"/vagrant/fascia/node_modules/react/lib/DOMProperty.js","./EventPluginHub":"/vagrant/fascia/node_modules/react/lib/EventPluginHub.js","./ReactBrowserEventEmitter":"/vagrant/fascia/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactClass":"/vagrant/fascia/node_modules/react/lib/ReactClass.js","./ReactComponentEnvironment":"/vagrant/fascia/node_modules/react/lib/ReactComponentEnvironment.js","./ReactDOMComponent":"/vagrant/fascia/node_modules/react/lib/ReactDOMComponent.js","./ReactEmptyComponent":"/vagrant/fascia/node_modules/react/lib/ReactEmptyComponent.js","./ReactNativeComponent":"/vagrant/fascia/node_modules/react/lib/ReactNativeComponent.js","./ReactPerf":"/vagrant/fascia/node_modules/react/lib/ReactPerf.js","./ReactRootIndex":"/vagrant/fascia/node_modules/react/lib/ReactRootIndex.js","./ReactUpdates":"/vagrant/fascia/node_modules/react/lib/ReactUpdates.js"}],"/vagrant/fascia/node_modules/react/lib/ReactInputSelection.js":[function(require,module,exports){
+},{"./DOMProperty":"/home/akira/projects/fascia/node_modules/react/lib/DOMProperty.js","./EventPluginHub":"/home/akira/projects/fascia/node_modules/react/lib/EventPluginHub.js","./ReactBrowserEventEmitter":"/home/akira/projects/fascia/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactClass":"/home/akira/projects/fascia/node_modules/react/lib/ReactClass.js","./ReactComponentEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ReactComponentEnvironment.js","./ReactDOMComponent":"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMComponent.js","./ReactEmptyComponent":"/home/akira/projects/fascia/node_modules/react/lib/ReactEmptyComponent.js","./ReactNativeComponent":"/home/akira/projects/fascia/node_modules/react/lib/ReactNativeComponent.js","./ReactPerf":"/home/akira/projects/fascia/node_modules/react/lib/ReactPerf.js","./ReactRootIndex":"/home/akira/projects/fascia/node_modules/react/lib/ReactRootIndex.js","./ReactUpdates":"/home/akira/projects/fascia/node_modules/react/lib/ReactUpdates.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactInputSelection.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -11515,7 +11515,7 @@ var ReactInputSelection = {
 
 module.exports = ReactInputSelection;
 
-},{"./ReactDOMSelection":"/vagrant/fascia/node_modules/react/lib/ReactDOMSelection.js","./containsNode":"/vagrant/fascia/node_modules/react/lib/containsNode.js","./focusNode":"/vagrant/fascia/node_modules/react/lib/focusNode.js","./getActiveElement":"/vagrant/fascia/node_modules/react/lib/getActiveElement.js"}],"/vagrant/fascia/node_modules/react/lib/ReactInstanceHandles.js":[function(require,module,exports){
+},{"./ReactDOMSelection":"/home/akira/projects/fascia/node_modules/react/lib/ReactDOMSelection.js","./containsNode":"/home/akira/projects/fascia/node_modules/react/lib/containsNode.js","./focusNode":"/home/akira/projects/fascia/node_modules/react/lib/focusNode.js","./getActiveElement":"/home/akira/projects/fascia/node_modules/react/lib/getActiveElement.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactInstanceHandles.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -11852,7 +11852,7 @@ module.exports = ReactInstanceHandles;
 
 }).call(this,require('_process'))
 
-},{"./ReactRootIndex":"/vagrant/fascia/node_modules/react/lib/ReactRootIndex.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactInstanceMap.js":[function(require,module,exports){
+},{"./ReactRootIndex":"/home/akira/projects/fascia/node_modules/react/lib/ReactRootIndex.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactInstanceMap.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -11901,7 +11901,7 @@ var ReactInstanceMap = {
 
 module.exports = ReactInstanceMap;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/ReactLifeCycle.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/ReactLifeCycle.js":[function(require,module,exports){
 /**
  * Copyright 2015, Facebook, Inc.
  * All rights reserved.
@@ -11938,7 +11938,7 @@ var ReactLifeCycle = {
 
 module.exports = ReactLifeCycle;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/ReactMarkupChecksum.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/ReactMarkupChecksum.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -11986,7 +11986,7 @@ var ReactMarkupChecksum = {
 
 module.exports = ReactMarkupChecksum;
 
-},{"./adler32":"/vagrant/fascia/node_modules/react/lib/adler32.js"}],"/vagrant/fascia/node_modules/react/lib/ReactMount.js":[function(require,module,exports){
+},{"./adler32":"/home/akira/projects/fascia/node_modules/react/lib/adler32.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactMount.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -12878,7 +12878,7 @@ module.exports = ReactMount;
 
 }).call(this,require('_process'))
 
-},{"./DOMProperty":"/vagrant/fascia/node_modules/react/lib/DOMProperty.js","./ReactBrowserEventEmitter":"/vagrant/fascia/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactCurrentOwner":"/vagrant/fascia/node_modules/react/lib/ReactCurrentOwner.js","./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js","./ReactElementValidator":"/vagrant/fascia/node_modules/react/lib/ReactElementValidator.js","./ReactEmptyComponent":"/vagrant/fascia/node_modules/react/lib/ReactEmptyComponent.js","./ReactInstanceHandles":"/vagrant/fascia/node_modules/react/lib/ReactInstanceHandles.js","./ReactInstanceMap":"/vagrant/fascia/node_modules/react/lib/ReactInstanceMap.js","./ReactMarkupChecksum":"/vagrant/fascia/node_modules/react/lib/ReactMarkupChecksum.js","./ReactPerf":"/vagrant/fascia/node_modules/react/lib/ReactPerf.js","./ReactReconciler":"/vagrant/fascia/node_modules/react/lib/ReactReconciler.js","./ReactUpdateQueue":"/vagrant/fascia/node_modules/react/lib/ReactUpdateQueue.js","./ReactUpdates":"/vagrant/fascia/node_modules/react/lib/ReactUpdates.js","./containsNode":"/vagrant/fascia/node_modules/react/lib/containsNode.js","./emptyObject":"/vagrant/fascia/node_modules/react/lib/emptyObject.js","./getReactRootElementInContainer":"/vagrant/fascia/node_modules/react/lib/getReactRootElementInContainer.js","./instantiateReactComponent":"/vagrant/fascia/node_modules/react/lib/instantiateReactComponent.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","./setInnerHTML":"/vagrant/fascia/node_modules/react/lib/setInnerHTML.js","./shouldUpdateReactComponent":"/vagrant/fascia/node_modules/react/lib/shouldUpdateReactComponent.js","./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactMultiChild.js":[function(require,module,exports){
+},{"./DOMProperty":"/home/akira/projects/fascia/node_modules/react/lib/DOMProperty.js","./ReactBrowserEventEmitter":"/home/akira/projects/fascia/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactCurrentOwner":"/home/akira/projects/fascia/node_modules/react/lib/ReactCurrentOwner.js","./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js","./ReactElementValidator":"/home/akira/projects/fascia/node_modules/react/lib/ReactElementValidator.js","./ReactEmptyComponent":"/home/akira/projects/fascia/node_modules/react/lib/ReactEmptyComponent.js","./ReactInstanceHandles":"/home/akira/projects/fascia/node_modules/react/lib/ReactInstanceHandles.js","./ReactInstanceMap":"/home/akira/projects/fascia/node_modules/react/lib/ReactInstanceMap.js","./ReactMarkupChecksum":"/home/akira/projects/fascia/node_modules/react/lib/ReactMarkupChecksum.js","./ReactPerf":"/home/akira/projects/fascia/node_modules/react/lib/ReactPerf.js","./ReactReconciler":"/home/akira/projects/fascia/node_modules/react/lib/ReactReconciler.js","./ReactUpdateQueue":"/home/akira/projects/fascia/node_modules/react/lib/ReactUpdateQueue.js","./ReactUpdates":"/home/akira/projects/fascia/node_modules/react/lib/ReactUpdates.js","./containsNode":"/home/akira/projects/fascia/node_modules/react/lib/containsNode.js","./emptyObject":"/home/akira/projects/fascia/node_modules/react/lib/emptyObject.js","./getReactRootElementInContainer":"/home/akira/projects/fascia/node_modules/react/lib/getReactRootElementInContainer.js","./instantiateReactComponent":"/home/akira/projects/fascia/node_modules/react/lib/instantiateReactComponent.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","./setInnerHTML":"/home/akira/projects/fascia/node_modules/react/lib/setInnerHTML.js","./shouldUpdateReactComponent":"/home/akira/projects/fascia/node_modules/react/lib/shouldUpdateReactComponent.js","./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactMultiChild.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -13308,7 +13308,7 @@ var ReactMultiChild = {
 
 module.exports = ReactMultiChild;
 
-},{"./ReactChildReconciler":"/vagrant/fascia/node_modules/react/lib/ReactChildReconciler.js","./ReactComponentEnvironment":"/vagrant/fascia/node_modules/react/lib/ReactComponentEnvironment.js","./ReactMultiChildUpdateTypes":"/vagrant/fascia/node_modules/react/lib/ReactMultiChildUpdateTypes.js","./ReactReconciler":"/vagrant/fascia/node_modules/react/lib/ReactReconciler.js"}],"/vagrant/fascia/node_modules/react/lib/ReactMultiChildUpdateTypes.js":[function(require,module,exports){
+},{"./ReactChildReconciler":"/home/akira/projects/fascia/node_modules/react/lib/ReactChildReconciler.js","./ReactComponentEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ReactComponentEnvironment.js","./ReactMultiChildUpdateTypes":"/home/akira/projects/fascia/node_modules/react/lib/ReactMultiChildUpdateTypes.js","./ReactReconciler":"/home/akira/projects/fascia/node_modules/react/lib/ReactReconciler.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactMultiChildUpdateTypes.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -13341,7 +13341,7 @@ var ReactMultiChildUpdateTypes = keyMirror({
 
 module.exports = ReactMultiChildUpdateTypes;
 
-},{"./keyMirror":"/vagrant/fascia/node_modules/react/lib/keyMirror.js"}],"/vagrant/fascia/node_modules/react/lib/ReactNativeComponent.js":[function(require,module,exports){
+},{"./keyMirror":"/home/akira/projects/fascia/node_modules/react/lib/keyMirror.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactNativeComponent.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -13449,7 +13449,7 @@ module.exports = ReactNativeComponent;
 
 }).call(this,require('_process'))
 
-},{"./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactOwner.js":[function(require,module,exports){
+},{"./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactOwner.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -13562,7 +13562,7 @@ module.exports = ReactOwner;
 
 }).call(this,require('_process'))
 
-},{"./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactPerf.js":[function(require,module,exports){
+},{"./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactPerf.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -13667,7 +13667,7 @@ module.exports = ReactPerf;
 
 }).call(this,require('_process'))
 
-},{"_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactPropTypeLocationNames.js":[function(require,module,exports){
+},{"_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactPropTypeLocationNames.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -13696,7 +13696,7 @@ module.exports = ReactPropTypeLocationNames;
 
 }).call(this,require('_process'))
 
-},{"_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactPropTypeLocations.js":[function(require,module,exports){
+},{"_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactPropTypeLocations.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -13720,7 +13720,7 @@ var ReactPropTypeLocations = keyMirror({
 
 module.exports = ReactPropTypeLocations;
 
-},{"./keyMirror":"/vagrant/fascia/node_modules/react/lib/keyMirror.js"}],"/vagrant/fascia/node_modules/react/lib/ReactPropTypes.js":[function(require,module,exports){
+},{"./keyMirror":"/home/akira/projects/fascia/node_modules/react/lib/keyMirror.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactPropTypes.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -14069,7 +14069,7 @@ function getPreciseType(propValue) {
 
 module.exports = ReactPropTypes;
 
-},{"./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js","./ReactFragment":"/vagrant/fascia/node_modules/react/lib/ReactFragment.js","./ReactPropTypeLocationNames":"/vagrant/fascia/node_modules/react/lib/ReactPropTypeLocationNames.js","./emptyFunction":"/vagrant/fascia/node_modules/react/lib/emptyFunction.js"}],"/vagrant/fascia/node_modules/react/lib/ReactPutListenerQueue.js":[function(require,module,exports){
+},{"./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js","./ReactFragment":"/home/akira/projects/fascia/node_modules/react/lib/ReactFragment.js","./ReactPropTypeLocationNames":"/home/akira/projects/fascia/node_modules/react/lib/ReactPropTypeLocationNames.js","./emptyFunction":"/home/akira/projects/fascia/node_modules/react/lib/emptyFunction.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactPutListenerQueue.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -14125,7 +14125,7 @@ PooledClass.addPoolingTo(ReactPutListenerQueue);
 
 module.exports = ReactPutListenerQueue;
 
-},{"./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./PooledClass":"/vagrant/fascia/node_modules/react/lib/PooledClass.js","./ReactBrowserEventEmitter":"/vagrant/fascia/node_modules/react/lib/ReactBrowserEventEmitter.js"}],"/vagrant/fascia/node_modules/react/lib/ReactReconcileTransaction.js":[function(require,module,exports){
+},{"./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./PooledClass":"/home/akira/projects/fascia/node_modules/react/lib/PooledClass.js","./ReactBrowserEventEmitter":"/home/akira/projects/fascia/node_modules/react/lib/ReactBrowserEventEmitter.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactReconcileTransaction.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -14301,7 +14301,7 @@ PooledClass.addPoolingTo(ReactReconcileTransaction);
 
 module.exports = ReactReconcileTransaction;
 
-},{"./CallbackQueue":"/vagrant/fascia/node_modules/react/lib/CallbackQueue.js","./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./PooledClass":"/vagrant/fascia/node_modules/react/lib/PooledClass.js","./ReactBrowserEventEmitter":"/vagrant/fascia/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactInputSelection":"/vagrant/fascia/node_modules/react/lib/ReactInputSelection.js","./ReactPutListenerQueue":"/vagrant/fascia/node_modules/react/lib/ReactPutListenerQueue.js","./Transaction":"/vagrant/fascia/node_modules/react/lib/Transaction.js"}],"/vagrant/fascia/node_modules/react/lib/ReactReconciler.js":[function(require,module,exports){
+},{"./CallbackQueue":"/home/akira/projects/fascia/node_modules/react/lib/CallbackQueue.js","./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./PooledClass":"/home/akira/projects/fascia/node_modules/react/lib/PooledClass.js","./ReactBrowserEventEmitter":"/home/akira/projects/fascia/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactInputSelection":"/home/akira/projects/fascia/node_modules/react/lib/ReactInputSelection.js","./ReactPutListenerQueue":"/home/akira/projects/fascia/node_modules/react/lib/ReactPutListenerQueue.js","./Transaction":"/home/akira/projects/fascia/node_modules/react/lib/Transaction.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactReconciler.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -14426,7 +14426,7 @@ module.exports = ReactReconciler;
 
 }).call(this,require('_process'))
 
-},{"./ReactElementValidator":"/vagrant/fascia/node_modules/react/lib/ReactElementValidator.js","./ReactRef":"/vagrant/fascia/node_modules/react/lib/ReactRef.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactRef.js":[function(require,module,exports){
+},{"./ReactElementValidator":"/home/akira/projects/fascia/node_modules/react/lib/ReactElementValidator.js","./ReactRef":"/home/akira/projects/fascia/node_modules/react/lib/ReactRef.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactRef.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -14497,7 +14497,7 @@ ReactRef.detachRefs = function(instance, element) {
 
 module.exports = ReactRef;
 
-},{"./ReactOwner":"/vagrant/fascia/node_modules/react/lib/ReactOwner.js"}],"/vagrant/fascia/node_modules/react/lib/ReactRootIndex.js":[function(require,module,exports){
+},{"./ReactOwner":"/home/akira/projects/fascia/node_modules/react/lib/ReactOwner.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactRootIndex.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -14528,7 +14528,7 @@ var ReactRootIndex = {
 
 module.exports = ReactRootIndex;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/ReactServerRendering.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/ReactServerRendering.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -14611,7 +14611,7 @@ module.exports = {
 
 }).call(this,require('_process'))
 
-},{"./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js","./ReactInstanceHandles":"/vagrant/fascia/node_modules/react/lib/ReactInstanceHandles.js","./ReactMarkupChecksum":"/vagrant/fascia/node_modules/react/lib/ReactMarkupChecksum.js","./ReactServerRenderingTransaction":"/vagrant/fascia/node_modules/react/lib/ReactServerRenderingTransaction.js","./emptyObject":"/vagrant/fascia/node_modules/react/lib/emptyObject.js","./instantiateReactComponent":"/vagrant/fascia/node_modules/react/lib/instantiateReactComponent.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactServerRenderingTransaction.js":[function(require,module,exports){
+},{"./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js","./ReactInstanceHandles":"/home/akira/projects/fascia/node_modules/react/lib/ReactInstanceHandles.js","./ReactMarkupChecksum":"/home/akira/projects/fascia/node_modules/react/lib/ReactMarkupChecksum.js","./ReactServerRenderingTransaction":"/home/akira/projects/fascia/node_modules/react/lib/ReactServerRenderingTransaction.js","./emptyObject":"/home/akira/projects/fascia/node_modules/react/lib/emptyObject.js","./instantiateReactComponent":"/home/akira/projects/fascia/node_modules/react/lib/instantiateReactComponent.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactServerRenderingTransaction.js":[function(require,module,exports){
 /**
  * Copyright 2014-2015, Facebook, Inc.
  * All rights reserved.
@@ -14724,7 +14724,7 @@ PooledClass.addPoolingTo(ReactServerRenderingTransaction);
 
 module.exports = ReactServerRenderingTransaction;
 
-},{"./CallbackQueue":"/vagrant/fascia/node_modules/react/lib/CallbackQueue.js","./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./PooledClass":"/vagrant/fascia/node_modules/react/lib/PooledClass.js","./ReactPutListenerQueue":"/vagrant/fascia/node_modules/react/lib/ReactPutListenerQueue.js","./Transaction":"/vagrant/fascia/node_modules/react/lib/Transaction.js","./emptyFunction":"/vagrant/fascia/node_modules/react/lib/emptyFunction.js"}],"/vagrant/fascia/node_modules/react/lib/ReactUpdateQueue.js":[function(require,module,exports){
+},{"./CallbackQueue":"/home/akira/projects/fascia/node_modules/react/lib/CallbackQueue.js","./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./PooledClass":"/home/akira/projects/fascia/node_modules/react/lib/PooledClass.js","./ReactPutListenerQueue":"/home/akira/projects/fascia/node_modules/react/lib/ReactPutListenerQueue.js","./Transaction":"/home/akira/projects/fascia/node_modules/react/lib/Transaction.js","./emptyFunction":"/home/akira/projects/fascia/node_modules/react/lib/emptyFunction.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactUpdateQueue.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2015, Facebook, Inc.
@@ -15024,7 +15024,7 @@ module.exports = ReactUpdateQueue;
 
 }).call(this,require('_process'))
 
-},{"./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./ReactCurrentOwner":"/vagrant/fascia/node_modules/react/lib/ReactCurrentOwner.js","./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js","./ReactInstanceMap":"/vagrant/fascia/node_modules/react/lib/ReactInstanceMap.js","./ReactLifeCycle":"/vagrant/fascia/node_modules/react/lib/ReactLifeCycle.js","./ReactUpdates":"/vagrant/fascia/node_modules/react/lib/ReactUpdates.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ReactUpdates.js":[function(require,module,exports){
+},{"./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./ReactCurrentOwner":"/home/akira/projects/fascia/node_modules/react/lib/ReactCurrentOwner.js","./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js","./ReactInstanceMap":"/home/akira/projects/fascia/node_modules/react/lib/ReactInstanceMap.js","./ReactLifeCycle":"/home/akira/projects/fascia/node_modules/react/lib/ReactLifeCycle.js","./ReactUpdates":"/home/akira/projects/fascia/node_modules/react/lib/ReactUpdates.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ReactUpdates.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -15307,7 +15307,7 @@ module.exports = ReactUpdates;
 
 }).call(this,require('_process'))
 
-},{"./CallbackQueue":"/vagrant/fascia/node_modules/react/lib/CallbackQueue.js","./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./PooledClass":"/vagrant/fascia/node_modules/react/lib/PooledClass.js","./ReactCurrentOwner":"/vagrant/fascia/node_modules/react/lib/ReactCurrentOwner.js","./ReactPerf":"/vagrant/fascia/node_modules/react/lib/ReactPerf.js","./ReactReconciler":"/vagrant/fascia/node_modules/react/lib/ReactReconciler.js","./Transaction":"/vagrant/fascia/node_modules/react/lib/Transaction.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/SVGDOMPropertyConfig.js":[function(require,module,exports){
+},{"./CallbackQueue":"/home/akira/projects/fascia/node_modules/react/lib/CallbackQueue.js","./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./PooledClass":"/home/akira/projects/fascia/node_modules/react/lib/PooledClass.js","./ReactCurrentOwner":"/home/akira/projects/fascia/node_modules/react/lib/ReactCurrentOwner.js","./ReactPerf":"/home/akira/projects/fascia/node_modules/react/lib/ReactPerf.js","./ReactReconciler":"/home/akira/projects/fascia/node_modules/react/lib/ReactReconciler.js","./Transaction":"/home/akira/projects/fascia/node_modules/react/lib/Transaction.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/SVGDOMPropertyConfig.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -15401,7 +15401,7 @@ var SVGDOMPropertyConfig = {
 
 module.exports = SVGDOMPropertyConfig;
 
-},{"./DOMProperty":"/vagrant/fascia/node_modules/react/lib/DOMProperty.js"}],"/vagrant/fascia/node_modules/react/lib/SelectEventPlugin.js":[function(require,module,exports){
+},{"./DOMProperty":"/home/akira/projects/fascia/node_modules/react/lib/DOMProperty.js"}],"/home/akira/projects/fascia/node_modules/react/lib/SelectEventPlugin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -15596,7 +15596,7 @@ var SelectEventPlugin = {
 
 module.exports = SelectEventPlugin;
 
-},{"./EventConstants":"/vagrant/fascia/node_modules/react/lib/EventConstants.js","./EventPropagators":"/vagrant/fascia/node_modules/react/lib/EventPropagators.js","./ReactInputSelection":"/vagrant/fascia/node_modules/react/lib/ReactInputSelection.js","./SyntheticEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticEvent.js","./getActiveElement":"/vagrant/fascia/node_modules/react/lib/getActiveElement.js","./isTextInputElement":"/vagrant/fascia/node_modules/react/lib/isTextInputElement.js","./keyOf":"/vagrant/fascia/node_modules/react/lib/keyOf.js","./shallowEqual":"/vagrant/fascia/node_modules/react/lib/shallowEqual.js"}],"/vagrant/fascia/node_modules/react/lib/ServerReactRootIndex.js":[function(require,module,exports){
+},{"./EventConstants":"/home/akira/projects/fascia/node_modules/react/lib/EventConstants.js","./EventPropagators":"/home/akira/projects/fascia/node_modules/react/lib/EventPropagators.js","./ReactInputSelection":"/home/akira/projects/fascia/node_modules/react/lib/ReactInputSelection.js","./SyntheticEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticEvent.js","./getActiveElement":"/home/akira/projects/fascia/node_modules/react/lib/getActiveElement.js","./isTextInputElement":"/home/akira/projects/fascia/node_modules/react/lib/isTextInputElement.js","./keyOf":"/home/akira/projects/fascia/node_modules/react/lib/keyOf.js","./shallowEqual":"/home/akira/projects/fascia/node_modules/react/lib/shallowEqual.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ServerReactRootIndex.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -15627,7 +15627,7 @@ var ServerReactRootIndex = {
 
 module.exports = ServerReactRootIndex;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/SimpleEventPlugin.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/SimpleEventPlugin.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -16056,7 +16056,7 @@ module.exports = SimpleEventPlugin;
 
 }).call(this,require('_process'))
 
-},{"./EventConstants":"/vagrant/fascia/node_modules/react/lib/EventConstants.js","./EventPluginUtils":"/vagrant/fascia/node_modules/react/lib/EventPluginUtils.js","./EventPropagators":"/vagrant/fascia/node_modules/react/lib/EventPropagators.js","./SyntheticClipboardEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticClipboardEvent.js","./SyntheticDragEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticDragEvent.js","./SyntheticEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticEvent.js","./SyntheticFocusEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticFocusEvent.js","./SyntheticKeyboardEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticKeyboardEvent.js","./SyntheticMouseEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticMouseEvent.js","./SyntheticTouchEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticTouchEvent.js","./SyntheticUIEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticUIEvent.js","./SyntheticWheelEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticWheelEvent.js","./getEventCharCode":"/vagrant/fascia/node_modules/react/lib/getEventCharCode.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","./keyOf":"/vagrant/fascia/node_modules/react/lib/keyOf.js","./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/SyntheticClipboardEvent.js":[function(require,module,exports){
+},{"./EventConstants":"/home/akira/projects/fascia/node_modules/react/lib/EventConstants.js","./EventPluginUtils":"/home/akira/projects/fascia/node_modules/react/lib/EventPluginUtils.js","./EventPropagators":"/home/akira/projects/fascia/node_modules/react/lib/EventPropagators.js","./SyntheticClipboardEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticClipboardEvent.js","./SyntheticDragEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticDragEvent.js","./SyntheticEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticEvent.js","./SyntheticFocusEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticFocusEvent.js","./SyntheticKeyboardEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticKeyboardEvent.js","./SyntheticMouseEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticMouseEvent.js","./SyntheticTouchEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticTouchEvent.js","./SyntheticUIEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticUIEvent.js","./SyntheticWheelEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticWheelEvent.js","./getEventCharCode":"/home/akira/projects/fascia/node_modules/react/lib/getEventCharCode.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","./keyOf":"/home/akira/projects/fascia/node_modules/react/lib/keyOf.js","./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/SyntheticClipboardEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -16101,7 +16101,7 @@ SyntheticEvent.augmentClass(SyntheticClipboardEvent, ClipboardEventInterface);
 
 module.exports = SyntheticClipboardEvent;
 
-},{"./SyntheticEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticEvent.js"}],"/vagrant/fascia/node_modules/react/lib/SyntheticCompositionEvent.js":[function(require,module,exports){
+},{"./SyntheticEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticEvent.js"}],"/home/akira/projects/fascia/node_modules/react/lib/SyntheticCompositionEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -16146,7 +16146,7 @@ SyntheticEvent.augmentClass(
 
 module.exports = SyntheticCompositionEvent;
 
-},{"./SyntheticEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticEvent.js"}],"/vagrant/fascia/node_modules/react/lib/SyntheticDragEvent.js":[function(require,module,exports){
+},{"./SyntheticEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticEvent.js"}],"/home/akira/projects/fascia/node_modules/react/lib/SyntheticDragEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -16185,7 +16185,7 @@ SyntheticMouseEvent.augmentClass(SyntheticDragEvent, DragEventInterface);
 
 module.exports = SyntheticDragEvent;
 
-},{"./SyntheticMouseEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticMouseEvent.js"}],"/vagrant/fascia/node_modules/react/lib/SyntheticEvent.js":[function(require,module,exports){
+},{"./SyntheticMouseEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticMouseEvent.js"}],"/home/akira/projects/fascia/node_modules/react/lib/SyntheticEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -16351,7 +16351,7 @@ PooledClass.addPoolingTo(SyntheticEvent, PooledClass.threeArgumentPooler);
 
 module.exports = SyntheticEvent;
 
-},{"./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./PooledClass":"/vagrant/fascia/node_modules/react/lib/PooledClass.js","./emptyFunction":"/vagrant/fascia/node_modules/react/lib/emptyFunction.js","./getEventTarget":"/vagrant/fascia/node_modules/react/lib/getEventTarget.js"}],"/vagrant/fascia/node_modules/react/lib/SyntheticFocusEvent.js":[function(require,module,exports){
+},{"./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./PooledClass":"/home/akira/projects/fascia/node_modules/react/lib/PooledClass.js","./emptyFunction":"/home/akira/projects/fascia/node_modules/react/lib/emptyFunction.js","./getEventTarget":"/home/akira/projects/fascia/node_modules/react/lib/getEventTarget.js"}],"/home/akira/projects/fascia/node_modules/react/lib/SyntheticFocusEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -16390,7 +16390,7 @@ SyntheticUIEvent.augmentClass(SyntheticFocusEvent, FocusEventInterface);
 
 module.exports = SyntheticFocusEvent;
 
-},{"./SyntheticUIEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticUIEvent.js"}],"/vagrant/fascia/node_modules/react/lib/SyntheticInputEvent.js":[function(require,module,exports){
+},{"./SyntheticUIEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticUIEvent.js"}],"/home/akira/projects/fascia/node_modules/react/lib/SyntheticInputEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -16436,7 +16436,7 @@ SyntheticEvent.augmentClass(
 
 module.exports = SyntheticInputEvent;
 
-},{"./SyntheticEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticEvent.js"}],"/vagrant/fascia/node_modules/react/lib/SyntheticKeyboardEvent.js":[function(require,module,exports){
+},{"./SyntheticEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticEvent.js"}],"/home/akira/projects/fascia/node_modules/react/lib/SyntheticKeyboardEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -16523,7 +16523,7 @@ SyntheticUIEvent.augmentClass(SyntheticKeyboardEvent, KeyboardEventInterface);
 
 module.exports = SyntheticKeyboardEvent;
 
-},{"./SyntheticUIEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticUIEvent.js","./getEventCharCode":"/vagrant/fascia/node_modules/react/lib/getEventCharCode.js","./getEventKey":"/vagrant/fascia/node_modules/react/lib/getEventKey.js","./getEventModifierState":"/vagrant/fascia/node_modules/react/lib/getEventModifierState.js"}],"/vagrant/fascia/node_modules/react/lib/SyntheticMouseEvent.js":[function(require,module,exports){
+},{"./SyntheticUIEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticUIEvent.js","./getEventCharCode":"/home/akira/projects/fascia/node_modules/react/lib/getEventCharCode.js","./getEventKey":"/home/akira/projects/fascia/node_modules/react/lib/getEventKey.js","./getEventModifierState":"/home/akira/projects/fascia/node_modules/react/lib/getEventModifierState.js"}],"/home/akira/projects/fascia/node_modules/react/lib/SyntheticMouseEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -16604,7 +16604,7 @@ SyntheticUIEvent.augmentClass(SyntheticMouseEvent, MouseEventInterface);
 
 module.exports = SyntheticMouseEvent;
 
-},{"./SyntheticUIEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticUIEvent.js","./ViewportMetrics":"/vagrant/fascia/node_modules/react/lib/ViewportMetrics.js","./getEventModifierState":"/vagrant/fascia/node_modules/react/lib/getEventModifierState.js"}],"/vagrant/fascia/node_modules/react/lib/SyntheticTouchEvent.js":[function(require,module,exports){
+},{"./SyntheticUIEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticUIEvent.js","./ViewportMetrics":"/home/akira/projects/fascia/node_modules/react/lib/ViewportMetrics.js","./getEventModifierState":"/home/akira/projects/fascia/node_modules/react/lib/getEventModifierState.js"}],"/home/akira/projects/fascia/node_modules/react/lib/SyntheticTouchEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -16652,7 +16652,7 @@ SyntheticUIEvent.augmentClass(SyntheticTouchEvent, TouchEventInterface);
 
 module.exports = SyntheticTouchEvent;
 
-},{"./SyntheticUIEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticUIEvent.js","./getEventModifierState":"/vagrant/fascia/node_modules/react/lib/getEventModifierState.js"}],"/vagrant/fascia/node_modules/react/lib/SyntheticUIEvent.js":[function(require,module,exports){
+},{"./SyntheticUIEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticUIEvent.js","./getEventModifierState":"/home/akira/projects/fascia/node_modules/react/lib/getEventModifierState.js"}],"/home/akira/projects/fascia/node_modules/react/lib/SyntheticUIEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -16714,7 +16714,7 @@ SyntheticEvent.augmentClass(SyntheticUIEvent, UIEventInterface);
 
 module.exports = SyntheticUIEvent;
 
-},{"./SyntheticEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticEvent.js","./getEventTarget":"/vagrant/fascia/node_modules/react/lib/getEventTarget.js"}],"/vagrant/fascia/node_modules/react/lib/SyntheticWheelEvent.js":[function(require,module,exports){
+},{"./SyntheticEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticEvent.js","./getEventTarget":"/home/akira/projects/fascia/node_modules/react/lib/getEventTarget.js"}],"/home/akira/projects/fascia/node_modules/react/lib/SyntheticWheelEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -16775,7 +16775,7 @@ SyntheticMouseEvent.augmentClass(SyntheticWheelEvent, WheelEventInterface);
 
 module.exports = SyntheticWheelEvent;
 
-},{"./SyntheticMouseEvent":"/vagrant/fascia/node_modules/react/lib/SyntheticMouseEvent.js"}],"/vagrant/fascia/node_modules/react/lib/Transaction.js":[function(require,module,exports){
+},{"./SyntheticMouseEvent":"/home/akira/projects/fascia/node_modules/react/lib/SyntheticMouseEvent.js"}],"/home/akira/projects/fascia/node_modules/react/lib/Transaction.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -17017,7 +17017,7 @@ module.exports = Transaction;
 
 }).call(this,require('_process'))
 
-},{"./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/ViewportMetrics.js":[function(require,module,exports){
+},{"./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/ViewportMetrics.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -17046,7 +17046,7 @@ var ViewportMetrics = {
 
 module.exports = ViewportMetrics;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/accumulateInto.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/accumulateInto.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -17113,7 +17113,7 @@ module.exports = accumulateInto;
 
 }).call(this,require('_process'))
 
-},{"./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/adler32.js":[function(require,module,exports){
+},{"./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/adler32.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -17147,7 +17147,7 @@ function adler32(data) {
 
 module.exports = adler32;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/camelize.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/camelize.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -17179,7 +17179,7 @@ function camelize(string) {
 
 module.exports = camelize;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/camelizeStyleName.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/camelizeStyleName.js":[function(require,module,exports){
 /**
  * Copyright 2014-2015, Facebook, Inc.
  * All rights reserved.
@@ -17221,7 +17221,7 @@ function camelizeStyleName(string) {
 
 module.exports = camelizeStyleName;
 
-},{"./camelize":"/vagrant/fascia/node_modules/react/lib/camelize.js"}],"/vagrant/fascia/node_modules/react/lib/containsNode.js":[function(require,module,exports){
+},{"./camelize":"/home/akira/projects/fascia/node_modules/react/lib/camelize.js"}],"/home/akira/projects/fascia/node_modules/react/lib/containsNode.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -17265,7 +17265,7 @@ function containsNode(outerNode, innerNode) {
 
 module.exports = containsNode;
 
-},{"./isTextNode":"/vagrant/fascia/node_modules/react/lib/isTextNode.js"}],"/vagrant/fascia/node_modules/react/lib/createArrayFromMixed.js":[function(require,module,exports){
+},{"./isTextNode":"/home/akira/projects/fascia/node_modules/react/lib/isTextNode.js"}],"/home/akira/projects/fascia/node_modules/react/lib/createArrayFromMixed.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -17351,7 +17351,7 @@ function createArrayFromMixed(obj) {
 
 module.exports = createArrayFromMixed;
 
-},{"./toArray":"/vagrant/fascia/node_modules/react/lib/toArray.js"}],"/vagrant/fascia/node_modules/react/lib/createFullPageComponent.js":[function(require,module,exports){
+},{"./toArray":"/home/akira/projects/fascia/node_modules/react/lib/toArray.js"}],"/home/akira/projects/fascia/node_modules/react/lib/createFullPageComponent.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -17414,7 +17414,7 @@ module.exports = createFullPageComponent;
 
 }).call(this,require('_process'))
 
-},{"./ReactClass":"/vagrant/fascia/node_modules/react/lib/ReactClass.js","./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/createNodesFromMarkup.js":[function(require,module,exports){
+},{"./ReactClass":"/home/akira/projects/fascia/node_modules/react/lib/ReactClass.js","./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/createNodesFromMarkup.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -17505,7 +17505,7 @@ module.exports = createNodesFromMarkup;
 
 }).call(this,require('_process'))
 
-},{"./ExecutionEnvironment":"/vagrant/fascia/node_modules/react/lib/ExecutionEnvironment.js","./createArrayFromMixed":"/vagrant/fascia/node_modules/react/lib/createArrayFromMixed.js","./getMarkupWrap":"/vagrant/fascia/node_modules/react/lib/getMarkupWrap.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/dangerousStyleValue.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ExecutionEnvironment.js","./createArrayFromMixed":"/home/akira/projects/fascia/node_modules/react/lib/createArrayFromMixed.js","./getMarkupWrap":"/home/akira/projects/fascia/node_modules/react/lib/getMarkupWrap.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/dangerousStyleValue.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -17563,7 +17563,7 @@ function dangerousStyleValue(name, value) {
 
 module.exports = dangerousStyleValue;
 
-},{"./CSSProperty":"/vagrant/fascia/node_modules/react/lib/CSSProperty.js"}],"/vagrant/fascia/node_modules/react/lib/emptyFunction.js":[function(require,module,exports){
+},{"./CSSProperty":"/home/akira/projects/fascia/node_modules/react/lib/CSSProperty.js"}],"/home/akira/projects/fascia/node_modules/react/lib/emptyFunction.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -17597,7 +17597,7 @@ emptyFunction.thatReturnsArgument = function(arg) { return arg; };
 
 module.exports = emptyFunction;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/emptyObject.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/emptyObject.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -17622,7 +17622,7 @@ module.exports = emptyObject;
 
 }).call(this,require('_process'))
 
-},{"_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/escapeTextContentForBrowser.js":[function(require,module,exports){
+},{"_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/escapeTextContentForBrowser.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -17662,7 +17662,7 @@ function escapeTextContentForBrowser(text) {
 
 module.exports = escapeTextContentForBrowser;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/findDOMNode.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/findDOMNode.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -17736,7 +17736,7 @@ module.exports = findDOMNode;
 
 }).call(this,require('_process'))
 
-},{"./ReactCurrentOwner":"/vagrant/fascia/node_modules/react/lib/ReactCurrentOwner.js","./ReactInstanceMap":"/vagrant/fascia/node_modules/react/lib/ReactInstanceMap.js","./ReactMount":"/vagrant/fascia/node_modules/react/lib/ReactMount.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","./isNode":"/vagrant/fascia/node_modules/react/lib/isNode.js","./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/flattenChildren.js":[function(require,module,exports){
+},{"./ReactCurrentOwner":"/home/akira/projects/fascia/node_modules/react/lib/ReactCurrentOwner.js","./ReactInstanceMap":"/home/akira/projects/fascia/node_modules/react/lib/ReactInstanceMap.js","./ReactMount":"/home/akira/projects/fascia/node_modules/react/lib/ReactMount.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","./isNode":"/home/akira/projects/fascia/node_modules/react/lib/isNode.js","./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/flattenChildren.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -17795,7 +17795,7 @@ module.exports = flattenChildren;
 
 }).call(this,require('_process'))
 
-},{"./traverseAllChildren":"/vagrant/fascia/node_modules/react/lib/traverseAllChildren.js","./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/focusNode.js":[function(require,module,exports){
+},{"./traverseAllChildren":"/home/akira/projects/fascia/node_modules/react/lib/traverseAllChildren.js","./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/focusNode.js":[function(require,module,exports){
 /**
  * Copyright 2014-2015, Facebook, Inc.
  * All rights reserved.
@@ -17824,7 +17824,7 @@ function focusNode(node) {
 
 module.exports = focusNode;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/forEachAccumulated.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/forEachAccumulated.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -17855,7 +17855,7 @@ var forEachAccumulated = function(arr, cb, scope) {
 
 module.exports = forEachAccumulated;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/getActiveElement.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/getActiveElement.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -17884,7 +17884,7 @@ function getActiveElement() /*?DOMElement*/ {
 
 module.exports = getActiveElement;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/getEventCharCode.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/getEventCharCode.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -17936,7 +17936,7 @@ function getEventCharCode(nativeEvent) {
 
 module.exports = getEventCharCode;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/getEventKey.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/getEventKey.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18041,7 +18041,7 @@ function getEventKey(nativeEvent) {
 
 module.exports = getEventKey;
 
-},{"./getEventCharCode":"/vagrant/fascia/node_modules/react/lib/getEventCharCode.js"}],"/vagrant/fascia/node_modules/react/lib/getEventModifierState.js":[function(require,module,exports){
+},{"./getEventCharCode":"/home/akira/projects/fascia/node_modules/react/lib/getEventCharCode.js"}],"/home/akira/projects/fascia/node_modules/react/lib/getEventModifierState.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18088,7 +18088,7 @@ function getEventModifierState(nativeEvent) {
 
 module.exports = getEventModifierState;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/getEventTarget.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/getEventTarget.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18119,7 +18119,7 @@ function getEventTarget(nativeEvent) {
 
 module.exports = getEventTarget;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/getIteratorFn.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/getIteratorFn.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18163,7 +18163,7 @@ function getIteratorFn(maybeIterable) {
 
 module.exports = getIteratorFn;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/getMarkupWrap.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/getMarkupWrap.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -18283,7 +18283,7 @@ module.exports = getMarkupWrap;
 
 }).call(this,require('_process'))
 
-},{"./ExecutionEnvironment":"/vagrant/fascia/node_modules/react/lib/ExecutionEnvironment.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/getNodeForCharacterOffset.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ExecutionEnvironment.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/getNodeForCharacterOffset.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18358,7 +18358,7 @@ function getNodeForCharacterOffset(root, offset) {
 
 module.exports = getNodeForCharacterOffset;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/getReactRootElementInContainer.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/getReactRootElementInContainer.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18393,7 +18393,7 @@ function getReactRootElementInContainer(container) {
 
 module.exports = getReactRootElementInContainer;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/getTextContentAccessor.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/getTextContentAccessor.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18430,7 +18430,7 @@ function getTextContentAccessor() {
 
 module.exports = getTextContentAccessor;
 
-},{"./ExecutionEnvironment":"/vagrant/fascia/node_modules/react/lib/ExecutionEnvironment.js"}],"/vagrant/fascia/node_modules/react/lib/getUnboundedScrollPosition.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ExecutionEnvironment.js"}],"/home/akira/projects/fascia/node_modules/react/lib/getUnboundedScrollPosition.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18470,7 +18470,7 @@ function getUnboundedScrollPosition(scrollable) {
 
 module.exports = getUnboundedScrollPosition;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/hyphenate.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/hyphenate.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18503,7 +18503,7 @@ function hyphenate(string) {
 
 module.exports = hyphenate;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/hyphenateStyleName.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/hyphenateStyleName.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18544,7 +18544,7 @@ function hyphenateStyleName(string) {
 
 module.exports = hyphenateStyleName;
 
-},{"./hyphenate":"/vagrant/fascia/node_modules/react/lib/hyphenate.js"}],"/vagrant/fascia/node_modules/react/lib/instantiateReactComponent.js":[function(require,module,exports){
+},{"./hyphenate":"/home/akira/projects/fascia/node_modules/react/lib/hyphenate.js"}],"/home/akira/projects/fascia/node_modules/react/lib/instantiateReactComponent.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -18683,7 +18683,7 @@ module.exports = instantiateReactComponent;
 
 }).call(this,require('_process'))
 
-},{"./Object.assign":"/vagrant/fascia/node_modules/react/lib/Object.assign.js","./ReactCompositeComponent":"/vagrant/fascia/node_modules/react/lib/ReactCompositeComponent.js","./ReactEmptyComponent":"/vagrant/fascia/node_modules/react/lib/ReactEmptyComponent.js","./ReactNativeComponent":"/vagrant/fascia/node_modules/react/lib/ReactNativeComponent.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/invariant.js":[function(require,module,exports){
+},{"./Object.assign":"/home/akira/projects/fascia/node_modules/react/lib/Object.assign.js","./ReactCompositeComponent":"/home/akira/projects/fascia/node_modules/react/lib/ReactCompositeComponent.js","./ReactEmptyComponent":"/home/akira/projects/fascia/node_modules/react/lib/ReactEmptyComponent.js","./ReactNativeComponent":"/home/akira/projects/fascia/node_modules/react/lib/ReactNativeComponent.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/invariant.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -18741,7 +18741,7 @@ module.exports = invariant;
 
 }).call(this,require('_process'))
 
-},{"_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/isEventSupported.js":[function(require,module,exports){
+},{"_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/isEventSupported.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18806,7 +18806,7 @@ function isEventSupported(eventNameSuffix, capture) {
 
 module.exports = isEventSupported;
 
-},{"./ExecutionEnvironment":"/vagrant/fascia/node_modules/react/lib/ExecutionEnvironment.js"}],"/vagrant/fascia/node_modules/react/lib/isNode.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ExecutionEnvironment.js"}],"/home/akira/projects/fascia/node_modules/react/lib/isNode.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18833,7 +18833,7 @@ function isNode(object) {
 
 module.exports = isNode;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/isTextInputElement.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/isTextInputElement.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18876,7 +18876,7 @@ function isTextInputElement(elem) {
 
 module.exports = isTextInputElement;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/isTextNode.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/isTextNode.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18901,7 +18901,7 @@ function isTextNode(object) {
 
 module.exports = isTextNode;
 
-},{"./isNode":"/vagrant/fascia/node_modules/react/lib/isNode.js"}],"/vagrant/fascia/node_modules/react/lib/keyMirror.js":[function(require,module,exports){
+},{"./isNode":"/home/akira/projects/fascia/node_modules/react/lib/isNode.js"}],"/home/akira/projects/fascia/node_modules/react/lib/keyMirror.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -18957,7 +18957,7 @@ module.exports = keyMirror;
 
 }).call(this,require('_process'))
 
-},{"./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/keyOf.js":[function(require,module,exports){
+},{"./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/keyOf.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18993,7 +18993,7 @@ var keyOf = function(oneKeyObj) {
 
 module.exports = keyOf;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/mapObject.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/mapObject.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -19046,7 +19046,7 @@ function mapObject(object, callback, context) {
 
 module.exports = mapObject;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/memoizeStringOnly.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/memoizeStringOnly.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -19079,7 +19079,7 @@ function memoizeStringOnly(callback) {
 
 module.exports = memoizeStringOnly;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/onlyChild.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/onlyChild.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -19120,7 +19120,7 @@ module.exports = onlyChild;
 
 }).call(this,require('_process'))
 
-},{"./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/performance.js":[function(require,module,exports){
+},{"./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/performance.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -19148,7 +19148,7 @@ if (ExecutionEnvironment.canUseDOM) {
 
 module.exports = performance || {};
 
-},{"./ExecutionEnvironment":"/vagrant/fascia/node_modules/react/lib/ExecutionEnvironment.js"}],"/vagrant/fascia/node_modules/react/lib/performanceNow.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ExecutionEnvironment.js"}],"/home/akira/projects/fascia/node_modules/react/lib/performanceNow.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -19176,7 +19176,7 @@ var performanceNow = performance.now.bind(performance);
 
 module.exports = performanceNow;
 
-},{"./performance":"/vagrant/fascia/node_modules/react/lib/performance.js"}],"/vagrant/fascia/node_modules/react/lib/quoteAttributeValueForBrowser.js":[function(require,module,exports){
+},{"./performance":"/home/akira/projects/fascia/node_modules/react/lib/performance.js"}],"/home/akira/projects/fascia/node_modules/react/lib/quoteAttributeValueForBrowser.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -19204,7 +19204,7 @@ function quoteAttributeValueForBrowser(value) {
 
 module.exports = quoteAttributeValueForBrowser;
 
-},{"./escapeTextContentForBrowser":"/vagrant/fascia/node_modules/react/lib/escapeTextContentForBrowser.js"}],"/vagrant/fascia/node_modules/react/lib/setInnerHTML.js":[function(require,module,exports){
+},{"./escapeTextContentForBrowser":"/home/akira/projects/fascia/node_modules/react/lib/escapeTextContentForBrowser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/setInnerHTML.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -19293,7 +19293,7 @@ if (ExecutionEnvironment.canUseDOM) {
 
 module.exports = setInnerHTML;
 
-},{"./ExecutionEnvironment":"/vagrant/fascia/node_modules/react/lib/ExecutionEnvironment.js"}],"/vagrant/fascia/node_modules/react/lib/setTextContent.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ExecutionEnvironment.js"}],"/home/akira/projects/fascia/node_modules/react/lib/setTextContent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -19335,7 +19335,7 @@ if (ExecutionEnvironment.canUseDOM) {
 
 module.exports = setTextContent;
 
-},{"./ExecutionEnvironment":"/vagrant/fascia/node_modules/react/lib/ExecutionEnvironment.js","./escapeTextContentForBrowser":"/vagrant/fascia/node_modules/react/lib/escapeTextContentForBrowser.js","./setInnerHTML":"/vagrant/fascia/node_modules/react/lib/setInnerHTML.js"}],"/vagrant/fascia/node_modules/react/lib/shallowEqual.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/home/akira/projects/fascia/node_modules/react/lib/ExecutionEnvironment.js","./escapeTextContentForBrowser":"/home/akira/projects/fascia/node_modules/react/lib/escapeTextContentForBrowser.js","./setInnerHTML":"/home/akira/projects/fascia/node_modules/react/lib/setInnerHTML.js"}],"/home/akira/projects/fascia/node_modules/react/lib/shallowEqual.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -19379,7 +19379,7 @@ function shallowEqual(objA, objB) {
 
 module.exports = shallowEqual;
 
-},{}],"/vagrant/fascia/node_modules/react/lib/shouldUpdateReactComponent.js":[function(require,module,exports){
+},{}],"/home/akira/projects/fascia/node_modules/react/lib/shouldUpdateReactComponent.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -19484,7 +19484,7 @@ module.exports = shouldUpdateReactComponent;
 
 }).call(this,require('_process'))
 
-},{"./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/toArray.js":[function(require,module,exports){
+},{"./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/toArray.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -19557,7 +19557,7 @@ module.exports = toArray;
 
 }).call(this,require('_process'))
 
-},{"./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/traverseAllChildren.js":[function(require,module,exports){
+},{"./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/traverseAllChildren.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -19811,7 +19811,7 @@ module.exports = traverseAllChildren;
 
 }).call(this,require('_process'))
 
-},{"./ReactElement":"/vagrant/fascia/node_modules/react/lib/ReactElement.js","./ReactFragment":"/vagrant/fascia/node_modules/react/lib/ReactFragment.js","./ReactInstanceHandles":"/vagrant/fascia/node_modules/react/lib/ReactInstanceHandles.js","./getIteratorFn":"/vagrant/fascia/node_modules/react/lib/getIteratorFn.js","./invariant":"/vagrant/fascia/node_modules/react/lib/invariant.js","./warning":"/vagrant/fascia/node_modules/react/lib/warning.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/lib/warning.js":[function(require,module,exports){
+},{"./ReactElement":"/home/akira/projects/fascia/node_modules/react/lib/ReactElement.js","./ReactFragment":"/home/akira/projects/fascia/node_modules/react/lib/ReactFragment.js","./ReactInstanceHandles":"/home/akira/projects/fascia/node_modules/react/lib/ReactInstanceHandles.js","./getIteratorFn":"/home/akira/projects/fascia/node_modules/react/lib/getIteratorFn.js","./invariant":"/home/akira/projects/fascia/node_modules/react/lib/invariant.js","./warning":"/home/akira/projects/fascia/node_modules/react/lib/warning.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/lib/warning.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -19875,10 +19875,10 @@ module.exports = warning;
 
 }).call(this,require('_process'))
 
-},{"./emptyFunction":"/vagrant/fascia/node_modules/react/lib/emptyFunction.js","_process":"/vagrant/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/vagrant/fascia/node_modules/react/react.js":[function(require,module,exports){
+},{"./emptyFunction":"/home/akira/projects/fascia/node_modules/react/lib/emptyFunction.js","_process":"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js"}],"/home/akira/projects/fascia/node_modules/react/react.js":[function(require,module,exports){
 module.exports = require('./lib/React');
 
-},{"./lib/React":"/vagrant/fascia/node_modules/react/lib/React.js"}]},{},["/vagrant/fascia/frontend/javascripts/src/bundle.js"])
+},{"./lib/React":"/home/akira/projects/fascia/node_modules/react/lib/React.js"}]},{},["/home/akira/projects/fascia/frontend/javascripts/src/bundle.js"])
 
 
 //# sourceMappingURL=bundle.js.map
