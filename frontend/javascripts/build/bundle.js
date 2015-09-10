@@ -11,7 +11,57 @@ var _reactRouter = require('react-router');
 
 var _reactRouter2 = _interopRequireDefault(_reactRouter);
 
-console.log("hoge");
+// TODO: 初期のオブジェクト渡してもらう方法はなにか考えたほうがいいなぁ
+// TODO: react-routerで後でソースや実行関数を分ける
+// TODO: ある程度できたらreduxで状態管理する
+var App = _react2['default'].createClass({
+    displayName: 'App',
+
+    getInitialState: function getInitialState() {
+        return {
+            newText: "",
+            items: []
+        };
+    },
+    addItem: function addItem() {
+        this.setState({
+            items: [{ text: this.state.newText }].concat(this.state.items),
+            newText: ""
+        });
+    },
+    updateNewText: function updateNewText(ev) {
+        this.setState({
+            newText: ev.target.value
+        });
+    },
+
+    render: function render() {
+        return _react2['default'].createElement(
+            'div',
+            null,
+            _react2['default'].createElement('input', { type: 'text', value: this.state.newText, onChange: this.updateNewText, placeholder: 'Project Name', className: 'form-control' }),
+            _react2['default'].createElement(
+                'button',
+                { onClick: this.addItem, className: 'pure-button pure-button-primary', type: 'button' },
+                'CreateProject'
+            ),
+            _react2['default'].createElement(
+                'div',
+                { className: 'items' },
+                this.state.items.map(function (item, index) {
+                    return _react2['default'].createElement(
+                        'div',
+                        { className: 'item', 'data-index': index },
+                        item.text
+                    );
+                }, this)
+            )
+        );
+    }
+
+});
+
+_react2['default'].render(_react2['default'].createElement(App, { name: 'React' }), document.getElementById('board'));
 
 },{"react":"/home/akira/projects/fascia/node_modules/react/react.js","react-router":"/home/akira/projects/fascia/node_modules/react-router/lib/index.js"}],"/home/akira/projects/fascia/node_modules/browserify/node_modules/process/browser.js":[function(require,module,exports){
 // shim for using process in browser
