@@ -1,10 +1,11 @@
 import React from 'react';
 import Router from 'react-router';
+import Request from 'superagent';
 
 // TODO: 初期のオブジェクト渡してもらう方法はなにか考えたほうがいいなぁ
 // TODO: react-routerで後でソースや実行関数を分ける
 // TODO: ある程度できたらreduxで状態管理する
-var App = React.createClass({
+var Board = React.createClass({
     getInitialState: function() {
         return {
             newText: "",
@@ -12,10 +13,17 @@ var App = React.createClass({
         };
     },
     addItem: function() {
-        this.setState({
-            items: [{text: this.state.newText}].concat(this.state.items),
-            newText: ""
-        });
+        var self = this;
+        Request
+            .post('/projects/')
+            .type('form')
+            .send({title: this.state.newText})
+            .end(function(err, res) {
+                self.setState({
+                    items: [{text: self.state.newText}].concat(self.state.items),
+                    newText: ""
+                });
+            });
     },
     updateNewText: function(ev) {
         this.setState({
@@ -39,4 +47,4 @@ var App = React.createClass({
 
 });
 
-React.render(<App name="React" />, document.getElementById('board'));
+React.render(<Board name="React" />, document.getElementById('board'));
