@@ -12,18 +12,33 @@ var Board = React.createClass({
             items: []
         };
     },
-    addItem: function() {
+    componentDidMount: function() {
         var self = this;
         Request
-            .post('/projects/')
-            .type('form')
-            .send({title: this.state.newText})
+            .get('/projects/')
             .end(function(err, res) {
-                self.setState({
-                    items: [{text: self.state.newText}].concat(self.state.items),
-                    newText: ""
-                });
+                if (self.isMounted() && res.body != null) {
+                    self.setState({
+                        newText: "",
+                        items: res.body
+                    });
+                }
             });
+    },
+    addItem: function() {
+        if (this.state.newText != "") {
+            var self = this;
+            Request
+                .post('/projects/')
+                .type('form')
+                .send({title: this.state.newText})
+                .end(function(err, res) {
+                    self.setState({
+                        items: self.state.items.concat([{Id: res.body.Id, UserId: res.body.UserId, Title: res.body.Title}]),
+                        newText: ""
+                    });
+                });
+        }
     },
     updateNewText: function(ev) {
         this.setState({
@@ -37,8 +52,8 @@ var Board = React.createClass({
             <button onClick={this.addItem} className="pure-button pure-button-primary" type="button">CreateProject</button>
             <div className="items">
                 {this.state.items.map(function(item, index) {
-                    return <div className="item" data-index={index}>
-                        {item.text}
+                    return <div className="item" data-id={item.Id}>
+                        {item.Title}
                     </div>;
                 }, this)}
             </div>

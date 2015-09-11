@@ -27,14 +27,27 @@ var Board = _react2['default'].createClass({
             items: []
         };
     },
-    addItem: function addItem() {
+    componentDidMount: function componentDidMount() {
         var self = this;
-        _superagent2['default'].post('/projects/').type('form').send({ title: this.state.newText }).end(function (err, res) {
-            self.setState({
-                items: [{ text: self.state.newText }].concat(self.state.items),
-                newText: ""
-            });
+        _superagent2['default'].get('/projects/').end(function (err, res) {
+            if (self.isMounted() && res.body != null) {
+                self.setState({
+                    newText: "",
+                    items: res.body
+                });
+            }
         });
+    },
+    addItem: function addItem() {
+        if (this.state.newText != "") {
+            var self = this;
+            _superagent2['default'].post('/projects/').type('form').send({ title: this.state.newText }).end(function (err, res) {
+                self.setState({
+                    items: self.state.items.concat([{ Id: res.body.Id, UserId: res.body.UserId, Title: res.body.Title }]),
+                    newText: ""
+                });
+            });
+        }
     },
     updateNewText: function updateNewText(ev) {
         this.setState({
@@ -58,8 +71,8 @@ var Board = _react2['default'].createClass({
                 this.state.items.map(function (item, index) {
                     return _react2['default'].createElement(
                         'div',
-                        { className: 'item', 'data-index': index },
-                        item.text
+                        { className: 'item', 'data-id': item.Id },
+                        item.Title
                     );
                 }, this)
             )

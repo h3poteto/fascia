@@ -19,6 +19,7 @@ func Routes(m *web.Mux) {
 	m.Post("/sign_up", controllers.CallController(&controllers.Registrations{}, "Registration"))
 	m.Get("/", controllers.CallController(&controllers.Root{}, "Index"))
 	m.Post("/projects/", controllers.CallController(&controllers.Projects{}, "Create"))
+	m.Get("/projects/", controllers.CallController(&controllers.Projects{}, "Index"))
 }
 
 func main() {

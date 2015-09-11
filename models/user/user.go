@@ -6,9 +6,11 @@ import(
 	"fmt"
 	"errors"
 	"golang.org/x/crypto/bcrypt"
+	"../project"
 )
 
 type User interface {
+	Projects() []*project.ProjectStruct
 }
 
 type UserStruct struct {
@@ -98,4 +100,22 @@ func Login(userEmail string, userPassword string) (UserStruct, error) {
 	}
 	fmt.Printf("login success\n")
 	return *user, nil
+}
+
+func (u *UserStruct) Projects() []*project.ProjectStruct {
+	table := u.database.Init()
+	defer table.Close()
+
+	rows, _ := table.Query("select * from projects where user_id = ?;", u.Id)
+	var slice []*project.ProjectStruct
+	for rows.Next() {
+		id, user_id, title, created_at, updated_at := int64(0), 0, "", "", ""
+		err := rows.Scan(&id, &user_id, &title, &created_at, &updated_at)
+		if err != nil {
+			panic(err.Error())
+		}
+		p := project.NewProject(id, user_id, title)
+		slice = append(slice, p)
+	}
+	return slice
 }
