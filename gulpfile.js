@@ -33,7 +33,7 @@ gulp.task('sass-release', function() {
 });
 
 gulp.task('watch', ['watchify', 'sass'], function() {
-    gulp.watch(['./frontend/stylesheets/*.scss'], ['sass']);
+    gulp.watch(['./frontend/stylesheets/**/*.scss'], ['sass']);
 });
 
 function compile(isUglify, isWatch) {
