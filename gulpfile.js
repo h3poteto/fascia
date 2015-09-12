@@ -9,6 +9,7 @@ var pkg = require(__dirname + '/package.json');
 var path = require('path');
 var es = require('event-stream');
 var fs = require('fs-extra');
+var sass = require('gulp-sass');
 
 
 gulp.task('build', function() {
@@ -21,6 +22,19 @@ gulp.task('build-release', function() {
 
 gulp.task('watchify', function() {
     return compile(false, true);
+});
+
+gulp.task('sass', function() {
+    return gulp.src("frontend/stylesheets/*.scss")
+        .pipe($.plumber())
+        .pipe($.sourcemaps.init())
+        .pipe(sass())
+        .pipe($.sourcemaps.write('.'))
+        .pipe(gulp.dest("public/assets/stylesheets"));
+});
+
+gulp.task('watch', ['watchify', 'sass'], function() {
+    gulp.watch(['./frontend/stylesheets/*.scss'], ['sass']);
 });
 
 function compile(isUglify, isWatch) {
