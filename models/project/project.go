@@ -10,12 +10,12 @@ type Project interface {
 
 type ProjectStruct struct {
 	Id int64
-	UserId int
+	UserId int64
 	Title string
 	database db.DB
 }
 
-func NewProject(id int64, user_id int, title string) *ProjectStruct {
+func NewProject(id int64, user_id int64, title string) *ProjectStruct {
 	project := &ProjectStruct{Id: id, UserId: user_id, Title: title}
 	project.Initialize()
 	return project
