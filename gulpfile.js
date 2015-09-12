@@ -25,12 +25,11 @@ gulp.task('watchify', function() {
 });
 
 gulp.task('sass', function() {
-    return gulp.src("frontend/stylesheets/*.scss")
-        .pipe($.plumber())
-        .pipe($.sourcemaps.init())
-        .pipe(sass())
-        .pipe($.sourcemaps.write('.'))
-        .pipe(gulp.dest("public/assets/stylesheets"));
+    return sassCompile('expanded');
+});
+
+gulp.task('sass-release', function() {
+    return sassCompile('compressed');
 });
 
 gulp.task('watch', ['watchify', 'sass'], function() {
@@ -92,4 +91,16 @@ function handleError() {
         .apply(this, args);
 
     this.emit('end');
+}
+
+function sassCompile(sassStyle) {
+    return gulp.src("frontend/stylesheets/*.scss")
+        .pipe($.plumber())
+        .pipe($.sourcemaps.init())
+        .pipe(sass({
+            style: sassStyle
+        }))
+        .pipe($.plumber.stop())
+        .pipe($.sourcemaps.write('.'))
+        .pipe(gulp.dest("public/assets/stylesheets"));
 }
