@@ -14,12 +14,12 @@ type User interface {
 }
 
 type UserStruct struct {
-	Id int
+	Id int64
 	Email string
 	database db.DB
 }
 
-func NewUser(id int, email string) *UserStruct {
+func NewUser(id int64, email string) *UserStruct {
 	user := &UserStruct{Id: id, Email: email}
 	user.Initialize()
 	return user
@@ -32,14 +32,14 @@ func (u *UserStruct) Initialize() {
 }
 
 
-func CurrentUser(user_id int) (UserStruct, error) {
+func CurrentUser(user_id int64) (UserStruct, error) {
 	user := UserStruct{}
 	user.Initialize()
 
 	table := user.database.Init()
 	defer table.Close()
 
-	id, email, password, created_at, updated_at := 0, "", "", "", ""
+	id, email, password, created_at, updated_at := int64(0), "", "", "", ""
 	rows, _ := table.Query("select * from users where id = ?;", user_id)
 	for rows.Next() {
 		err := rows.Scan(&id, &email, &password, &created_at, &updated_at)
@@ -83,7 +83,7 @@ func Login(userEmail string, userPassword string) (UserStruct, error) {
 	table := interfaceDB.Init()
 	defer table.Close()
 
-	id, email, password, created_at, updated_at := 0, "", "", "", ""
+	id, email, password, created_at, updated_at := int64(0), "", "", "", ""
 	rows, _ := table.Query("select * from users where email = ?;", userEmail)
 	for rows.Next() {
 		err := rows.Scan(&id, &email, &password, &created_at, &updated_at)
@@ -109,7 +109,7 @@ func (u *UserStruct) Projects() []*project.ProjectStruct {
 	rows, _ := table.Query("select * from projects where user_id = ?;", u.Id)
 	var slice []*project.ProjectStruct
 	for rows.Next() {
-		id, user_id, title, created_at, updated_at := int64(0), 0, "", "", ""
+		id, user_id, title, created_at, updated_at := int64(0), int64(0), "", "", ""
 		err := rows.Scan(&id, &user_id, &title, &created_at, &updated_at)
 		if err != nil {
 			panic(err.Error())

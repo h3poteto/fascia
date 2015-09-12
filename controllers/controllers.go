@@ -30,7 +30,7 @@ func LoginRequired(c web.C, w http.ResponseWriter, r *http.Request) (*userModel.
 		fmt.Printf("not logined\n")
 		return nil, false
 	}
-	current_user, err := userModel.CurrentUser(id.(int))
+	current_user, err := userModel.CurrentUser(id.(int64))
 	if err != nil {
 		fmt.Printf("cannot find login user\n")
 		return nil, false
