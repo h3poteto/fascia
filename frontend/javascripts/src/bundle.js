@@ -1,8 +1,8 @@
 import React from 'react';
-import Router from 'react-router';
+import {Router, Route, Link} from 'react-router';
 import Request from 'superagent';
 
-// TODO: react-routerで後でソースや実行関数を分ける
+
 // TODO: ある程度できたらreduxで状態管理する
 var Board = React.createClass({
     getInitialState: function() {
@@ -61,4 +61,12 @@ var Board = React.createClass({
 
 });
 
-React.render(<Board name="React" />, document.getElementById('board'));
+
+var routes = (
+  <Router>
+    <Route path="/" component={Board}>
+    </Route>
+  </Router>
+);
+
+React.render(routes, document.getElementById("board"));

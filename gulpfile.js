@@ -41,13 +41,7 @@ function compile(isUglify, isWatch) {
                 .pipe($.duration("compiled :" + entry))
                 .pipe($.if(isUglify, $.uglify()))
                 .pipe($.sourcemaps.write('.'))
-                .pipe(gulp.dest("frontend/javascripts/build/"))
-                .pipe($.tap(function(){
-                    fs.copySync("frontend/javascripts/build/" + output + ".map", "public/assets/javascripts/" + output + ".map");
-                }))
-                .pipe($.tap(function(){
-                    fs.copySync("frontend/javascripts/build/" + output, "public/assets/javascripts/" + output);
-                }));
+                .pipe(gulp.dest("public/assets/javascripts/"));
         }
         bundler.on('update', bundle);
         return bundle();

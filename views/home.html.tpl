@@ -1,4 +1,4 @@
-{% extends "layout.html.tpl" %}
+{% extends "layouts/application.html.tpl" %}
 
 {% block title %}{{ title }}{% endblock %}
 
