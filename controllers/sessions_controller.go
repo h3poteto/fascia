@@ -47,6 +47,7 @@ func (u *Sessions)NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	current_user, err := userModel.Login(signInForm.Email, signInForm.Password)
 	if err != nil {
 		http.Redirect(w, r, "/sign_in", 301)
+		return
 	}
 	fmt.Printf("%+v\n", current_user)
 	session, err = cookieStore.Get(r, "fascia")
@@ -54,4 +55,5 @@ func (u *Sessions)NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	session.Values["current_user_id"] = current_user.Id
 	session.Save(r, w)
 	http.Redirect(w, r, "/", 301)
+	return
 }

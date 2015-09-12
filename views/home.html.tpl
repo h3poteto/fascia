@@ -4,4 +4,7 @@
 
 {% block content %}
 
+<div id="board">
+</div>
+
 {% endblock %}
