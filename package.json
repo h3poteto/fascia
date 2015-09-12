@@ -42,7 +42,7 @@
   },
   "browserify": {
     "entryScripts": [
-      "./frontend/javascripts/src/bundle.js"
+      "./frontend/javascripts/bundle.js"
     ]
   },
   "dependencies": {
