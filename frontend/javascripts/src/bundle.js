@@ -2,7 +2,6 @@ import React from 'react';
 import Router from 'react-router';
 import Request from 'superagent';
 
-// TODO: 初期のオブジェクト渡してもらう方法はなにか考えたほうがいいなぁ
 // TODO: react-routerで後でソースや実行関数を分ける
 // TODO: ある程度できたらreduxで状態管理する
 var Board = React.createClass({
