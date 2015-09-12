@@ -61,10 +61,12 @@ var Board = React.createClass({
 
 });
 
+
 var routes = (
   <Router>
-    <Route path="/" component={Board} />
+    <Route path="/" component={Board}>
+    </Route>
   </Router>
 );
 
-React.render(routes, document.getElementById("content"));
+React.render(routes, document.getElementById("board"));
