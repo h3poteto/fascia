@@ -6,9 +6,9 @@
 環境変数の設定を行う必要があります．
 各自で，`.bash_profile`等に記述してください．おすすめは`direnv`です．
 
-```
+```yml
 export DB_USER="root"
-export DB_PASSWORD="hogehoge
+export DB_PASSWORD="hogehoge"
 export DB_NAME="fascia"
 export DB_TEST_NAME="fascia_test"
 ```
@@ -19,11 +19,13 @@ goは1.5を前提としています．
 `gom`のインストールいついては下記を参照．
 https://github.com/mattn/gom
 
-`gom`の導入が完了したら，パッケージをインストールします．
-`$ gom install`
 
-`$ gom run main.go`
-で正常に起動することを確認してください．
+```
+$ gom install
+$ gom exec goose up
+$ gom run server.go
+```
+正常に起動することを確認してください．
 
 
 ### npm
@@ -42,7 +44,7 @@ https://github.com/mattn/gom
 
 ## Development
 ### go
-`$ gom run main.go`
+`$ gom run server.go`
 これで，ブラウザから`localhost:9090`で確認できます．
 
 `.go`のソースはコンパイルが必要になるため，サーバーの再起動無しに更新が反映されることはありえません．ソースを変更した場合は，その都度サーバを再起動してください．
