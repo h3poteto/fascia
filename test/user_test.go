@@ -38,9 +38,12 @@ func TestRegistration(t *testing.T) {
 	sql := database.Init()
 	rows, _ := sql.Query("select * from users where email = ?;", email)
 
-	id, dbemail, dbpassword, created_at, updated_at := 0, "", "", "", ""
+	id, dbemail, dbpassword, provider, oauth_token, created_at, updated_at := 0, "", "", "", "", "", ""
 	for rows.Next() {
-		_ = rows.Scan(&id, &dbemail, &dbpassword, &created_at, &updated_at)
+		err := rows.Scan(&id, &dbemail, &dbpassword, &provider, &oauth_token, &created_at, &updated_at)
+		if err != nil {
+			t.Fatalf("DBからユーザを読み込めない")
+		}
 	}
 	if dbemail == "" {
 		t.Error("ユーザが登録できていない")
