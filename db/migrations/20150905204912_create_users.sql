@@ -4,7 +4,9 @@
 CREATE TABLE IF NOT EXISTS users (
 id int(11) NOT NULL AUTO_INCREMENT,
 email varchar(255) NOT NULL,
-password varchar(255)  DEFAULT NULL,
+password varchar(255)  NOT NULL DEFAULT "",
+provider varchar(255) NOT NULL DEFAULT "",
+oauth_token varchar(255) NOT NULL DEFAULT "",
 created_at datetime DEFAULT NULL,
 updated_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 PRIMARY KEY (id),

@@ -6,6 +6,7 @@ import (
 	"github.com/flosch/pongo2"
 	"github.com/gorilla/sessions"
 	"github.com/goji/param"
+	"golang.org/x/oauth2"
 	userModel "../models/user"
 )
 
@@ -19,12 +20,14 @@ type SignInForm struct {
 }
 
 func (u *Sessions)SignIn(c web.C, w http.ResponseWriter, r *http.Request) {
+	url := githubOauthConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
+
 	tpl, err := pongo2.DefaultSet.FromFile("views/sign_in.html.tpl")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	tpl.ExecuteWriter(pongo2.Context{"title": "SignIn"}, w)
+	tpl.ExecuteWriter(pongo2.Context{"title": "SignIn", "oauthURL": url}, w)
 }
 
 func (u *Sessions)NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -46,7 +49,7 @@ func (u *Sessions)NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	current_user, err := userModel.Login(signInForm.Email, signInForm.Password)
 	if err != nil {
-		http.Redirect(w, r, "/sign_in", 301)
+		http.Redirect(w, r, "/sign_in", 302)
 		return
 	}
 	fmt.Printf("%+v\n", current_user)
@@ -54,6 +57,6 @@ func (u *Sessions)NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	session.Options = &sessions.Options{MaxAge: 3600}
 	session.Values["current_user_id"] = current_user.Id
 	session.Save(r, w)
-	http.Redirect(w, r, "/", 301)
+	http.Redirect(w, r, "/", 302)
 	return
 }
