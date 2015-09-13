@@ -35,9 +35,13 @@ func (u *Oauth) Github(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Printf("%+v\n", current_user)
 	session, err = cookieStore.Get(r, "fascia")
-	session.Options = &sessions.Options{MaxAge: 3600}
+	session.Options = &sessions.Options{Path: "/", MaxAge: 3600}
 	session.Values["current_user_id"] = current_user.Id
-	session.Save(r, w)
+	err = session.Save(r, w)
+	if err != nil {
+		http.Error(w, "session error", 500)
+		return
+	}
 	http.Redirect(w, r, "/", 302)
 	return
 }

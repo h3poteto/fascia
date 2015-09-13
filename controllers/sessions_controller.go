@@ -54,7 +54,7 @@ func (u *Sessions)NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Printf("%+v\n", current_user)
 	session, err = cookieStore.Get(r, "fascia")
-	session.Options = &sessions.Options{MaxAge: 3600}
+	session.Options = &sessions.Options{Path: "/", MaxAge: 3600}
 	session.Values["current_user_id"] = current_user.Id
 	session.Save(r, w)
 	http.Redirect(w, r, "/", 302)

@@ -31,7 +31,6 @@ func CallController(controller interface{}, action string) interface{} {
 
 func LoginRequired(c web.C, w http.ResponseWriter, r *http.Request) (*userModel.UserStruct, bool) {
 	session, err := cookieStore.Get(r, "fascia")
-	fmt.Printf("session info: %+v\n", session)
 	if err != nil {
 		fmt.Printf("cookie error\n")
 		return nil, false
