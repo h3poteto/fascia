@@ -20,16 +20,16 @@ type UserStruct struct {
 	Id int64
 	Email string
 	Password string
-	Provider string
-	OauthToken string
+	Provider sql.NullString
+	OauthToken sql.NullString
 	Uuid sql.NullInt64
-	UserName string
-	Avatar string
+	UserName sql.NullString
+	Avatar sql.NullString
 	database db.DB
 }
 
-func NewUser(id int64, email string, provider string, oauth_token string, uuid sql.NullInt64, user_name string, avatar string) *UserStruct {
-	user := &UserStruct{Id: id, Email: email, Provider: provider, OauthToken: oauth_token, Uuid: uuid, UserName: user_name, Avatar: avatar}
+func NewUser(id int64, email string, provider sql.NullString, oauthToken sql.NullString, uuid sql.NullInt64, userName sql.NullString, avatar sql.NullString) *UserStruct {
+	user := &UserStruct{Id: id, Email: email, Provider: provider, OauthToken: oauthToken, Uuid: uuid, UserName: userName, Avatar: avatar}
 	user.Initialize()
 	return user
 }
@@ -41,7 +41,7 @@ func (u *UserStruct) Initialize() {
 }
 
 
-func CurrentUser(user_id int64) (*UserStruct, error) {
+func CurrentUser(userID int64) (*UserStruct, error) {
 	user := UserStruct{}
 	user.Initialize()
 
@@ -50,10 +50,11 @@ func CurrentUser(user_id int64) (*UserStruct, error) {
 
 	var id int64
 	var uuid sql.NullInt64
-	var email, provider, oauth_token, user_name, avatar_url string
-	rows, _ := table.Query("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where id = ?;", user_id)
+	var email string
+	var provider, oauthToken, userName, avatarURL sql.NullString
+	rows, _ := table.Query("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where id = ?;", userID)
 	for rows.Next() {
-		err := rows.Scan(&id, &email, &provider, &oauth_token, &user_name, &uuid, &avatar_url)
+		err := rows.Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -61,10 +62,10 @@ func CurrentUser(user_id int64) (*UserStruct, error) {
 	user.Id = id
 	user.Email = email
 	user.Provider = provider
-	user.OauthToken = oauth_token
-	user.UserName = user_name
+	user.OauthToken = oauthToken
+	user.UserName = userName
 	user.Uuid = uuid
-	user.Avatar = avatar_url
+	user.Avatar = avatarURL
 	if id == 0 {
 		return &user, errors.New("cannot find user")
 	}
@@ -101,16 +102,17 @@ func Login(userEmail string, userPassword string) (*UserStruct, error) {
 
 	var id int64
 	var uuid sql.NullInt64
-	var email, provider, oauth_token, user_name, avatar_url, password string
+	var email, password string
+	var provider, oauthToken, userName, avatarURL sql.NullString
 	rows, _ := table.Query("select id, email, password, provider, oauth_token, user_name, uuid, avatar_url from users where email = ?;", userEmail)
 	for rows.Next() {
-		err := rows.Scan(&id, &email, &password, &provider, &oauth_token, &user_name, &uuid, &avatar_url)
+		err := rows.Scan(&id, &email, &password, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 		if err != nil {
 			panic(err.Error())
 		}
 	}
 
-	user := NewUser(id, email, provider, oauth_token, uuid, user_name, avatar_url)
+	user := NewUser(id, email, provider, oauthToken, uuid, userName, avatarURL)
 	bytePassword := []byte(userPassword)
 	err := bcrypt.CompareHashAndPassword([]byte(password), bytePassword)
 	if err != nil {
@@ -129,15 +131,16 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 
 	var id int64
 	var uuid sql.NullInt64
-	var email, provider, oauth_token, user_name, avatar_url string
+	var email string
+	var provider, oauthToken, userName, avatarURL sql.NullString
 	rows, _ := table.Query("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where oauth_token = ?;", token)
 	for rows.Next() {
-		err := rows.Scan(&id, &email, &provider, &oauth_token, &user_name, &uuid, &avatar_url)
+		err := rows.Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 		if err != nil {
 			panic(err.Error())
 		}
 	}
-	user := NewUser(id, email, provider, oauth_token, uuid, user_name, avatar_url)
+	user := NewUser(id, email, provider, oauthToken, uuid, userName, avatarURL)
 
  	if id == 0 {
 		user.CreateGithubUser(token)
@@ -150,16 +153,20 @@ func (u *UserStruct) Projects() []*project.ProjectStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	rows, _ := table.Query("select * from projects where user_id = ?;", u.Id)
+	rows, _ := table.Query("select id, user_id, title from projects where user_id = ?;", u.Id)
 	var slice []*project.ProjectStruct
 	for rows.Next() {
-		id, user_id, title, created_at, updated_at := int64(0), int64(0), "", "", ""
-		err := rows.Scan(&id, &user_id, &title, &created_at, &updated_at)
+		var id int64
+		var userID sql.NullInt64
+		var title string
+		err := rows.Scan(&id, &userID, &title)
 		if err != nil {
 			panic(err.Error())
 		}
-		p := project.NewProject(id, user_id, title)
-		slice = append(slice, p)
+		if userID.Valid {
+			p := project.NewProject(id, userID.Int64, title)
+			slice = append(slice, p)
+		}
 	}
 	return slice
 }
@@ -182,8 +189,8 @@ func (u *UserStruct) CreateGithubUser(token string) bool {
 	// email, password更新
 	u.Email = "dummy@example.com"
 	u.Password = "dummy"
-	u.Provider = "github"
-	u.OauthToken = token
+	u.Provider = sql.NullString{String: "github", Valid: true}
+	u.OauthToken = sql.NullString{String: token, Valid: true}
 
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
@@ -191,9 +198,9 @@ func (u *UserStruct) CreateGithubUser(token string) bool {
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 	client := github.NewClient(tc)
 	user, _, _ := client.Users.Get("")
-	u.UserName = *user.Login
+	u.UserName = sql.NullString{String: *user.Login, Valid: true}
 	u.Uuid = sql.NullInt64{Int64: int64(*user.ID), Valid: true}
-	u.Avatar = *user.AvatarURL
+	u.Avatar = sql.NullString{String: *user.AvatarURL, Valid: true}
 	u.Save()
 	return true
 }
