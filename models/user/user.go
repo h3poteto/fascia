@@ -205,6 +205,7 @@ func (u *UserStruct) Save() bool {
 
 func (u *UserStruct) CreateGithubUser(token string) bool {
 	// email, password更新
+	// TODO: ここuniqとってるのでもっと慎重にアドレス決定しないとやばい
 	u.Email = randomString() + "@fascia.io"
 	bytePassword, _ := hashPassword(randomString())
 	u.Password = string(bytePassword)
