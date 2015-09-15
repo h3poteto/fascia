@@ -6,6 +6,9 @@ import(
 	"fmt"
 	"errors"
 	"database/sql"
+	"encoding/binary"
+	"crypto/rand"
+	"strconv"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/oauth2"
 	"github.com/google/go-github/github"
@@ -27,6 +30,24 @@ type UserStruct struct {
 	Avatar sql.NullString
 	database db.DB
 }
+
+func randomString() string {
+	var n uint64
+	binary.Read(rand.Reader, binary.LittleEndian, &n)
+	return strconv.FormatUint(n, 36)
+}
+
+func hashPassword(password string) ([]byte, error) {
+	bytePassword := []byte(password)
+	cost := 10
+	hashPassword, _ := bcrypt.GenerateFromPassword(bytePassword, cost)
+	err := bcrypt.CompareHashAndPassword(hashPassword, bytePassword)
+	if err != nil {
+		return nil, errors.New("hash password error")
+	}
+	return hashPassword, nil
+}
+
 
 func NewUser(id int64, email string, provider sql.NullString, oauthToken sql.NullString, uuid sql.NullInt64, userName sql.NullString, avatar sql.NullString) *UserStruct {
 	user := &UserStruct{Id: id, Email: email, Provider: provider, OauthToken: oauthToken, Uuid: uuid, UserName: userName, Avatar: avatar}
@@ -78,10 +99,7 @@ func Registration(email string, password string) bool {
 	table := interfaceDB.Init()
 	defer table.Close()
 
-	bytePassword := []byte(password)
-	cost := 10
-	hashPassword, _ := bcrypt.GenerateFromPassword(bytePassword, cost)
-	err := bcrypt.CompareHashAndPassword(hashPassword, bytePassword)
+	hashPassword, err := hashPassword(password)
 	if err != nil {
 		return false
 	}
@@ -187,8 +205,9 @@ func (u *UserStruct) Save() bool {
 
 func (u *UserStruct) CreateGithubUser(token string) bool {
 	// email, password更新
-	u.Email = "dummy@example.com"
-	u.Password = "dummy"
+	u.Email = randomString() + "@fascia.io"
+	bytePassword, _ := hashPassword(randomString())
+	u.Password = string(bytePassword)
 	u.Provider = sql.NullString{String: "github", Valid: true}
 	u.OauthToken = sql.NullString{String: token, Valid: true}
 
