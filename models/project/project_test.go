@@ -4,9 +4,8 @@ import (
 	"os"
 	"testing"
 	"database/sql"
-	"../../models/db"
-	"../../models/project"
-	"../../models/user"
+	"../db"
+	"../user"
 )
 
 func TestMain(m *testing.M) {
@@ -16,6 +15,7 @@ func TestMain(m *testing.M) {
 	os.Setenv("DB_NAME", testdb)
 
 	code := m.Run()
+	defer os.Exit(code)
 	mydb := &db.Database{}
 	var database db.DB = mydb
 	sql := database.Init()
@@ -23,7 +23,6 @@ func TestMain(m *testing.M) {
 	sql.Exec("truncate tables projects;")
 	sql.Close()
 	os.Setenv("DB_NAME", currentdb)
-	os.Exit(code)
 }
 
 func TestSave(t *testing.T) {
@@ -44,7 +43,7 @@ func TestSave(t *testing.T) {
 		}
 	}
 
-	newProject := project.NewProject(0, uid, "title")
+	newProject := NewProject(0, uid, "title")
 	result := newProject.Save()
 	if !result {
 		t.Error("プロジェクトが登録できない")
