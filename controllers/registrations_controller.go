@@ -12,18 +12,25 @@ type Registrations struct {
 }
 
 type SignUpForm struct {
-	Email string `param:"email"`
-	Password string `param:"password"`
+	Email           string `param:"email"`
+	Password        string `param:"password"`
 	PasswordConfirm string `param:"password-confirm"`
+	Token           string `param:"token"`
 }
 
 func (u *Registrations)SignUp(c web.C, w http.ResponseWriter, r *http.Request) {
+	token, result := GenerateCSRFToken(c, w, r)
+	if !result {
+		http.Error(w, "Real bad.", 500)
+		return
+	}
+
 	tpl, err := pongo2.DefaultSet.FromFile("views/sign_up.html.tpl")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	tpl.ExecuteWriter(pongo2.Context{"title": "SignUp"}, w)
+	tpl.ExecuteWriter(pongo2.Context{"title": "SignUp", "token": token}, w)
 }
 
 func (u *Registrations)Registration(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -43,6 +50,12 @@ func (u *Registrations)Registration(c web.C, w http.ResponseWriter, r *http.Requ
 		return
 	}
 	fmt.Printf("%+v\n", signUpForm)
+
+	if !CheckCSRFToken(r, signUpForm.Token) {
+		http.Error(w, "Cannot verify CSRF token", 500)
+		return
+	}
+
 	if signUpForm.Password == signUpForm.PasswordConfirm {
 		// login
 		res := userModel.Registration(signUpForm.Email, signUpForm.Password)

@@ -10,7 +10,13 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/github"
 	userModel "../models/user"
+	"crypto/md5"
+	"io"
+	"strconv"
+	"time"
 )
+
+const Key = "fascia"
 
 type JsonError struct {
 	Error string
@@ -31,7 +37,7 @@ func CallController(controller interface{}, action string) interface{} {
 }
 
 func LoginRequired(c web.C, w http.ResponseWriter, r *http.Request) (*userModel.UserStruct, bool) {
-	session, err := cookieStore.Get(r, "fascia")
+	session, err := cookieStore.Get(r, Key)
 	if err != nil {
 		fmt.Printf("cookie error\n")
 		return nil, false
@@ -47,4 +53,33 @@ func LoginRequired(c web.C, w http.ResponseWriter, r *http.Request) (*userModel.
 		return nil, false
 	}
 	return current_user, true
+}
+
+func GenerateCSRFToken(c web.C, w http.ResponseWriter, r *http.Request) (string, bool) {
+	session, err := cookieStore.Get(r, Key)
+	if err != nil {
+		return "", false
+	}
+
+	// 現在時間とソルトからトークンを生成
+	h := md5.New()
+	io.WriteString(h, strconv.FormatInt(time.Now().Unix(), 10))
+	io.WriteString(h, "secret_key_salt")
+	token := fmt.Sprintf("%x", h.Sum(nil))
+	session.Values["token"] = token
+
+	cookieStore.Save(r, w, session)
+	return token, true
+}
+
+func CheckCSRFToken(r *http.Request, token string) (bool) {
+	session, err := cookieStore.Get(r, Key)
+	if err != nil {
+		return false
+	}
+
+	if session.Values["token"] != token {
+		return false
+	}
+	return true
 }
