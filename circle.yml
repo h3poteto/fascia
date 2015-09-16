@@ -13,4 +13,4 @@ database:
 
 test:
   override:
-    - gom test test/*_test.go
+    - gom test ./test/...
