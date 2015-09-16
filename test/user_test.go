@@ -37,7 +37,7 @@ func TestRegistration(t *testing.T) {
 
 	mydb := &db.Database{}
 	var database db.DB = mydb
-	table:= database.Init()
+	table := database.Init()
 	rows, _ := table.Query("select id, email from users where email = ?;", email)
 
 	var id int64
