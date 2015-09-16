@@ -4,9 +4,9 @@ import (
 	"os"
 	"testing"
 	"database/sql"
-	"../models/db"
-	"../models/project"
-	"../models/user"
+	"../../models/db"
+	"../../models/project"
+	"../../models/user"
 )
 
 func TestMain(m *testing.M) {
@@ -20,6 +20,7 @@ func TestMain(m *testing.M) {
 	var database db.DB = mydb
 	sql := database.Init()
 	sql.Exec("truncate table users;")
+	sql.Exec("truncate tables projects;")
 	sql.Close()
 	os.Setenv("DB_NAME", currentdb)
 	os.Exit(code)
