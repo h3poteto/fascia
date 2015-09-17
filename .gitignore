@@ -2,3 +2,4 @@ _vendor
 node_modules
 public
 frontend/javascripts/build/
+tmp

@@ -6,11 +6,20 @@ import (
 	"reflect"
 	"github.com/zenazn/goji/web"
 	"github.com/gorilla/sessions"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/github"
 	userModel "../models/user"
 )
 
 type JsonError struct {
 	Error string
+}
+
+var githubOauthConf = &oauth2.Config{
+		ClientID: "a13823f67e055f470e26",
+		ClientSecret: "f46c39cd08b92f4130ecb8c8ff1c85b4b42724c5",
+		Scopes: []string{"repo", "write:repo_hook"},
+		Endpoint: github.Endpoint,
 }
 
 var cookieStore = sessions.NewCookieStore([]byte("session-kesy"))
@@ -23,6 +32,7 @@ func CallController(controller interface{}, action string) interface{} {
 func LoginRequired(c web.C, w http.ResponseWriter, r *http.Request) (*userModel.UserStruct, bool) {
 	session, err := cookieStore.Get(r, "fascia")
 	if err != nil {
+		fmt.Printf("cookie error\n")
 		return nil, false
 	}
 	id := session.Values["current_user_id"]
@@ -35,5 +45,5 @@ func LoginRequired(c web.C, w http.ResponseWriter, r *http.Request) (*userModel.
 		fmt.Printf("cannot find login user\n")
 		return nil, false
 	}
-	return &current_user, true
+	return current_user, true
 }

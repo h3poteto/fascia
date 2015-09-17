@@ -2,6 +2,7 @@ package project
 
 import (
 	"../db"
+	"database/sql"
 )
 
 type Project interface {
@@ -10,13 +11,17 @@ type Project interface {
 
 type ProjectStruct struct {
 	Id int64
-	UserId int64
+	UserId sql.NullInt64
 	Title string
 	database db.DB
 }
 
-func NewProject(id int64, user_id int64, title string) *ProjectStruct {
-	project := &ProjectStruct{Id: id, UserId: user_id, Title: title}
+func NewProject(id int64, userID int64, title string) *ProjectStruct {
+	if userID == 0 {
+		return nil
+	}
+	nullUserID := sql.NullInt64{Int64: int64(userID), Valid: true}
+	project := &ProjectStruct{Id: id, UserId: nullUserID, Title: title}
 	project.Initialize()
 	return project
 }

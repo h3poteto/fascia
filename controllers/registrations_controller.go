@@ -47,12 +47,12 @@ func (u *Registrations)Registration(c web.C, w http.ResponseWriter, r *http.Requ
 		// login
 		res := userModel.Registration(signUpForm.Email, signUpForm.Password)
 		if !res {
-			http.Redirect(w, r, "/sign_up", 301)
+			http.Redirect(w, r, "/sign_up", 302)
 		} else {
-			http.Redirect(w, r, "/sign_in", 301)
+			http.Redirect(w, r, "/sign_in", 302)
 		}
 	} else {
 		// error
-		http.Redirect(w, r, "/sign_up", 301)
+		http.Redirect(w, r, "/sign_up", 302)
 	}
 }
