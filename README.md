@@ -58,11 +58,11 @@ jsやcssを変更する場合は下記のコマンドによってassetsの差分
 `$ gulp watchify`
 
 ## Test
-テストフレームワークにはGinkgoを採用しています．
-https://github.com/onsi/ginkgo
+テストフレームワークには[Ginkgo](https://github.com/onsi/ginkgo)を採用しています．
 
-また，マッチャーはGomegaを使用します．
-https://github.com/onsi/gomega
+また，マッチャーは[Gomega](https://github.com/onsi/gomega)を使用します．
+
 
 以下のコマンドにより，すべてのテストを実行してくれます．
+
 `$ gom exec ginkgo ./`
