@@ -13,7 +13,11 @@ export DB_USER="root"
 export DB_PASSWORD="hogehoge"
 export DB_NAME="fascia"
 export DB_TEST_NAME="fascia_test"
+export CLIENT_ID="hogehoge"
+export CLIENT_SECRET="fugafuga"
+export TEST_TOKEN="testhoge"
 ```
+`CLIENT_ID`, `CLIENT_SECRET`, `TEST_TOKEN` は適当にgithubでアプリケーションを作成して自分で用意してください．
 
 ### go
 goは1.5を前提としています．
