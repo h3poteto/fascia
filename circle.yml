@@ -13,4 +13,4 @@ database:
 
 test:
   override:
-    - gom test ./models/...
+    - gom exec ginkgo -r ./

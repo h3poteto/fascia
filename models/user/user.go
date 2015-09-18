@@ -141,6 +141,8 @@ func Login(userEmail string, userPassword string) (*UserStruct, error) {
 	return user, nil
 }
 
+// TODO: ここ，できればtokenで探すのではなく，providerとuuidのand検索が良い
+// oauthのtokenは変更になる場合があるため，ユーザを特定するのにいい方法とは言えない
 func FindOrCreateGithub(token string) (*UserStruct, error) {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
