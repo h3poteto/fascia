@@ -1,165 +1,181 @@
-package user
+package user_test
 
 import (
 	"os"
-	"testing"
 	"database/sql"
 	"../project"
+	. "../user"
 	"../db"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
-func TestMain(m *testing.M) {
-	// TODO: ここあとで共通化したい
-	testdb := os.Getenv("DB_TEST_NAME")
-	currentdb := os.Getenv("DB_NAME")
-	os.Setenv("DB_NAME", testdb)
+var _ = Describe("User", func() {
+	var currentdb string
 
-	code := m.Run()
-	defer os.Exit(code)
-	mydb := &db.Database{}
-	var database db.DB = mydb
-	sql := database.Init()
-	sql.Exec("truncate table users;")
-	sql.Exec("truncate table projects;")
-	sql.Close()
-	os.Setenv("DB_NAME", currentdb)
-}
+	BeforeEach(func() {
+		testdb := os.Getenv("DB_TEST_NAME")
+		currentdb = os.Getenv("DB_NAME")
+		os.Setenv("DB_NAME", testdb)
+	})
+	AfterEach(func() {
+		mydb := &db.Database{}
+		var database db.DB = mydb
+		table := database.Init()
+		table.Exec("truncate table users;")
+		table.Exec("truncate table projects;")
+		table.Close()
+		os.Setenv("DB_NAME", currentdb)
+	})
 
+	Describe("Registration", func() {
+		email := "registration@example.com"
+		password := "hogehoge"
+		It("登録できること", func() {
+			reg := Registration(email, password)
+			Expect(reg).To(BeTrue())
+		})
+		Context("登録後", func() {
+			BeforeEach(func() {
+				_ = Registration(email, password)
+			})
+			It("DBにユーザが保存されていること", func() {
+				mydb := &db.Database{}
+				var database db.DB = mydb
+				table := database.Init()
+				rows, _ := table.Query("select id, email from users where email = ?;", email)
 
-func TestRegistration(t *testing.T) {
-	email := "registration@example.com"
-	password := "hogehoge"
+				var id int64
+				var dbemail string
+				for rows.Next() {
+					err := rows.Scan(&id, &dbemail)
+					if err != nil {
+						panic(err.Error())
+					}
+				}
+				Expect(dbemail).NotTo(Equal(""))
+				Expect(id).NotTo(Equal(int64(0)))
+			})
+			It("ユーザが二重登録できないこと", func() {
+				reg := Registration(email, password)
+				Expect(reg).To(BeFalse())
+			})
+		})
 
-	reg := Registration(email, password)
-	if reg != true {
-		t.Fatalf("登録できない")
-	}
+	})
 
-	mydb := &db.Database{}
-	var database db.DB = mydb
-	table := database.Init()
-	rows, _ := table.Query("select id, email from users where email = ?;", email)
+	Describe("Login", func() {
+		email := "login@example.com"
+		password := "hogehoge"
+		BeforeEach(func() {
+			_ = Registration(email, password)
+		})
 
-	var id int64
-	var dbemail string
-	for rows.Next() {
-		err := rows.Scan(&id, &dbemail)
-		if err != nil {
-			t.Fatalf("DBからユーザを読み込めない")
-		}
-	}
-	if dbemail == "" {
-		t.Error("ユーザが登録できていない")
-	}
+		Context("正しいログイン情報のとき", func() {
+			It("ログインできること", func() {
+				current_user, err := Login(email, password)
+				Expect(err).To(BeNil())
+				Expect(current_user.Email).To(Equal(email))
+			})
+		})
+		Context("パスワードを間違えているとき", func() {
+			It("ログインできないこと", func() {
+				current_user, err := Login(email, "fugafuga")
+				Expect(err).NotTo(BeNil())
+				Expect(current_user.Email).NotTo(Equal(email))
+			})
+		})
+		Context("メールアドレスを間違えているとき", func() {
+			It("ログインできないこと", func() {
+				current_user, err := Login("hogehoge@example.com", password)
+				Expect(err).NotTo(BeNil())
+				Expect(current_user.Email).NotTo(Equal(email))
+			})
+		})
+		Context("メールアドレスもパスワードも間違えているとき", func() {
+			It("ログインできないこと", func() {
+				current_user, err := Login("hogehoge@example.com", "fugafuga")
+				Expect(err).NotTo(BeNil())
+				Expect(current_user.Email).NotTo(Equal(email))
+			})
+		})
+	})
 
-	reg = Registration(email, password)
-	if reg != false {
-		t.Error("ユーザが二重登録できている")
-	}
-}
+	Describe("FindOrCreateGithub", func() {
+		token := os.Getenv("TEST_TOKEN")
+		It("Github経由で新規登録できること", func() {
+			_ , err := FindOrCreateGithub(token)
+			Expect(err).To(BeNil())
+		})
+		It("登録後であればすでに登録されているユーザを探せること", func() {
+			current_user, _ := FindOrCreateGithub(token)
+			find_user, _ := FindOrCreateGithub(token)
+			Expect(find_user.Id).To(Equal(current_user.Id))
+			Expect(find_user.Id).NotTo(BeZero())
+		})
 
-func TestLogin(t *testing.T) {
-	email := "login@example.com"
-	password := "hogehoge"
+	})
 
-	_ = Registration(email, password)
+	Describe("Project", func() {
+		var (
+			newProject *project.ProjectStruct
+			current_user *UserStruct
+		)
 
-	current_user, err := Login(email, password)
-	if err != nil {
-		t.Error("ログイン時にエラー発生")
-	}
+		BeforeEach(func() {
+			email := "project@example.com"
+			password := "hogehoge"
+			_ = Registration(email, password)
+			mydb := &db.Database{}
+			var database db.DB = mydb
+			table := database.Init()
+			rows, _ := table.Query("select id, email from users where email = ?;", email)
 
-	if current_user.Email != email {
-		t.Error("ログインできない")
-	}
+			var userid int64
+			var dbemail string
+			for rows.Next() {
+				err := rows.Scan(&userid, &dbemail)
+				if err != nil {
+					panic(err.Error())
+				}
+			}
+			newProject = project.NewProject(0, userid, "project title")
+			_ = newProject.Save()
+			current_user = NewUser(userid, dbemail, sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
+		})
+		It("ユーザとプロジェクトが関連づいていること", func() {
+			projects := current_user.Projects()
+			Expect(projects[0].Id).To(Equal(newProject.Id))
+		})
+	})
 
-	current_user, err = Login(email, "fugafuga")
-	if current_user.Email == email {
-		t.Error("パスワードが違うはずなのにログインできる")
-	}
-
-	current_user, err = Login("hogehoge@example.com", password)
-	if current_user.Email == email {
-		t.Error("メールアドレスが違うはずなのにログインできる")
-	}
-
-	current_user, err = Login("hogehoge@example.com", "fugafuga")
-	if current_user.Email == email {
-		t.Error("メールアドレスもパスワードも違うはずなのにログインできる")
-	}
-}
-
-func TestFindOrCreateGithub(t *testing.T) {
-	token := os.Getenv("TEST_TOKEN")
-	current_user, err := FindOrCreateGithub(token)
-	if err != nil {
-		t.Fatalf("Github経由で新規登録できない")
-	}
-
-	find_user, err := FindOrCreateGithub(token)
-	if (find_user.Id != current_user.Id) || find_user.Id == 0 {
-		t.Error("登録後にユーザを探せていない")
-	}
-}
-
-func TestProjects(t *testing.T) {
-	email := "project@example.com"
-	password := "hogehoge"
-	_ = Registration(email, password)
-	mydb := &db.Database{}
-	var database db.DB = mydb
-	table := database.Init()
-	rows, _ := table.Query("select id, email from users where email = ?;", email)
-
-	var userid int64
-	var dbemail string
-	for rows.Next() {
-		err := rows.Scan(&userid, &dbemail)
-		if err != nil {
-			t.Fatalf("DBからユーザを読み込めない")
-		}
-	}
-	newProject := project.NewProject(0, userid, "project title")
-	result := newProject.Save()
-	if !result {
-		t.Fatalf("プロジェクトが保存できない")
-	}
-
-	current_user := NewUser(userid, dbemail, sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
-	projects := current_user.Projects()
-
-	if projects[0].Id != newProject.Id {
-		t.Error("ユーザとプロジェクトが関連づいていない")
-	}
-}
-
-func TestCreateGithubUser(t *testing.T) {
-	token := os.Getenv("TEST_TOKEN")
-	newUser := NewUser(0, "", sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
-	result := newUser.CreateGithubUser(token)
-	if !result {
-		t.Fatalf("Github経由で新規登録できない")
-	}
-
-	mydb := &db.Database{}
-	var database db.DB = mydb
-	table := database.Init()
-	rows, err := table.Query("select id, oauth_token from users where oauth_token = ?;", token)
-	if err != nil {
-		t.Fatalf("DB接続エラー")
-	}
-	var id int64
-	var oauthToken sql.NullString
-	for rows.Next() {
-		err := rows.Scan(&id, &oauthToken)
-		if err != nil {
-			t.Fatalf("DBからユーザを読み込めない")
-		}
-	}
-	if !oauthToken.Valid {
-		t.Error("tokenに基づくユーザが登録されていない")
-	}
-	if id == int64(0) {
-		t.Error("ユーザが保存されていない")
-	}
-}
+	Describe("CreateGithubUser", func() {
+		var result bool
+		token := os.Getenv("TEST_TOKEN")
+		BeforeEach(func() {
+			newUser := NewUser(0, "", sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
+			result = newUser.CreateGithubUser(token)
+		})
+		It("ユーザが登録されること", func() {
+			mydb := &db.Database{}
+			var database db.DB = mydb
+			table := database.Init()
+			rows, err := table.Query("select id, oauth_token from users where oauth_token = ?;", token)
+			if err != nil {
+				panic(err.Error())
+			}
+			var id int64
+			var oauthToken sql.NullString
+			for rows.Next() {
+				err := rows.Scan(&id, &oauthToken)
+				if err != nil {
+					panic(err.Error())
+				}
+			}
+			Expect(result).To(BeTrue())
+			Expect(oauthToken.Valid).To(BeTrue())
+			Expect(id).NotTo(Equal(int64(0)))
+		})
+	})
+})
