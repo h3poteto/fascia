@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"os"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -16,10 +17,10 @@ type JsonError struct {
 }
 
 var githubOauthConf = &oauth2.Config{
-		ClientID: "a13823f67e055f470e26",
-		ClientSecret: "f46c39cd08b92f4130ecb8c8ff1c85b4b42724c5",
-		Scopes: []string{"repo", "write:repo_hook"},
-		Endpoint: github.Endpoint,
+	ClientID: os.Getenv("CLIENT_ID"),
+	ClientSecret: os.Getenv("CLIENT_SECRET"),
+	Scopes: []string{"repo", "write:repo_hook"},
+	Endpoint: github.Endpoint,
 }
 
 var cookieStore = sessions.NewCookieStore([]byte("session-kesy"))

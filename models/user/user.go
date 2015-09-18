@@ -163,7 +163,10 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 	user := NewUser(id, email, provider, oauthToken, uuid, userName, avatarURL)
 
  	if id == 0 {
-		user.CreateGithubUser(token)
+		result := user.CreateGithubUser(token)
+		if !result {
+			return user, errors.New("cannot login")
+		}
 	}
 	return user, nil
 
@@ -208,6 +211,7 @@ func (u *UserStruct) Save() bool {
 func (u *UserStruct) CreateGithubUser(token string) bool {
 	// email, password更新
 	// TODO: ここuniqとってるのでもっと慎重にアドレス決定しないとやばい
+	// っていうかアドレスはgithubから取ればよくね
 	u.Email = randomString() + "@fascia.io"
 	bytePassword, _ := hashPassword(randomString())
 	u.Password = string(bytePassword)
@@ -220,6 +224,9 @@ func (u *UserStruct) CreateGithubUser(token string) bool {
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 	client := github.NewClient(tc)
 	user, _, _ := client.Users.Get("")
+	if user == nil {
+		return false
+	}
 	u.UserName = sql.NullString{String: *user.Login, Valid: true}
 	u.Uuid = sql.NullInt64{Int64: int64(*user.ID), Valid: true}
 	u.Avatar = sql.NullString{String: *user.AvatarURL, Valid: true}
