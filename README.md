@@ -1,3 +1,5 @@
+[![Circle CI](https://circleci.com/gh/fascia/fascia.svg?style=shield&circle-token=acde18dc1726dc7bd68b473e3f8824a8c5958fd7)](https://circleci.com/gh/fascia/fascia)
+
 # fascia
 
 ## Setup
@@ -6,12 +8,16 @@
 環境変数の設定を行う必要があります．
 各自で，`.bash_profile`等に記述してください．おすすめは`direnv`です．
 
-```yml
+```
 export DB_USER="root"
 export DB_PASSWORD="hogehoge"
 export DB_NAME="fascia"
 export DB_TEST_NAME="fascia_test"
+export CLIENT_ID="hogehoge"
+export CLIENT_SECRET="fugafuga"
+export TEST_TOKEN="testhoge"
 ```
+`CLIENT_ID`, `CLIENT_SECRET`, `TEST_TOKEN` は適当にgithubでアプリケーションを作成して自分で用意してください．
 
 ### go
 goは1.5を前提としています．
@@ -36,7 +42,7 @@ $ gom run server.go
 また，ES6やscssのコンパイルのために`gulp`を使います．そのため，`gulp`コマンドを使えるようにしておく必要があります．
 `$ npm install -g gulp`
 
-`$ gulp watchify`
+`$ gulp watch`
 で，監視＆差分コンパイルが走ることを確認してください．
 
 
@@ -52,6 +58,15 @@ $ gom run server.go
 ただし，テンプレートは変更分を読み直ししてくれるため，`tpl`のソースについては，再起動無しで反映されます．
 
 ### js, scss
+jsやcssを変更する場合は下記のコマンドによってassetsの差分コンパイルが走るようにしておいてください．
 `$ gulp watchify`
-これで，jsファイルの監視と差分コンパイルが走ります．
-scssについては，まだコンパイルを導入していません．
+
+## Test
+テストフレームワークには[Ginkgo](https://github.com/onsi/ginkgo)を採用しています．
+
+また，マッチャーは[Gomega](https://github.com/onsi/gomega)を使用します．
+
+
+以下のコマンドにより，すべてのテストを実行してくれます．
+
+`$ gom exec ginkgo ./`
