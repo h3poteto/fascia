@@ -11,6 +11,8 @@
         <label for="password">Password:</label>
         <input class="form-control" name="password" type="password" />
 
+        <input name="token" type="hidden" value="{{ token }}" />
+
         <button class="pure-button pure-button-primary" type="submit">SignIn</button>
     </fieldset>
 </form>

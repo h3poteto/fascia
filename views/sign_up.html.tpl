@@ -14,6 +14,8 @@
         <label for="password-confirm">Password:</label>
         <input class="form-control" name="password-confirm" type="password" />
 
+        <input name="token" type="hidden" value="{{ token }}" />
+
         <button class="pure-button pure-button-primary" type="submit">SignUp</button>
     </fieldset>
 </form>
