@@ -36,13 +36,15 @@ $ gom run server.go
 
 ### npm
 フロント側は`React`を使う関係上，パッケージ管理は`npm`で行います．
-
-`$ npm install`
+```
+$ npm install
+```
 
 また，ES6やscssのコンパイルのために`gulp`を使います．そのため，`gulp`コマンドを使えるようにしておく必要があります．
-`$ npm install -g gulp`
-
-`$ gulp watch`
+```
+$ npm install -g gulp
+$ gulp watch
+```
 で，監視＆差分コンパイルが走ることを確認してください．
 
 
@@ -50,7 +52,9 @@ $ gom run server.go
 
 ## Development
 ### go
-`$ gom run server.go`
+```
+$ gom run server.go
+```
 これで，ブラウザから`localhost:9090`で確認できます．
 
 `.go`のソースはコンパイルが必要になるため，サーバーの再起動無しに更新が反映されることはありえません．ソースを変更した場合は，その都度サーバを再起動してください．
@@ -59,7 +63,9 @@ $ gom run server.go
 
 ### js, scss
 jsやcssを変更する場合は下記のコマンドによってassetsの差分コンパイルが走るようにしておいてください．
-`$ gulp watchify`
+```
+$ gulp watchify
+```
 
 ## Test
 テストフレームワークには[Ginkgo](https://github.com/onsi/ginkgo)を採用しています．
@@ -68,5 +74,6 @@ jsやcssを変更する場合は下記のコマンドによってassetsの差分
 
 
 以下のコマンドにより，すべてのテストを実行してくれます．
-
-`$ gom exec ginkgo ./`
+```
+$ gom exec ginkgo ./
+```
