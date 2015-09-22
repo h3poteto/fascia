@@ -141,9 +141,7 @@ func Login(userEmail string, userPassword string) (*UserStruct, error) {
 	return user, nil
 }
 
-// TODO: ここ，できればtokenで探すのではなく，providerとuuidのand検索が良い
-// oauthのtokenは変更になる場合があるため，ユーザを特定するのにいい方法とは言えない
-// TODO: ここoauth認証でクライアント作ってuid認証しよう
+// 認証時にもう一度githubアクセスしてidを取ってくるのが無駄なので，できればoauthのcallbakcでidを受け取りたい
 func FindOrCreateGithub(token string) (*UserStruct, error) {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
@@ -178,6 +176,11 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 			return user, errors.New("cannot login")
 		}
 	}
+
+	if !user.OauthToken.Valid && user.OauthToken.String != token {
+		user.UpdateOauthToken(token)
+	}
+
 	return user, nil
 
 }
@@ -233,4 +236,14 @@ func (u *UserStruct) CreateGithubUser(token string, githubUser *github.User) boo
 	u.Avatar = sql.NullString{String: *githubUser.AvatarURL, Valid: true}
 	u.Save()
 	return true
+}
+
+func (u *UserStruct) UpdateOauthToken(token string) {
+	table := u.database.Init()
+	defer table.Close()
+
+	_, err := table.Exec("update users set oauth_token = ? where id = ?", token, u.Id)
+	if err != nil {
+		panic(err.Error())
+	}
 }
