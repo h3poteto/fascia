@@ -1,0 +1,20 @@
+#top .top-nav {
+  .fascia-menu-list {
+    .fascia-menu-item {
+      display: inline-block;
+      a:link, a:visited, a:hover, a:active {
+        color: rgb(255, 255, 255);
+        text-decoration: none;
+      }
+      .pure-menu-link:hover, .pure-menu-link:focus {
+        background-color: rgb(55, 60, 90);
+      }
+    }
+  }
+  .right-align-list {
+    display: inline-block;
+    margin-right: 10px;
+    margin-left: 80%;
+    width: 100px;
+  }
+}
