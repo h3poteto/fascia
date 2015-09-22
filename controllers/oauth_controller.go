@@ -20,7 +20,7 @@ func (u *Oauth) Github(c web.C, w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 	fmt.Printf("github callback param: %+v\n", code)
 	token, err := githubOauthConf.Exchange(oauth2.NoContext, code)
-	fmt.Printf("token: %v\n", token.AccessToken)
+	fmt.Printf("token: %+v\n", token)
 	if err != nil {
 		http.Error(w, "Oauth Token Error", 500)
 		return

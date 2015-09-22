@@ -143,17 +143,27 @@ func Login(userEmail string, userPassword string) (*UserStruct, error) {
 
 // TODO: ここ，できればtokenで探すのではなく，providerとuuidのand検索が良い
 // oauthのtokenは変更になる場合があるため，ユーザを特定するのにいい方法とは言えない
+// TODO: ここoauth認証でクライアント作ってuid認証しよう
 func FindOrCreateGithub(token string) (*UserStruct, error) {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
 	table := interfaceDB.Init()
 	defer table.Close()
 
+	// github認証
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(oauth2.NoContext, ts)
+	client := github.NewClient(tc)
+	githubUser, _, _ := client.Users.Get("")
+
+
 	var id int64
 	var uuid sql.NullInt64
 	var email string
 	var provider, oauthToken, userName, avatarURL sql.NullString
-	rows, _ := table.Query("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where oauth_token = ?;", token)
+	rows, _ := table.Query("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where uuid = ?;", *githubUser.ID)
 	for rows.Next() {
 		err := rows.Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 		if err != nil {
@@ -163,7 +173,7 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 	user := NewUser(id, email, provider, oauthToken, uuid, userName, avatarURL)
 
  	if id == 0 {
-		result := user.CreateGithubUser(token)
+		result := user.CreateGithubUser(token, githubUser)
 		if !result {
 			return user, errors.New("cannot login")
 		}
@@ -208,7 +218,7 @@ func (u *UserStruct) Save() bool {
 	return true
 }
 
-func (u *UserStruct) CreateGithubUser(token string) bool {
+func (u *UserStruct) CreateGithubUser(token string, githubUser *github.User) bool {
 	// email, password更新
 	// TODO: ここuniqとってるのでもっと慎重にアドレス決定しないとやばい
 	// っていうかアドレスはgithubから取ればよくね
@@ -218,18 +228,9 @@ func (u *UserStruct) CreateGithubUser(token string) bool {
 	u.Provider = sql.NullString{String: "github", Valid: true}
 	u.OauthToken = sql.NullString{String: token, Valid: true}
 
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(oauth2.NoContext, ts)
-	client := github.NewClient(tc)
-	user, _, _ := client.Users.Get("")
-	if user == nil {
-		return false
-	}
-	u.UserName = sql.NullString{String: *user.Login, Valid: true}
-	u.Uuid = sql.NullInt64{Int64: int64(*user.ID), Valid: true}
-	u.Avatar = sql.NullString{String: *user.AvatarURL, Valid: true}
+	u.UserName = sql.NullString{String: *githubUser.Login, Valid: true}
+	u.Uuid = sql.NullInt64{Int64: int64(*githubUser.ID), Valid: true}
+	u.Avatar = sql.NullString{String: *githubUser.AvatarURL, Valid: true}
 	u.Save()
 	return true
 }

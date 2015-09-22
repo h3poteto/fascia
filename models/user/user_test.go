@@ -9,6 +9,8 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"golang.org/x/oauth2"
+	"github.com/google/go-github/github"
 )
 
 var _ = Describe("User", func() {
@@ -155,7 +157,13 @@ var _ = Describe("User", func() {
 		token := os.Getenv("TEST_TOKEN")
 		BeforeEach(func() {
 			newUser := NewUser(0, "", sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
-			result = newUser.CreateGithubUser(token)
+			ts := oauth2.StaticTokenSource(
+				&oauth2.Token{AccessToken: token},
+			)
+			tc := oauth2.NewClient(oauth2.NoContext, ts)
+			client := github.NewClient(tc)
+			githubUser, _, _ := client.Users.Get("")
+			result = newUser.CreateGithubUser(token, githubUser)
 		})
 		It("ユーザが登録されること", func() {
 			mydb := &db.Database{}
