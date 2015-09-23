@@ -25,4 +25,12 @@
 }
 .project-form {
   width: 300px;
+  color: rgb(119, 119, 119);
+  label {
+    line-height: 25.6px;
+  }
+  .form-action {
+    margin: 20px 0 -15px;
+    text-align: right;
+  }
 }

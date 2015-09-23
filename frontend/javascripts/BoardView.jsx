@@ -35,7 +35,9 @@ var BoardView = function(component, text, projects, modal) {
               <legend>Create Project</legend>
               <label htmlfor="title">Title</label>
               <input id="title" name="title" type="text" value={text} onChange={component.updateNewText} placeholder="Project Name" className="form-control" />
-              <button onClick={component.createProject} className="pure-button pure-button-primary" type="button">CreateProject</button>
+              <div className="form-action">
+                <button onClick={component.createProject} className="pure-button pure-button-primary" type="button">CreateProject</button>
+              </div>
             </fieldset>
           </form>
         </div>
