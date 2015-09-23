@@ -5,6 +5,7 @@ import BoardView from './BoardView.jsx';
 var BoardViewModel = React.createClass({
   getInitialState: function() {
     return {
+      isModalOpen: false,
       newText: "",
       items: []
     };
@@ -22,7 +23,13 @@ var BoardViewModel = React.createClass({
         }
       });
   },
-  addItem: function() {
+  newProject: function() {
+    this.setState({isModalOpen: true});
+  },
+  closeModal: function() {
+    this.setState({isModalOpen: false});
+  },
+  createProject: function() {
     if (this.state.newText != "") {
       var self = this;
       Request
@@ -31,6 +38,7 @@ var BoardViewModel = React.createClass({
         .send({title: this.state.newText})
         .end(function(err, res) {
           self.setState({
+            isModalOpen: false,
             items: self.state.items.concat([{Id: res.body.Id, UserId: res.body.UserId, Title: res.body.Title}]),
             newText: ""
           });
@@ -44,7 +52,7 @@ var BoardViewModel = React.createClass({
   },
 
   render: function() {
-    return BoardView(this, this.state.newText, this.state.items);
+    return BoardView(this, this.state.newText, this.state.items, this.state.isModalOpen);
   }
 });
 
