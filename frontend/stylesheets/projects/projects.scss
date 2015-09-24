@@ -1,0 +1,36 @@
+#projects {
+  .fascia-card {
+    color: #dcdcdc;
+    width: 150px;
+    height: 100px;
+    padding: 15px;
+    margin: 10px 20px;
+    border-radius: 15px;
+    box-sizing: border-box;
+
+    .card-title {
+      color: rgb(255, 255, 255);
+      display: block;
+      font-size: 110%;
+    }
+  }
+  .fascia-new-project {
+    width: 150px;
+    height: 100px;
+    padding: 15px;
+    margin: 10px 20px;
+    border-radius: 15px;
+    box-sizing: border-box;
+  }
+}
+.project-form {
+  width: 300px;
+  color: rgb(119, 119, 119);
+  label {
+    line-height: 25.6px;
+  }
+  .form-action {
+    margin: 20px 0 -15px;
+    text-align: right;
+  }
+}

@@ -1,0 +1,30 @@
+@import "common/nav";
+@import "common/base";
+@import "projects/projects";
+
+
+#left {
+  height: 100%;
+  float: left;
+  background-color: rgb(37, 42, 58);
+  height: 100%;
+  color: rgb(255, 255, 255);
+  padding: 10px;
+  width: 150px;
+  box-sizing: border-box;
+  .left-nav {
+    display: inline-block;
+  }
+}
+
+#top {
+  width: 100%;
+  background-color: rgb(37, 42, 58);
+  color: rgb(255, 255, 255);
+  box-sizing: border-box;
+}
+
+#content {
+  padding: 20px;
+  box-sizing: border-box;
+}

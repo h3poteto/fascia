@@ -100,7 +100,6 @@ function sassCompile(sassStyle) {
         .pipe(sass({
             style: sassStyle
         }))
-        .pipe($.plumber.stop())
         .pipe($.sourcemaps.write('.'))
         .pipe(gulp.dest("public/assets/stylesheets"));
 }

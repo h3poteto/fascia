@@ -1,0 +1,30 @@
+#top .top-nav {
+  .fascia-menu-heading {
+    color: rgb(198, 198, 198);
+  }
+  .fascia-menu-list {
+    background-color: rgb(37, 42, 58);
+    .fascia-menu-item {
+      padding: 7px;
+      a:link, a:visited, a:hover, a:active {
+        color: rgb(255, 255, 255);
+        text-decoration: none;
+      }
+      .pure-menu-link:hover, .pure-menu-link:focus {
+        background: none;
+      }
+    }
+    .fascia-menu-item:hover, .fascia-menu-item:focus {
+      background-color: rgb(55, 60, 90);
+    }
+    .pure-menu-children {
+      background-color: rgb(37, 42, 58);
+    }
+  }
+  .right-align-list {
+    display: inline-block;
+    margin-right: 10px;
+    margin-left: 80%;
+    width: 100px;
+  }
+}
