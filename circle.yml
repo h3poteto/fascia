@@ -3,8 +3,12 @@ dependencies:
     - go get github.com/mattn/gom
   override:
     - gom install
+    - npm install
+    - npm install -g gulp
   post:
     - gom build server.go
+    - gulp build-reelase
+    - gulp sass-release
 database:
   pre:
     - mysql -u $DB_USER -e "CREATE DATABASE $DB_TEST_NAME;"
