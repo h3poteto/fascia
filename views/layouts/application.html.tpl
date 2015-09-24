@@ -8,8 +8,6 @@
 
   </head>
   <body>
-    <div id="top">
-    </div>
     <div id="content">
       {% block content %}{% endblock %}
     </div>
