@@ -171,7 +171,7 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 	user := NewUser(id, email, provider, oauthToken, uuid, userName, avatarURL)
 
  	if id == 0 {
-		result := user.CreateGithubUser(token, githubUser)
+		result := user.CreateGithubUser(token, githubUser, client.Users)
 		if !result {
 			return user, errors.New("cannot login")
 		}
@@ -221,11 +221,18 @@ func (u *UserStruct) Save() bool {
 	return true
 }
 
-func (u *UserStruct) CreateGithubUser(token string, githubUser *github.User) bool {
-	// email, password更新
-	// TODO: ここuniqとってるのでもっと慎重にアドレス決定しないとやばい
-	// っていうかアドレスはgithubから取ればよくね
-	u.Email = randomString() + "@fascia.io"
+func (u *UserStruct) CreateGithubUser(token string, githubUser *github.User, usersService *github.UsersService) bool {
+
+	// TODO: primaryじゃないEmailも保存しておいてログインブロックに使いたい
+	emails, _, _ := usersService.ListEmails(nil)
+	var primaryEmail string
+	for _, email := range emails {
+		fmt.Printf("create: %v\n", *email.Email)
+		if *email.Primary {
+			primaryEmail = *email.Email
+		}
+	}
+	u.Email = primaryEmail
 	bytePassword, _ := hashPassword(randomString())
 	u.Password = string(bytePassword)
 	u.Provider = sql.NullString{String: "github", Valid: true}
