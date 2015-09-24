@@ -7,7 +7,7 @@ dependencies:
     - npm install -g gulp
   post:
     - gom build server.go
-    - gulp build-reelase
+    - gulp build-release
     - gulp sass-release
 database:
   pre:
