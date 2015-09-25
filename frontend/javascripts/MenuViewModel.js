@@ -13,7 +13,7 @@ var MenuViewModel = React.createClass({
     });
   },
   render: function() {
-    return MenuView(this.state.selected);
+    return MenuView(this.props, this.state.selected);
   }
 });
 
