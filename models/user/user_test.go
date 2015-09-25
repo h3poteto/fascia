@@ -163,7 +163,7 @@ var _ = Describe("User", func() {
 			tc := oauth2.NewClient(oauth2.NoContext, ts)
 			client := github.NewClient(tc)
 			githubUser, _, _ := client.Users.Get("")
-			result = newUser.CreateGithubUser(token, githubUser)
+			result = newUser.CreateGithubUser(token, githubUser, "create_github_user@example.com")
 		})
 		It("ユーザが登録されること", func() {
 			mydb := &db.Database{}
