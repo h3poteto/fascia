@@ -35,12 +35,13 @@ var _ = Describe("User", func() {
 		email := "registration@example.com"
 		password := "hogehoge"
 		It("登録できること", func() {
-			reg := Registration(email, password)
+			id, reg := Registration(email, password)
 			Expect(reg).To(BeTrue())
+			Expect(id).NotTo(Equal(int64(0)))
 		})
 		Context("登録後", func() {
 			BeforeEach(func() {
-				_ = Registration(email, password)
+				_, _ = Registration(email, password)
 			})
 			It("DBにユーザが保存されていること", func() {
 				mydb := &db.Database{}
@@ -60,8 +61,9 @@ var _ = Describe("User", func() {
 				Expect(id).NotTo(Equal(int64(0)))
 			})
 			It("ユーザが二重登録できないこと", func() {
-				reg := Registration(email, password)
+				id, reg := Registration(email, password)
 				Expect(reg).To(BeFalse())
+				Expect(id).To(Equal(int64(0)))
 			})
 		})
 
@@ -71,7 +73,7 @@ var _ = Describe("User", func() {
 		email := "login@example.com"
 		password := "hogehoge"
 		BeforeEach(func() {
-			_ = Registration(email, password)
+			_, _ = Registration(email, password)
 		})
 
 		Context("正しいログイン情報のとき", func() {
@@ -110,11 +112,24 @@ var _ = Describe("User", func() {
 			_ , err := FindOrCreateGithub(token)
 			Expect(err).To(BeNil())
 		})
-		It("登録後であればすでに登録されているユーザを探せること", func() {
+		It("github登録後であればすでに登録されているユーザを探せること", func() {
 			current_user, _ := FindOrCreateGithub(token)
 			find_user, _ := FindOrCreateGithub(token)
 			Expect(find_user.Id).To(Equal(current_user.Id))
 			Expect(find_user.Id).NotTo(BeZero())
+		})
+		Context("ユーザがEmailで登録済みだったとき", func() {
+			email := "already_regist@example.com"
+			var current_user *UserStruct
+			BeforeEach(func() {
+				Registration(email, "hogehoge")
+				current_user, _ = FindOrCreateGithub(token)
+			})
+			It("github情報が更新されること", func() {
+				Expect(current_user.OauthToken.Valid).To(BeTrue())
+				Expect(current_user.OauthToken.String).To(Equal(token))
+				Expect(current_user.Uuid.Valid).To(BeTrue())
+			})
 		})
 
 	})
@@ -128,7 +143,7 @@ var _ = Describe("User", func() {
 		BeforeEach(func() {
 			email := "project@example.com"
 			password := "hogehoge"
-			_ = Registration(email, password)
+			_, _ = Registration(email, password)
 			mydb := &db.Database{}
 			var database db.DB = mydb
 			table := database.Init()
@@ -183,6 +198,47 @@ var _ = Describe("User", func() {
 			}
 			Expect(result).To(BeTrue())
 			Expect(oauthToken.Valid).To(BeTrue())
+			Expect(id).NotTo(Equal(int64(0)))
+		})
+	})
+
+	Describe("UpdateGithubUserInfo", func() {
+		email := "update_github_user_info@example.com"
+		token := os.Getenv("TEST_TOKEN")
+		var current_user *UserStruct
+		var result bool
+		BeforeEach(func() {
+			id, _ := Registration(email, "hogehoge")
+			current_user, _ = CurrentUser(id)
+			ts := oauth2.StaticTokenSource(
+				&oauth2.Token{AccessToken: token},
+			)
+			tc := oauth2.NewClient(oauth2.NoContext, ts)
+			client := github.NewClient(tc)
+			githubUser, _, _ := client.Users.Get("")
+			result = current_user.UpdateGithubUserInfo(token, githubUser)
+		})
+		It("ユーザ情報がアップデートされること", func() {
+			mydb := &db.Database{}
+			var database db.DB = mydb
+			table := database.Init()
+			rows, err := table.Query("select id, uuid, oauth_token from users where email = ?;", email)
+			if err != nil {
+				panic(err.Error())
+			}
+			var id int64
+			var oauthToken sql.NullString
+			var uuid sql.NullInt64
+			for rows.Next() {
+				err := rows.Scan(&id, &uuid, &oauthToken)
+				if err != nil {
+					panic(err.Error())
+				}
+			}
+			Expect(result).To(BeTrue())
+			Expect(oauthToken.Valid).To(BeTrue())
+			Expect(oauthToken.String).To(Equal(token))
+			Expect(uuid.Valid).To(BeTrue())
 			Expect(id).NotTo(Equal(int64(0)))
 		})
 	})

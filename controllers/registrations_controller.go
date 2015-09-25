@@ -58,7 +58,7 @@ func (u *Registrations)Registration(c web.C, w http.ResponseWriter, r *http.Requ
 
 	if signUpForm.Password == signUpForm.PasswordConfirm {
 		// login
-		res := userModel.Registration(signUpForm.Email, signUpForm.Password)
+		_, res := userModel.Registration(signUpForm.Email, signUpForm.Password)
 		if !res {
 			http.Redirect(w, r, "/sign_up", 302)
 		} else {

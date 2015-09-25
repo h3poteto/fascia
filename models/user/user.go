@@ -93,7 +93,7 @@ func CurrentUser(userID int64) (*UserStruct, error) {
 	return &user, nil
 }
 
-func Registration(email string, password string) bool {
+func Registration(email string, password string) (int64, bool) {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
 	table := interfaceDB.Init()
@@ -101,15 +101,15 @@ func Registration(email string, password string) bool {
 
 	hashPassword, err := hashPassword(password)
 	if err != nil {
-		return false
+		return 0, false
 	}
-	_, err = table.Exec("insert into users (email, password, created_at) values (?, ?, ?)", email, hashPassword, time.Now())
+	result, err := table.Exec("insert into users (email, password, created_at) values (?, ?, ?)", email, hashPassword, time.Now())
 	if err != nil {
 		fmt.Printf("mysql connect error: %v \n", err)
-		return false
+		return 0, false
 	}
-
-	return true
+	id, _ := result.LastInsertId()
+	return id, true
 }
 
 func Login(userEmail string, userPassword string) (*UserStruct, error) {
