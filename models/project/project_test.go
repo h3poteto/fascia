@@ -37,17 +37,10 @@ var _ = Describe("ProjectSave", func() {
 	JustBeforeEach(func() {
 		email := "save@example.com"
 		password := "hogehoge"
-		_ = user.Registration(email, password)
+		uid, _ = user.Registration(email, password)
 		mydb := &db.Database{}
 		var database db.DB = mydb
 		table = database.Init()
-		rows, _ := table.Query("select id from users where email = ?;", email)
-		for rows.Next() {
-			err := rows.Scan(&uid)
-			if err != nil {
-				panic(err.Error())
-			}
-		}
 		newProject = NewProject(0, uid, "title")
 	})
 

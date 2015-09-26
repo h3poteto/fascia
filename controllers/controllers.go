@@ -25,7 +25,7 @@ type JsonError struct {
 var githubOauthConf = &oauth2.Config{
 	ClientID: os.Getenv("CLIENT_ID"),
 	ClientSecret: os.Getenv("CLIENT_SECRET"),
-	Scopes: []string{"repo", "write:repo_hook"},
+	Scopes: []string{"repo", "write:repo_hook", "user:email"},
 	Endpoint: github.Endpoint,
 }
 

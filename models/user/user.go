@@ -93,7 +93,7 @@ func CurrentUser(userID int64) (*UserStruct, error) {
 	return &user, nil
 }
 
-func Registration(email string, password string) bool {
+func Registration(email string, password string) (int64, bool) {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
 	table := interfaceDB.Init()
@@ -101,15 +101,15 @@ func Registration(email string, password string) bool {
 
 	hashPassword, err := hashPassword(password)
 	if err != nil {
-		return false
+		return 0, false
 	}
-	_, err = table.Exec("insert into users (email, password, created_at) values (?, ?, ?)", email, hashPassword, time.Now())
+	result, err := table.Exec("insert into users (email, password, created_at) values (?, ?, ?)", email, hashPassword, time.Now())
 	if err != nil {
 		fmt.Printf("mysql connect error: %v \n", err)
-		return false
+		return 0, false
 	}
-
-	return true
+	id, _ := result.LastInsertId()
+	return id, true
 }
 
 func Login(userEmail string, userPassword string) (*UserStruct, error) {
@@ -156,12 +156,20 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 	client := github.NewClient(tc)
 	githubUser, _, _ := client.Users.Get("")
 
+	// TODO: primaryじゃないEmailも保存しておいてログインブロックに使いたい
+	emails, _, _ := client.Users.ListEmails(nil)
+	var primaryEmail string
+	for _, email := range emails {
+		if *email.Primary {
+			primaryEmail = *email.Email
+		}
+	}
 
 	var id int64
 	var uuid sql.NullInt64
 	var email string
 	var provider, oauthToken, userName, avatarURL sql.NullString
-	rows, _ := table.Query("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where uuid = ?;", *githubUser.ID)
+	rows, _ := table.Query("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where uuid = ? or email = ?;", *githubUser.ID, primaryEmail)
 	for rows.Next() {
 		err := rows.Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 		if err != nil {
@@ -171,14 +179,17 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 	user := NewUser(id, email, provider, oauthToken, uuid, userName, avatarURL)
 
  	if id == 0 {
-		result := user.CreateGithubUser(token, githubUser)
+		result := user.CreateGithubUser(token, githubUser, primaryEmail)
 		if !result {
 			return user, errors.New("cannot login")
 		}
 	}
 
-	if !user.OauthToken.Valid && user.OauthToken.String != token {
-		user.UpdateOauthToken(token)
+	if !user.OauthToken.Valid || user.OauthToken.String != token {
+		result := user.UpdateGithubUserInfo(token, githubUser)
+		if !result {
+			return user, errors.New("cannot update user")
+		}
 	}
 
 	return user, nil
@@ -213,7 +224,7 @@ func (u *UserStruct) Save() bool {
 
 	result, err := table.Exec("insert into users (email, password, provider, oauth_token, uuid, user_name, avatar_url, created_at) values (?, ?, ?, ?, ?, ?, ?, now());", u.Email, u.Password, u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar)
 	if err != nil {
-		fmt.Printf("login error: %+v\n", err)
+		fmt.Printf("user save error: %+v\n", err)
 		return false
 	}
 	u.Id, _ = result.LastInsertId()
@@ -221,11 +232,20 @@ func (u *UserStruct) Save() bool {
 	return true
 }
 
-func (u *UserStruct) CreateGithubUser(token string, githubUser *github.User) bool {
-	// email, password更新
-	// TODO: ここuniqとってるのでもっと慎重にアドレス決定しないとやばい
-	// っていうかアドレスはgithubから取ればよくね
-	u.Email = randomString() + "@fascia.io"
+func (u *UserStruct) Update() bool {
+	table := u.database.Init()
+	defer table.Close()
+
+	_, err := table.Exec("update users set provider = ?, oauth_token = ?, uuid = ?, user_name = ?, avatar_url = ? where email = ?;", u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar, u.Email)
+	if err != nil {
+		fmt.Printf("user update error: %+v\n", err)
+		return false
+	}
+	return true
+}
+
+func (u *UserStruct) CreateGithubUser(token string, githubUser *github.User, primaryEmail string) bool {
+	u.Email = primaryEmail
 	bytePassword, _ := hashPassword(randomString())
 	u.Password = string(bytePassword)
 	u.Provider = sql.NullString{String: "github", Valid: true}
@@ -238,12 +258,12 @@ func (u *UserStruct) CreateGithubUser(token string, githubUser *github.User) boo
 	return true
 }
 
-func (u *UserStruct) UpdateOauthToken(token string) {
-	table := u.database.Init()
-	defer table.Close()
-
-	_, err := table.Exec("update users set oauth_token = ? where id = ?", token, u.Id)
-	if err != nil {
-		panic(err.Error())
-	}
+func (u *UserStruct) UpdateGithubUserInfo(token string, githubUser *github.User) bool {
+	u.Provider = sql.NullString{String: "github", Valid: true}
+	u.OauthToken = sql.NullString{String: token, Valid: true}
+	u.UserName = sql.NullString{String: *githubUser.Login, Valid: true}
+	u.Uuid = sql.NullInt64{Int64: int64(*githubUser.ID), Valid: true}
+	u.Avatar = sql.NullString{String: *githubUser.AvatarURL, Valid: true}
+	u.Update()
+	return true
 }
