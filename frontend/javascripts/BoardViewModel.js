@@ -49,7 +49,7 @@ var BoardViewModel = React.createClass({
       Request
         .post('/projects/')
         .type('form')
-        .send({title: this.state.newProject})
+        .send({title: this.state.newProject, repository: this.state.selectedRepository})
         .end(function(err, res) {
           self.setState({
             isModalOpen: false,
