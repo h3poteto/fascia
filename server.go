@@ -12,6 +12,7 @@ func Routes(m *web.Mux) {
 	// assets
 	m.Get("/stylesheets/*", http.FileServer(http.Dir("./public/assets/")))
 	m.Get("/javascripts/*", http.FileServer(http.Dir("./public/assets/")))
+	m.Get("/images/*", http.FileServer(http.Dir("./frontend/")))
 	// routing
 	m.Get("/", controllers.CallController(&controllers.Root{}, "Index"))
 	m.Get("/sign_in", controllers.CallController(&controllers.Sessions{}, "SignIn"))
