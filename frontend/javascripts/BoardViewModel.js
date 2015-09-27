@@ -6,19 +6,33 @@ var BoardViewModel = React.createClass({
   getInitialState: function() {
     return {
       isModalOpen: false,
-      newText: "",
-      items: []
+      newProject: "",
+      projects: [],
+      repositories: [],
+      selectedRepository: []
     };
   },
-  componentDidMount: function() {
+  componentWillMount: function() {
     var self = this;
     Request
       .get('/projects/')
       .end(function(err, res) {
         if (self.isMounted() && res.body != null) {
           self.setState({
-            newText: "",
-            items: res.body
+            newProject: "",
+            projects: res.body
+          });
+        }
+      });
+  },
+  componentDidMount: function() {
+    var self = this;
+    Request
+      .get('/github/repositories')
+      .end(function(err, res) {
+        if (self.isMounted() && res.body != null) {
+          self.setState({
+            repositories: res.body
           });
         }
       });
@@ -30,29 +44,35 @@ var BoardViewModel = React.createClass({
     this.setState({isModalOpen: false});
   },
   createProject: function() {
-    if (this.state.newText != "") {
+    if (this.state.newProject != "") {
       var self = this;
       Request
         .post('/projects/')
         .type('form')
-        .send({title: this.state.newText})
+        .send({title: this.state.newProject, repository: this.state.selectedRepository})
         .end(function(err, res) {
           self.setState({
             isModalOpen: false,
-            items: self.state.items.concat([{Id: res.body.Id, UserId: res.body.UserId, Title: res.body.Title}]),
-            newText: ""
+            projects: self.state.projects.concat([{Id: res.body.Id, UserId: res.body.UserId, Title: res.body.Title}]),
+            newProject: ""
           });
         });
     }
   },
   updateNewText: function(ev) {
     this.setState({
-      newText: ev.target.value
+      newProject: ev.target.value
+    });
+  },
+  changeSelectRepository: function(ev) {
+    this.setState({
+      newProject: ev.target.options[ev.target.selectedIndex].text,
+      selectedRepository: ev.target.value
     });
   },
 
   render: function() {
-    return BoardView(this, this.state.newText, this.state.items, this.state.isModalOpen);
+    return BoardView(this, this.state.newProject, this.state.projects, this.state.repositories, this.state.isModalOpen, this.state.selectedRepository);
   }
 });
 

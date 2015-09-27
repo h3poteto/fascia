@@ -6,6 +6,7 @@ import (
 	"github.com/zenazn/goji/web"
 	"github.com/goji/param"
 	projectModel "../models/project"
+	repositoryModel "../models/repository"
 )
 
 type Projects struct {
@@ -13,6 +14,7 @@ type Projects struct {
 
 type NewProjectForm struct {
 	Title string `param:"title"`
+	RepositoryID int64 `param:"repository"`
 }
 
 func (u *Projects)Index(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -53,5 +55,9 @@ func (u *Projects)Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("post new project parameter: %+v\n", newProjectForm)
 	project := projectModel.NewProject(0, current_user.Id, newProjectForm.Title)
 	project.Save()
+	if newProjectForm.RepositoryID != 0 {
+		repository := repositoryModel.NewRepository(0, project.Id, newProjectForm.RepositoryID, newProjectForm.Title)
+		repository.Save()
+	}
 	encoder.Encode(*project)
 }

@@ -21,7 +21,7 @@ const customStyles = {
   }
 };
 
-var BoardView = function(component, text, projects, modal) {
+var BoardView = function(component, text, projects, repositories, modal, selectRepository) {
   return (
     <div id="projects">
       <Modal
@@ -33,8 +33,19 @@ var BoardView = function(component, text, projects, modal) {
           <form className="pure-form pure-form-stacked">
             <fieldset>
               <legend>Create Project</legend>
-              <label htmlfor="title">Title</label>
+              <label htmlFor="title">Title</label>
               <input id="title" name="title" type="text" value={text} onChange={component.updateNewText} placeholder="Project Name" className="form-control" />
+              <label htmlFor="repositories">GitHub</label>
+              <select id="repositories" name="repositories" onChange={component.changeSelectRepository} className="form-control">
+                <option value="0">--</option>
+                {repositories.map(function(repo, index) {
+                  if (repo.id == selectRepository) {
+                    return <option value={repo.id} selected>{repo.full_name}</option>;
+                  } else {
+                    return<option value={repo.id}>{repo.full_name}</option>;
+                  }
+                }, component)}
+              </select>
               <div className="form-action">
                 <button onClick={component.createProject} className="pure-button pure-button-primary" type="button">CreateProject</button>
               </div>
@@ -44,12 +55,14 @@ var BoardView = function(component, text, projects, modal) {
       </Modal>
       <div className="items">
         {projects.map(function(item, index) {
-          return <div className="fascia-card pure-button button-secondary" data-id={item.Id}>
-          <span className="card-title">{item.Title}</span>
-          description
-          </div>;
+          return (
+            <div className="fascia-card pure-button button-secondary" data-id={item.Id}>
+            <span className="card-title">{item.Title}</span>
+            description
+            </div>
+          );
          }, component)}
-          <button onClick={component.newProject} className="pure-button button-large fascia-new-project" type="button">New</button>
+            <button onClick={component.newProject} className="pure-button button-large fascia-new-project" type="button">New</button>
       </div>
     </div>
   );
