@@ -18,19 +18,26 @@
     <div class="sign-in-board">
       <form action="/sign_in" method="post" role="form" name="sign_in" id="sign_in" class="pure-form pure-form-stacked">
         <fieldset>
-          <label for="email">Email:</label>
-          <input class="form-control" name="email" type="email" />
-
-          <label for="password">Password:</label>
-          <input class="form-control" name="password" type="password" />
-
+          <legend>Access your dashboard</legend>
           <input name="token" type="hidden" value="{{ token }}" />
+          <div class="pure-control-group control-group">
+            <input class="form-control" name="email" type="email" placeholder="email" />
+          </div>
 
-          <button class="pure-button pure-button-primary" type="submit">SignIn</button>
+          <div class="pure-control-group control-group">
+            <input class="form-control" name="password" type="password" placeholder="password" />
+          </div>
+
+          <div class="pure-controls control-group">
+            Forgot your password?
+          </div>
+          <div class="pure-controls control-group">
+            <button class="pure-button pure-button-primary session-button" type="submit">SignIn</button>
+          </div>
         </fieldset>
       </form>
-      <a href={{ oauthURL }}>SignIn with github</a>
-      <p><a href="sign_up">SignUp</a></p>
+      <a href={{ oauthURL }}><span class="pure-button button-success session-button"><span class="octicon octicon-mark-github"></span> Sign In with Github</span></a>
+      <p><a href="/sign_up"><span class="pure-button button-secondary session-button">SignUp</span></a></p>
     </div>
   </div>
 </div>

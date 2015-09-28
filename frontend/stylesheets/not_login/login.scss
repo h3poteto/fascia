@@ -18,13 +18,21 @@ html, body {
   }
 
   .sign-in-board, .sign-up-board {
+    display: inline-block;
+    text-align: center;
     margin: 100px auto;
-    text-align: left;
     background: rgb(255, 255, 255);
-    width: 400px;
+    width: auto;
     box-sizing: border-box;
     padding: 20px;
     border-radius: 15px;
     color: rgb(51, 51, 51);
+
+    .session-button {
+      width: 100%;
+    }
+    .control-group {
+      margin: 14px 0;
+    }
   }
 }
