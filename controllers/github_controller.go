@@ -28,16 +28,31 @@ func (u *Github)Repositories(c web.C, w http.ResponseWriter, r *http.Request) {
 	)
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 	client := github.NewClient(tc)
-	repositoryOption := &github.RepositoryListOptions{
-		Type: "all",
-		Sort: "full_name",
-		Direction: "asc",
+
+	nextPage := -1
+	var repositories []github.Repository
+	for nextPage != 0 {
+		if nextPage < 0 {
+			nextPage = 0
+		}
+		repositoryOption := &github.RepositoryListOptions{
+			Type: "all",
+			Sort: "full_name",
+			Direction: "asc",
+			ListOptions: github.ListOptions{
+				Page: nextPage,
+				PerPage: 50,
+			},
+		}
+		repos, res, err := client.Repositories.List("", repositoryOption)
+		nextPage = res.NextPage
+		if err != nil {
+			error := JsonError{Error: "repository error"}
+			encoder.Encode(error)
+			return
+		}
+		repositories = append(repositories, repos...)
+
 	}
-	repos, _, err := client.Repositories.List("", repositoryOption)
-	if err != nil {
-		error := JsonError{Error: "repository error"}
-		encoder.Encode(error)
-		return
-	}
-	encoder.Encode(repos)
+	encoder.Encode(repositories)
 }
