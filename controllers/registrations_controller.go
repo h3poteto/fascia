@@ -5,6 +5,7 @@ import (
 	"github.com/zenazn/goji/web"
 	"github.com/goji/param"
 	"github.com/flosch/pongo2"
+	"golang.org/x/oauth2"
 	userModel "../models/user"
 )
 
@@ -19,6 +20,8 @@ type SignUpForm struct {
 }
 
 func (u *Registrations)SignUp(c web.C, w http.ResponseWriter, r *http.Request) {
+	url := githubOauthConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
+
 	token, result := GenerateCSRFToken(c, w, r)
 	if !result {
 		http.Error(w, "Real bad.", 500)
@@ -30,7 +33,7 @@ func (u *Registrations)SignUp(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	tpl.ExecuteWriter(pongo2.Context{"title": "SignUp", "token": token}, w)
+	tpl.ExecuteWriter(pongo2.Context{"title": "SignUp", "oauthURL": url, "token": token}, w)
 }
 
 func (u *Registrations)Registration(c web.C, w http.ResponseWriter, r *http.Request) {
