@@ -4,16 +4,7 @@
 
 {% block content %}
 <div class="session">
-  <header class="not-login">
-    <div class="pure-menu pure-menu-horizontal">
-      <span class="pure-menu-heading">fascia</span>
-      <ul class="pure-menu-list right-align-list">
-        <li class="pure-menu-item"><a href="/" class="pure-menu-link">About</a></li>
-        <li class="pure-menu-item"><a href="/sign_up" class="pure-menu-link">SignUp</a></li>
-        <li class="pure-menu-item"><a href="/sign_in" class="pure-menu-link">SignIn</a></li>
-      </ul>
-    </div>
-  </header>
+  {% include "layouts/_login_header.html.tpl" %}
   <div class="main">
     <div class="sign-in-board">
       <form action="/sign_in" method="post" role="form" name="sign_in" id="sign_in" class="pure-form pure-form-stacked">
