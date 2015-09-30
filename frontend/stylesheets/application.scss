@@ -1,14 +1,7 @@
 @import "common/nav";
 @import "common/base";
 @import "projects/projects";
-
-
-header{
-  width: 100%;
-  background-color: rgb(37, 42, 58);
-  color: rgb(255, 255, 255);
-  box-sizing: border-box;
-}
+@import "not_login/login";
 
 #main_board {
   padding: 20px;

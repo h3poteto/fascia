@@ -48,6 +48,7 @@
   },
   "dependencies": {
     "purecss": "~0.6.0",
-    "octicons": "~2.4.1"
+    "octicons": "~2.4.1",
+    "font-awesome": "~4.4.0"
   }
 }

@@ -1,0 +1,38 @@
+#content {
+  height: 100%;
+}
+html, body {
+  height: 100%;
+}
+.session {
+  background: url("/images/login_back.jpg") no-repeat;
+  background-size: cover;
+  background-position: 50% 50%;
+  background-attachment: fixed;
+  width: 100%;
+  height: 100%;
+
+  .main {
+    text-align: center;
+    color: rgb(255, 255, 255);
+  }
+
+  .sign-in-board, .sign-up-board {
+    display: inline-block;
+    text-align: center;
+    margin: 100px auto 0;
+    background: rgb(255, 255, 255);
+    width: auto;
+    box-sizing: border-box;
+    padding: 20px;
+    border-radius: 15px;
+    color: rgb(51, 51, 51);
+
+    .session-button {
+      width: 100%;
+    }
+    .control-group {
+      margin: 14px 0;
+    }
+  }
+}
