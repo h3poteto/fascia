@@ -4,7 +4,10 @@ import (
 	"net/http"
 	"github.com/zenazn/goji"
 	"github.com/zenazn/goji/web"
+	"github.com/flosch/pongo2"
+	_ "github.com/flosch/pongo2-addons"
 	"./controllers"
+	"./filters"
 )
 
 
@@ -27,6 +30,7 @@ func Routes(m *web.Mux) {
 }
 
 func main() {
+	pongo2.RegisterFilter("suffixAssetsUpdate", filters.SuffixAssetsUpdate)
 	flag.Set("bind", ":9090")
 	Routes(goji.DefaultMux)
 	goji.Serve()
