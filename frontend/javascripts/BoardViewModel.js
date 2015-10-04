@@ -4,7 +4,7 @@ import BoardView from './BoardView.jsx';
 
 class BoardViewModel extends Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       isModalOpen: false,
       newProject: "",

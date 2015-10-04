@@ -3,7 +3,7 @@ import MenuView from './MenuView.jsx';
 
 class MenuViewModel extends Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       selected: "projects"
     };
