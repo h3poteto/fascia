@@ -14,12 +14,11 @@ class BoardViewModel extends Component {
     };
   }
   componentWillMount() {
-    var self = this;
     Request
       .get('/projects/')
-      .end(function(err, res) {
+      .end((err, res)=> {
         if (res.body != null) {
-          self.setState({
+          this.setState({
             newProject: "",
             projects: res.body
           });
@@ -27,12 +26,11 @@ class BoardViewModel extends Component {
       });
   }
   componentDidMount() {
-    var self = this;
     Request
       .get('/github/repositories')
-      .end(function(err, res) {
+      .end((err, res)=> {
         if (res.body != null) {
-          self.setState({
+          this.setState({
             repositories: res.body
           });
         }
@@ -51,7 +49,7 @@ class BoardViewModel extends Component {
         .post('/projects/')
         .type('form')
         .send({title: this.props.newProject, repository: this.props.selectedRepository})
-        .end(function(err, res) {
+        .end((err, res)=> {
           self.setState({
             isModalOpen: false,
             projects: self.state.projects.concat([{Id: res.body.Id, UserId: res.body.UserId, Title: res.body.Title}]),

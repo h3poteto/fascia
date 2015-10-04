@@ -26,7 +26,7 @@ var BoardView = function(component, text, projects, repositories, modal, selectR
     <div id="projects">
       <Modal
         isOpen={modal}
-        onRequestClose={component.closeModal}
+        onRequestClose={component.closeModal.bind(component)}
         style={customStyles}
       >
         <div className="project-form">
@@ -34,9 +34,9 @@ var BoardView = function(component, text, projects, repositories, modal, selectR
             <fieldset>
               <legend>Create Project</legend>
               <label htmlFor="title">Title</label>
-              <input id="title" name="title" type="text" value={text} onChange={component.updateNewText} placeholder="Project Name" className="form-control" />
+              <input id="title" name="title" type="text" value={text} onChange={component.updateNewText.bind(component)} placeholder="Project Name" className="form-control" />
               <label htmlFor="repositories">GitHub</label>
-              <select id="repositories" name="repositories" onChange={component.changeSelectRepository} className="form-control">
+              <select id="repositories" name="repositories" onChange={component.changeSelectRepository.bind(component)} className="form-control">
                 <option value="0">--</option>
                 {repositories.map(function(repo, index) {
                   if (repo.id == selectRepository) {
@@ -47,7 +47,7 @@ var BoardView = function(component, text, projects, repositories, modal, selectR
                 }, component)}
               </select>
               <div className="form-action">
-                <button onClick={component.createProject} className="pure-button pure-button-primary" type="button">CreateProject</button>
+                <button onClick={component.createProject.bind(component)} className="pure-button pure-button-primary" type="button">CreateProject</button>
               </div>
             </fieldset>
           </form>
@@ -62,7 +62,7 @@ var BoardView = function(component, text, projects, repositories, modal, selectR
             </div>
           );
          }, component)}
-            <button onClick={component.newProject} className="pure-button button-large fascia-new-project" type="button">New</button>
+            <button onClick={component.newProject.bind(component)} className="pure-button button-large fascia-new-project" type="button">New</button>
       </div>
     </div>
   );
