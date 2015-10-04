@@ -1,20 +1,21 @@
-import React from 'react';
+import React, { Component } from 'react';
 import MenuView from './MenuView.jsx';
 
-var MenuViewModel = React.createClass({
-  getInitialState: function() {
-    return {
+class MenuViewModel extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
       selected: "projects"
     };
-  },
-  selectMenu: function(selectedClass) {
+  }
+  selectMenu(selectedClass) {
     this.setState({
       selected: selectedClass
     });
-  },
-  render: function() {
+  }
+  render() {
     return MenuView(this.props, this.state.selected);
   }
-});
+}
 
 export default MenuViewModel;

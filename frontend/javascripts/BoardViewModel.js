@@ -1,55 +1,56 @@
-import React from 'react';
+import React, { Component } from 'react';
 import Request from 'superagent';
 import BoardView from './BoardView.jsx';
 
-var BoardViewModel = React.createClass({
-  getInitialState: function() {
-    return {
+class BoardViewModel extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
       isModalOpen: false,
       newProject: "",
       projects: [],
       repositories: [],
       selectedRepository: []
     };
-  },
-  componentWillMount: function() {
+  }
+  componentWillMount() {
     var self = this;
     Request
       .get('/projects/')
       .end(function(err, res) {
-        if (self.isMounted() && res.body != null) {
+        if (res.body != null) {
           self.setState({
             newProject: "",
             projects: res.body
           });
         }
       });
-  },
-  componentDidMount: function() {
+  }
+  componentDidMount() {
     var self = this;
     Request
       .get('/github/repositories')
       .end(function(err, res) {
-        if (self.isMounted() && res.body != null) {
+        if (res.body != null) {
           self.setState({
             repositories: res.body
           });
         }
       });
-  },
-  newProject: function() {
+  }
+  newProject() {
     this.setState({isModalOpen: true});
-  },
-  closeModal: function() {
+  }
+  closeModal() {
     this.setState({isModalOpen: false});
-  },
-  createProject: function() {
+  }
+  createProject() {
     if (this.state.newProject != "") {
       var self = this;
       Request
         .post('/projects/')
         .type('form')
-        .send({title: this.state.newProject, repository: this.state.selectedRepository})
+        .send({title: this.props.newProject, repository: this.props.selectedRepository})
         .end(function(err, res) {
           self.setState({
             isModalOpen: false,
@@ -58,22 +59,21 @@ var BoardViewModel = React.createClass({
           });
         });
     }
-  },
-  updateNewText: function(ev) {
+  }
+  updateNewText(ev) {
     this.setState({
       newProject: ev.target.value
     });
-  },
-  changeSelectRepository: function(ev) {
+  }
+  changeSelectRepository(ev) {
     this.setState({
       newProject: ev.target.options[ev.target.selectedIndex].text,
       selectedRepository: ev.target.value
     });
-  },
-
-  render: function() {
+  }
+  render() {
     return BoardView(this, this.state.newProject, this.state.projects, this.state.repositories, this.state.isModalOpen, this.state.selectedRepository);
   }
-});
+}
 
 export default BoardViewModel;
