@@ -4,9 +4,8 @@ import { connect } from 'react-redux';
 import BoardView from '../components/BoardView.jsx';
 
 function mapStateToProps(state) {
-  const { posts } = state;
-  console.log("state to props");
-  return posts;
+  const { BoardReducer } = state;
+  return BoardReducer;
 }
 
 function mapDispatchToProps(dispatch) {

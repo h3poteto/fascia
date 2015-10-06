@@ -1,6 +1,5 @@
 import React from 'react';
 import Modal from 'react-modal';
-import { fetchProjects } from '../actions/BoardAction';
 
 const customStyles = {
   overlay : {
@@ -29,12 +28,11 @@ class BoardView extends React.Component {
 
   render() {
     const { isModalOpen, newProject, projects, repositories, selectedRepository } = this.props
-    console.log("render");
     return (
       <div id="projects">
         <Modal
           isOpen={isModalOpen}
-          onRequestClose={this.closeModal}
+          onRequestClose={this.props.closeNewProjectModal}
           style={customStyles}
         >
           <div className="project-form">
@@ -42,12 +40,12 @@ class BoardView extends React.Component {
               <fieldset>
                 <legend>Create Project</legend>
                 <label htmlFor="title">Title</label>
-                <input id="title" name="title" type="text" value={newProject} onChange={this.updateNewText} placeholder="Project Name" className="form-control" />
+                <input id="title" name="title" type="text" value={newProject} onChange={this.props.updateNewProject} placeholder="Project Name" className="form-control" />
                 <label htmlFor="repositories">GitHub</label>
-                <select id="repositories" name="repositories" onChange={this.changeSelectRepository} className="form-control">
+                <select id="repositories" name="repositories" onChange={this.props.changeSelectedRepository} className="form-control">
                   <option value="0">--</option>
                   {repositories.map(function(repo, index) {
-                    if (repo.id == selectRepository) {
+                    if (repo.id == selectedRepository) {
                       return <option value={repo.id} selected>{repo.full_name}</option>;
                     } else {
                       return<option value={repo.id}>{repo.full_name}</option>;
@@ -55,7 +53,7 @@ class BoardView extends React.Component {
                    }, this)}
                 </select>
                 <div className="form-action">
-                  <button onClick={this.createProject} className="pure-button pure-button-primary" type="button">CreateProject</button>
+                  <button onClick={e => this.props.fetchCreateProject(newProject, selectedRepository)} className="pure-button pure-button-primary" type="button">CreateProject</button>
                 </div>
               </fieldset>
             </form>
@@ -70,7 +68,7 @@ class BoardView extends React.Component {
               </div>
             );
            }, this)}
-              <button onClick={this.props.newProject} className="pure-button button-large fascia-new-project" type="button">New</button>
+              <button onClick={this.props.openNewProjectModal} className="pure-button button-large fascia-new-project" type="button">New</button>
         </div>
       </div>
     );
