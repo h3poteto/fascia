@@ -1,17 +1,14 @@
 import React from 'react';
 import {Router, Route, Link, IndexRoute} from 'react-router';
-import Request from 'superagent';
-import BoardViewModel from './BoardViewModel';
-import MenuViewModel from './MenuViewModel';
+import { Provider } from 'react-redux';
+import BoardContainer from './containers/BoardContainer';
+import configureStore from './store/configStore';
+import { fetchProjects } from './actions/BoardAction';
 
-// TODO: ある程度できたらreduxで状態管理する
-
-var routes = (
-    <Router>
-      <Route path="/" component={MenuViewModel}>
-        <IndexRoute component={BoardViewModel}/>
-      </Route>
-    </Router>
-);
-
-React.render(routes, document.getElementById("content"));
+const store = configureStore();
+store.dispatch(fetchProjects());
+React.render(
+  <Provider store={store}>
+    {() => <BoardContainer />}
+  </Provider>,
+  document.getElementById("content"));
