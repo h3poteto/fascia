@@ -26,6 +26,14 @@ class BoardView extends React.Component {
     super(props);
   }
 
+  componentWillMount() {
+    this.props.fetchProjects();
+  }
+
+  componentDidMount() {
+    this.props.fetchRepositories();
+  }
+
   render() {
     const { isModalOpen, newProject, projects, repositories, selectedRepository } = this.props
     return (
