@@ -36,17 +36,10 @@ $ gom run server.go
 
 ### npm
 フロント側は`React`を使う関係上，パッケージ管理は`npm`で行います．
+`nodejs`と`npm`を使えるようにしておいてください．
 ```
 $ npm install
 ```
-
-また，ES6やscssのコンパイルのために`gulp`を使います．そのため，`gulp`コマンドを使えるようにしておく必要があります．
-```
-$ npm install -g gulp
-$ gulp watch
-```
-で，監視＆差分コンパイルが走ることを確認してください．
-
 
 以上で準備は完了です．
 
@@ -64,7 +57,7 @@ $ gom run server.go
 ### js, scss
 jsやcssを変更する場合は下記のコマンドによってassetsの差分コンパイルが走るようにしておいてください．
 ```
-$ gulp watchify
+$ npm run-script watch
 ```
 
 ## Test
