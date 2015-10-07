@@ -71,3 +71,11 @@ func (u *Sessions)NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", 302)
 	return
 }
+
+func (u *Sessions) SignOut(c web.C, w http.ResponseWriter, r *http.Request) {
+	session, _ := cookieStore.Get(r, "fascia")
+	session.Options = &sessions.Options{MaxAge: -1}
+	session.Save(r, w)
+	http.Redirect(w, r, "/sign_in", 302)
+	return
+}

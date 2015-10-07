@@ -23,6 +23,7 @@ func Routes(m *web.Mux) {
 	m.Post("/sign_in", controllers.CallController(&controllers.Sessions{}, "NewSession"))
 	m.Get("/sign_up", controllers.CallController(&controllers.Registrations{}, "SignUp"))
 	m.Post("/sign_up", controllers.CallController(&controllers.Registrations{}, "Registration"))
+	m.Post("/sign_out", controllers.CallController(&controllers.Sessions{}, "SignOut"))
 	m.Get("/auth/github", controllers.CallController(&controllers.Oauth{}, "Github"))
 	m.Post("/projects/", controllers.CallController(&controllers.Projects{}, "Create"))
 	m.Get("/projects/", controllers.CallController(&controllers.Projects{}, "Index"))
