@@ -2,10 +2,10 @@ import React from 'react';
 import { Router, Route, Link, IndexRoute } from 'react-router';
 import { reduxReactRouter, routerStateReducer, ReduxRouter } from 'redux-router';
 import { Provider } from 'react-redux';
-import BoardContainer from './containers/BoardContainer';
 import configureStore from './store/configStore';
 import { history } from 'history';
-import BoardView from './components/BoardView.jsx';
+import boardContainer from './containers/BoardContainer';
+import menuContainer from './containers/MenuContainer';
 
 const store = configureStore();
 
@@ -14,8 +14,8 @@ React.render(
     {() =>
       <ReduxRouter>
         <Route history={history}>
-          <Route path="/" component={BoardContainer}>
-            <IndexRoute component={BoardView} />
+          <Route path="/" component={menuContainer}>
+            <IndexRoute component={boardContainer} />
           </Route>
         </Route>
       </ReduxRouter>

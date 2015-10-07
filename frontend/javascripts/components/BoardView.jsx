@@ -35,7 +35,7 @@ class BoardView extends React.Component {
   }
 
   render() {
-    const { isModalOpen, newProject, projects, repositories, selectedRepository } = this.props
+    const { isModalOpen, newProject, projects, repositories, selectedRepository } = this.props.BoardReducer
     return (
       <div id="projects">
         <Modal
