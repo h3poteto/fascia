@@ -4,6 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "watch": "gulp watch",
+    "js-release": "gulp build-release",
+    "sass-release": "gulp sass-release",
     "test": "echo \"Error: no test specified\""
   },
   "repository": {
@@ -21,7 +24,7 @@
     "browserify": "~11.0.1",
     "event-stream": "~3.3.1",
     "fs-extra": "~0.24.0",
-    "gulp": "~3.9.0",
+    "gulp": "^3.9.0",
     "gulp-duration": "0.0.0",
     "gulp-if": "~1.2.5",
     "gulp-load-plugins": "~1.0.0-rc.1",
