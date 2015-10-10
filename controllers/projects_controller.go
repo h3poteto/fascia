@@ -54,7 +54,11 @@ func (u *Projects)Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Printf("post new project parameter: %+v\n", newProjectForm)
 	project := projectModel.NewProject(0, current_user.Id, newProjectForm.Title)
-	project.Save()
+	if !project.Save() {
+		error := JsonError{Error: "save failed"}
+		encoder.Encode(error)
+		return
+	}
 	if newProjectForm.RepositoryID != 0 {
 		repository := repositoryModel.NewRepository(0, project.Id, newProjectForm.RepositoryID, newProjectForm.Title)
 		repository.Save()

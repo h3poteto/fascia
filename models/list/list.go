@@ -6,6 +6,7 @@ import (
 )
 
 type List interface {
+	Save() bool
 }
 
 type ListStruct struct {
@@ -29,4 +30,16 @@ func (u *ListStruct) Initialize() {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
 	u.database = interfaceDB
+}
+
+func (u *ListStruct) Save() bool {
+	table := u.database.Init()
+	defer table.Close()
+
+	result, err := table.Exec("insert into lists (project_id, title, created_at) values (?, ?, now());", u.ProjectId, u.Title)
+	if err != nil {
+		return false
+	}
+	u.Id, _ = result.LastInsertId()
+	return true
 }
