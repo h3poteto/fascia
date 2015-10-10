@@ -29,6 +29,7 @@ var _ = Describe("Repository", func() {
 		sql := database.Init()
 		sql.Exec("truncate table users;")
 		sql.Exec("truncate table projects;")
+		sql.Exec("truncate table repositories;")
 		sql.Close()
 		os.Setenv("DB_NAME", currentdb)
 	})

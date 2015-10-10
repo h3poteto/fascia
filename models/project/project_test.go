@@ -6,12 +6,13 @@ import (
 	"../db"
 	. "../project"
 	"../user"
+	"../list"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("ProjectSave", func() {
+var _ = Describe("Project", func() {
 	var (
 		newProject *ProjectStruct
 		currentdb string
@@ -30,6 +31,7 @@ var _ = Describe("ProjectSave", func() {
 		sql := database.Init()
 		sql.Exec("truncate table users;")
 		sql.Exec("truncate table projects;")
+		sql.Exec("truncate table lists;")
 		sql.Close()
 		os.Setenv("DB_NAME", currentdb)
 	})
@@ -67,5 +69,29 @@ var _ = Describe("ProjectSave", func() {
 			Expect(user_id.Valid).To(BeTrue())
 			Expect(user_id.Int64).To(Equal(uid))
 		})
+	})
+
+	Describe("Lists", func() {
+		var (
+			newList *list.ListStruct
+			newProject *ProjectStruct
+		)
+
+		BeforeEach(func() {
+			email := "lists@example.com"
+			password := "hogehoge"
+			user_id, _ := user.Registration(email, password)
+
+			newProject = NewProject(0, user_id, "project title")
+			_ = newProject.Save()
+			newList = list.NewList(0, newProject.Id, "list title")
+			_ = newList.Save()
+		})
+		It("プロジェクトとリストが関連づいていること", func() {
+			lists := newProject.Lists()
+			Expect(lists).NotTo(BeEmpty())
+			Expect(lists[0].Id).To(Equal(newList.Id))
+		})
+
 	})
 })

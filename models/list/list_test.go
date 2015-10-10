@@ -12,7 +12,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("ListSave", func() {
+var _ = Describe("List", func() {
 	var (
 		newList *ListStruct
 		newProject *project.ProjectStruct
