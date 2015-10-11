@@ -1,10 +1,10 @@
-package repository_test
+package list_test
 
 import (
 	"os"
 	"database/sql"
 	"../db"
-	. "../repository"
+	. "../list"
 	"../project"
 	"../user"
 
@@ -12,8 +12,9 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Repository", func() {
+var _ = Describe("List", func() {
 	var (
+		newList *ListStruct
 		newProject *project.ProjectStruct
 		currentdb string
 		table *sql.DB
@@ -29,12 +30,13 @@ var _ = Describe("Repository", func() {
 		sql := database.Init()
 		sql.Exec("truncate table users;")
 		sql.Exec("truncate table projects;")
-		sql.Exec("truncate table repositories;")
+		sql.Exec("truncate table lists;")
 		sql.Close()
 		os.Setenv("DB_NAME", currentdb)
 	})
+
 	JustBeforeEach(func() {
-		email := "repository@example.com"
+		email := "save@example.com"
 		password := "hogehoge"
 		uid, _ := user.Registration(email, password)
 		mydb := &db.Database{}
@@ -42,28 +44,29 @@ var _ = Describe("Repository", func() {
 		table = database.Init()
 		newProject = project.NewProject(0, uid, "title")
 		newProject.Save()
+		newList = NewList(0, newProject.Id, "list title")
 	})
 
 	Describe("Save", func() {
-		repositoryId := int64(123456)
-		It("リポジトリが新規作成できること", func() {
-			newRepository := NewRepository(0, newProject.Id, repositoryId, "title")
-			result := newRepository.Save()
+		It("リストが登録できること", func() {
+			result := newList.Save()
 			Expect(result).To(BeTrue())
+			Expect(newList.Id).NotTo(Equal(0))
 		})
-		It("リポジトリとプロジェクトが関連づくこと", func() {
-			newRepository := NewRepository(0, newProject.Id, repositoryId, "title")
-			newRepository.Save()
-			rows, _ := table.Query("select repositories.id from repositories inner join projects on repositories.project_id = projects.id;")
-
+		It("プロジェクトとリストが関連づくこと", func() {
+			_ = newList.Save()
+			rows, _ := table.Query("select id, project_id, title from lists where id = ?;", newList.Id)
 			var id int64
+			var project_id int64
+			var title sql.NullString
+
 			for rows.Next() {
-				err := rows.Scan(&id)
+				err := rows.Scan(&id, &project_id, &title)
 				if err != nil {
 					panic(err.Error())
 				}
 			}
-			Expect(id).To(Equal(newRepository.Id))
+			Expect(project_id).To(Equal(newProject.Id))
 		})
 	})
 })

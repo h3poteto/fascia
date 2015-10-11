@@ -134,7 +134,7 @@ var _ = Describe("User", func() {
 
 	})
 
-	Describe("Project", func() {
+	Describe("Projects", func() {
 		var (
 			newProject *project.ProjectStruct
 			current_user *UserStruct
@@ -163,6 +163,7 @@ var _ = Describe("User", func() {
 		})
 		It("ユーザとプロジェクトが関連づいていること", func() {
 			projects := current_user.Projects()
+			Expect(projects).NotTo(BeEmpty())
 			Expect(projects[0].Id).To(Equal(newProject.Id))
 		})
 	})
