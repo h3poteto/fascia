@@ -1,23 +1,24 @@
-package list_test
+package task_test
 
 import (
 	"os"
 	"database/sql"
 	"../db"
-	. "../list"
+	. "../task"
 	"../project"
+	"../list"
 	"../user"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("List", func() {
+var _ = Describe("Task", func() {
 	var (
-		newList *ListStruct
-		newProject *project.ProjectStruct
-		currentdb string
+		newList *list.ListStruct
+		newTask *TaskStruct
 		table *sql.DB
+		currentdb string
 	)
 	BeforeEach(func() {
 		testdb := os.Getenv("DB_TEST_NAME")
@@ -31,10 +32,10 @@ var _ = Describe("List", func() {
 		sql.Exec("truncate table users;")
 		sql.Exec("truncate table projects;")
 		sql.Exec("truncate table lists;")
+		sql.Exec("truncate table tasks;")
 		sql.Close()
 		os.Setenv("DB_NAME", currentdb)
 	})
-
 	JustBeforeEach(func() {
 		email := "save@example.com"
 		password := "hogehoge"
@@ -42,39 +43,31 @@ var _ = Describe("List", func() {
 		mydb := &db.Database{}
 		var database db.DB = mydb
 		table = database.Init()
-		newProject = project.NewProject(0, uid, "title")
+		newProject := project.NewProject(0, uid, "title")
 		newProject.Save()
-		newList = NewList(0, newProject.Id, "list title")
+		newList = list.NewList(0, newProject.Id, "list title")
+		newList.Save()
+		newTask = NewTask(0, newList.Id, "task title")
 	})
 
 	Describe("Save", func() {
-		It("リストが登録できること", func() {
-			result := newList.Save()
+		It("タスクが登録できること", func() {
+			result := newTask.Save()
 			Expect(result).To(BeTrue())
-			Expect(newList.Id).NotTo(Equal(0))
+			Expect(newTask.Id).NotTo(Equal(0))
 		})
-		It("プロジェクトとリストが関連づくこと", func() {
-			_ = newList.Save()
-			rows, _ := table.Query("select id, project_id, title from lists where id = ?;", newList.Id)
-			var id int64
-			var project_id int64
+		It("タスクとリストが関連づくこと", func() {
+			_ = newTask.Save()
+			rows, _ := table.Query("select id, list_id, title from tasks where id = ?;", newTask.Id)
+			var id, list_id int64
 			var title sql.NullString
-
 			for rows.Next() {
-				err := rows.Scan(&id, &project_id, &title)
+				err := rows.Scan(&id, &list_id, &title)
 				if err != nil {
 					panic(err.Error())
 				}
 			}
-			Expect(project_id).To(Equal(newProject.Id))
-		})
-	})
-
-	Describe("FindList", func() {
-		It("プロジェクトに関連づいたリストが見つかること", func() {
-			_ = newList.Save()
-			findList := FindList(newProject.Id, newList.Id)
-			Expect(findList).To(Equal(newList))
+			Expect(list_id).To(Equal(newTask.Id))
 		})
 	})
 })
