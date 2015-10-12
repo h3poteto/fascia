@@ -38,7 +38,7 @@ export default function BoardReducer(state = initState, action) {
   case boardActions.RECEIVE_CREATE_PROJECT:
     const projects = state.projects.concat([action.project]);
     return Object.assign({}, state, {
-      newProject: {},
+      newProject: {title: "", description: ""},
       projects: projects,
       isModalOpen: false
     });
