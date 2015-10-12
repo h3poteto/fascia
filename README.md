@@ -68,5 +68,5 @@ $ npm run-script watch
 
 以下のコマンドにより，すべてのテストを実行してくれます．
 ```
-$ gom exec ginkgo ./
+$ gom exec ginkgo -r ./
 ```
