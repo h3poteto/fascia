@@ -88,10 +88,10 @@ function requestCreateProject() {
 }
 
 export const RECEIVE_CREATE_PROJECT = 'RECEIVE_CREATE_PROJECT';
-function receiveCreateProject(id, userId, title) {
+function receiveCreateProject(id, userId, title, description) {
   return {
     type: RECEIVE_CREATE_PROJECT,
-    project: {Id: id, UserId: userId, Title: title}
+    project: {Id: id, UserId: userId, Title: title, Description: description}
   };
 }
 
@@ -105,7 +105,7 @@ export function fetchCreateProject(title, description, repository) {
       .send({title: title, description: description, repository: repository})
       .end((err, res)=> {
         if (res.body != null) {
-          dispatch(receiveCreateProject(res.body.Id, res.body.UserId, res.body.Title));
+          dispatch(receiveCreateProject(res.body.Id, res.body.UserId, res.body.Title, res.body.Description));
         }
       });
     };
