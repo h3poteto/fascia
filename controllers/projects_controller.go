@@ -14,6 +14,7 @@ type Projects struct {
 
 type NewProjectForm struct {
 	Title string `param:"title"`
+	Description string `param:"description"`
 	RepositoryID int64 `param:"repository"`
 }
 
@@ -53,7 +54,7 @@ func (u *Projects)Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Printf("post new project parameter: %+v\n", newProjectForm)
-	project := projectModel.NewProject(0, current_user.Id, newProjectForm.Title)
+	project := projectModel.NewProject(0, current_user.Id, newProjectForm.Title, newProjectForm.Description)
 	if !project.Save() {
 		error := JsonError{Error: "save failed"}
 		encoder.Encode(error)

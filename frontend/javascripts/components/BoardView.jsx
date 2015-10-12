@@ -48,7 +48,9 @@ class BoardView extends React.Component {
               <fieldset>
                 <legend>Create Project</legend>
                 <label htmlFor="title">Title</label>
-                <input id="title" name="title" type="text" value={newProject} onChange={this.props.updateNewProject} placeholder="Project Name" className="form-control" />
+                <input id="title" name="title" type="text" value={newProject.title} onChange={this.props.updateNewProjectTitle} placeholder="Project Name" className="form-control" />
+                <label htmlFor="description">Description</label>
+                <input id="description" name="description" type="text" value={newProject.description} onChange={this.props.updateNewProjectDescription} placeholder="Description" className="form-control" />
                 <label htmlFor="repositories">GitHub</label>
                 <select id="repositories" name="repositories" onChange={this.props.changeSelectedRepository} className="form-control">
                   <option value="0">--</option>
@@ -61,7 +63,7 @@ class BoardView extends React.Component {
                    }, this)}
                 </select>
                 <div className="form-action">
-                  <button onClick={e => this.props.fetchCreateProject(newProject, selectedRepository)} className="pure-button pure-button-primary" type="button">CreateProject</button>
+                  <button onClick={e => this.props.fetchCreateProject(newProject.title, newProject.description, selectedRepository)} className="pure-button pure-button-primary" type="button">CreateProject</button>
                 </div>
               </fieldset>
             </form>
@@ -72,7 +74,7 @@ class BoardView extends React.Component {
             return (
               <div className="fascia-card pure-button button-secondary" data-id={item.Id}>
               <span className="card-title">{item.Title}</span>
-              description
+              <span className="card-description">{item.Description}</span>
               </div>
             );
            }, this)}

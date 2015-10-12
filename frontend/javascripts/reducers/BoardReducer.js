@@ -2,7 +2,7 @@ import * as boardActions from '../actions/BoardAction';
 
 const initState = {
   isModalOpen: false,
-  newProject: "",
+  newProject: {title: "", description: ""},
   projects: [],
   repositories: [],
   selectedRepository: null
@@ -38,13 +38,21 @@ export default function BoardReducer(state = initState, action) {
   case boardActions.RECEIVE_CREATE_PROJECT:
     const projects = state.projects.concat([action.project]);
     return Object.assign({}, state, {
-      newProject: "",
+      newProject: {},
       projects: projects,
       isModalOpen: false
     });
-  case boardActions.UPDATE_NEW_PROJECT:
+  case boardActions.UPDATE_NEW_PROJECT_TITLE:
+    var newProject = state.newProject;
+    newProject.title = action.title;
     return Object.assign({}, state, {
-      newProject: action.title
+      newProject: newProject 
+    });
+  case boardActions.UPDATE_NEW_PROJECT_DESCRIPTION:
+    var newProject = state.newProject;
+    newProject.description = action.description;
+    return Object.assign({}, state, {
+      newProject: newProject
     });
   default:
     return state;
