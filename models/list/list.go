@@ -35,7 +35,7 @@ func FindList(projectID int64, listID int64) *ListStruct {
 
 	var id, projectId int64
 	var title string
-	rows, _ := table.Query("select id, project_id, title from lists where id = ? AND project_id ?;", listID, projectID)
+	rows, _ := table.Query("select id, project_id, title from lists where id = ? AND project_id = ?;", listID, projectID)
 	for rows.Next() {
 		err := rows.Scan(&id, &projectId, &title)
 		if err != nil {
