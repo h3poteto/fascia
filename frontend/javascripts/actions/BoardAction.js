@@ -88,33 +88,41 @@ function requestCreateProject() {
 }
 
 export const RECEIVE_CREATE_PROJECT = 'RECEIVE_CREATE_PROJECT';
-function receiveCreateProject(id, userId, title) {
+function receiveCreateProject(id, userId, title, description) {
   return {
     type: RECEIVE_CREATE_PROJECT,
-    project: {Id: id, UserId: userId, Title: title}
+    project: {Id: id, UserId: userId, Title: title, Description: description}
   };
 }
 
 
-export function fetchCreateProject(title, repository) {
+export function fetchCreateProject(title, description, repository) {
   return dispatch => {
     dispatch(requestCreateProject());
     return Request
       .post('/projects/')
       .type('form')
-      .send({title: title, repository: repository})
+      .send({title: title, description: description, repository: repository})
       .end((err, res)=> {
         if (res.body != null) {
-          dispatch(receiveCreateProject(res.body.Id, res.body.UserId, res.body.Title));
+          dispatch(receiveCreateProject(res.body.Id, res.body.UserId, res.body.Title, res.body.Description));
         }
       });
     };
 }
 
-export const UPDATE_NEW_PROJECT = 'UPDATE_NEW_PROJECT';
-export function updateNewProject(ev) {
+export const UPDATE_NEW_PROJECT_TITLE = 'UPDATE_NEW_PROJECT_TITLE';
+export function updateNewProjectTitle(ev) {
   return {
-    type: UPDATE_NEW_PROJECT,
+    type: UPDATE_NEW_PROJECT_TITLE,
     title: ev.target.value
+  };
+}
+
+export const UPDATE_NEW_PROJECT_DESCRIPTION = 'UPDATE_NEW_PROJECT_DESCRIPTION';
+export function updateNewProjectDescription(ev) {
+  return {
+    type: UPDATE_NEW_PROJECT_DESCRIPTION,
+    description: ev.target.value
   };
 }

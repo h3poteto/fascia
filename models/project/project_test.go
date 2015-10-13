@@ -43,7 +43,7 @@ var _ = Describe("Project", func() {
 		mydb := &db.Database{}
 		var database db.DB = mydb
 		table = database.Init()
-		newProject = NewProject(0, uid, "title")
+		newProject = NewProject(0, uid, "title", "desc")
 	})
 
 	Describe("Save", func() {
@@ -54,14 +54,15 @@ var _ = Describe("Project", func() {
 		})
 		It("ユーザとプロジェクトが関連付くこと", func() {
 			_ = newProject.Save()
-			rows, _ := table.Query("select id, user_id, title from projects where id = ?;", newProject.Id)
+			rows, _ := table.Query("select id, user_id, title, description from projects where id = ?;", newProject.Id)
 
 			var id int64
 			var user_id sql.NullInt64
 			var title string
+			var description string
 
 			for rows.Next() {
-				err := rows.Scan(&id, &user_id, &title)
+				err := rows.Scan(&id, &user_id, &title, &description)
 				if err != nil {
 					panic(err.Error())
 				}
@@ -82,7 +83,7 @@ var _ = Describe("Project", func() {
 			password := "hogehoge"
 			user_id, _ := user.Registration(email, password)
 
-			newProject = NewProject(0, user_id, "project title")
+			newProject = NewProject(0, user_id, "project title", "project desc")
 			_ = newProject.Save()
 			newList = list.NewList(0, newProject.Id, "list title")
 			_ = newList.Save()

@@ -40,7 +40,7 @@ var _ = Describe("Repository", func() {
 		mydb := &db.Database{}
 		var database db.DB = mydb
 		table = database.Init()
-		newProject = project.NewProject(0, uid, "title")
+		newProject = project.NewProject(0, uid, "title", "desc")
 		newProject.Save()
 	})
 

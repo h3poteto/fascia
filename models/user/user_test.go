@@ -157,7 +157,7 @@ var _ = Describe("User", func() {
 					panic(err.Error())
 				}
 			}
-			newProject = project.NewProject(0, userid, "project title")
+			newProject = project.NewProject(0, userid, "project title", "project desc")
 			_ = newProject.Save()
 			current_user = NewUser(userid, dbemail, sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
 		})

@@ -15,15 +15,16 @@ type ProjectStruct struct {
 	Id int64
 	UserId sql.NullInt64
 	Title string
+	Description string
 	database db.DB
 }
 
-func NewProject(id int64, userID int64, title string) *ProjectStruct {
+func NewProject(id int64, userID int64, title string, description string) *ProjectStruct {
 	if userID == 0 {
 		return nil
 	}
 	nullUserID := sql.NullInt64{Int64: int64(userID), Valid: true}
-	project := &ProjectStruct{Id: id, UserId: nullUserID, Title: title}
+	project := &ProjectStruct{Id: id, UserId: nullUserID, Title: title, Description: description}
 	project.Initialize()
 	return project
 }
@@ -37,15 +38,16 @@ func FindProject(projectID int64) *ProjectStruct {
 	var id int64
 	var userID sql.NullInt64
 	var title string
-	rows, _ := table.Query("select id, user_id, title from projects where id = ?;", projectID)
+	var description string
+	rows, _ := table.Query("select id, user_id, title, description from projects where id = ?;", projectID)
 	for rows.Next() {
-		err := rows.Scan(&id, &userID, &title)
+		err := rows.Scan(&id, &userID, &title, &description)
 		if err != nil {
 			panic(err.Error())
 		}
 	}
 	if userID.Valid {
-		project := NewProject(id, userID.Int64, title)
+		project := NewProject(id, userID.Int64, title, description)
 		return project
 	} else {
 		return nil
@@ -62,7 +64,7 @@ func (u *ProjectStruct) Save() bool {
 	table := u.database.Init()
 	defer table.Close()
 
-	result, err := table.Exec("insert into projects (user_id, title, created_at) values (?, ?, now());", u.UserId, u.Title)
+	result, err := table.Exec("insert into projects (user_id, title, description, created_at) values (?, ?, ?, now());", u.UserId, u.Title, u.Description)
 	if err != nil {
 		return false
 	}
