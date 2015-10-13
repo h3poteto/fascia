@@ -27,8 +27,7 @@ func (u *Sessions)SignIn(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Real bad.", 500)
 		return
 	}
-
-	tpl, err := pongo2.DefaultSet.FromFile("views/sign_in.html.tpl")
+	tpl, err := pongo2.DefaultSet.FromFile("sign_in.html.tpl")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -60,7 +59,7 @@ func (u *Sessions)NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	current_user, err := userModel.Login(signInForm.Email, signInForm.Password)
 	if err != nil {
-		http.Redirect(w, r, "/sign_in", 301)
+		http.Redirect(w, r, "/sign_in", 302)
 		return
 	}
 	fmt.Printf("%+v\n", current_user)

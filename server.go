@@ -34,6 +34,7 @@ func Routes(m *web.Mux) {
 }
 
 func main() {
+	pongo2.DefaultSet = pongo2.NewSet("default", pongo2.MustNewLocalFileSystemLoader("./views"))
 	pongo2.RegisterFilter("suffixAssetsUpdate", filters.SuffixAssetsUpdate)
 	flag.Set("bind", ":9090")
 	Routes(goji.DefaultMux)
