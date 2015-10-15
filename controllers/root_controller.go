@@ -9,7 +9,7 @@ import (
 type Root struct {
 }
 func (u *Root)Index(c web.C, w http.ResponseWriter, r *http.Request) {
-	current_user, result := LoginRequired(c, w, r)
+	current_user, result := LoginRequired(r)
 	fmt.Printf("current_user: %+v\n", current_user)
 	if !result {
 		fmt.Printf("login required\n")

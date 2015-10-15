@@ -56,7 +56,6 @@ func (u *Sessions)NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Cannot verify CSRF token", 500)
 		return
 	}
-
 	current_user, err := userModel.Login(signInForm.Email, signInForm.Password)
 	if err != nil {
 		http.Redirect(w, r, "/sign_in", 302)
