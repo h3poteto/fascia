@@ -94,16 +94,7 @@ var _ = Describe("SessionsController", func() {
 
 	Describe("SignOut", func() {
 		JustBeforeEach(func() {
-			CheckCSRFToken = func(r *http.Request, token string) bool { return true }
-			id, _ := user.Registration("signout@example.com", "hogehoge")
-			LoginRequired = func(r *http.Request) (*user.UserStruct, bool) {
-				current_user, _ := user.CurrentUser(id)
-				return current_user, true
-			}
-			values := url.Values{}
-			values.Add("email", "signout@example.com")
-			values.Add("password", "hogehoge")
-			http.PostForm(ts.URL + "/sign_in", values)
+			LoginFaker(ts, "sign_out@example.com", "hogehoge")
 		})
 		It("ログアウトできること", func() {
 			values := url.Values{}
