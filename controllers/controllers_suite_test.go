@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"net/http/httptest"
+	"encoding/json"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/flosch/pongo2"
@@ -26,13 +27,15 @@ var _ = BeforeSuite(func() {
 	pongo2.DefaultSet = pongo2.NewSet("test", pongo2.MustNewLocalFileSystemLoader("../views"))
 })
 
-func ParseResponse(res *http.Response) (string, int) {
+func ParseResponse(res *http.Response) (map[string]interface{}, int) {
 	defer res.Body.Close()
+	resp := make(map[string]interface{})
 	contents, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		panic(err)
 	}
-	return string(contents), res.StatusCode
+	json.Unmarshal(contents, &resp)
+	return resp, res.StatusCode
 }
 
 func LoginFaker(ts *httptest.Server, email string, password string) {

@@ -40,6 +40,10 @@ var _ = Describe("SessionsController", func() {
 		os.Setenv("DB_NAME", currentdb)
 	})
 	Describe("SignIn", func() {
+		JustBeforeEach(func() {
+			values := url.Values{}
+			http.PostForm(ts.URL + "/sign_out", values)
+		})
 		Context("/sign_in", func() {
 			It("アクセスできること", func() {
 				res, err := http.Get(ts.URL + "/sign_in")
@@ -49,10 +53,12 @@ var _ = Describe("SessionsController", func() {
 				Expect(contents).NotTo(BeNil())
 			})
 		})
+		// これの前にログアウト処理をしておかないと
 		Context("/", func() {
 			It("リダイレクトされること", func() {
 				res, err := http.Get(ts.URL + "/")
 				Expect(err).To(BeNil())
+				Expect(res.StatusCode).To(Equal(200))
 				Expect(res.Request.URL.Path).To(Equal("/sign_in"))
 			})
 		})

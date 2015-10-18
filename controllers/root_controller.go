@@ -11,12 +11,12 @@ type Root struct {
 func (u *Root)Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	current_user, result := LoginRequired(r)
 	fmt.Printf("current_user: %+v\n", current_user)
-	if !result {
+	if !result || current_user.Id == 0 {
 		fmt.Printf("login required\n")
 		http.Redirect(w, r, "/sign_in", 302)
 		return
 	}
-	tpl, err := pongo2.DefaultSet.FromFile("views/home.html.tpl")
+	tpl, err := pongo2.DefaultSet.FromFile("home.html.tpl")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
