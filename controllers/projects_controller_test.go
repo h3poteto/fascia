@@ -7,6 +7,7 @@ import (
 	"net/url"
 	. "../../fascia"
 	"../models/db"
+	"../models/project"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -40,10 +41,16 @@ var _ = Describe("ProjectsController", func() {
 		LoginFaker(ts, "projects@example.com", "hogehoge")
 	})
 	Describe("Create", func() {
-		It("登録できること", func() {
+		var (
+			res *http.Response
+			err error
+		)
+		JustBeforeEach(func() {
 			values := url.Values{}
 			values.Add("title", "projectTitle")
-			res, err := http.PostForm(ts.URL + "/projects", values)
+			res, err = http.PostForm(ts.URL + "/projects", values)
+		})
+		It("新規登録できること", func() {
 			Expect(err).To(BeNil())
 			contents, status := ParseResponse(res)
 			Expect(status).To(Equal(http.StatusOK))
@@ -51,6 +58,12 @@ var _ = Describe("ProjectsController", func() {
 			Expect(contents).To(HaveKey("Id"))
 			Expect(contents).To(HaveKey("UserId"))
 			Expect(contents).To(HaveKeyWithValue("Title", "projectTitle"))
+		})
+		It("DBに登録されていること", func() {
+			contents, _ := ParseResponse(res)
+			newProject := project.FindProject(int64(contents["Id"].(float64)))
+			Expect(newProject.Id).To(BeEquivalentTo(contents["Id"]))
+			Expect(newProject.Title).To(Equal("projectTitle"))
 		})
 	})
 })

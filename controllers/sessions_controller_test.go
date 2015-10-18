@@ -1,7 +1,6 @@
 package controllers_test
 
 import (
-	"fmt"
 	"os"
 	"net/http"
 	"net/http/httptest"
@@ -92,7 +91,6 @@ var _ = Describe("SessionsController", func() {
 				values.Add("password", "hogehoge")
 				res, err := http.PostForm(ts.URL + "/sign_in", values)
 				Expect(err).To(BeNil())
-				fmt.Printf("request: %+v\n", res)
 				Expect(res.Request.URL.Path).To(Equal("/"))
 			})
 		})
