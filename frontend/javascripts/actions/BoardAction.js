@@ -19,7 +19,7 @@ export function fetchProjects() {
   return dispatch => {
     dispatch(requestPosts());
     return Request
-      .get('/projects/')
+      .get('/projects')
       .end((err, res)=> {
         if (res.body != null) {
           dispatch(receivePosts(res.body));
@@ -100,7 +100,7 @@ export function fetchCreateProject(title, repository) {
   return dispatch => {
     dispatch(requestCreateProject());
     return Request
-      .post('/projects/')
+      .post('/projects')
       .type('form')
       .send({title: title, repository: repository})
       .end((err, res)=> {

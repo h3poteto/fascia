@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"io/ioutil"
+	"encoding/json"
 	. "../../fascia"
 	"../models/db"
 	"../models/project"
@@ -64,6 +66,26 @@ var _ = Describe("ProjectsController", func() {
 			newProject := project.FindProject(int64(contents["Id"].(float64)))
 			Expect(newProject.Id).To(BeEquivalentTo(contents["Id"]))
 			Expect(newProject.Title).To(Equal("projectTitle"))
+		})
+	})
+
+	Describe("Index", func() {
+		JustBeforeEach(func() {
+			values := url.Values{}
+			values.Add("title", "project1")
+			_, _ = http.PostForm(ts.URL + "/projects", values)
+			values.Set("title", "project2")
+			_, _ = http.PostForm(ts.URL + "/projects", values)
+		})
+		It("プロジェクト一覧が取得できること", func() {
+			res, err := http.Get(ts.URL + "/projects")
+			Expect(err).To(BeNil())
+			var resp []project.ProjectStruct
+			con, _ := ioutil.ReadAll(res.Body)
+			json.Unmarshal(con, &resp)
+			Expect(res.StatusCode).To(Equal(http.StatusOK))
+			Expect(resp[0].Title).To(Equal("project1"))
+			Expect(resp[1].Title).To(Equal("project2"))
 		})
 	})
 })
