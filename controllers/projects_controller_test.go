@@ -54,7 +54,7 @@ var _ = Describe("ProjectsController", func() {
 		})
 		It("新規登録できること", func() {
 			Expect(err).To(BeNil())
-			contents, status := ParseResponse(res)
+			contents, status := ParseJson(res)
 			Expect(status).To(Equal(http.StatusOK))
 			Expect(contents).NotTo(BeNil())
 			Expect(contents).To(HaveKey("Id"))
@@ -62,9 +62,10 @@ var _ = Describe("ProjectsController", func() {
 			Expect(contents).To(HaveKeyWithValue("Title", "projectTitle"))
 		})
 		It("DBに登録されていること", func() {
-			contents, _ := ParseResponse(res)
-			newProject := project.FindProject(int64(contents["Id"].(float64)))
-			Expect(newProject.Id).To(BeEquivalentTo(contents["Id"]))
+			contents, _ := ParseJson(res)
+			parseContents := contents.(map[string]interface{})
+			newProject := project.FindProject(int64(parseContents["Id"].(float64)))
+			Expect(newProject.Id).To(BeEquivalentTo(parseContents["Id"]))
 			Expect(newProject.Title).To(Equal("projectTitle"))
 		})
 	})

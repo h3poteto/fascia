@@ -27,9 +27,9 @@ var _ = BeforeSuite(func() {
 	pongo2.DefaultSet = pongo2.NewSet("test", pongo2.MustNewLocalFileSystemLoader("../views"))
 })
 
-func ParseResponse(res *http.Response) (map[string]interface{}, int) {
+func ParseJson(res *http.Response) (interface{}, int) {
 	defer res.Body.Close()
-	resp := make(map[string]interface{})
+	var resp interface{}
 	contents, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		panic(err)
@@ -37,6 +37,16 @@ func ParseResponse(res *http.Response) (map[string]interface{}, int) {
 	json.Unmarshal(contents, &resp)
 	return resp, res.StatusCode
 }
+
+func ParseResponse(res *http.Response) (string, int) {
+	defer res.Body.Close()
+	contents, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		panic(err)
+	}
+	return string(contents), res.StatusCode
+}
+
 
 func LoginFaker(ts *httptest.Server, email string, password string) {
 	CheckCSRFToken = func(r *http.Request, token string) bool { return true }
