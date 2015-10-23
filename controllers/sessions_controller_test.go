@@ -97,6 +97,12 @@ var _ = Describe("SessionsController", func() {
 			})
 			Context("パスワードが違うとき", func() {
 				It("ログインできないこと", func() {
+					values := url.Values{}
+					values.Add("email", "registration@example.com")
+					values.Add("password", "fugafuga")
+					res, err := http.PostForm(ts.URL + "/sign_in", values)
+					Expect(err).To(BeNil())
+					Expect(res.Request.URL.Path).To(Equal("/sign_in"))
 				})
 			})
 		})
