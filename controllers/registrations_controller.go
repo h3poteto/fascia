@@ -28,7 +28,7 @@ func (u *Registrations)SignUp(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tpl, err := pongo2.DefaultSet.FromFile("views/sign_up.html.tpl")
+	tpl, err := pongo2.DefaultSet.FromFile("sign_up.html.tpl")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

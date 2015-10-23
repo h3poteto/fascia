@@ -85,13 +85,19 @@ var _ = Describe("SessionsController", func() {
 					return current_user, true
 				}
 			})
-			It("ログインできること", func() {
-				values := url.Values{}
-				values.Add("email", "registration@example.com")
-				values.Add("password", "hogehoge")
-				res, err := http.PostForm(ts.URL + "/sign_in", values)
-				Expect(err).To(BeNil())
-				Expect(res.Request.URL.Path).To(Equal("/"))
+			Context("パスワードが正しいとき", func() {
+				It("ログインできること", func() {
+					values := url.Values{}
+					values.Add("email", "registration@example.com")
+					values.Add("password", "hogehoge")
+					res, err := http.PostForm(ts.URL + "/sign_in", values)
+					Expect(err).To(BeNil())
+					Expect(res.Request.URL.Path).To(Equal("/"))
+				})
+			})
+			Context("パスワードが違うとき", func() {
+				It("ログインできないこと", func() {
+				})
 			})
 		})
 	})
