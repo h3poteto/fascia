@@ -21,7 +21,7 @@ const customStyles = {
   }
 };
 
-class BoardView extends React.Component {
+class ProjectView extends React.Component {
   constructor(props) {
     super(props);
   }
@@ -35,7 +35,7 @@ class BoardView extends React.Component {
   }
 
   render() {
-    const { isModalOpen, newProject, projects, repositories, selectedRepository } = this.props.BoardReducer
+    const { isModalOpen, newProject, projects, repositories, selectedRepository } = this.props.ProjectReducer
     return (
       <div id="projects">
         <Modal
@@ -85,4 +85,4 @@ class BoardView extends React.Component {
   }
 }
 
-export default BoardView;
+export default ProjectView;

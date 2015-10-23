@@ -1,15 +1,15 @@
-import * as boardActions from '../actions/BoardAction';
+import * as projectActions from '../actions/ProjectAction';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import BoardView from '../components/BoardView.jsx';
+import ProjectView from '../components/ProjectView.jsx';
 import mapStateToProps from './mapStateToProps';
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(boardActions, dispatch);
+  return bindActionCreators(projectActions, dispatch);
 }
 
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(BoardView);
+)(ProjectView);

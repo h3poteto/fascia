@@ -1,7 +1,7 @@
 export default function mapStateToProps(state) {
-  const { BoardReducer } = state;
+  const { ProjectReducer } = state;
   return {
     routerState: state.router,
-    BoardReducer
+    ProjectReducer
   };
 }
