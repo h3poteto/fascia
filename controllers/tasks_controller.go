@@ -20,7 +20,7 @@ type NewTaskForm struct {
 
 func (u *Tasks)Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	_, result := LoginRequired(c, w, r)
+	_, result := LoginRequired(r)
 	encoder := json.NewEncoder(w)
 	if !result {
 		error := JsonError{Error: "not logined"}

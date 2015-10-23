@@ -25,8 +25,8 @@ func Routes(m *web.Mux) {
 	m.Post("/sign_up", controllers.CallController(&controllers.Registrations{}, "Registration"))
 	m.Post("/sign_out", controllers.CallController(&controllers.Sessions{}, "SignOut"))
 	m.Get("/auth/github", controllers.CallController(&controllers.Oauth{}, "Github"))
-	m.Post("/projects/", controllers.CallController(&controllers.Projects{}, "Create"))
-	m.Get("/projects/", controllers.CallController(&controllers.Projects{}, "Index"))
+	m.Post("/projects", controllers.CallController(&controllers.Projects{}, "Create"))
+	m.Get("/projects", controllers.CallController(&controllers.Projects{}, "Index"))
 	m.Get("/github/repositories", controllers.CallController(&controllers.Github{}, "Repositories"))
 	m.Get("/projects/:project_id/lists", controllers.CallController(&controllers.Lists{}, "Index"))
 	m.Post("/projects/:project_id/lists", controllers.CallController(&controllers.Lists{}, "Create"))
@@ -34,6 +34,7 @@ func Routes(m *web.Mux) {
 }
 
 func main() {
+	pongo2.DefaultSet = pongo2.NewSet("default", pongo2.MustNewLocalFileSystemLoader("./views"))
 	pongo2.RegisterFilter("suffixAssetsUpdate", filters.SuffixAssetsUpdate)
 	flag.Set("bind", ":9090")
 	Routes(goji.DefaultMux)

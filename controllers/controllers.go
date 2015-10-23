@@ -30,13 +30,16 @@ var githubOauthConf = &oauth2.Config{
 }
 
 var cookieStore = sessions.NewCookieStore([]byte("session-kesy"))
+// ここテストでstubするために関数ポインタをグローバル変数に代入しておきます．もしインスタンスメソッドではない関数をstubする方法があれば，書き換えて構わない．
+var CheckCSRFToken = checkCSRF
+var LoginRequired = checkLogin
 
 func CallController(controller interface{}, action string) interface{} {
 	method := reflect.ValueOf(controller).MethodByName(action)
 	return method.Interface()
 }
 
-func LoginRequired(c web.C, w http.ResponseWriter, r *http.Request) (*userModel.UserStruct, bool) {
+func checkLogin(r *http.Request) (*userModel.UserStruct, bool) {
 	session, err := cookieStore.Get(r, Key)
 	if err != nil {
 		fmt.Printf("cookie error\n")
@@ -72,7 +75,7 @@ func GenerateCSRFToken(c web.C, w http.ResponseWriter, r *http.Request) (string,
 	return token, true
 }
 
-func CheckCSRFToken(r *http.Request, token string) (bool) {
+func checkCSRF(r *http.Request, token string) (bool) {
 	session, err := cookieStore.Get(r, Key)
 	if err != nil {
 		return false
