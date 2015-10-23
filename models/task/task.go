@@ -1,6 +1,7 @@
 package task
 
 import (
+	"fmt"
 	"../db"
 	"database/sql"
 )
@@ -24,6 +25,30 @@ func NewTask(id int64, listID int64, title string) *TaskStruct {
 	task := &TaskStruct{Id: id, ListId: listID, Title: nullTitle}
 	task.Initialize()
 	return task
+}
+
+func FindTask(listID int64, taskID int64) *TaskStruct {
+	objectDB := &db.Database{}
+	var interfaceDB db.DB = objectDB
+	table := interfaceDB.Init()
+	defer table.Close()
+
+	var id, listId int64
+	var title string
+	rows, _ := table.Query("select id, list_id, title from tasks where id = ? AND list_id = ?;", taskID, listID)
+	for rows.Next() {
+		err := rows.Scan(&id, &listId, &title)
+		if err != nil {
+			panic(err.Error())
+		}
+	}
+	if id != taskID {
+		fmt.Printf("cannot find task or list did not contain task: %v\n", taskID)
+		return nil
+	} else {
+		task := NewTask(id, listId, title)
+		return task
+	}
 }
 
 func (u *TaskStruct) Initialize() {
