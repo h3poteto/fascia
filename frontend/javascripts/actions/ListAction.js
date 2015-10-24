@@ -23,3 +23,31 @@ export function updateNewListTitle(ev) {
     title: ev.target.value
   };
 }
+
+export const REQUEST_POSTS = 'REQUEST_POSTS';
+function requestPosts() {
+  return {
+    type: REQUEST_POSTS
+  };
+}
+
+export const RECEIVE_POSTS = 'RECEIVE_POSTS';
+function receivePosts(lists) {
+  return {
+    type: RECEIVE_POSTS,
+    lists: lists
+  };
+}
+
+export function fetchLists(projectId) {
+  return dispatch => {
+    dispatch(requestPosts());
+    return Request
+      .get(`/projects/${projectId}/lists`)
+      .end((err, res)=> {
+        if (res.body != null) {
+          dispatch(receivePosts(res.body));
+        }
+      });
+  };
+}

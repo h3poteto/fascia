@@ -27,7 +27,7 @@ export default class ListView extends React.Component {
   }
 
   componentWillMount() {
-    //this.props.fetchProjects();
+    this.props.fetchLists(this.props.params.projectId);
   }
 
   render() {
