@@ -51,3 +51,33 @@ export function fetchLists(projectId) {
       });
   };
 }
+
+export const REQUEST_CREATE_LIST = 'REQUEST_CREATE_LIST';
+function requestCreateList() {
+  return {
+    type: REQUEST_CREATE_LIST
+  };
+}
+
+export const RECEIVE_CREATE_LIST = 'RECEIVE_CREATE_LIST';
+function receiveCreateList(list) {
+  return {
+    type: RECEIVE_CREATE_LIST,
+    list: {Id: list.Id, ProjectId: list.ProjectId, Title: list.Title}
+  };
+}
+
+export function fetchCreateList(projectId, title) {
+  return dispatch => {
+    dispatch(requestCreateList());
+    return Request
+      .post(`/projects/${projectId}/lists`)
+      .type('form')
+      .send({title: title})
+      .end((err, res)=> {
+        if(res.body != null) {
+          dispatch(receiveCreateList(res.body));
+        }
+      });
+  };
+}

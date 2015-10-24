@@ -22,6 +22,13 @@ export default function ListReducer(state = initState, action) {
     return Object.assign({}, state, {
       newList: newList
     });
+  case listActions.RECEIVE_CREATE_LIST:
+    const lists = state.lists.concat([action.list]);
+    return Object.assign({}, state, {
+      newList: {title: ""},
+      lists: lists,
+      isModalOpen: false
+    });
   default:
     return state;
   }
