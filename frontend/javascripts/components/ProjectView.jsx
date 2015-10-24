@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router';
 import Modal from 'react-modal';
 
 const customStyles = {
@@ -73,7 +74,7 @@ class ProjectView extends React.Component {
           {projects.map(function(item, index) {
             return (
               <div className="fascia-card pure-button button-secondary" data-id={item.Id}>
-              <span className="card-title">{item.Title}</span>
+              <span className="card-title"><Link to={`/projects/${item.Id}`}>{item.Title}</Link></span>
               <span className="card-description">{item.Description}</span>
               </div>
             );

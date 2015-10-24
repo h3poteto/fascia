@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import configureStore from './store/configStore';
 import { history } from 'history';
 import projectContainer from './containers/ProjectContainer';
+import listContainer from './containers/ListContainer';
 import menuContainer from './containers/MenuContainer';
 
 const store = configureStore();
@@ -15,6 +16,7 @@ React.render(
       <ReduxRouter>
         <Route history={history}>
           <Route path="/" component={menuContainer}>
+            <Route path="/projects/:projectId" component={listContainer} />
             <IndexRoute component={projectContainer} />
           </Route>
         </Route>
