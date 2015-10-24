@@ -31,6 +31,7 @@ func Routes(m *web.Mux) {
 	m.Get("/projects/:project_id/lists", controllers.CallController(&controllers.Lists{}, "Index"))
 	m.Post("/projects/:project_id/lists", controllers.CallController(&controllers.Lists{}, "Create"))
 	m.Post("/projects/:project_id/lists/:list_id/tasks", controllers.CallController(&controllers.Tasks{}, "Create"))
+	m.Get("/projects/:project_id", controllers.CallController(&controllers.Root{}, "Index"))
 }
 
 func main() {

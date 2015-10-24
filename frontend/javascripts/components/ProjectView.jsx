@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router';
 import Modal from 'react-modal';
 
 const customStyles = {
@@ -21,7 +22,7 @@ const customStyles = {
   }
 };
 
-class BoardView extends React.Component {
+class ProjectView extends React.Component {
   constructor(props) {
     super(props);
   }
@@ -35,7 +36,7 @@ class BoardView extends React.Component {
   }
 
   render() {
-    const { isModalOpen, newProject, projects, repositories, selectedRepository } = this.props.BoardReducer
+    const { isModalOpen, newProject, projects, repositories, selectedRepository } = this.props.ProjectReducer
     return (
       <div id="projects">
         <Modal
@@ -72,10 +73,12 @@ class BoardView extends React.Component {
         <div className="items">
           {projects.map(function(item, index) {
             return (
+              <Link to={`/projects/${item.Id}`}>
               <div className="fascia-card pure-button button-secondary" data-id={item.Id}>
               <span className="card-title">{item.Title}</span>
               <span className="card-description">{item.Description}</span>
               </div>
+              </Link>
             );
            }, this)}
               <button onClick={this.props.openNewProjectModal} className="pure-button button-large fascia-new-project" type="button">New</button>
@@ -85,4 +88,4 @@ class BoardView extends React.Component {
   }
 }
 
-export default BoardView;
+export default ProjectView;

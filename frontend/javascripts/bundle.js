@@ -4,7 +4,8 @@ import { reduxReactRouter, routerStateReducer, ReduxRouter } from 'redux-router'
 import { Provider } from 'react-redux';
 import configureStore from './store/configStore';
 import { history } from 'history';
-import boardContainer from './containers/BoardContainer';
+import projectContainer from './containers/ProjectContainer';
+import listContainer from './containers/ListContainer';
 import menuContainer from './containers/MenuContainer';
 
 const store = configureStore();
@@ -15,7 +16,8 @@ React.render(
       <ReduxRouter>
         <Route history={history}>
           <Route path="/" component={menuContainer}>
-            <IndexRoute component={boardContainer} />
+            <Route path="/projects/:projectId" component={listContainer} />
+            <IndexRoute component={projectContainer} />
           </Route>
         </Route>
       </ReduxRouter>

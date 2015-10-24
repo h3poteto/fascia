@@ -1,10 +1,12 @@
 import { combineReducers } from 'redux';
-import BoardReducer from './BoardReducer';
+import ProjectReducer from './ProjectReducer';
+import ListReducer from './ListReducer';
 import { routerStateReducer } from 'redux-router';
 
 const rootReducer = combineReducers({
   router: routerStateReducer,
-  BoardReducer
+  ProjectReducer,
+  ListReducer
 });
 
 export default rootReducer;
