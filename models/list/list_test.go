@@ -7,6 +7,7 @@ import (
 	. "../list"
 	"../project"
 	"../user"
+	"../task"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -72,9 +73,24 @@ var _ = Describe("List", func() {
 
 	Describe("FindList", func() {
 		It("プロジェクトに関連づいたリストが見つかること", func() {
-			_ = newList.Save()
+			newList.Save()
 			findList := FindList(newProject.Id, newList.Id)
 			Expect(findList).To(Equal(newList))
 		})
+	})
+
+	Describe("Tasks", func() {
+		var newTask *task.TaskStruct
+		JustBeforeEach(func() {
+			newList.Save()
+			newTask = task.NewTask(0, newList.Id, "task")
+			newTask.Save()
+		})
+		It("taskが関連づくこと", func() {
+			tasks := newList.Tasks()
+			Expect(tasks).NotTo(BeEmpty())
+			Expect(tasks[0].Id).To(Equal(newTask.Id))
+		})
+
 	})
 })
