@@ -1,0 +1,52 @@
+#lists {
+  .title-wrapper {
+    box-sizing: border-box;
+    border-bottom: 1px solid #ccc;
+    .project-title {
+      margin: 5px;
+      color: rgb(0, 120, 230);
+    }
+  }
+  .fascia-list {
+    color: rgb(0, 0, 0);
+    width: 250px;
+    hegiht: auto;
+    min-height: 50px;
+    padding: 15px;
+    margin: 10px 20px;
+    border-radius: 8px;
+    box-sizing: border-box;
+    display: inline-block;
+    background: rgb(230, 230, 230);
+
+    .list-title {
+      color: rgb(0, 0, 0);
+      display: block;
+      font-size: 110%;
+      text-align: center;
+    }
+  }
+  .fascia-new-list {
+    width: 250px;
+    height: 50px;
+    padding: 15px;
+    margin: 10px 20px;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background-color: rgba(0, 120, 213, 0.5);
+  }
+}
+.list-form {
+  width: 300px;
+  color: rgb(119, 119, 119);
+  label {
+    line-height: 25.6px;
+  }
+  .form-action {
+    margin: 20px 0 -15px;
+    text-align: right;
+  }
+  input, select {
+    width: 215px;
+  }
+}

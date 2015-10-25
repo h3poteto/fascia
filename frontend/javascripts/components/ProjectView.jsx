@@ -74,14 +74,14 @@ class ProjectView extends React.Component {
           {projects.map(function(item, index) {
             return (
               <Link to={`/projects/${item.Id}`}>
-              <div className="fascia-card pure-button button-secondary" data-id={item.Id}>
-              <span className="card-title">{item.Title}</span>
-              <span className="card-description">{item.Description}</span>
+              <div className="fascia-project pure-button button-secondary" data-id={item.Id}>
+              <span className="project-title">{item.Title}</span>
+              <span className="project-description">{item.Description}</span>
               </div>
               </Link>
             );
            }, this)}
-              <button onClick={this.props.openNewProjectModal} className="pure-button button-large fascia-new-project" type="button">New</button>
+              <button onClick={this.props.openNewProjectModal} className="pure-button button-large fascia-new-project button-primary" type="button">New</button>
         </div>
       </div>
     );

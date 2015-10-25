@@ -52,6 +52,35 @@ export function fetchLists(projectId) {
   };
 }
 
+export const REQUEST_PROJECT = 'REQUEST_PROJECT';
+function requestProject() {
+  return {
+    type: REQUEST_PROJECT
+  };
+}
+
+export const RECEIVE_PROJECT = 'RECEIVE_PROJECT';
+function receiveProject(project) {
+  return {
+    type: RECEIVE_PROJECT,
+    project: project
+  };
+}
+
+export function fetchProject(projectId) {
+  return dispatch => {
+    dispatch(requestProject());
+    return Request
+      .get(`/projects/${projectId}/show`)
+      .end((err, res)=> {
+        if (res.body != null) {
+          dispatch(receiveProject(res.body));
+        }
+      });
+  };
+}
+
+
 export const REQUEST_CREATE_LIST = 'REQUEST_CREATE_LIST';
 function requestCreateList() {
   return {
