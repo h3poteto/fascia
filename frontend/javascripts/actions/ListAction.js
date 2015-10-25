@@ -24,29 +24,29 @@ export function updateNewListTitle(ev) {
   };
 }
 
-export const REQUEST_POSTS = 'REQUEST_POSTS';
-function requestPosts() {
+export const REQUEST_LISTS = 'REQUEST_LISTS';
+function requestLists() {
   return {
-    type: REQUEST_POSTS
+    type: REQUEST_LISTS
   };
 }
 
-export const RECEIVE_POSTS = 'RECEIVE_POSTS';
-function receivePosts(lists) {
+export const RECEIVE_LISTS = 'RECEIVE_LISTS';
+function receiveLists(lists) {
   return {
-    type: RECEIVE_POSTS,
+    type: RECEIVE_LISTS,
     lists: lists
   };
 }
 
 export function fetchLists(projectId) {
   return dispatch => {
-    dispatch(requestPosts());
+    dispatch(requestLists());
     return Request
       .get(`/projects/${projectId}/lists`)
       .end((err, res)=> {
         if (res.body != null) {
-          dispatch(receivePosts(res.body));
+          dispatch(receiveLists(res.body));
         }
       });
   };
