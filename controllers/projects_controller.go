@@ -3,6 +3,7 @@ import (
 	"fmt"
 	"net/http"
 	"encoding/json"
+	"strconv"
 	"github.com/zenazn/goji/web"
 	"github.com/goji/param"
 	projectModel "../models/project"
@@ -31,6 +32,26 @@ func (u *Projects)Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder.Encode(projects)
 }
 
+func (u *Projects)Show(c web.C, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	current_user, result := LoginRequired(r)
+	encoder := json.NewEncoder(w)
+	if !result {
+		error := JsonError{Error: "not logined"}
+		encoder.Encode(error)
+		return
+	}
+	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	project := projectModel.FindProject(projectID)
+	if project == nil && project.UserId.Int64 != current_user.Id {
+		error := JsonError{Error: "project not found"}
+		encoder.Encode(error)
+		return
+	}
+	encoder.Encode(project)
+	return
+}
+
 func (u *Projects)Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, result := LoginRequired(r)
@@ -43,7 +64,7 @@ func (u *Projects)Create(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	err := r.ParseForm()
 	if err != nil {
-		http.Error(w, "Wrong From", 400)
+		http.Error(w, "Wrong Form", 400)
 		return
 	}
 	var newProjectForm NewProjectForm

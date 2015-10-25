@@ -24,33 +24,62 @@ export function updateNewListTitle(ev) {
   };
 }
 
-export const REQUEST_POSTS = 'REQUEST_POSTS';
-function requestPosts() {
+export const REQUEST_LISTS = 'REQUEST_LISTS';
+function requestLists() {
   return {
-    type: REQUEST_POSTS
+    type: REQUEST_LISTS
   };
 }
 
-export const RECEIVE_POSTS = 'RECEIVE_POSTS';
-function receivePosts(lists) {
+export const RECEIVE_LISTS = 'RECEIVE_LISTS';
+function receiveLists(lists) {
   return {
-    type: RECEIVE_POSTS,
+    type: RECEIVE_LISTS,
     lists: lists
   };
 }
 
 export function fetchLists(projectId) {
   return dispatch => {
-    dispatch(requestPosts());
+    dispatch(requestLists());
     return Request
       .get(`/projects/${projectId}/lists`)
       .end((err, res)=> {
         if (res.body != null) {
-          dispatch(receivePosts(res.body));
+          dispatch(receiveLists(res.body));
         }
       });
   };
 }
+
+export const REQUEST_PROJECT = 'REQUEST_PROJECT';
+function requestProject() {
+  return {
+    type: REQUEST_PROJECT
+  };
+}
+
+export const RECEIVE_PROJECT = 'RECEIVE_PROJECT';
+function receiveProject(project) {
+  return {
+    type: RECEIVE_PROJECT,
+    project: project
+  };
+}
+
+export function fetchProject(projectId) {
+  return dispatch => {
+    dispatch(requestProject());
+    return Request
+      .get(`/projects/${projectId}/show`)
+      .end((err, res)=> {
+        if (res.body != null) {
+          dispatch(receiveProject(res.body));
+        }
+      });
+  };
+}
+
 
 export const REQUEST_CREATE_LIST = 'REQUEST_CREATE_LIST';
 function requestCreateList() {

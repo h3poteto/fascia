@@ -3,7 +3,8 @@ import * as listActions from '../actions/ListAction';
 const initState = {
   isModalOpen: false,
   newList: {title: ""},
-  lists: []
+  lists: [],
+  project: null
 };
 
 export default function ListReducer(state = initState, action) {
@@ -21,6 +22,14 @@ export default function ListReducer(state = initState, action) {
     newList.title = action.title;
     return Object.assign({}, state, {
       newList: newList
+    });
+  case listActions.RECEIVE_LISTS:
+    return Object.assign({}, state, {
+      lists: action.lists
+    });
+  case listActions.RECEIVE_PROJECT:
+    return Object.assign({}, state, {
+      project: action.project
     });
   case listActions.RECEIVE_CREATE_LIST:
     const lists = state.lists.concat([action.list]);
