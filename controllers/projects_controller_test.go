@@ -89,4 +89,21 @@ var _ = Describe("ProjectsController", func() {
 			Expect(resp[1].Title).To(Equal("project2"))
 		})
 	})
+
+	Describe("Show", func() {
+		JustBeforeEach(func() {
+			values := url.Values{}
+			values.Add("title", "project")
+			_, _ = http.PostForm(ts.URL + "/projects", values)
+		})
+		It("プロジェクトのタイトルが取得できること", func() {
+			res, err := http.Get(ts.URL + "/projects")
+			Expect(err).To(BeNil())
+			var resp []project.ProjectStruct
+			con, _ := ioutil.ReadAll(res.Body)
+			json.Unmarshal(con, &resp)
+			Expect(res.StatusCode).To(Equal(http.StatusOK))
+			Expect(resp[0].Title).To(Equal("project"))
+		})
+	})
 })
