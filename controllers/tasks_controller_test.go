@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"io/ioutil"
+	"encoding/json"
 	"strconv"
 	. "../../fascia"
 	"../models/db"
@@ -83,6 +85,27 @@ var _ = Describe("TasksController", func() {
 			newTask := task.FindTask(listId, int64(parseContents["Id"].(float64)))
 			Expect(newTask.Id).To(BeEquivalentTo(parseContents["Id"]))
 			Expect(newTask.Title.String).To(Equal("taskTitle"))
+		})
+	})
+
+	Describe("Index", func() {
+		JustBeforeEach(func() {
+			values := url.Values{}
+			values.Add("title", "task1")
+			http.PostForm(ts.URL + "/projects/" + strconv.FormatInt(projectId, 10) + "/lists/" + strconv.FormatInt(listId, 10) + "/tasks", values)
+			values = url.Values{}
+			values.Add("title", "task2")
+			http.PostForm(ts.URL + "/projects/" + strconv.FormatInt(projectId, 10) + "/lists/" + strconv.FormatInt(listId, 10) + "/tasks", values)
+		})
+		It("タスク一覧が取得できること ", func() {
+			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(projectId, 10) + "/lists/" + strconv.FormatInt(listId, 10) + "/tasks")
+			Expect(err).To(BeNil())
+			var contents []task.TaskStruct
+			con, _ := ioutil.ReadAll(res.Body)
+			json.Unmarshal(con, &contents)
+			Expect(res.StatusCode).To(Equal(http.StatusOK))
+			Expect(contents[0].Title.String).To(Equal("task1"))
+			Expect(contents[1].Title.String).To(Equal("task2"))
 		})
 	})
 })

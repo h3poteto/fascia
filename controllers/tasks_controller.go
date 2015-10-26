@@ -18,6 +18,34 @@ type NewTaskForm struct {
 	Title string `param:"title"`
 }
 
+func (u *Tasks)Index(c web.C, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	_, result := LoginRequired(r)
+	encoder := json.NewEncoder(w)
+	if !result {
+		error := JsonError{Error: "not logined"}
+		encoder.Encode(error)
+		return
+	}
+	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	parentProject := projectModel.FindProject(projectID)
+	if parentProject == nil {
+		error := JsonError{Error: "project not found"}
+		encoder.Encode(error)
+		return
+	}
+	listID, _ := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
+	parentList := listModel.FindList(projectID, listID)
+	if parentList == nil {
+		error := JsonError{Error: "list not found"}
+		encoder.Encode(error)
+		return
+	}
+	tasks := parentList.Tasks()
+	encoder.Encode(tasks)
+	return
+}
+
 func (u *Tasks)Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	_, result := LoginRequired(r)
