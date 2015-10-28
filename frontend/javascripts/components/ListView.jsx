@@ -62,6 +62,11 @@ export default class ListView extends React.Component {
             return (
               <div className="fascia-list" data-id={item.Id}>
               <span className="list-title">{item.Title}</span>
+              <ul className="fascia-task">
+              <li className="new-task">
+              <i className="fa fa-plus"></i>
+              </li>
+              </ul>
               </div>
             );
            }, this)}

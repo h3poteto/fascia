@@ -25,6 +25,19 @@
       font-size: 110%;
       text-align: center;
     }
+    ul.fascia-task {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 0;
+      li.new-task {
+        background: rgb(255, 255, 255);
+        color: rgb(150, 150, 150);
+        text-align: center;
+        box-sizing: border-box;
+        padding: 4px;
+        border-radius: 8px;
+      }
+    }
   }
   .fascia-new-list {
     width: 250px;
