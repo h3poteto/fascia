@@ -32,12 +32,11 @@ export default class ListView extends React.Component {
   }
 
   render() {
-    console.log(this.props);
-    const { isModalOpen, newList, lists, project } = this.props.ListReducer
+    const { isListModalOpen, newList, lists, project, isTaskModalOpen, newTask, selectedListId } = this.props.ListReducer
     return (
       <div id="lists">
         <Modal
-          isOpen={isModalOpen}
+          isOpen={isListModalOpen}
           onRequestClose={this.props.closeNewListModal}
           style={customStyles}
         >
@@ -54,6 +53,24 @@ export default class ListView extends React.Component {
             </form>
           </div>
         </Modal>
+        <Modal
+          isOpen={isTaskModalOpen}
+          onRequestClose={this.props.closeNewTaskModal}
+          style={customStyles}
+        >
+          <div className="task-form">
+            <form className="pure-form pure-form-stacked">
+              <fieldset>
+                <legend>Create Task</legend>
+                <label htmlFor="title">Title</label>
+                <input id="title" name="title" type="text" value={newTask.title} onChange={this.props.updateNewTaskTitle} placeholder="Task Name" className="form-control" />
+                <div className="form-action">
+                  <button onClick={e => this.props.fetchCreateTask(this.props.params.projectId, selectedListId,  newTask.title)} className="pure-button pure-button-primary" type="button">Create Task</button>
+                </div>
+              </fieldset>
+            </form>
+          </div>
+        </Modal>
         <div className="title-wrapper">
           <h3 className="project-title">{project != null ? project.Title : ''}</h3>
         </div>
@@ -63,7 +80,7 @@ export default class ListView extends React.Component {
               <div className="fascia-list" data-id={item.Id}>
               <span className="list-title">{item.Title}</span>
               <ul className="fascia-task">
-              <li className="new-task">
+              <li className="new-task" onClick={e => this.props.openNewTaskModal(item.Id)}>
               <i className="fa fa-plus"></i>
               </li>
               </ul>

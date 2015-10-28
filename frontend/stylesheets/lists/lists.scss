@@ -29,6 +29,9 @@
       list-style: none;
       padding: 0;
       margin-bottom: 0;
+      li {
+        cursor: pointer;
+      }
       li.new-task {
         background: rgb(255, 255, 255);
         color: rgb(150, 150, 150);
@@ -50,6 +53,20 @@
   }
 }
 .list-form {
+  width: 300px;
+  color: rgb(119, 119, 119);
+  label {
+    line-height: 25.6px;
+  }
+  .form-action {
+    margin: 20px 0 -15px;
+    text-align: right;
+  }
+  input, select {
+    width: 215px;
+  }
+}
+.task-form {
   width: 300px;
   color: rgb(119, 119, 119);
   label {
