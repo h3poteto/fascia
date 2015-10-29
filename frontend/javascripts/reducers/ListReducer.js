@@ -59,12 +59,25 @@ export default function ListReducer(state = initState, action) {
     if (createdList.ListTasks == null) {
       createdList.ListTasks = [];
     }
-    console.log(createdList);
     var lists = state.lists.concat([createdList]);
     return Object.assign({}, state, {
       newList: {title: ""},
       lists: lists,
       isListModalOpen: false
+    });
+  case listActions.RECEIVE_CREATE_TASK:
+    var lists = state.lists.map(function(l, index) {
+      if (l.Id == action.task.ListId) {
+        l.ListTasks = l.ListTasks.concat([action.task]);
+        return l;
+      } else {
+        return l;
+      }
+    });
+    return Object.assign({}, state, {
+      newTask: {title: ""},
+      lists: lists,
+      isTaskModalOpen: false
     });
   default:
     return state;
