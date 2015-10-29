@@ -34,6 +34,9 @@ func (u *Lists)Index(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	lists := parentProject.Lists()
+	for _, l := range lists {
+		l.ListTasks = l.Tasks()
+	}
 	encoder.Encode(lists)
 	return
 }

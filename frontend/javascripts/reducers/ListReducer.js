@@ -39,19 +39,32 @@ export default function ListReducer(state = initState, action) {
       newTask: newTask
     });
   case listActions.RECEIVE_LISTS:
+    var lists = action.lists.map(function(list, index) {
+      if (list.ListTasks == null) {
+        list.ListTasks = [];
+        return list;
+      } else {
+        return list;
+      }
+    });
     return Object.assign({}, state, {
-      lists: action.lists
+      lists: lists
     });
   case listActions.RECEIVE_PROJECT:
     return Object.assign({}, state, {
       project: action.project
     });
   case listActions.RECEIVE_CREATE_LIST:
-    const lists = state.lists.concat([action.list]);
+    var createdList = action.list;
+    if (createdList.ListTasks == null) {
+      createdList.ListTasks = [];
+    }
+    console.log(createdList);
+    var lists = state.lists.concat([createdList]);
     return Object.assign({}, state, {
       newList: {title: ""},
       lists: lists,
-      isModalOpen: false
+      isListModalOpen: false
     });
   default:
     return state;

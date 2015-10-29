@@ -15,6 +15,7 @@ type ListStruct struct {
 	Id int64
 	ProjectId int64
 	Title sql.NullString
+	ListTasks []*task.TaskStruct
 	database db.DB
 }
 

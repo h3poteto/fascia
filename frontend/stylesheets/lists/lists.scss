@@ -32,6 +32,15 @@
       li {
         cursor: pointer;
       }
+      li.task{
+        background: rgb(255, 255, 255);
+        color: rgb(77, 77, 77);
+        text-align: center;
+        box-sizing: border-box;
+        padding: 4px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+      }
       li.new-task {
         background: rgb(255, 255, 255);
         color: rgb(150, 150, 150);

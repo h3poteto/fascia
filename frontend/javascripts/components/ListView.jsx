@@ -75,15 +75,18 @@ export default class ListView extends React.Component {
           <h3 className="project-title">{project != null ? project.Title : ''}</h3>
         </div>
         <div className="items">
-          {lists.map(function(item, index) {
+          {lists.map(function(list, index) {
             return (
-              <div className="fascia-list" data-id={item.Id}>
-              <span className="list-title">{item.Title}</span>
-              <ul className="fascia-task">
-              <li className="new-task" onClick={e => this.props.openNewTaskModal(item.Id)}>
-              <i className="fa fa-plus"></i>
-              </li>
-              </ul>
+              <div className="fascia-list" data-id={list.Id}>
+                <span className="list-title">{list.Title}</span>
+                <ul className="fascia-task">
+                  {list.ListTasks.map(function(task, index) {
+                    return <li className="task">{task.Title.String}</li>
+                  }, this)}
+                  <li className="new-task" onClick={e => this.props.openNewTaskModal(list.Id)}>
+                    <i className="fa fa-plus"></i>
+                  </li>
+                </ul>
               </div>
             );
            }, this)}

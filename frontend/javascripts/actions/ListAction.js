@@ -117,7 +117,7 @@ export const RECEIVE_CREATE_LIST = 'RECEIVE_CREATE_LIST';
 function receiveCreateList(list) {
   return {
     type: RECEIVE_CREATE_LIST,
-    list: {Id: list.Id, ProjectId: list.ProjectId, Title: list.Title}
+    list: {Id: list.Id, ProjectId: list.ProjectId, Title: list.Title, ListTasks: list.ListTasks}
   };
 }
 
