@@ -31,9 +31,11 @@ export default function ProjectReducer(state = initState, action) {
       repositories: action.repositories
     });
   case projectActions.CHANGE_SELECT_REPOSITORY:
+    var newProject = state.newProject;
+    newProject.title = action.selectEvent.options[action.selectEvent.selectedIndex].text;
     return Object.assign({}, state, {
       selectedRepository: action.selectEvent.value,
-      newProject: action.selectEvent.options[action.selectEvent.selectedIndex].text
+      newProject: newProject
     });
   case projectActions.RECEIVE_CREATE_PROJECT:
     const projects = state.projects.concat([action.project]);
