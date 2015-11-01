@@ -7,6 +7,9 @@
       color: rgb(0, 120, 230);
     }
   }
+  .items {
+    vertical-align: top;
+  }
   .fascia-list {
     color: rgb(0, 0, 0);
     width: 250px;
@@ -16,7 +19,8 @@
     margin: 10px 20px;
     border-radius: 8px;
     box-sizing: border-box;
-    display: inline-block;
+    display: block;
+    float: left;
     background: rgb(230, 230, 230);
 
     .list-title {
@@ -24,6 +28,31 @@
       display: block;
       font-size: 110%;
       text-align: center;
+    }
+    ul.fascia-task {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 0;
+      li {
+        cursor: pointer;
+      }
+      li.task{
+        background: rgb(255, 255, 255);
+        color: rgb(77, 77, 77);
+        text-align: center;
+        box-sizing: border-box;
+        padding: 4px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+      }
+      li.new-task {
+        background: rgb(255, 255, 255);
+        color: rgb(150, 150, 150);
+        text-align: center;
+        box-sizing: border-box;
+        padding: 4px;
+        border-radius: 8px;
+      }
     }
   }
   .fascia-new-list {
@@ -37,6 +66,20 @@
   }
 }
 .list-form {
+  width: 300px;
+  color: rgb(119, 119, 119);
+  label {
+    line-height: 25.6px;
+  }
+  .form-action {
+    margin: 20px 0 -15px;
+    text-align: right;
+  }
+  input, select {
+    width: 215px;
+  }
+}
+.task-form {
   width: 300px;
   color: rgb(119, 119, 119);
   label {
