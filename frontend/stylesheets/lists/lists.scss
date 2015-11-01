@@ -7,6 +7,9 @@
       color: rgb(0, 120, 230);
     }
   }
+  .items {
+    vertical-align: top;
+  }
   .fascia-list {
     color: rgb(0, 0, 0);
     width: 250px;
@@ -16,7 +19,8 @@
     margin: 10px 20px;
     border-radius: 8px;
     box-sizing: border-box;
-    display: inline-block;
+    display: block;
+    float: left;
     background: rgb(230, 230, 230);
 
     .list-title {
