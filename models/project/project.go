@@ -4,6 +4,7 @@ import (
 	"../db"
 	"database/sql"
 	"../list"
+	"../repository"
 )
 
 type Project interface {
@@ -91,4 +92,24 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 		}
 	}
 	return slice
+}
+
+func (u *ProjectStruct) Repository() *repository.RepositoryStruct {
+	table := u.database.Init()
+	defer table.Close()
+
+	rows, _ := table.Query("select id, project_id, repository_id, full_name, name, owner from repositories where project_id = ?", u.Id)
+	for rows.Next() {
+		var id, projectId, repositoryId int64
+		var fullName, owner, name sql.NullString
+		err := rows.Scan(&id, &projectId, &repositoryId, &fullName, &owner, &name)
+		if err != nil {
+			panic(err.Error())
+		}
+		if projectId == u.Id && fullName.Valid {
+			r := repository.NewRepository(id, projectId, repositoryId, fullName.String)
+			return r
+		}
+	}
+	return nil
 }

@@ -57,7 +57,6 @@ func (u *TaskStruct) Initialize() {
 	u.database = interfaceDB
 }
 
-
 func (u *TaskStruct) Save() bool {
 	table := u.database.Init()
 	defer table.Close()

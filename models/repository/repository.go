@@ -14,6 +14,8 @@ type RepositoryStruct struct {
 	ProjectId int64
 	RepositoryId int64
 	FullName sql.NullString
+	Owner sql.NullString
+	Name sql.NullString
 	database db.DB
 }
 
@@ -36,7 +38,8 @@ func (u *RepositoryStruct) Save() bool {
 	table := u.database.Init()
 	defer table.Close()
 
-	result, err := table.Exec("insert into repositories (project_id, repository_id, full_name, created_at) values (?, ?, ?, now());", u.ProjectId, u.RepositoryId, u.FullName)
+	// TODO: 現段階だとこの時点でownerとnameがないのでなとかする
+	result, err := table.Exec("insert into repositories (project_id, repository_id, full_name, owner, name, created_at) values (?, ?, ?, ?, ?, now());", u.ProjectId, u.RepositoryId, u.FullName, u.Owner, u.Name)
 	if err != nil {
 		return false
 	}
