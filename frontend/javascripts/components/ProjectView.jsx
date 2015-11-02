@@ -56,7 +56,7 @@ class ProjectView extends React.Component {
                 <select id="repositories" name="repositories" onChange={this.props.changeSelectedRepository} className="form-control">
                   <option value="0">--</option>
                   {repositories.map(function(repo, index) {
-                    if (repo.id == selectedRepository) {
+                    if (selectedRepository != null && repo.id == selectedRepository.id) {
                       return <option value={repo.id} selected>{repo.full_name}</option>;
                     } else {
                       return<option value={repo.id}>{repo.full_name}</option>;
