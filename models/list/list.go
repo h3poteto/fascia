@@ -77,6 +77,17 @@ func (u *ListStruct) Save() bool {
 	return true
 }
 
+func (u *ListStruct) Update() bool {
+	table := u.database.Init()
+	defer table.Close()
+
+	_, err := table.Exec("update lists set project_id = ?, title = ? where id = ?;", u.ProjectId, u.Title, u.Id)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
 func (u *ListStruct) Tasks() []*task.TaskStruct {
 	table := u.database.Init()
 	defer table.Close()

@@ -17,6 +17,11 @@ type NewListForm struct {
 	Title string `param:"title"`
 }
 
+type EditListForm struct {
+	Title string `param:"title"`
+	Color string `param:"color"`
+}
+
 func (u *Lists)Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	_, result := LoginRequired(r)
@@ -88,6 +93,48 @@ func (u *Lists)Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if !list.Save() {
+		error := JsonError{Error: "save failed"}
+		encoder.Encode(error)
+		return
+	}
+	encoder.Encode(*list)
+}
+
+func (u *Lists)Update(c web.C, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	current_user, result := LoginRequired(r)
+	encoder := json.NewEncoder(w)
+	if !result {
+		error := JsonError{Error: "not logined"}
+		encoder.Encode(error)
+		return
+	}
+	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	parentProject := projectModel.FindProject(projectID)
+	if parentProject == nil {
+		error := JsonError{Error: "project not found"}
+		encoder.Encode(error)
+		return
+	}
+
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Wrong Form", 400)
+		return
+	}
+	var editListForm EditListForm
+	err = param.Parse(r.PostForm, &editListForm)
+	if err != nil {
+		http.Error(w, "Wrong parameter", 500)
+		return
+	}
+	fmt.Printf("post edit list parameter: %+v\n", editListForm)
+	list := listModel.NewList(0, projectID, editListForm.Title)
+
+	// github同期処理
+	if current_user.OauthToken.Valid {
+	}
+	if !list.Update() {
 		error := JsonError{Error: "save failed"}
 		encoder.Encode(error)
 		return
