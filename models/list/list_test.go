@@ -93,4 +93,16 @@ var _ = Describe("List", func() {
 		})
 
 	})
+
+	Describe("Update", func() {
+		JustBeforeEach(func() {
+			newList.Save()
+		})
+		It("リストが更新できること", func() {
+			newList.Title = sql.NullString{String: "newTitle", Valid: true}
+			newList.Update()
+			findList := FindList(newList.ProjectId, newList.Id)
+			Expect(findList.Title.String).To(Equal("newTitle"))
+		})
+	})
 })
