@@ -85,7 +85,7 @@ var _ = Describe("Project", func() {
 
 			newProject = NewProject(0, user_id, "project title", "project desc")
 			_ = newProject.Save()
-			newList = list.NewList(0, newProject.Id, "list title")
+			newList = list.NewList(0, newProject.Id, "list title", sql.NullString{})
 			_ = newList.Save()
 		})
 		It("プロジェクトとリストが関連づいていること", func() {

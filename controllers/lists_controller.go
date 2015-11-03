@@ -3,6 +3,7 @@ import (
 	"fmt"
 	"net/http"
 	"encoding/json"
+	"database/sql"
 	"strconv"
 	"github.com/zenazn/goji/web"
 	"github.com/goji/param"
@@ -75,7 +76,7 @@ func (u *Lists)Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Printf("post new list parameter: %+v\n", newListForm)
-	list := listModel.NewList(0, projectID, newListForm.Title)
+	list := listModel.NewList(0, projectID, newListForm.Title, sql.NullString{})
 
 	// github同期処理
 	if current_user.OauthToken.Valid {
@@ -116,6 +117,13 @@ func (u *Lists)Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		encoder.Encode(error)
 		return
 	}
+	listID, _ := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
+	targetList := listModel.FindList(projectID, listID)
+	if targetList == nil {
+		error := JsonError{Error: "list not found"}
+		encoder.Encode(error)
+		return
+	}
 
 	err := r.ParseForm()
 	if err != nil {
@@ -129,15 +137,16 @@ func (u *Lists)Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Printf("post edit list parameter: %+v\n", editListForm)
-	list := listModel.NewList(0, projectID, editListForm.Title)
+	targetList.Title = sql.NullString{String: editListForm.Title, Valid: true}
+	targetList.Color = sql.NullString{String: editListForm.Color, Valid: true}
 
 	// github同期処理
 	if current_user.OauthToken.Valid {
 	}
-	if !list.Update() {
+	if !targetList.Update() {
 		error := JsonError{Error: "save failed"}
 		encoder.Encode(error)
 		return
 	}
-	encoder.Encode(*list)
+	encoder.Encode(*targetList)
 }
