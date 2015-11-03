@@ -99,10 +99,11 @@ function receiveCreateProject(id, userId, title, description) {
 export function fetchCreateProject(title, description, repository) {
   return dispatch => {
     dispatch(requestCreateProject());
+    console.log(repository);
     return Request
       .post('/projects')
       .type('form')
-      .send({title: title, description: description, repository: repository})
+      .send({title: title, description: description, repositoryId: repository.id, repositoryOwner: repository.owner.login, repositoryName: repository.name})
       .end((err, res)=> {
         if (res.body != null) {
           dispatch(receiveCreateProject(res.body.Id, res.body.UserId, res.body.Title, res.body.Description));

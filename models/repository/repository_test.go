@@ -47,12 +47,12 @@ var _ = Describe("Repository", func() {
 	Describe("Save", func() {
 		repositoryId := int64(123456)
 		It("リポジトリが新規作成できること", func() {
-			newRepository := NewRepository(0, newProject.Id, repositoryId, "title")
+			newRepository := NewRepository(0, newProject.Id, repositoryId, "owner", "repository_name")
 			result := newRepository.Save()
 			Expect(result).To(BeTrue())
 		})
 		It("リポジトリとプロジェクトが関連づくこと", func() {
-			newRepository := NewRepository(0, newProject.Id, repositoryId, "title")
+			newRepository := NewRepository(0, newProject.Id, repositoryId, "owner", "repository_name")
 			newRepository.Save()
 			rows, _ := table.Query("select repositories.id from repositories inner join projects on repositories.project_id = projects.id;")
 

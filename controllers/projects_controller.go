@@ -16,7 +16,9 @@ type Projects struct {
 type NewProjectForm struct {
 	Title string `param:"title"`
 	Description string `param:"description"`
-	RepositoryID int64 `param:"repository"`
+	RepositoryID int64 `param:"repositoryId"`
+	RepositoryOwner string `param:"repositoryOwner"`
+	RepositoryName string `param:"repositoryName"`
 }
 
 func (u *Projects)Index(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -82,7 +84,7 @@ func (u *Projects)Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if newProjectForm.RepositoryID != 0 {
-		repository := repositoryModel.NewRepository(0, project.Id, newProjectForm.RepositoryID, newProjectForm.Title)
+		repository := repositoryModel.NewRepository(0, project.Id, newProjectForm.RepositoryID, newProjectForm.RepositoryOwner, newProjectForm.RepositoryName)
 		repository.Save()
 	}
 	encoder.Encode(*project)

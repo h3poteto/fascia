@@ -5,6 +5,10 @@ import (
 	"../db"
 	"database/sql"
 	"../task"
+	"../repository"
+
+	"golang.org/x/oauth2"
+	"github.com/google/go-github/github"
 )
 
 type List interface {
@@ -16,6 +20,7 @@ type ListStruct struct {
 	ProjectId int64
 	Title sql.NullString
 	ListTasks []*task.TaskStruct
+	Color string
 	database db.DB
 }
 
@@ -91,4 +96,45 @@ func (u *ListStruct) Tasks() []*task.TaskStruct {
 		}
 	}
 	return slice
+}
+
+
+func (u *ListStruct) CheckLabelPresent(token string, repo *repository.RepositoryStruct) *github.Label {
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(oauth2.NoContext, ts)
+	client := github.NewClient(tc)
+	githubLabel, response, err := client.Issues.GetLabel(repo.Owner.String, repo.Name.String, u.Title.String)
+	fmt.Printf("get label for github response: %+v\n", response)
+	if err != nil {
+		fmt.Printf("cannot find github label: %v\n", repo.Name.String)
+		return nil
+	}
+	fmt.Printf("github label: %+v\n", githubLabel)
+	return githubLabel
+}
+
+func (u *ListStruct) CreateGithubLabel(token string, repo *repository.RepositoryStruct) *github.Label {
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(oauth2.NoContext, ts)
+	client := github.NewClient(tc)
+
+	// TODO: listの設定項目に色を追加してほしい．その色を元にここでは色を設定する
+	// どうせリストごとに色をつけるのはfascia内の機能としてもほしいので，デフォルトで色はなにか当てておく
+	u.Color = "000000"
+	label := &github.Label{
+		Name: &u.Title.String,
+		Color: &u.Color,
+	}
+	githubLabel, response, err := client.Issues.CreateLabel(repo.Name.String, repo.Owner.String, label)
+	fmt.Printf("create label for github response: %+v\n", response)
+	if err != nil {
+		panic(err.Error())
+		return nil
+	}
+	fmt.Printf("github label created: %+v\n", githubLabel)
+	return githubLabel
 }

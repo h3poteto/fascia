@@ -43,7 +43,7 @@ func (u *Lists)Index(c web.C, w http.ResponseWriter, r *http.Request) {
 
 func (u *Lists)Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	_, result := LoginRequired(r)
+	current_user, result := LoginRequired(r)
 	encoder := json.NewEncoder(w)
 	if !result {
 		error := JsonError{Error: "not logined"}
@@ -71,6 +71,22 @@ func (u *Lists)Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Printf("post new list parameter: %+v\n", newListForm)
 	list := listModel.NewList(0, projectID, newListForm.Title)
+
+	// github同期処理
+	if current_user.OauthToken.Valid {
+		token := current_user.OauthToken.String
+		repo := parentProject.Repository()
+		label := list.CheckLabelPresent(token, repo)
+		if label == nil {
+			// そもそも既に存在しているなんてことはあまりないのでは
+			label = list.CreateGithubLabel(token, repo)
+			if label == nil {
+				error := JsonError{Error: "failed create github label"}
+				encoder.Encode(error)
+				return
+			}
+		}
+	}
 	if !list.Save() {
 		error := JsonError{Error: "save failed"}
 		encoder.Encode(error)

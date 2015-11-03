@@ -33,8 +33,15 @@ export default function ProjectReducer(state = initState, action) {
   case projectActions.CHANGE_SELECT_REPOSITORY:
     var newProject = state.newProject;
     newProject.title = action.selectEvent.options[action.selectEvent.selectedIndex].text;
+    // repositoryはオブジェクトを渡したい
+    var repository;
+    state.repositories.map(function(repo, index) {
+      if (repo.id == action.selectEvent.value) {
+        repository = repo;
+      }
+    });
     return Object.assign({}, state, {
-      selectedRepository: action.selectEvent.value,
+      selectedRepository: repository,
       newProject: newProject
     });
   case projectActions.RECEIVE_CREATE_PROJECT:
