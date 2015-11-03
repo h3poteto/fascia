@@ -79,6 +79,27 @@ var _ = Describe("ListsController", func() {
 		})
 	})
 
+	Describe("Update", func() {
+		var (
+			res *http.Response
+			err error
+		)
+		JustBeforeEach(func() {
+			newList := list.NewList(0, projectId, "listTitle")
+			newList.Save()
+			values := url.Values{}
+			values.Add("title", "newListTitle")
+			res, err = http.PostForm(ts.URL + "/projects/" + strconv.FormatInt(projectId, 10) + "/lists/" + strconv.FormatInt(newList.Id, 10), values)
+		})
+		It("更新されること", func() {
+			Expect(err).To(BeNil())
+			contents, status := ParseJson(res)
+			Expect(status).To(Equal(http.StatusOK))
+			Expect(contents).NotTo(BeNil())
+			Expect(contents).To(HaveKey("Id"))
+		})
+	})
+
 	Describe("Index", func() {
 		JustBeforeEach(func() {
 			values := url.Values{}
