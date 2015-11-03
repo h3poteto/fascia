@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"io/ioutil"
 	"encoding/json"
-	"database/sql"
 	"strconv"
 	. "../../fascia"
 	"../models/db"
@@ -86,7 +85,7 @@ var _ = Describe("ListsController", func() {
 			err error
 		)
 		JustBeforeEach(func() {
-			newList := list.NewList(0, projectId, "listTitle", sql.NullString{})
+			newList := list.NewList(0, projectId, "listTitle", "")
 			newList.Save()
 			values := url.Values{}
 			values.Add("title", "newListTitle")

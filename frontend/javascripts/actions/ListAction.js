@@ -17,11 +17,11 @@ export function closeNewListModal() {
 }
 
 export const OPEN_NEW_TASK = 'OPEN_NEW_TASK';
-export function openNewTaskModal(listId) {
+export function openNewTaskModal(list) {
   return {
     type: OPEN_NEW_TASK,
     isTaskModalOpen: true,
-    listId: listId
+    list: list
   };
 }
 
@@ -34,11 +34,11 @@ export function closeNewTaskModal() {
 }
 
 export const OPEN_EDIT_LIST = 'OPEN_EDIT_LIST';
-export function openEditListModal(listId) {
+export function openEditListModal(list) {
   return {
     type: OPEN_EDIT_LIST,
     isListEditModalOpen: true,
-    listId: listId
+    list: list
   };
 }
 
@@ -55,6 +55,30 @@ export function updateNewListTitle(ev) {
   return {
     type: UPDATE_NEW_LIST_TITLE,
     title: ev.target.value
+  };
+}
+
+export const UPDATE_NEW_LIST_COLOR = 'UPDATE_NEW_LIST_COLOR';
+export function updateNewListColor(ev) {
+  return {
+    type: UPDATE_NEW_LIST_COLOR,
+    color: ev.target.value
+  };
+}
+
+export const UPDATE_SELECTED_LIST_TITLE = 'UPDATE_SELECTED_LIST_TITLE';
+export function updateSelectedListTitle(ev) {
+  return {
+    type: UPDATE_SELECTED_LIST_TITLE,
+    title: ev.target.value
+  };
+}
+
+export const UPDATE_SELECTED_LIST_COLOR = 'UPDATE_SELECTED_LIST_COLOR';
+export function updateSelectedListColor(ev) {
+  return {
+    type: UPDATE_SELECTED_LIST_COLOR,
+    color: ev.target.value
   };
 }
 
@@ -134,17 +158,17 @@ export const RECEIVE_CREATE_LIST = 'RECEIVE_CREATE_LIST';
 function receiveCreateList(list) {
   return {
     type: RECEIVE_CREATE_LIST,
-    list: {Id: list.Id, ProjectId: list.ProjectId, Title: list.Title, ListTasks: list.ListTasks}
+    list: {Id: list.Id, ProjectId: list.ProjectId, Title: list.Title, Color: list.Color, ListTasks: list.ListTasks}
   };
 }
 
-export function fetchCreateList(projectId, title) {
+export function fetchCreateList(projectId, title, color) {
   return dispatch => {
     dispatch(requestCreateList());
     return Request
       .post(`/projects/${projectId}/lists`)
       .type('form')
-      .send({title: title})
+      .send({title: title, color: color})
       .end((err, res)=> {
         if(res.body != null) {
           dispatch(receiveCreateList(res.body));
@@ -178,6 +202,37 @@ export function fetchCreateTask(projectId, listId, title) {
       .end((err, res)=> {
         if(res.body != null) {
           dispatch(receiveCreateTask(res.body));
+        }
+      });
+  };
+}
+
+export const REQUEST_UPDATE_LIST = 'REQUEST_UPDATE_LIST';
+function requestUpdateList() {
+  return {
+    type: REQUEST_UPDATE_LIST
+  };
+}
+
+export const RECEIVE_UPDATE_LIST = 'RECEIVE_UPDATE_LIST';
+function receiveUpdateList(list) {
+  return {
+    type: RECEIVE_UPDATE_LIST,
+    list: {Id: list.Id, ProjectId: list.ProjectId, Title: list.Title, Color: list.Color, ListTasks: list.ListTasks}
+  };
+}
+
+export function fetchUpdateList(projectId, list) {
+  return dispatch => {
+    console.log(list);
+    dispatch(requestUpdateList());
+    return Request
+      .post(`/projects/${projectId}/lists/${list.Id}`)
+      .type('form')
+      .send({title: list.Title.String, color: list.Color.String})
+      .end((err, res)=> {
+        if(res.body != null) {
+          dispatch(receiveUpdateList(res.body));
         }
       });
   };

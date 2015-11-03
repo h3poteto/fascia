@@ -45,7 +45,7 @@ var _ = Describe("Task", func() {
 		table = database.Init()
 		newProject := project.NewProject(0, uid, "title", "desc")
 		newProject.Save()
-		newList = list.NewList(0, newProject.Id, "list title", sql.NullString{})
+		newList = list.NewList(0, newProject.Id, "list title", "")
 		newList.Save()
 		newTask = NewTask(0, newList.Id, "task title")
 	})

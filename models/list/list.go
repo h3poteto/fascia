@@ -24,15 +24,12 @@ type ListStruct struct {
 	database db.DB
 }
 
-func NewList(id int64, projectID int64, title string, color sql.NullString) *ListStruct {
+func NewList(id int64, projectID int64, title string, color string) *ListStruct {
 	if projectID == 0 {
 		return nil
 	}
 	nullTitle := sql.NullString{String: title, Valid: true}
-	nullColor := color
-	if !color.Valid {
-		nullColor = sql.NullString{String: "0effff", Valid: true}
-	}
+	nullColor := sql.NullString{String: color, Valid: true}
 	list := &ListStruct{Id: id, ProjectId: projectID, Title: nullTitle, Color: nullColor}
 	list.Initialize()
 	return list
@@ -57,7 +54,7 @@ func FindList(projectID int64, listID int64) *ListStruct {
 		fmt.Printf("cannot find list or project did not contain list: %v\n", listID)
 		return nil
 	} else {
-		list := NewList(id, projectId, title.String, color)
+		list := NewList(id, projectId, title.String, color.String)
 		return list
 	}
 

@@ -87,7 +87,7 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 			panic(err.Error())
 		}
 		if projectID == u.Id && title.Valid {
-			l := list.NewList(id, projectID, title.String, color)
+			l := list.NewList(id, projectID, title.String, color.String)
 			slice = append(slice, l)
 		}
 	}

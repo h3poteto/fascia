@@ -32,7 +32,7 @@ export default class ListView extends React.Component {
   }
 
   render() {
-    const { isListModalOpen, newList, lists, project, isTaskModalOpen, newTask, selectedListId, isListEditModalOpen } = this.props.ListReducer
+    const { isListModalOpen, newList, lists, project, isTaskModalOpen, newTask, selectedList, isListEditModalOpen } = this.props.ListReducer
     return (
       <div id="lists">
         <Modal
@@ -46,8 +46,10 @@ export default class ListView extends React.Component {
                 <legend>Create List</legend>
                 <label htmlFor="title">Title</label>
                 <input id="title" name="title" type="text" value={newList.title} onChange={this.props.updateNewListTitle} placeholder="List Name" className="form-control" />
+                <label htmlFor="color">Color</label>
+                <input id="color" name="color" type="text" value={newList.color} onChange={this.props.updateNewListColor} className="form-control" />
                 <div className="form-action">
-                  <button onClick={e => this.props.fetchCreateList(this.props.params.projectId, newList.title)} className="pure-button pure-button-primary" type="button">Create List</button>
+                  <button onClick={e => this.props.fetchCreateList(this.props.params.projectId, newList.title, newList.color)} className="pure-button pure-button-primary" type="button">Create List</button>
                 </div>
               </fieldset>
             </form>
@@ -65,7 +67,7 @@ export default class ListView extends React.Component {
                 <label htmlFor="title">Title</label>
                 <input id="title" name="title" type="text" value={newTask.title} onChange={this.props.updateNewTaskTitle} placeholder="Task Name" className="form-control" />
                 <div className="form-action">
-                  <button onClick={e => this.props.fetchCreateTask(this.props.params.projectId, selectedListId,  newTask.title)} className="pure-button pure-button-primary" type="button">Create Task</button>
+                  <button onClick={e => this.props.fetchCreateTask(this.props.params.projectId, selectedList.Id,  newTask.title)} className="pure-button pure-button-primary" type="button">Create Task</button>
                 </div>
               </fieldset>
             </form>
@@ -81,9 +83,11 @@ export default class ListView extends React.Component {
               <fieldset>
                 <legend>Edit List</legend>
                 <label htmlFor="title">Title</label>
-                <input id="title" name="title" type="text" value={newList.title} onChange={this.props.updateNewListTitle} className="form-control" />
+                <input id="title" name="title" type="text" value={selectedList !=null ? selectedList.Title.String : ''} onChange={this.props.updateSelectedListTitle} className="form-control" />
+                <label htmlFor="color">Color</label>
+                <input id="color" name="color" type="text" value={selectedList !=null ? selectedList.Color.String : ''} onChange={this.props.updateSelectedListColor} className="form-control" />
                 <div className="form-action">
-                  <button onClick={e => this.props.fetchEditList(this.props.params.projectId, newList.title)} className="pure-button pure-button-primary" type="button">Update List</button>
+                  <button onClick={e => this.props.fetchUpdateList(this.props.params.projectId, selectedList)} className="pure-button pure-button-primary" type="button">Update List</button>
                 </div>
               </fieldset>
             </form>
@@ -96,13 +100,13 @@ export default class ListView extends React.Component {
           {lists.map(function(list, index) {
             return (
               <div className="fascia-list" data-id={list.Id}>
-                <div className="fascia-list-menu"><i className="fa fa-pencil" onClick={e => this.props.openEditListModal(list.Id)}></i></div>
+                <div className="fascia-list-menu"><i className="fa fa-pencil" onClick={e => this.props.openEditListModal(list)}></i></div>
                 <span className="list-title">{list.Title}</span>
                 <ul className="fascia-task">
                   {list.ListTasks.map(function(task, index) {
                     return <li className="task">{task.Title.String}</li>
                   }, this)}
-                  <li className="new-task" onClick={e => this.props.openNewTaskModal(list.Id)}>
+                  <li className="new-task" onClick={e => this.props.openNewTaskModal(list)}>
                     <i className="fa fa-plus"></i>
                   </li>
                 </ul>

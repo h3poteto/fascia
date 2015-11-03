@@ -4,10 +4,10 @@ const initState = {
   isListModalOpen: false,
   isTaskModalOpen: false,
   isListEditModalOpen: false,
-  newList: {title: ""},
+  newList: {title: "", color: "0effff"},
   newTask: {title: ""},
   lists: [],
-  selectedListId: null,
+  selectedList: null,
   project: null
 };
 
@@ -21,22 +21,47 @@ export default function ListReducer(state = initState, action) {
   case listActions.OPEN_NEW_TASK:
     return Object.assign({}, state, {
       isTaskModalOpen: action.isTaskModalOpen,
-      selectedListId: action.listId
+      selectedList: action.list
     });
   case listActions.CLOSE_NEW_TASK:
     return Object.assign({}, state, {
-      isTaskModalOpen: action.isTaskModalOpen
+      isTaskModalOpen: action.isTaskModalOpen,
+      selectedList: null
     });
   case listActions.OPEN_EDIT_LIST:
+    console.log(action.list);
+    return Object.assign({}, state, {
+      isListEditModalOpen: action.isListEditModalOpen,
+      selectedList: action.list
+    });
   case listActions.CLOSE_EDIT_LIST:
     return Object.assign({}, state, {
-      isListEditModalOpen: action.isListEditModalOpen
+      isListEditModalOpen: action.isListEditModalOpen,
+      selectedList: null
     });
   case listActions.UPDATE_NEW_LIST_TITLE:
     var newList = state.newList;
     newList.title = action.title;
     return Object.assign({}, state, {
       newList: newList
+    });
+  case listActions.UPDATE_NEW_LIST_COLOR:
+    var newList = state.newList;
+    newList.color = action.color;
+    return Object.assign({}, state, {
+      newList: newList
+    });
+  case listActions.UPDATE_SELECTED_LIST_TITLE:
+    var list = state.selectedList;
+    list.Title.String = action.title;
+    return Object.assign({}, state, {
+      selectedList: list
+    });
+  case listActions.UPDATE_SELECTED_LIST_COLOR:
+    var list = state.selectedList;
+    list.Color.String = action.color;
+    return Object.assign({}, state, {
+      selectedList: list
     });
   case listActions.UPDATE_NEW_TASK_TITLE:
     var newTask = state.newTask;
@@ -67,7 +92,7 @@ export default function ListReducer(state = initState, action) {
     }
     var lists = state.lists.concat([createdList]);
     return Object.assign({}, state, {
-      newList: {title: ""},
+      newList: {title: "", color: "0effff"},
       lists: lists,
       isListModalOpen: false
     });
@@ -81,9 +106,25 @@ export default function ListReducer(state = initState, action) {
       }
     });
     return Object.assign({}, state, {
-      newTask: {title: ""},
+      newTask: {title: "", color: "0effff"},
       lists: lists,
       isTaskModalOpen: false
+    });
+  case listActions.RECEIVE_UPDATE_LIST:
+    var updatedList = action.list;
+    if (updatedList.ListTasks == null) {
+      updatedList.ListTasks = [];
+    }
+    var lists = state.lists.map(function(list, index) {
+      if (list.Id == updatedList.Id) {
+        return updatedList;
+      } else {
+        return list;
+      }
+    });
+    return Object.assign({}, state, {
+      lists: lists,
+      isListEditModalOpen: false
     });
   default:
     return state;
