@@ -32,7 +32,7 @@ export default class ListView extends React.Component {
   }
 
   render() {
-    const { isListModalOpen, newList, lists, project, isTaskModalOpen, newTask, selectedListId } = this.props.ListReducer
+    const { isListModalOpen, newList, lists, project, isTaskModalOpen, newTask, selectedListId, isListEditModalOpen } = this.props.ListReducer
     return (
       <div id="lists">
         <Modal
@@ -71,6 +71,24 @@ export default class ListView extends React.Component {
             </form>
           </div>
         </Modal>
+        <Modal
+          isOpen={isListEditModalOpen}
+          onRequestClose={this.props.closeEditListModal}
+          style={customStyles}
+        >
+          <div className="list-form">
+            <form className="pure-form pure-form-stacked">
+              <fieldset>
+                <legend>Edit List</legend>
+                <label htmlFor="title">Title</label>
+                <input id="title" name="title" type="text" value={newList.title} onChange={this.props.updateNewListTitle} className="form-control" />
+                <div className="form-action">
+                  <button onClick={e => this.props.fetchEditList(this.props.params.projectId, newList.title)} className="pure-button pure-button-primary" type="button">Update List</button>
+                </div>
+              </fieldset>
+            </form>
+          </div>
+        </Modal>
         <div className="title-wrapper">
           <h3 className="project-title">{project != null ? project.Title : ''}</h3>
         </div>
@@ -78,6 +96,7 @@ export default class ListView extends React.Component {
           {lists.map(function(list, index) {
             return (
               <div className="fascia-list" data-id={list.Id}>
+                <div className="fascia-list-menu"><i className="fa fa-pencil" onClick={e => this.props.openEditListModal(list.Id)}></i></div>
                 <span className="list-title">{list.Title}</span>
                 <ul className="fascia-task">
                   {list.ListTasks.map(function(task, index) {

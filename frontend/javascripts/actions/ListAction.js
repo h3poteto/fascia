@@ -33,6 +33,23 @@ export function closeNewTaskModal() {
   };
 }
 
+export const OPEN_EDIT_LIST = 'OPEN_EDIT_LIST';
+export function openEditListModal(listId) {
+  return {
+    type: OPEN_EDIT_LIST,
+    isListEditModalOpen: true,
+    listId: listId
+  };
+}
+
+export const CLOSE_EDIT_LIST = 'CLOSE_EDIT_LIST';
+export function closeEditListModal() {
+  return {
+    type: CLOSE_EDIT_LIST,
+    isListEditModalOpen: false
+  };
+}
+
 export const UPDATE_NEW_LIST_TITLE = 'UPDATE_NEW_LIST_TITLE';
 export function updateNewListTitle(ev) {
   return {

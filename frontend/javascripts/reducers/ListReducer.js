@@ -3,6 +3,7 @@ import * as listActions from '../actions/ListAction';
 const initState = {
   isListModalOpen: false,
   isTaskModalOpen: false,
+  isListEditModalOpen: false,
   newList: {title: ""},
   newTask: {title: ""},
   lists: [],
@@ -25,6 +26,11 @@ export default function ListReducer(state = initState, action) {
   case listActions.CLOSE_NEW_TASK:
     return Object.assign({}, state, {
       isTaskModalOpen: action.isTaskModalOpen
+    });
+  case listActions.OPEN_EDIT_LIST:
+  case listActions.CLOSE_EDIT_LIST:
+    return Object.assign({}, state, {
+      isListEditModalOpen: action.isListEditModalOpen
     });
   case listActions.UPDATE_NEW_LIST_TITLE:
     var newList = state.newList;
