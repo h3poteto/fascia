@@ -92,6 +92,13 @@ func (u *Lists)Create(c web.C, w http.ResponseWriter, r *http.Request) {
 				encoder.Encode(error)
 				return
 			}
+		} else {
+			label = list.UpdateGithubLabel(token, repo)
+			if label == nil {
+				error := JsonError{Error: "failed update github label"}
+				encoder.Encode(error)
+				return
+			}
 		}
 	}
 	if !list.Save() {
@@ -141,8 +148,29 @@ func (u *Lists)Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	targetList.Title = sql.NullString{String: editListForm.Title, Valid: true}
 	targetList.Color = sql.NullString{String: editListForm.Color, Valid: true}
 
-	// TODO: github同期処理
+	// github同期処理
 	if current_user.OauthToken.Valid {
+		token := current_user.OauthToken.String
+		repo := parentProject.Repository()
+		fmt.Printf("repository: %+v\n", repo)
+		label := targetList.CheckLabelPresent(token, repo)
+		fmt.Printf("find label: %+v\n", label)
+		if label == nil {
+			// editの場合はほとんどここには入らない
+			label = targetList.CreateGithubLabel(token, repo)
+			if label == nil {
+				error := JsonError{Error: "failed create github label"}
+				encoder.Encode(error)
+				return
+			}
+		} else {
+			label = targetList.UpdateGithubLabel(token, repo)
+			if label == nil {
+				error := JsonError{Error: "failed update github label"}
+				encoder.Encode(error)
+				return
+			}
+		}
 	}
 	if !targetList.Update() {
 		error := JsonError{Error: "save failed"}

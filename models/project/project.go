@@ -98,7 +98,7 @@ func (u *ProjectStruct) Repository() *repository.RepositoryStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	rows, _ := table.Query("select id, project_id, repository_id, name, owner from repositories where project_id = ?", u.Id)
+	rows, _ := table.Query("select id, project_id, repository_id, owner, name from repositories where project_id = ?", u.Id)
 	for rows.Next() {
 		var id, projectId, repositoryId int64
 		var owner, name sql.NullString

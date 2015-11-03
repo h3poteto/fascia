@@ -138,12 +138,33 @@ func (u *ListStruct) CreateGithubLabel(token string, repo *repository.Repository
 		Name: &u.Title.String,
 		Color: &u.Color.String,
 	}
-	githubLabel, response, err := client.Issues.CreateLabel(repo.Name.String, repo.Owner.String, label)
+	githubLabel, response, err := client.Issues.CreateLabel(repo.Owner.String, repo.Name.String, label)
 	fmt.Printf("create label for github response: %+v\n", response)
 	if err != nil {
 		panic(err.Error())
 		return nil
 	}
 	fmt.Printf("github label created: %+v\n", githubLabel)
+	return githubLabel
+}
+
+func (u *ListStruct) UpdateGithubLabel(token string, repo *repository.RepositoryStruct) *github.Label {
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(oauth2.NoContext, ts)
+	client := github.NewClient(tc)
+
+	label := &github.Label{
+		Name: &u.Title.String,
+		Color: &u.Color.String,
+	}
+	githubLabel, response, err := client.Issues.EditLabel(repo.Owner.String, repo.Name.String, u.Title.String, label)
+	fmt.Printf("update label for github response: %+v\n", response)
+	if err != nil {
+		panic(err.Error())
+		return nil
+	}
+	fmt.Printf("github label updated: %+v\n", githubLabel)
 	return githubLabel
 }
