@@ -20,16 +20,17 @@ type ListStruct struct {
 	ProjectId int64
 	Title sql.NullString
 	ListTasks []*task.TaskStruct
-	Color string
+	Color sql.NullString
 	database db.DB
 }
 
-func NewList(id int64, projectID int64, title string) *ListStruct {
+func NewList(id int64, projectID int64, title string, color string) *ListStruct {
 	if projectID == 0 {
 		return nil
 	}
 	nullTitle := sql.NullString{String: title, Valid: true}
-	list := &ListStruct{Id: id, ProjectId: projectID, Title: nullTitle}
+	nullColor := sql.NullString{String: color, Valid: true}
+	list := &ListStruct{Id: id, ProjectId: projectID, Title: nullTitle, Color: nullColor}
 	list.Initialize()
 	return list
 }
@@ -41,10 +42,10 @@ func FindList(projectID int64, listID int64) *ListStruct {
 	defer table.Close()
 
 	var id, projectId int64
-	var title string
-	rows, _ := table.Query("select id, project_id, title from lists where id = ? AND project_id = ?;", listID, projectID)
+	var title, color sql.NullString
+	rows, _ := table.Query("select id, project_id, title, color from lists where id = ? AND project_id = ?;", listID, projectID)
 	for rows.Next() {
-		err := rows.Scan(&id, &projectId, &title)
+		err := rows.Scan(&id, &projectId, &title, &color)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -53,7 +54,7 @@ func FindList(projectID int64, listID int64) *ListStruct {
 		fmt.Printf("cannot find list or project did not contain list: %v\n", listID)
 		return nil
 	} else {
-		list := NewList(id, projectId, title)
+		list := NewList(id, projectId, title.String, color.String)
 		return list
 	}
 
@@ -69,11 +70,22 @@ func (u *ListStruct) Save() bool {
 	table := u.database.Init()
 	defer table.Close()
 
-	result, err := table.Exec("insert into lists (project_id, title, created_at) values (?, ?, now());", u.ProjectId, u.Title)
+	result, err := table.Exec("insert into lists (project_id, title, color, created_at) values (?, ?, ?, now());", u.ProjectId, u.Title, u.Color)
 	if err != nil {
 		return false
 	}
 	u.Id, _ = result.LastInsertId()
+	return true
+}
+
+func (u *ListStruct) Update() bool {
+	table := u.database.Init()
+	defer table.Close()
+
+	_, err := table.Exec("update lists set project_id = ?, title = ?, color = ? where id = ?;", u.ProjectId, u.Title, u.Color, u.Id)
+	if err != nil {
+		return false
+	}
 	return true
 }
 
@@ -122,19 +134,37 @@ func (u *ListStruct) CreateGithubLabel(token string, repo *repository.Repository
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 	client := github.NewClient(tc)
 
-	// TODO: listの設定項目に色を追加してほしい．その色を元にここでは色を設定する
-	// どうせリストごとに色をつけるのはfascia内の機能としてもほしいので，デフォルトで色はなにか当てておく
-	u.Color = "000000"
 	label := &github.Label{
 		Name: &u.Title.String,
-		Color: &u.Color,
+		Color: &u.Color.String,
 	}
-	githubLabel, response, err := client.Issues.CreateLabel(repo.Name.String, repo.Owner.String, label)
+	githubLabel, response, err := client.Issues.CreateLabel(repo.Owner.String, repo.Name.String, label)
 	fmt.Printf("create label for github response: %+v\n", response)
 	if err != nil {
 		panic(err.Error())
 		return nil
 	}
 	fmt.Printf("github label created: %+v\n", githubLabel)
+	return githubLabel
+}
+
+func (u *ListStruct) UpdateGithubLabel(token string, repo *repository.RepositoryStruct) *github.Label {
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(oauth2.NoContext, ts)
+	client := github.NewClient(tc)
+
+	label := &github.Label{
+		Name: &u.Title.String,
+		Color: &u.Color.String,
+	}
+	githubLabel, response, err := client.Issues.EditLabel(repo.Owner.String, repo.Name.String, u.Title.String, label)
+	fmt.Printf("update label for github response: %+v\n", response)
+	if err != nil {
+		panic(err.Error())
+		return nil
+	}
+	fmt.Printf("github label updated: %+v\n", githubLabel)
 	return githubLabel
 }

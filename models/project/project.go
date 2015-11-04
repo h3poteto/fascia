@@ -77,17 +77,17 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	rows, _ := table.Query("select id, project_id, title from lists where project_id = ?;", u.Id)
+	rows, _ := table.Query("select id, project_id, title, color from lists where project_id = ?;", u.Id)
 	var slice []*list.ListStruct
 	for rows.Next() {
 		var id, projectID int64
-		var title sql.NullString
-		err := rows.Scan(&id, &projectID, &title)
+		var title, color sql.NullString
+		err := rows.Scan(&id, &projectID, &title, &color)
 		if err != nil {
 			panic(err.Error())
 		}
 		if projectID == u.Id && title.Valid {
-			l := list.NewList(id, projectID, title.String)
+			l := list.NewList(id, projectID, title.String, color.String)
 			slice = append(slice, l)
 		}
 	}
@@ -98,7 +98,7 @@ func (u *ProjectStruct) Repository() *repository.RepositoryStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	rows, _ := table.Query("select id, project_id, repository_id, name, owner from repositories where project_id = ?", u.Id)
+	rows, _ := table.Query("select id, project_id, repository_id, owner, name from repositories where project_id = ?", u.Id)
 	for rows.Next() {
 		var id, projectId, repositoryId int64
 		var owner, name sql.NullString

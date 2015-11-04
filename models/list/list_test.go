@@ -45,7 +45,7 @@ var _ = Describe("List", func() {
 		table = database.Init()
 		newProject = project.NewProject(0, uid, "title", "desc")
 		newProject.Save()
-		newList = NewList(0, newProject.Id, "list title")
+		newList = NewList(0, newProject.Id, "list title", "")
 	})
 
 	Describe("Save", func() {
@@ -92,5 +92,17 @@ var _ = Describe("List", func() {
 			Expect(tasks[0].Id).To(Equal(newTask.Id))
 		})
 
+	})
+
+	Describe("Update", func() {
+		JustBeforeEach(func() {
+			newList.Save()
+		})
+		It("リストが更新できること", func() {
+			newList.Title = sql.NullString{String: "newTitle", Valid: true}
+			newList.Update()
+			findList := FindList(newList.ProjectId, newList.Id)
+			Expect(findList.Title.String).To(Equal("newTitle"))
+		})
 	})
 })
