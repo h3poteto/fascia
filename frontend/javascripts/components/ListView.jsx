@@ -104,9 +104,9 @@ export default class ListView extends React.Component {
                 <span className="list-title">{list.Title}</span>
                 <ul className="fascia-task">
                   {list.ListTasks.map(function(task, index) {
-                    return <li className="task">{task.Title.String}</li>
+                    return <li style={{"border-left": `solid 6px #${list.Color.String}`}} className="task">{task.Title.String}</li>
                   }, this)}
-                  <li className="new-task" onClick={e => this.props.openNewTaskModal(list)}>
+                  <li className="new-task" style={{"border-left": `solid 6px #${list.Color.String}`}} onClick={e => this.props.openNewTaskModal(list)}>
                     <i className="fa fa-plus"></i>
                   </li>
                 </ul>
