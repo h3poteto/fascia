@@ -48,7 +48,7 @@ func (u *Tasks)Index(c web.C, w http.ResponseWriter, r *http.Request) {
 
 func (u *Tasks)Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	_, result := LoginRequired(r)
+	current_user, result := LoginRequired(r)
 	encoder := json.NewEncoder(w)
 	if !result {
 		error := JsonError{Error: "not logined"}
@@ -84,6 +84,25 @@ func (u *Tasks)Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("post new task parameter: %+v\n", newTaskForm)
 
 	task := taskModel.NewTask(0, parentList.Id, newTaskForm.Title)
+
+	// github同期処理
+	repo := parentProject.Repository()
+	if current_user.OauthToken.Valid && repo != nil {
+		token := current_user.OauthToken.String
+		label := parentList.CheckLabelPresent(token, repo)
+		// もしラベルがなかった場合は作っておく
+		// 色が違っていてもアップデートは不要，それは編集でやってくれ
+		if label == nil {
+			label = parentList.CreateGithubLabel(token, repo)
+			if label == nil {
+				error := JsonError{Error: "failed create github label"}
+				encoder.Encode(error)
+				return
+			}
+		}
+		// issueを作る
+		task.CreateGithubIssue(token, repo, []string{parentList.Title.String})
+	}
 	if !task.Save() {
 		error := JsonError{Error: "save failed"}
 		encoder.Encode(error)
