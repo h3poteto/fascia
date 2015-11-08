@@ -26,7 +26,7 @@ type EditListForm struct {
 
 func (u *Lists)Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	_, result := LoginRequired(r)
+	current_user, result := LoginRequired(r)
 	encoder := json.NewEncoder(w)
 	if !result {
 		error := JsonError{Error: "not logined"}
@@ -35,7 +35,7 @@ func (u *Lists)Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil {
+	if parentProject == nil && parentProject.UserId.Int64 != current_user.Id {
 		error := JsonError{Error: "project not found"}
 		encoder.Encode(error)
 		return
@@ -59,7 +59,7 @@ func (u *Lists)Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil {
+	if parentProject == nil && parentProject.UserId.Int64 != current_user.Id {
 		error := JsonError{Error: "project not found"}
 		encoder.Encode(error)
 		return
@@ -120,7 +120,7 @@ func (u *Lists)Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil {
+	if parentProject == nil && parentProject.UserId.Int64 != current_user.Id {
 		error := JsonError{Error: "project not found"}
 		encoder.Encode(error)
 		return
