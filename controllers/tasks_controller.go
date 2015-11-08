@@ -86,9 +86,9 @@ func (u *Tasks)Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	task := taskModel.NewTask(0, parentList.Id, newTaskForm.Title)
 
 	// github同期処理
-	if current_user.OauthToken.Valid {
+	repo := parentProject.Repository()
+	if current_user.OauthToken.Valid && repo != nil {
 		token := current_user.OauthToken.String
-		repo := parentProject.Repository()
 		label := parentList.CheckLabelPresent(token, repo)
 		// もしラベルがなかった場合は作っておく
 		// 色が違っていてもアップデートは不要，それは編集でやってくれ

@@ -80,9 +80,9 @@ func (u *Lists)Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	list := listModel.NewList(0, projectID, newListForm.Title, newListForm.Color)
 
 	// github同期処理
-	if current_user.OauthToken.Valid {
+	repo := parentProject.Repository()
+	if current_user.OauthToken.Valid && repo != nil {
 		token := current_user.OauthToken.String
-		repo := parentProject.Repository()
 		label := list.CheckLabelPresent(token, repo)
 		if label == nil {
 			// そもそも既に存在しているなんてことはあまりないのでは
@@ -149,9 +149,9 @@ func (u *Lists)Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	targetList.Color = sql.NullString{String: editListForm.Color, Valid: true}
 
 	// github同期処理
-	if current_user.OauthToken.Valid {
+	repo := parentProject.Repository()
+	if current_user.OauthToken.Valid && repo != nil {
 		token := current_user.OauthToken.String
-		repo := parentProject.Repository()
 		fmt.Printf("repository: %+v\n", repo)
 		label := targetList.CheckLabelPresent(token, repo)
 		fmt.Printf("find label: %+v\n", label)
