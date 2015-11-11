@@ -224,7 +224,6 @@ function receiveUpdateList(list) {
 
 export function fetchUpdateList(projectId, list) {
   return dispatch => {
-    console.log(list);
     dispatch(requestUpdateList());
     return Request
       .post(`/projects/${projectId}/lists/${list.Id}`)
@@ -235,5 +234,60 @@ export function fetchUpdateList(projectId, list) {
           dispatch(receiveUpdateList(res.body));
         }
       });
+  };
+}
+
+
+export const TASK_DRAG_START = "TASK_DRAG_START";
+export function taskDragStart(ev) {
+  ev.dataTransfer.effectAllowed = "moved";
+  ev.dataTransfer.setData("text/html", ev.currentTarget);
+  return {
+    type: TASK_DRAG_START,
+    taskDragTarget: ev.currentTarget,
+    taskDragFromList: ev.currentTarget.parentNode.parentNode
+  };
+}
+
+export const TASK_DRAG_END = "TASK_DRAG_END";
+export function taskDragEnd(ev) {
+  return {
+    type: TASK_DRAG_END
+  };
+}
+
+export const TASK_DROP = "TASK_DROP";
+export function taskDrop(ev) {
+  ev.preventDefault();
+  var target;
+  switch(ev.target.dataset.droppedDepth) {
+  case "0":
+    target = ev.target;
+    break;
+  case "1":
+    target = ev.target.parentNode;
+    break;
+  case "2":
+    target = ev.target.parentNode.parentNode;
+    break;
+  case "3":
+    target = ev.target.parentNode.parentNode.parentNode;
+    break;
+  default:
+    target = ev.target.parentNode.parentNode;
+    break;
+  }
+  return {
+    type: TASK_DROP,
+    taskDragToList: target
+  };
+}
+
+// 本来であればdropだけでいいが，preventDefaultしておかなければならない関係上，dropとはセットで必須になる
+export const TASK_DRAG_OVER = "TASK_DRAG_OVER";
+export function taskDragOver(ev) {
+  ev.preventDefault();
+  return {
+    type: TASK_DRAG_OVER
   };
 }

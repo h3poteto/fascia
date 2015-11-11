@@ -8,7 +8,10 @@ const initState = {
   newTask: {title: ""},
   lists: [],
   selectedList: null,
-  project: null
+  project: null,
+  taskDragTarget: null,
+  taskDragFromList: null,
+  isTaskDragging: false
 };
 
 export default function ListReducer(state = initState, action) {
@@ -29,7 +32,6 @@ export default function ListReducer(state = initState, action) {
       selectedList: null
     });
   case listActions.OPEN_EDIT_LIST:
-    console.log(action.list);
     return Object.assign({}, state, {
       isListEditModalOpen: action.isListEditModalOpen,
       selectedList: action.list
@@ -125,6 +127,103 @@ export default function ListReducer(state = initState, action) {
     return Object.assign({}, state, {
       lists: lists,
       isListEditModalOpen: false
+    });
+  case listActions.TASK_DRAG_START:
+    var fromList = null;
+    var taskDragTarget = null;
+    var lists = state.lists;
+    state.lists.map(function(list, i) {
+      if (list.Id == action.taskDragFromList.dataset.id) {
+        fromList = list;
+        list.ListTasks.map(function(task, j) {
+          if (task.Id == action.taskDragTarget.dataset.id) {
+            taskDragTarget = task;
+          }
+        });
+      }
+    });
+    return Object.assign({}, state, {
+      taskDragTarget: taskDragTarget,
+      isTaskDragging: true,
+      lists: lists,
+      taskDragFromList: fromList
+    });
+  case listActions.TASK_DRAG_END:
+    // var lists = state.lists;
+    // if (state.taskDragToList == null) {
+    //   // これはどこのリストにも入れなかったやつ
+    //   // なにもしない
+    // } else if (state.taskDragToList.Id == state.taskDragFromList.Id) {
+    //   // これは並び替え
+    // } else {
+    //   // targetListに追加する
+    //   // TODO: 並び順も考慮して挿入できるようにしておく
+    //   lists = state.lists.map(function(list, i) {
+    //     if (list.Id == state.taskDragToList.Id) {
+    //       list.ListTasks.push(state.taskDragTarget);
+    //       return list;
+    //     } else if (list.Id == state.taskDragFromList.Id) {
+    //       var taskIndex;
+    //       list.ListTasks.map(function(task, j) {
+    //         if (task.Id == state.taskDragTarget.Id) {
+    //           taskIndex = j;
+    //         };
+    //       });
+    //       list.ListTasks.splice(taskIndex, 1);
+    //       return list;
+    //     } else {
+    //       return list;
+    //     }
+    //   });
+    // }
+    // return Object.assign({}, state, {
+    //   taskDragTarget: null,
+    //   taskDragFromList: null,
+    //   taskDragToList: null,
+    //   isTaskDragging: false,
+    //   lists: lists
+    // });
+    return state;
+  case listActions.TASK_DROP:
+    // TODO: あとでplaceholderか何かを作ってドラッグ中の仮想位置を表示する
+    var toList = null;
+    state.lists.map(function(list, i) {
+      if (list.Id == action.taskDragToList.dataset.id) {
+        toList = list;
+      }
+    });
+    var lists = state.lists;
+    if (toList == null) {
+      // これはどこのリストにも入れなかったやつ
+      // なにもしない
+    } else if (toList.Id == state.taskDragFromList.Id) {
+      // これは並び替え
+    } else {
+      // targetListに追加する
+      // TODO: 並び順も考慮して挿入できるようにしておく
+      lists = state.lists.map(function(list, i) {
+        if (list.Id == toList.Id) {
+          list.ListTasks.push(state.taskDragTarget);
+          return list;
+        } else if (list.Id == state.taskDragFromList.Id) {
+          var taskIndex;
+          list.ListTasks.map(function(task, j) {
+            if (task.Id == state.taskDragTarget.Id) {
+              taskIndex = j;
+            };
+          });
+          list.ListTasks.splice(taskIndex, 1);
+          return list;
+        } else {
+          return list;
+        }
+      });
+    }
+    return Object.assign({}, state, {
+      taskDragTarget: null,
+      taskDragFromList: null,
+      isTaskDragging: false,
+      lists: lists
     });
   default:
     return state;
