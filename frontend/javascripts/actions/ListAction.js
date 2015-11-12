@@ -249,10 +249,30 @@ export function taskDragStart(ev) {
   };
 }
 
-export const TASK_DRAG_END = "TASK_DRAG_END";
-export function taskDragEnd(ev) {
+export const TASK_DRAG_LEAVE = "TASK_DRAG_LEAVE";
+export function taskDragLeave(ev) {
+  var targetList;
+  switch(ev.target.dataset.droppedDepth) {
+  case "0":
+    targetList = ev.target;
+    break;
+  case "1":
+    targetList = ev.target.parentNode;
+    break;
+  case "2":
+    targetList = ev.target.parentNode.parentNode;
+    break;
+  case "3":
+    targetList = ev.target.parentNode.parentNode.parentNode;
+    break;
+  default:
+    targetList = ev.target.parentNode.parentNode;
+    break;
+  }
   return {
-    type: TASK_DRAG_END
+    type: TASK_DRAG_LEAVE,
+    taskDragLeavList: targetList,
+    taskDragLeavTask: ev.target
   };
 }
 
@@ -287,7 +307,29 @@ export function taskDrop(ev) {
 export const TASK_DRAG_OVER = "TASK_DRAG_OVER";
 export function taskDragOver(ev) {
   ev.preventDefault();
+  // ドロップ相手がtaskだった場合は挿入位置
+  // それ以外なら最後尾
+  var targetList;
+  switch(ev.target.dataset.droppedDepth) {
+  case "0":
+    targetList = ev.target;
+    break;
+  case "1":
+    targetList = ev.target.parentNode;
+    break;
+  case "2":
+    targetList = ev.target.parentNode.parentNode;
+    break;
+  case "3":
+    targetList = ev.target.parentNode.parentNode.parentNode;
+    break;
+  default:
+    targetList = ev.target.parentNode.parentNode;
+    break;
+  }
   return {
-    type: TASK_DRAG_OVER
+    type: TASK_DRAG_OVER,
+    taskDragToTask: ev.target,
+    taskDragToList: targetList
   };
 }

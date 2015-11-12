@@ -11,7 +11,7 @@ const initState = {
   project: null,
   taskDragTarget: null,
   taskDragFromList: null,
-  isTaskDragging: false
+  isTaskDraggingOver: false
 };
 
 export default function ListReducer(state = initState, action) {
@@ -144,53 +144,43 @@ export default function ListReducer(state = initState, action) {
     });
     return Object.assign({}, state, {
       taskDragTarget: taskDragTarget,
-      isTaskDragging: true,
       lists: lists,
       taskDragFromList: fromList
     });
-  case listActions.TASK_DRAG_END:
-    // var lists = state.lists;
-    // if (state.taskDragToList == null) {
-    //   // これはどこのリストにも入れなかったやつ
-    //   // なにもしない
-    // } else if (state.taskDragToList.Id == state.taskDragFromList.Id) {
-    //   // これは並び替え
-    // } else {
-    //   // targetListに追加する
-    //   // TODO: 並び順も考慮して挿入できるようにしておく
-    //   lists = state.lists.map(function(list, i) {
-    //     if (list.Id == state.taskDragToList.Id) {
-    //       list.ListTasks.push(state.taskDragTarget);
-    //       return list;
-    //     } else if (list.Id == state.taskDragFromList.Id) {
-    //       var taskIndex;
-    //       list.ListTasks.map(function(task, j) {
-    //         if (task.Id == state.taskDragTarget.Id) {
-    //           taskIndex = j;
-    //         };
-    //       });
-    //       list.ListTasks.splice(taskIndex, 1);
-    //       return list;
-    //     } else {
-    //       return list;
-    //     }
-    //   });
-    // }
-    // return Object.assign({}, state, {
-    //   taskDragTarget: null,
-    //   taskDragFromList: null,
-    //   taskDragToList: null,
-    //   isTaskDragging: false,
-    //   lists: lists
-    // });
-    return state;
+  case listActions.TASK_DRAG_LEAVE:
+    // arrowを抜いて
+    var lists = state.lists.map(function(list, i) {
+      var taskIndex = null;
+      list.ListTasks.map(function(task, j) {
+        if (task.draggedOn) {
+          taskIndex = j;
+        }
+      });
+      if (taskIndex != null) {
+        list.ListTasks.splice(taskIndex, 1);
+      }
+      return list;
+    });
+    return Object.assign({}, state, {
+      isTaskDraggingOver: false,
+      lists: lists
+    });
   case listActions.TASK_DROP:
-    // TODO: あとでplaceholderか何かを作ってドラッグ中の仮想位置を表示する
     var toList = null;
     state.lists.map(function(list, i) {
       if (list.Id == action.taskDragToList.dataset.id) {
         toList = list;
       }
+      // arrowを抜く
+      var taskIndex = null;
+      list.ListTasks.map(function(task, j) {
+        if (task.draggedOn) {
+          taskIndex = j;
+        }
+        if (taskIndex != null) {
+          list.ListTasks.splice(taskIndex, 1);
+        }
+      });
     });
     var lists = state.lists;
     if (toList == null) {
@@ -222,7 +212,50 @@ export default function ListReducer(state = initState, action) {
     return Object.assign({}, state, {
       taskDragTarget: null,
       taskDragFromList: null,
-      isTaskDragging: false,
+      isTaskDraggingOver: false,
+      lists: lists
+    });
+  case listActions.TASK_DRAG_OVER:
+    var toList = null;
+    var lists = state.lists;
+    if (!state.isTaskDraggingOver) {
+      state.lists.map(function(list, i) {
+        if (list.Id == action.taskDragToList.dataset.id) {
+          toList = list;
+        }
+      });
+      if (toList == null) {
+        // こんな場合はありえないが
+      } else if(action.taskDragToTask.className == "task") {
+        // taskの直後に入れる
+        lists = state.lists.map(function(list, i) {
+          if (list.Id == toList.Id) {
+            var taskIndex;
+            list.ListTasks.map(function(task, j) {
+              if (task.Id == action.taskDragToTask.dataset.id) {
+                taskIndex = j;
+              }
+            });
+            list.ListTasks.splice(taskIndex, 0, {draggedOn: true});
+            return list;
+          } else {
+            return list;
+          }
+        });
+      } else {
+        // taskの末尾に入れる
+        lists = state.lists.map(function(list, i) {
+          if (list.Id == toList.Id) {
+            list.ListTasks.push({draggedOn: true});
+            return list;
+          } else {
+            return list;
+          }
+        });
+      }
+    }
+    return Object.assign({}, state, {
+      isTaskDraggingOver: true,
       lists: lists
     });
   default:

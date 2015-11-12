@@ -99,12 +99,16 @@ export default class ListView extends React.Component {
         <div className="items">
           {lists.map(function(list, index) {
             return (
-              <div className="fascia-list" data-dropped-depth="0" data-id={list.Id} onDragOver={this.props.taskDragOver} onDrop={this.props.taskDrop}>
+              <div className="fascia-list" data-dropped-depth="0" data-id={list.Id} onDragOver={this.props.taskDragOver} onDrop={this.props.taskDrop} onDragLeave={this.props.taskDragLeave}>
                 <div className="fascia-list-menu" data-dropped-depth="1"><i className="fa fa-pencil" onClick={e => this.props.openEditListModal(list)} data-dropped-depth="2"></i></div>
                 <span className="list-title" data-dropped-depth="1">{list.Title}</span>
                 <ul className="fascia-task" data-dropped-depth="1">
                   {list.ListTasks.map(function(task, index) {
-                    return <li style={{"border-left": `solid 6px #${list.Color.String}`}} className="task" draggable="true" data-dropped-depth="2" data-id={task.Id} onDragStart={this.props.taskDragStart} onDragEnd={this.props.taskDragEnd}>{task.Title.String}</li>
+                    if (task.draggedOn) {
+                      return <li className="arrow"></li>
+                    } else {
+                      return <li style={{"border-left": `solid 6px #${list.Color.String}`}} className="task" draggable="true" data-dropped-depth="2" data-id={task.Id} onDragStart={this.props.taskDragStart}>{task.Title.String}</li>
+                    }
                   }, this)}
                   <li className="new-task" data-dropped-depth="2" style={{"border-left": `solid 6px #${list.Color.String}`}} onClick={e => this.props.openNewTaskModal(list)}>
                     <i className="fa fa-plus" data-dropped-depth="3"></i>
