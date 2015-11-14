@@ -1,13 +1,13 @@
 package task
 
 import (
-	"fmt"
 	"../db"
-	"database/sql"
 	"../repository"
+	"database/sql"
+	"fmt"
 
-	"golang.org/x/oauth2"
 	"github.com/google/go-github/github"
+	"golang.org/x/oauth2"
 )
 
 type Task interface {
@@ -15,9 +15,9 @@ type Task interface {
 }
 
 type TaskStruct struct {
-	Id int64
-	ListId int64
-	Title sql.NullString
+	Id       int64
+	ListId   int64
+	Title    sql.NullString
 	database db.DB
 }
 
@@ -83,8 +83,8 @@ func (u *TaskStruct) CreateGithubIssue(token string, repo *repository.Repository
 	// TODO: description実装時にはbodyにdescriptionを入れる
 	description := ""
 	issueRequest := &github.IssueRequest{
-		Title: &u.Title.String,
-		Body: &description,
+		Title:  &u.Title.String,
+		Body:   &description,
 		Labels: &labels,
 	}
 
@@ -95,4 +95,16 @@ func (u *TaskStruct) CreateGithubIssue(token string, repo *repository.Repository
 	}
 	fmt.Printf("github issue created: %+v\n", githubIssue)
 	return githubIssue
+}
+
+func (u *TaskStruct) ChangeList(listId int64) bool {
+	table := u.database.Init()
+	defer table.Close()
+
+	_, err := table.Exec("update tasks set list_id = ? where id = ?;", listId, u.Id)
+	if err != nil {
+		return false
+	}
+	u.ListId = listId
+	return true
 }
