@@ -9,9 +9,9 @@ const initState = {
   lists: [],
   selectedList: null,
   project: null,
-  taskDragTarget: null,
-  taskDragFromList: null,
-  isTaskDraggingOver: false
+  isTaskDraggingOver: false,
+  taskDraggingFrom: null,
+  taskDraggingTo: null
 };
 
 export default function ListReducer(state = initState, action) {
@@ -130,22 +130,21 @@ export default function ListReducer(state = initState, action) {
     });
   case listActions.TASK_DRAG_START:
     var fromList = null;
-    var taskDragTarget = null;
     var lists = state.lists;
+    var taskDraggingFrom;
     state.lists.map(function(list, i) {
       if (list.Id == action.taskDragFromList.dataset.id) {
-        fromList = list;
         list.ListTasks.map(function(task, j) {
           if (task.Id == action.taskDragTarget.dataset.id) {
-            taskDragTarget = task;
+            taskDraggingFrom = {fromList: list, fromTask: task};
           }
         });
       }
     });
+
     return Object.assign({}, state, {
-      taskDragTarget: taskDragTarget,
       lists: lists,
-      taskDragFromList: fromList
+      taskDraggingFrom: taskDraggingFrom
     });
   case listActions.TASK_DRAG_LEAVE:
     // arrowを抜いて
@@ -163,14 +162,11 @@ export default function ListReducer(state = initState, action) {
     });
     return Object.assign({}, state, {
       isTaskDraggingOver: false,
-      lists: lists
+      lists: lists,
+      taskDraggingTo: null
     });
   case listActions.TASK_DROP:
-    var toList = null;
-    state.lists.map(function(list, i) {
-      if (list.Id == action.taskDragToList.dataset.id) {
-        toList = list;
-      }
+    var lists = state.lists.map(function(list, i) {
       // arrowを抜く
       var taskIndex = null;
       list.ListTasks.map(function(task, j) {
@@ -181,43 +177,18 @@ export default function ListReducer(state = initState, action) {
           list.ListTasks.splice(taskIndex, 1);
         }
       });
+      return list;
     });
-    var lists = state.lists;
-    if (toList == null) {
-      // これはどこのリストにも入れなかったやつ
-      // なにもしない
-    } else if (toList.Id == state.taskDragFromList.Id) {
-      // これは並び替え
-    } else {
-      // targetListに追加する
-      // TODO: 並び順も考慮して挿入できるようにしておく
-      lists = state.lists.map(function(list, i) {
-        if (list.Id == toList.Id) {
-          list.ListTasks.push(state.taskDragTarget);
-          return list;
-        } else if (list.Id == state.taskDragFromList.Id) {
-          var taskIndex;
-          list.ListTasks.map(function(task, j) {
-            if (task.Id == state.taskDragTarget.Id) {
-              taskIndex = j;
-            };
-          });
-          list.ListTasks.splice(taskIndex, 1);
-          return list;
-        } else {
-          return list;
-        }
-      });
-    }
     return Object.assign({}, state, {
-      taskDragTarget: null,
-      taskDragFromList: null,
       isTaskDraggingOver: false,
-      lists: lists
+      lists: lists,
+      taskDraggingFrom: null,
+      taskDraggingTo: null
     });
   case listActions.TASK_DRAG_OVER:
     var toList = null;
     var lists = state.lists;
+    var taskDraggingTo;
     if (!state.isTaskDraggingOver) {
       state.lists.map(function(list, i) {
         if (list.Id == action.taskDragToList.dataset.id) {
@@ -227,13 +198,14 @@ export default function ListReducer(state = initState, action) {
       if (toList == null) {
         // こんな場合はありえないが
       } else if(action.taskDragToTask.className == "task") {
-        // taskの直後に入れる
+        // taskの直前に入れる
         lists = state.lists.map(function(list, i) {
           if (list.Id == toList.Id) {
             var taskIndex;
             list.ListTasks.map(function(task, j) {
               if (task.Id == action.taskDragToTask.dataset.id) {
                 taskIndex = j;
+                taskDraggingTo = {toList: list, prevToTask: task};
               }
             });
             list.ListTasks.splice(taskIndex, 0, {draggedOn: true});
@@ -247,6 +219,7 @@ export default function ListReducer(state = initState, action) {
         lists = state.lists.map(function(list, i) {
           if (list.Id == toList.Id) {
             list.ListTasks.push({draggedOn: true});
+            taskDraggingTo = {toList: list, prevToTaks: null};
             return list;
           } else {
             return list;
@@ -256,7 +229,8 @@ export default function ListReducer(state = initState, action) {
     }
     return Object.assign({}, state, {
       isTaskDraggingOver: true,
-      lists: lists
+      lists: lists,
+      taskDraggingTo: taskDraggingTo
     });
   default:
     return state;
