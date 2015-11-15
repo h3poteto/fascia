@@ -276,39 +276,46 @@ export function taskDragLeave(ev) {
   };
 }
 
-export const TASK_DROP = "TASK_DROP";
-export function taskDrop(ev) {
-  ev.preventDefault();
-  var target;
-  switch(ev.target.dataset.droppedDepth) {
-  case "0":
-    target = ev.target;
-    break;
-  case "1":
-    target = ev.target.parentNode;
-    break;
-  case "2":
-    target = ev.target.parentNode.parentNode;
-    break;
-  case "3":
-    target = ev.target.parentNode.parentNode.parentNode;
-    break;
-  default:
-    target = ev.target.parentNode.parentNode;
-    break;
-  }
+export const REQUEST_MOVE_TASK = 'REQUEST_MOVE_TASK';
+function requestMoveTask() {
   return {
-    type: TASK_DROP,
-    taskDragToList: target
+    type: REQUEST_MOVE_TASK
   };
 }
 
-// 本来であればdropだけでいいが，preventDefaultしておかなければならない関係上，dropとはセットで必須になる
+export const RECEIVE_MOVE_TASK = 'RECEIVE_MOVE_TASK';
+function receiveMoveTask(lists) {
+  return {
+    type: RECEIVE_MOVE_TASK,
+    lists: lists
+  };
+}
+
+export const TASK_DROP = 'TASK_DROP';
+export function taskDrop(projectId, taskDraggingFrom, taskDraggingTo) {
+  if (taskDraggingTo != undefined && taskDraggingTo != null) {
+    return dispatch => {
+      dispatch(requestMoveTask());
+      return Request
+        .post(`/projects/${projectId}/lists/${taskDraggingFrom.fromList.Id}/tasks/${taskDraggingFrom.fromTask.Id}/move_task`)
+        .type('form')
+        .send({to_list_id: taskDraggingTo.toList.Id})
+        .end((err, res) => {
+          if(res.body != null) {
+            dispatch(receiveMoveTask(res.body));
+          }
+        });
+    };
+  } else {
+    return {
+      type: TASK_DROP
+    };
+  }
+}
+
 export const TASK_DRAG_OVER = "TASK_DRAG_OVER";
 export function taskDragOver(ev) {
   ev.preventDefault();
-  // ドロップ相手がtaskだった場合は挿入位置
-  // それ以外なら最後尾
   var targetList;
   switch(ev.target.dataset.droppedDepth) {
   case "0":

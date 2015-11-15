@@ -32,7 +32,7 @@ export default class ListView extends React.Component {
   }
 
   render() {
-    const { isListModalOpen, newList, lists, project, isTaskModalOpen, newTask, selectedList, isListEditModalOpen } = this.props.ListReducer
+    const { isListModalOpen, newList, lists, project, isTaskModalOpen, newTask, selectedList, isListEditModalOpen, taskDraggingFrom, taskDraggingTo } = this.props.ListReducer
     return (
       <div id="lists">
         <Modal
@@ -99,7 +99,7 @@ export default class ListView extends React.Component {
         <div className="items">
           {lists.map(function(list, index) {
             return (
-              <div className="fascia-list" data-dropped-depth="0" data-id={list.Id} onDragOver={this.props.taskDragOver} onDrop={this.props.taskDrop} onDragLeave={this.props.taskDragLeave}>
+              <div className="fascia-list" data-dropped-depth="0" data-id={list.Id} onDragOver={this.props.taskDragOver} onDrop={e=> this.props.taskDrop(project.Id, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.taskDragLeave}>
                 <div className="fascia-list-menu" data-dropped-depth="1"><i className="fa fa-pencil" onClick={e => this.props.openEditListModal(list)} data-dropped-depth="2"></i></div>
                 <span className="list-title" data-dropped-depth="1">{list.Title}</span>
                 <ul className="fascia-task" data-dropped-depth="1">

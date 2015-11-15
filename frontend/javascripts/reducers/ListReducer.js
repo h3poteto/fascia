@@ -72,6 +72,7 @@ export default function ListReducer(state = initState, action) {
       newTask: newTask
     });
   case listActions.RECEIVE_LISTS:
+  case listActions.RECEIVE_MOVE_TASK:
     var lists = action.lists.map(function(list, index) {
       if (list.ListTasks == null) {
         list.ListTasks = [];
@@ -166,6 +167,7 @@ export default function ListReducer(state = initState, action) {
       taskDraggingTo: null
     });
   case listActions.TASK_DROP:
+  case listActions.REQUEST_MOVE_TASK:
     var lists = state.lists.map(function(list, i) {
       // arrowを抜く
       var taskIndex = null;
@@ -186,9 +188,10 @@ export default function ListReducer(state = initState, action) {
       taskDraggingTo: null
     });
   case listActions.TASK_DRAG_OVER:
+    // arrowの操作のみ
     var toList = null;
     var lists = state.lists;
-    var taskDraggingTo;
+    var taskDraggingTo = state.taskDraggingTo;
     if (!state.isTaskDraggingOver) {
       state.lists.map(function(list, i) {
         if (list.Id == action.taskDragToList.dataset.id) {
