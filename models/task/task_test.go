@@ -1,13 +1,13 @@
 package task_test
 
 import (
-	"os"
-	"database/sql"
 	"../db"
-	. "../task"
-	"../project"
 	"../list"
+	"../project"
+	. "../task"
 	"../user"
+	"database/sql"
+	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -15,10 +15,11 @@ import (
 
 var _ = Describe("Task", func() {
 	var (
-		newList *list.ListStruct
-		newTask *TaskStruct
-		table *sql.DB
-		currentdb string
+		newList    *list.ListStruct
+		newTask    *TaskStruct
+		newProject *project.ProjectStruct
+		table      *sql.DB
+		currentdb  string
 	)
 	BeforeEach(func() {
 		testdb := os.Getenv("DB_TEST_NAME")
@@ -43,7 +44,7 @@ var _ = Describe("Task", func() {
 		mydb := &db.Database{}
 		var database db.DB = mydb
 		table = database.Init()
-		newProject := project.NewProject(0, uid, "title", "desc")
+		newProject = project.NewProject(0, uid, "title", "desc")
 		newProject.Save()
 		newList = list.NewList(0, newProject.Id, "list title", "")
 		newList.Save()
@@ -68,6 +69,31 @@ var _ = Describe("Task", func() {
 				}
 			}
 			Expect(list_id).To(Equal(newTask.Id))
+		})
+	})
+
+	Describe("ChangeList", func() {
+		var (
+			list2 *list.ListStruct
+		)
+		JustBeforeEach(func() {
+			newTask.Save()
+			list2 = list.NewList(0, newProject.Id, "list2", "")
+			list2.Save()
+		})
+		It("所属するリストが変更されること", func() {
+			result := newTask.ChangeList(list2.Id)
+			Expect(result).To(BeTrue())
+			rows, _ := table.Query("select id, list_id, title from tasks where id = ?;", newTask.Id)
+			var id, list_id int64
+			var title sql.NullString
+			for rows.Next() {
+				err := rows.Scan(&id, &list_id, &title)
+				if err != nil {
+					panic(err.Error())
+				}
+			}
+			Expect(list_id).To(Equal(list2.Id))
 		})
 	})
 })

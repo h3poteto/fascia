@@ -1,16 +1,17 @@
 package controllers_test
 
 import (
-	"os"
+	. "../../fascia"
+	"../models/db"
+	"../models/list"
+	"../models/task"
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"io/ioutil"
-	"encoding/json"
+	"os"
 	"strconv"
-	. "../../fascia"
-	"../models/db"
-	"../models/task"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -19,10 +20,10 @@ import (
 
 var _ = Describe("TasksController", func() {
 	var (
-		ts *httptest.Server
+		ts        *httptest.Server
 		currentdb string
 		projectId int64
-		listId int64
+		listId    int64
 	)
 	BeforeEach(func() {
 		m := web.New()
@@ -49,14 +50,14 @@ var _ = Describe("TasksController", func() {
 		// projectを作っておく
 		values := url.Values{}
 		values.Add("title", "projectTitle")
-		res, _ := http.PostForm(ts.URL + "/projects", values)
+		res, _ := http.PostForm(ts.URL+"/projects", values)
 		contents, _ := ParseJson(res)
 		parseContents := contents.(map[string]interface{})
 		projectId = int64(parseContents["Id"].(float64))
 
 		// listも作っておく
 		values.Set("title", "listTitle")
-		res, _ = http.PostForm(ts.URL + "/projects/" + strconv.FormatInt(projectId, 10) + "/lists", values)
+		res, _ = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists", values)
 		contents, _ = ParseJson(res)
 		parseContents = contents.(map[string]interface{})
 		listId = int64(parseContents["Id"].(float64))
@@ -70,7 +71,7 @@ var _ = Describe("TasksController", func() {
 		JustBeforeEach(func() {
 			values := url.Values{}
 			values.Add("title", "taskTitle")
-			res, err = http.PostForm(ts.URL + "/projects/" + strconv.FormatInt(projectId, 10) + "/lists/" + strconv.FormatInt(listId, 10) + "/tasks", values)
+			res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists/"+strconv.FormatInt(listId, 10)+"/tasks", values)
 		})
 		It("新規登録できること", func() {
 			Expect(err).To(BeNil())
@@ -92,10 +93,10 @@ var _ = Describe("TasksController", func() {
 		JustBeforeEach(func() {
 			values := url.Values{}
 			values.Add("title", "task1")
-			http.PostForm(ts.URL + "/projects/" + strconv.FormatInt(projectId, 10) + "/lists/" + strconv.FormatInt(listId, 10) + "/tasks", values)
+			http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists/"+strconv.FormatInt(listId, 10)+"/tasks", values)
 			values = url.Values{}
 			values.Add("title", "task2")
-			http.PostForm(ts.URL + "/projects/" + strconv.FormatInt(projectId, 10) + "/lists/" + strconv.FormatInt(listId, 10) + "/tasks", values)
+			http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists/"+strconv.FormatInt(listId, 10)+"/tasks", values)
 		})
 		It("タスク一覧が取得できること ", func() {
 			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(projectId, 10) + "/lists/" + strconv.FormatInt(listId, 10) + "/tasks")
@@ -106,6 +107,31 @@ var _ = Describe("TasksController", func() {
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
 			Expect(contents[0].Title.String).To(Equal("task1"))
 			Expect(contents[1].Title.String).To(Equal("task2"))
+		})
+	})
+
+	Describe("MoveTask", func() {
+		var (
+			newTask *task.TaskStruct
+			newList *list.ListStruct
+		)
+		JustBeforeEach(func() {
+			newList = list.NewList(0, projectId, "list2", "")
+			newList.Save()
+			newTask = task.NewTask(0, listId, "taskTitle")
+			newTask.Save()
+		})
+		It("タスクの所属するリストが変更されること", func() {
+			values := url.Values{}
+			values.Add("to_list_id", strconv.FormatInt(newList.Id, 10))
+			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists/"+strconv.FormatInt(listId, 10)+"/tasks/"+strconv.FormatInt(newTask.Id, 10)+"/move_task", values)
+			Expect(err).To(BeNil())
+			var contents []list.ListStruct
+			con, _ := ioutil.ReadAll(res.Body)
+			json.Unmarshal(con, &contents)
+			Expect(res.StatusCode).To(Equal(http.StatusOK))
+			Expect(contents[0].ListTasks).To(BeEmpty())
+			Expect(contents[1].ListTasks[0].Id).To(Equal(newTask.Id))
 		})
 	})
 })

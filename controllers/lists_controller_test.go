@@ -1,16 +1,16 @@
 package controllers_test
 
 import (
-	"os"
-	"net/http"
-	"net/http/httptest"
-	"net/url"
-	"io/ioutil"
-	"encoding/json"
-	"strconv"
 	. "../../fascia"
 	"../models/db"
 	"../models/list"
+	"encoding/json"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"os"
+	"strconv"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -19,7 +19,7 @@ import (
 
 var _ = Describe("ListsController", func() {
 	var (
-		ts *httptest.Server
+		ts        *httptest.Server
 		currentdb string
 		projectId int64
 	)
@@ -47,7 +47,7 @@ var _ = Describe("ListsController", func() {
 		// projectを作っておく
 		values := url.Values{}
 		values.Add("title", "projectTitle")
-		res, _ := http.PostForm(ts.URL + "/projects", values)
+		res, _ := http.PostForm(ts.URL+"/projects", values)
 		contents, _ := ParseJson(res)
 		parseContents := contents.(map[string]interface{})
 		projectId = int64(parseContents["Id"].(float64))
@@ -61,7 +61,7 @@ var _ = Describe("ListsController", func() {
 		JustBeforeEach(func() {
 			values := url.Values{}
 			values.Add("title", "listTitle")
-			res, err = http.PostForm(ts.URL + "/projects/" + strconv.FormatInt(projectId, 10) + "/lists", values)
+			res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists", values)
 		})
 		It("新規登録できること", func() {
 			Expect(err).To(BeNil())
@@ -89,7 +89,7 @@ var _ = Describe("ListsController", func() {
 			newList.Save()
 			values := url.Values{}
 			values.Add("title", "newListTitle")
-			res, err = http.PostForm(ts.URL + "/projects/" + strconv.FormatInt(projectId, 10) + "/lists/" + strconv.FormatInt(newList.Id, 10), values)
+			res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists/"+strconv.FormatInt(newList.Id, 10), values)
 		})
 		It("更新されること", func() {
 			Expect(err).To(BeNil())
@@ -104,9 +104,9 @@ var _ = Describe("ListsController", func() {
 		JustBeforeEach(func() {
 			values := url.Values{}
 			values.Add("title", "list1")
-			_, _ = http.PostForm(ts.URL + "/projects/" + strconv.FormatInt(projectId, 10) + "/lists", values)
+			_, _ = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists", values)
 			values.Set("title", "list2")
-			_, _ = http.PostForm(ts.URL + "/projects/" + strconv.FormatInt(projectId, 10) + "/lists", values)
+			_, _ = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists", values)
 		})
 		It("リスト一覧が取得できること", func() {
 			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(projectId, 10) + "/lists")

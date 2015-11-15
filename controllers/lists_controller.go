@@ -3,7 +3,6 @@ package controllers
 import (
 	listModel "../models/list"
 	projectModel "../models/project"
-	taskModel "../models/task"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -24,12 +23,6 @@ type NewListForm struct {
 type EditListForm struct {
 	Title string `param:"title"`
 	Color string `param:"color"`
-}
-
-type MoveTaskFrom struct {
-	FromListId int64 `param:"from_list_id"`
-	ToListId   int64 `param:"to_list_id"`
-	TaskId     int64 `param:"task_id"`
 }
 
 func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -187,46 +180,4 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	targetList.ListTasks = targetList.Tasks()
 	encoder.Encode(*targetList)
-}
-
-func (u *Lists) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	current_user, result := LoginRequired(r)
-	encoder := json.NewEncoder(w)
-	if !result {
-		http.Error(w, "not logined", 401)
-		return
-	}
-
-	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
-	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil && parentProject.UserId.Int64 != current_user.Id {
-		http.Error(w, "project not found", 400)
-		return
-	}
-
-	err := r.ParseForm()
-	if err != nil {
-		http.Error(w, "WrongForm", 400)
-		return
-	}
-	var moveTaskFrom MoveTaskFrom
-	err = param.Parse(r.PostForm, &moveTaskFrom)
-	if err != nil {
-		http.Error(w, "Wrong parameter", 500)
-		return
-	}
-	task := taskModel.FindTask(moveTaskFrom.FromListId, moveTaskFrom.TaskId)
-	fmt.Printf("post move taks parameter: %+v\n", moveTaskFrom)
-	if !task.ChangeList(moveTaskFrom.ToListId) {
-		error := JsonError{Error: "list change failed"}
-		encoder.Encode(error)
-		return
-	}
-	allLists := parentProject.Lists()
-	for _, l := range allLists {
-		l.ListTasks = l.Tasks()
-	}
-	encoder.Encode(allLists)
-	return
 }
