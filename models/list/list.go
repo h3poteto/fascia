@@ -1,14 +1,14 @@
 package list
 
 import (
-	"fmt"
 	"../db"
-	"database/sql"
-	"../task"
 	"../repository"
+	"../task"
+	"database/sql"
+	"fmt"
 
-	"golang.org/x/oauth2"
 	"github.com/google/go-github/github"
+	"golang.org/x/oauth2"
 )
 
 type List interface {
@@ -16,12 +16,12 @@ type List interface {
 }
 
 type ListStruct struct {
-	Id int64
+	Id        int64
 	ProjectId int64
-	Title sql.NullString
+	Title     sql.NullString
 	ListTasks []*task.TaskStruct
-	Color sql.NullString
-	database db.DB
+	Color     sql.NullString
+	database  db.DB
 }
 
 func NewList(id int64, projectID int64, title string, color string) *ListStruct {
@@ -93,7 +93,7 @@ func (u *ListStruct) Tasks() []*task.TaskStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	rows, _ := table.Query("select id, list_id, title from tasks where list_id = ?;", u.Id)
+	rows, _ := table.Query("select id, list_id, title from tasks where list_id = ? order by display_index;", u.Id)
 	var slice []*task.TaskStruct
 	for rows.Next() {
 		var id, listID int64
@@ -109,7 +109,6 @@ func (u *ListStruct) Tasks() []*task.TaskStruct {
 	}
 	return slice
 }
-
 
 func (u *ListStruct) CheckLabelPresent(token string, repo *repository.RepositoryStruct) *github.Label {
 	ts := oauth2.StaticTokenSource(
@@ -135,7 +134,7 @@ func (u *ListStruct) CreateGithubLabel(token string, repo *repository.Repository
 	client := github.NewClient(tc)
 
 	label := &github.Label{
-		Name: &u.Title.String,
+		Name:  &u.Title.String,
 		Color: &u.Color.String,
 	}
 	githubLabel, response, err := client.Issues.CreateLabel(repo.Owner.String, repo.Name.String, label)
@@ -156,7 +155,7 @@ func (u *ListStruct) UpdateGithubLabel(token string, repo *repository.Repository
 	client := github.NewClient(tc)
 
 	label := &github.Label{
-		Name: &u.Title.String,
+		Name:  &u.Title.String,
 		Color: &u.Color.String,
 	}
 	githubLabel, response, err := client.Issues.EditLabel(repo.Owner.String, repo.Name.String, u.Title.String, label)
