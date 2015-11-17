@@ -224,7 +224,6 @@ function receiveUpdateList(list) {
 
 export function fetchUpdateList(projectId, list) {
   return dispatch => {
-    console.log(list);
     dispatch(requestUpdateList());
     return Request
       .post(`/projects/${projectId}/lists/${list.Id}`)
@@ -235,5 +234,115 @@ export function fetchUpdateList(projectId, list) {
           dispatch(receiveUpdateList(res.body));
         }
       });
+  };
+}
+
+
+export const TASK_DRAG_START = "TASK_DRAG_START";
+export function taskDragStart(ev) {
+  ev.dataTransfer.effectAllowed = "moved";
+  ev.dataTransfer.setData("text/html", ev.currentTarget);
+  return {
+    type: TASK_DRAG_START,
+    taskDragTarget: ev.currentTarget,
+    taskDragFromList: ev.currentTarget.parentNode.parentNode
+  };
+}
+
+export const TASK_DRAG_LEAVE = "TASK_DRAG_LEAVE";
+export function taskDragLeave(ev) {
+  var targetList;
+  switch(ev.target.dataset.droppedDepth) {
+  case "0":
+    targetList = ev.target;
+    break;
+  case "1":
+    targetList = ev.target.parentNode;
+    break;
+  case "2":
+    targetList = ev.target.parentNode.parentNode;
+    break;
+  case "3":
+    targetList = ev.target.parentNode.parentNode.parentNode;
+    break;
+  default:
+    targetList = ev.target.parentNode.parentNode;
+    break;
+  }
+  return {
+    type: TASK_DRAG_LEAVE,
+    taskDragLeavList: targetList,
+    taskDragLeavTask: ev.target
+  };
+}
+
+export const REQUEST_MOVE_TASK = 'REQUEST_MOVE_TASK';
+function requestMoveTask() {
+  return {
+    type: REQUEST_MOVE_TASK
+  };
+}
+
+export const RECEIVE_MOVE_TASK = 'RECEIVE_MOVE_TASK';
+function receiveMoveTask(lists) {
+  return {
+    type: RECEIVE_MOVE_TASK,
+    lists: lists
+  };
+}
+
+export const TASK_DROP = 'TASK_DROP';
+export function taskDrop(projectId, taskDraggingFrom, taskDraggingTo) {
+  if (taskDraggingTo != undefined && taskDraggingTo != null) {
+    var prevToTaskId;
+    if (taskDraggingTo.prevToTask == null) {
+      prevToTaskId = null;
+    } else {
+      prevToTaskId = taskDraggingTo.prevToTask.Id;
+    }
+    return dispatch => {
+      dispatch(requestMoveTask());
+      return Request
+        .post(`/projects/${projectId}/lists/${taskDraggingFrom.fromList.Id}/tasks/${taskDraggingFrom.fromTask.Id}/move_task`)
+        .type('form')
+        .send({to_list_id: taskDraggingTo.toList.Id, prev_to_task_id: prevToTaskId})
+        .end((err, res) => {
+          if(res.body != null) {
+            dispatch(receiveMoveTask(res.body));
+          }
+        });
+    };
+  } else {
+    return {
+      type: TASK_DROP
+    };
+  }
+}
+
+export const TASK_DRAG_OVER = "TASK_DRAG_OVER";
+export function taskDragOver(ev) {
+  ev.preventDefault();
+  var targetList;
+  switch(ev.target.dataset.droppedDepth) {
+  case "0":
+    targetList = ev.target;
+    break;
+  case "1":
+    targetList = ev.target.parentNode;
+    break;
+  case "2":
+    targetList = ev.target.parentNode.parentNode;
+    break;
+  case "3":
+    targetList = ev.target.parentNode.parentNode.parentNode;
+    break;
+  default:
+    targetList = ev.target.parentNode.parentNode;
+    break;
+  }
+  return {
+    type: TASK_DRAG_OVER,
+    taskDragToTask: ev.target,
+    taskDragToList: targetList
   };
 }

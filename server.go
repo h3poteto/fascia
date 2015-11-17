@@ -1,15 +1,15 @@
 package main
+
 import (
-	"flag"
-	"net/http"
-	"github.com/zenazn/goji"
-	"github.com/zenazn/goji/web"
-	"github.com/flosch/pongo2"
-	_ "github.com/flosch/pongo2-addons"
 	"./controllers"
 	"./filters"
+	"flag"
+	"github.com/flosch/pongo2"
+	_ "github.com/flosch/pongo2-addons"
+	"github.com/zenazn/goji"
+	"github.com/zenazn/goji/web"
+	"net/http"
 )
-
 
 func Routes(m *web.Mux) {
 	// assets
@@ -35,6 +35,7 @@ func Routes(m *web.Mux) {
 	m.Post("/projects/:project_id/lists/:list_id", controllers.CallController(&controllers.Lists{}, "Update"))
 	m.Get("/projects/:project_id/lists/:list_id/tasks", controllers.CallController(&controllers.Tasks{}, "Index"))
 	m.Post("/projects/:project_id/lists/:list_id/tasks", controllers.CallController(&controllers.Tasks{}, "Create"))
+	m.Post("/projects/:project_id/lists/:list_id/tasks/:task_id/move_task", controllers.CallController(&controllers.Tasks{}, "MoveTask"))
 
 }
 

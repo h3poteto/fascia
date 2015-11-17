@@ -1,14 +1,15 @@
 package controllers
+
 import (
-	"fmt"
-	"net/http"
-	"encoding/json"
-	"database/sql"
-	"strconv"
-	"github.com/zenazn/goji/web"
-	"github.com/goji/param"
-	projectModel "../models/project"
 	listModel "../models/list"
+	projectModel "../models/project"
+	"database/sql"
+	"encoding/json"
+	"fmt"
+	"github.com/goji/param"
+	"github.com/zenazn/goji/web"
+	"net/http"
+	"strconv"
 )
 
 type Lists struct {
@@ -24,7 +25,7 @@ type EditListForm struct {
 	Color string `param:"color"`
 }
 
-func (u *Lists)Index(c web.C, w http.ResponseWriter, r *http.Request) {
+func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, result := LoginRequired(r)
 	encoder := json.NewEncoder(w)
@@ -48,7 +49,7 @@ func (u *Lists)Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func (u *Lists)Create(c web.C, w http.ResponseWriter, r *http.Request) {
+func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, result := LoginRequired(r)
 	encoder := json.NewEncoder(w)
@@ -109,7 +110,7 @@ func (u *Lists)Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder.Encode(*list)
 }
 
-func (u *Lists)Update(c web.C, w http.ResponseWriter, r *http.Request) {
+func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, result := LoginRequired(r)
 	encoder := json.NewEncoder(w)
