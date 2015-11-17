@@ -29,8 +29,7 @@ func (u *Tasks) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	current_user, result := LoginRequired(r)
 	encoder := json.NewEncoder(w)
 	if !result {
-		error := JsonError{Error: "not logined"}
-		encoder.Encode(error)
+		http.Error(w, "not logined", 401)
 		return
 	}
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
@@ -55,8 +54,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	current_user, result := LoginRequired(r)
 	encoder := json.NewEncoder(w)
 	if !result {
-		error := JsonError{Error: "not logined"}
-		encoder.Encode(error)
+		http.Error(w, "not logined", 401)
 		return
 	}
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
