@@ -222,7 +222,7 @@ export default function ListReducer(state = initState, action) {
         lists = state.lists.map(function(list, i) {
           if (list.Id == toList.Id) {
             list.ListTasks.push({draggedOn: true});
-            taskDraggingTo = {toList: list, prevToTaks: null};
+            taskDraggingTo = {toList: list, prevToTask: null};
             return list;
           } else {
             return list;

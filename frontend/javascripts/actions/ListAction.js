@@ -294,12 +294,18 @@ function receiveMoveTask(lists) {
 export const TASK_DROP = 'TASK_DROP';
 export function taskDrop(projectId, taskDraggingFrom, taskDraggingTo) {
   if (taskDraggingTo != undefined && taskDraggingTo != null) {
+    var prevToTaskId;
+    if (taskDraggingTo.prevToTask == null) {
+      prevToTaskId = null;
+    } else {
+      prevToTaskId = taskDraggingTo.prevToTask.Id;
+    }
     return dispatch => {
       dispatch(requestMoveTask());
       return Request
         .post(`/projects/${projectId}/lists/${taskDraggingFrom.fromList.Id}/tasks/${taskDraggingFrom.fromTask.Id}/move_task`)
         .type('form')
-        .send({to_list_id: taskDraggingTo.toList.Id})
+        .send({to_list_id: taskDraggingTo.toList.Id, prev_to_task_id: prevToTaskId})
         .end((err, res) => {
           if(res.body != null) {
             dispatch(receiveMoveTask(res.body));

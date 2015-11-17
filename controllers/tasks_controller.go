@@ -21,7 +21,7 @@ type NewTaskForm struct {
 
 type MoveTaskFrom struct {
 	ToListId     int64 `param:"to_list_id"`
-	prevToTaskId int64 `param:"prev_to_task_id"`
+	PrevToTaskId int64 `param:"prev_to_task_id"`
 }
 
 func (u *Tasks) Index(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -144,17 +144,23 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	err := r.ParseForm()
 	if err != nil {
+		fmt.Printf("err: %+v\n", err)
 		http.Error(w, "WrongForm", 400)
 		return
 	}
 	var moveTaskFrom MoveTaskFrom
 	err = param.Parse(r.PostForm, &moveTaskFrom)
 	if err != nil {
+		fmt.Printf("err: %+v\n", err)
 		http.Error(w, "Wrong parameter", 500)
 		return
 	}
 	fmt.Printf("post move taks parameter: %+v\n", moveTaskFrom)
-	if !task.ChangeList(moveTaskFrom.ToListId, moveTaskFrom.prevToTaskId) {
+	var prevToTaskId *int64
+	if moveTaskFrom.PrevToTaskId != 0 {
+		prevToTaskId = &moveTaskFrom.PrevToTaskId
+	}
+	if !task.ChangeList(moveTaskFrom.ToListId, prevToTaskId) {
 		error := JsonError{Error: "list change failed"}
 		encoder.Encode(error)
 		return
