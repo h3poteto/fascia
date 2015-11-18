@@ -37,8 +37,7 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	parentProject := projectModel.FindProject(projectID)
 	if parentProject == nil && parentProject.UserId.Int64 != current_user.Id {
-		error := JsonError{Error: "project not found"}
-		encoder.Encode(error)
+		http.Error(w, "project not found", 404)
 		return
 	}
 	lists := parentProject.Lists()
@@ -61,8 +60,7 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	parentProject := projectModel.FindProject(projectID)
 	if parentProject == nil && parentProject.UserId.Int64 != current_user.Id {
-		error := JsonError{Error: "project not found"}
-		encoder.Encode(error)
+		http.Error(w, "project not found", 404)
 		return
 	}
 
@@ -89,22 +87,19 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 			// そもそも既に存在しているなんてことはあまりないのでは
 			label = list.CreateGithubLabel(token, repo)
 			if label == nil {
-				error := JsonError{Error: "failed create github label"}
-				encoder.Encode(error)
+				http.Error(w, "failed create github label", 500)
 				return
 			}
 		} else {
 			label = list.UpdateGithubLabel(token, repo)
 			if label == nil {
-				error := JsonError{Error: "failed update github label"}
-				encoder.Encode(error)
+				http.Error(w, "failed update github label", 500)
 				return
 			}
 		}
 	}
 	if !list.Save() {
-		error := JsonError{Error: "save failed"}
-		encoder.Encode(error)
+		http.Error(w, "failed save", 500)
 		return
 	}
 	encoder.Encode(*list)
@@ -122,15 +117,13 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	parentProject := projectModel.FindProject(projectID)
 	if parentProject == nil && parentProject.UserId.Int64 != current_user.Id {
-		error := JsonError{Error: "project not found"}
-		encoder.Encode(error)
+		http.Error(w, "project not found", 404)
 		return
 	}
 	listID, _ := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
 	targetList := listModel.FindList(projectID, listID)
 	if targetList == nil {
-		error := JsonError{Error: "list not found"}
-		encoder.Encode(error)
+		http.Error(w, "list not found", 404)
 		return
 	}
 
@@ -160,22 +153,19 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 			// editの場合はほとんどここには入らない
 			label = targetList.CreateGithubLabel(token, repo)
 			if label == nil {
-				error := JsonError{Error: "failed create github label"}
-				encoder.Encode(error)
+				http.Error(w, "failed create github label", 500)
 				return
 			}
 		} else {
 			label = targetList.UpdateGithubLabel(token, repo)
 			if label == nil {
-				error := JsonError{Error: "failed update github label"}
-				encoder.Encode(error)
+				http.Error(w, "failed update github label", 500)
 				return
 			}
 		}
 	}
 	if !targetList.Update() {
-		error := JsonError{Error: "save failed"}
-		encoder.Encode(error)
+		http.Error(w, "save failed", 500)
 		return
 	}
 	targetList.ListTasks = targetList.Tasks()

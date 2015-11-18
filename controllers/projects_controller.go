@@ -1,27 +1,28 @@
 package controllers
+
 import (
-	"fmt"
-	"net/http"
-	"encoding/json"
-	"strconv"
-	"github.com/zenazn/goji/web"
-	"github.com/goji/param"
 	projectModel "../models/project"
 	repositoryModel "../models/repository"
+	"encoding/json"
+	"fmt"
+	"github.com/goji/param"
+	"github.com/zenazn/goji/web"
+	"net/http"
+	"strconv"
 )
 
 type Projects struct {
 }
 
 type NewProjectForm struct {
-	Title string `param:"title"`
-	Description string `param:"description"`
-	RepositoryID int64 `param:"repositoryId"`
+	Title           string `param:"title"`
+	Description     string `param:"description"`
+	RepositoryID    int64  `param:"repositoryId"`
 	RepositoryOwner string `param:"repositoryOwner"`
-	RepositoryName string `param:"repositoryName"`
+	RepositoryName  string `param:"repositoryName"`
 }
 
-func (u *Projects)Index(c web.C, w http.ResponseWriter, r *http.Request) {
+func (u *Projects) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, result := LoginRequired(r)
 	encoder := json.NewEncoder(w)
@@ -34,7 +35,7 @@ func (u *Projects)Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder.Encode(projects)
 }
 
-func (u *Projects)Show(c web.C, w http.ResponseWriter, r *http.Request) {
+func (u *Projects) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, result := LoginRequired(r)
 	encoder := json.NewEncoder(w)
@@ -46,15 +47,14 @@ func (u *Projects)Show(c web.C, w http.ResponseWriter, r *http.Request) {
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	project := projectModel.FindProject(projectID)
 	if project == nil && project.UserId.Int64 != current_user.Id {
-		error := JsonError{Error: "project not found"}
-		encoder.Encode(error)
+		http.Error(w, "project not found", 404)
 		return
 	}
 	encoder.Encode(project)
 	return
 }
 
-func (u *Projects)Create(c web.C, w http.ResponseWriter, r *http.Request) {
+func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, result := LoginRequired(r)
 	encoder := json.NewEncoder(w)
@@ -79,8 +79,7 @@ func (u *Projects)Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("post new project parameter: %+v\n", newProjectForm)
 	project := projectModel.NewProject(0, current_user.Id, newProjectForm.Title, newProjectForm.Description)
 	if !project.Save() {
-		error := JsonError{Error: "save failed"}
-		encoder.Encode(error)
+		http.Error(w, "save failed", 500)
 		return
 	}
 	if newProjectForm.RepositoryID != 0 {
