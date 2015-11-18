@@ -36,15 +36,13 @@ func (u *Tasks) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	parentProject := projectModel.FindProject(projectID)
 	if parentProject == nil && parentProject.UserId.Int64 != current_user.Id {
-		error := JsonError{Error: "project not found"}
-		encoder.Encode(error)
+		http.Error(w, "project not found", 404)
 		return
 	}
 	listID, _ := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
 	parentList := listModel.FindList(projectID, listID)
 	if parentList == nil {
-		error := JsonError{Error: "list not found"}
-		encoder.Encode(error)
+		http.Error(w, "list not found", 404)
 		return
 	}
 	tasks := parentList.Tasks()
@@ -64,15 +62,13 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	parentProject := projectModel.FindProject(projectID)
 	if parentProject == nil && parentProject.UserId.Int64 != current_user.Id {
-		error := JsonError{Error: "project not found"}
-		encoder.Encode(error)
+		http.Error(w, "project not found", 404)
 		return
 	}
 	listID, _ := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
 	parentList := listModel.FindList(projectID, listID)
 	if parentList == nil {
-		error := JsonError{Error: "list not found"}
-		encoder.Encode(error)
+		http.Error(w, "list not found", 404)
 		return
 	}
 
@@ -101,8 +97,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		if label == nil {
 			label = parentList.CreateGithubLabel(token, repo)
 			if label == nil {
-				error := JsonError{Error: "failed create github label"}
-				encoder.Encode(error)
+				http.Error(w, "failed create github label", 500)
 				return
 			}
 		}
@@ -110,8 +105,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		task.CreateGithubIssue(token, repo, []string{parentList.Title.String})
 	}
 	if !task.Save() {
-		error := JsonError{Error: "save failed"}
-		encoder.Encode(error)
+		http.Error(w, "save failed", 500)
 		return
 	}
 	encoder.Encode(*task)
@@ -161,8 +155,7 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 		prevToTaskId = &moveTaskFrom.PrevToTaskId
 	}
 	if !task.ChangeList(moveTaskFrom.ToListId, prevToTaskId) {
-		error := JsonError{Error: "list change failed"}
-		encoder.Encode(error)
+		http.Error(w, "failed change list", 500)
 		return
 	}
 	allLists := parentProject.Lists()
