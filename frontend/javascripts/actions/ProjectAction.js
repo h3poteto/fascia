@@ -1,5 +1,13 @@
 import Request from 'superagent';
 
+export const UNAUTHORIZED = 'UNAUTHORIZED';
+function unauthorized() {
+  window.location.pathname = "/sign_in";
+  return {
+    type: UNAUTHORIZED
+  };
+}
+
 export const REQUEST_POSTS = 'REQUEST_POSTS';
 function requestPosts() {
   return {
@@ -21,8 +29,10 @@ export function fetchProjects() {
     return Request
       .get('/projects')
       .end((err, res)=> {
-        if (res.body != null) {
+        if (res.ok) {
           dispatch(receivePosts(res.body));
+        } else if (res.unauthorized) {
+          dispatch(unauthorized());
         }
       });
   };
@@ -65,8 +75,10 @@ export function fetchRepositories() {
     return Request
       .get('/github/repositories')
       .end((err, res)=> {
-        if (res.body != null) {
+        if (res.ok) {
           dispatch(receiveRepositories(res.body));
+        } else if (res.unauthorized) {
+          dispatch(unauthorized());
         }
       });
   };
@@ -105,8 +117,10 @@ export function fetchCreateProject(title, description, repository) {
       .type('form')
       .send({title: title, description: description, repositoryId: repository.id, repositoryOwner: repository.owner.login, repositoryName: repository.name})
       .end((err, res)=> {
-        if (res.body != null) {
+        if (res.ok) {
           dispatch(receiveCreateProject(res.body.Id, res.body.UserId, res.body.Title, res.body.Description));
+        } else if (res.unauthorized) {
+          dispatch(unauthorized());
         }
       });
     };
