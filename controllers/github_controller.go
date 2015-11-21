@@ -1,22 +1,22 @@
 package controllers
+
 import (
-	"net/http"
 	"encoding/json"
+	"github.com/google/go-github/github"
 	"github.com/zenazn/goji/web"
 	"golang.org/x/oauth2"
-	"github.com/google/go-github/github"
+	"net/http"
 )
 
 type Github struct {
 }
 
-func (u *Github)Repositories(c web.C, w http.ResponseWriter, r *http.Request) {
+func (u *Github) Repositories(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, result := LoginRequired(r)
 	encoder := json.NewEncoder(w)
 	if !result {
-		error := JsonError{Error: "not logined"}
-		encoder.Encode(error)
+		http.Error(w, "not logined", 401)
 		return
 	}
 	if !current_user.OauthToken.Valid {
@@ -36,11 +36,11 @@ func (u *Github)Repositories(c web.C, w http.ResponseWriter, r *http.Request) {
 			nextPage = 0
 		}
 		repositoryOption := &github.RepositoryListOptions{
-			Type: "all",
-			Sort: "full_name",
+			Type:      "all",
+			Sort:      "full_name",
 			Direction: "asc",
 			ListOptions: github.ListOptions{
-				Page: nextPage,
+				Page:    nextPage,
 				PerPage: 50,
 			},
 		}

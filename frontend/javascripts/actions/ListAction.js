@@ -1,5 +1,13 @@
 import Request from 'superagent';
 
+export const UNAUTHORIZED = 'UNAUTHORIZED';
+function unauthorized() {
+  window.location.pathname = "/sign_in";
+  return {
+    type: UNAUTHORIZED
+  };
+}
+
 export const OPEN_NEW_LIST = 'PEN_NEW_LIST';
 export function openNewListModal() {
   return {
@@ -111,8 +119,10 @@ export function fetchLists(projectId) {
     return Request
       .get(`/projects/${projectId}/lists`)
       .end((err, res)=> {
-        if (res.body != null) {
+        if (res.ok) {
           dispatch(receiveLists(res.body));
+        } else if (res.unauthorized) {
+          dispatch(unauthorized());
         }
       });
   };
@@ -139,8 +149,10 @@ export function fetchProject(projectId) {
     return Request
       .get(`/projects/${projectId}/show`)
       .end((err, res)=> {
-        if (res.body != null) {
+        if (res.ok) {
           dispatch(receiveProject(res.body));
+        } else if (res.unauthorized) {
+          dispatch(unauthorized());
         }
       });
   };
@@ -170,8 +182,10 @@ export function fetchCreateList(projectId, title, color) {
       .type('form')
       .send({title: title, color: color})
       .end((err, res)=> {
-        if(res.body != null) {
+        if(res.ok) {
           dispatch(receiveCreateList(res.body));
+        } else if (res.unauthorized) {
+          dispatch(unauthorized());
         }
       });
   };
@@ -200,8 +214,10 @@ export function fetchCreateTask(projectId, listId, title) {
       .type('form')
       .send({title: title})
       .end((err, res)=> {
-        if(res.body != null) {
+        if(res.ok) {
           dispatch(receiveCreateTask(res.body));
+        } else if (res.unauthorized) {
+          dispatch(unauthorized());
         }
       });
   };
@@ -230,8 +246,10 @@ export function fetchUpdateList(projectId, list) {
       .type('form')
       .send({title: list.Title.String, color: list.Color.String})
       .end((err, res)=> {
-        if(res.body != null) {
+        if(res.ok) {
           dispatch(receiveUpdateList(res.body));
+        } else if (res.unauthorized) {
+          dispatch(unauthorized());
         }
       });
   };
@@ -307,8 +325,10 @@ export function taskDrop(projectId, taskDraggingFrom, taskDraggingTo) {
         .type('form')
         .send({to_list_id: taskDraggingTo.toList.Id, prev_to_task_id: prevToTaskId})
         .end((err, res) => {
-          if(res.body != null) {
+          if(res.ok) {
             dispatch(receiveMoveTask(res.body));
+          } else if(res.unauthorized) {
+            dispatch(unauthorized());
           }
         });
     };
