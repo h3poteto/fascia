@@ -44,7 +44,7 @@ var _ = Describe("ListsController", func() {
 		os.Setenv("DB_NAME", currentdb)
 	})
 	JustBeforeEach(func() {
-		LoginFaker(ts, "lists@example.com", "hogehoge")
+		userId = LoginFaker(ts, "lists@example.com", "hogehoge")
 		// projectを作っておく
 		values := url.Values{}
 		values.Add("title", "projectTitle")
@@ -52,7 +52,6 @@ var _ = Describe("ListsController", func() {
 		contents, _ := ParseJson(res)
 		parseContents := contents.(map[string]interface{})
 		projectId = int64(parseContents["Id"].(float64))
-		userId = int64(parseContents["UserId"].(float64))
 	})
 
 	Describe("Create", func() {
