@@ -1,13 +1,13 @@
 package list_test
 
 import (
-	"os"
-	"database/sql"
 	"../db"
 	. "../list"
 	"../project"
-	"../user"
 	"../task"
+	"../user"
+	"database/sql"
+	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -15,10 +15,10 @@ import (
 
 var _ = Describe("List", func() {
 	var (
-		newList *ListStruct
+		newList    *ListStruct
 		newProject *project.ProjectStruct
-		currentdb string
-		table *sql.DB
+		currentdb  string
+		table      *sql.DB
 	)
 	BeforeEach(func() {
 		testdb := os.Getenv("DB_TEST_NAME")
@@ -45,7 +45,7 @@ var _ = Describe("List", func() {
 		table = database.Init()
 		newProject = project.NewProject(0, uid, "title", "desc")
 		newProject.Save()
-		newList = NewList(0, newProject.Id, "list title", "")
+		newList = NewList(0, newProject.Id, newProject.UserId.Int64, "list title", "")
 	})
 
 	Describe("Save", func() {

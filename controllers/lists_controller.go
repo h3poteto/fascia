@@ -74,9 +74,10 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Printf("post new list parameter: %+v\n", newListForm)
-	list := listModel.NewList(0, projectID, newListForm.Title, newListForm.Color)
+	list := listModel.NewList(0, projectID, current_user.Id, newListForm.Title, newListForm.Color)
 
 	// github同期処理
+	// TODO: transaction内save後にapi requestして必要であればrollback
 	repo := parentProject.Repository()
 	if current_user.OauthToken.Valid && repo != nil {
 		token := current_user.OauthToken.String
@@ -140,6 +141,7 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	targetList.Color = sql.NullString{String: editListForm.Color, Valid: true}
 
 	// github同期処理
+	// TODO: transaction内save後にapi requestして必要であればrollback
 	repo := parentProject.Repository()
 	if current_user.OauthToken.Valid && repo != nil {
 		token := current_user.OauthToken.String

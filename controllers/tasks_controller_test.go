@@ -23,6 +23,7 @@ var _ = Describe("TasksController", func() {
 		ts        *httptest.Server
 		currentdb string
 		projectId int64
+		userId    int64
 		listId    int64
 	)
 	BeforeEach(func() {
@@ -54,6 +55,7 @@ var _ = Describe("TasksController", func() {
 		contents, _ := ParseJson(res)
 		parseContents := contents.(map[string]interface{})
 		projectId = int64(parseContents["Id"].(float64))
+		userId = int64(parseContents["UserId"].(float64))
 
 		// listも作っておく
 		values.Set("title", "listTitle")
@@ -116,7 +118,7 @@ var _ = Describe("TasksController", func() {
 			newList *list.ListStruct
 		)
 		JustBeforeEach(func() {
-			newList = list.NewList(0, projectId, "list2", "")
+			newList = list.NewList(0, projectId, userId, "list2", "")
 			newList.Save()
 			newTask = task.NewTask(0, listId, "taskTitle")
 			newTask.Save()

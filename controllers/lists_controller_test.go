@@ -22,6 +22,7 @@ var _ = Describe("ListsController", func() {
 		ts        *httptest.Server
 		currentdb string
 		projectId int64
+		userId    int64
 	)
 	BeforeEach(func() {
 		m := web.New()
@@ -51,6 +52,7 @@ var _ = Describe("ListsController", func() {
 		contents, _ := ParseJson(res)
 		parseContents := contents.(map[string]interface{})
 		projectId = int64(parseContents["Id"].(float64))
+		userId = int64(parseContents["UserId"].(float64))
 	})
 
 	Describe("Create", func() {
@@ -85,7 +87,7 @@ var _ = Describe("ListsController", func() {
 			err error
 		)
 		JustBeforeEach(func() {
-			newList := list.NewList(0, projectId, "listTitle", "")
+			newList := list.NewList(0, projectId, userId, "listTitle", "")
 			newList.Save()
 			values := url.Values{}
 			values.Add("title", "newListTitle")

@@ -86,6 +86,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	task := taskModel.NewTask(0, parentList.Id, newTaskForm.Title)
 
 	// github同期処理
+	// TODO: transaction内save後にapi requestして必要であればrollback
 	repo := parentProject.Repository()
 	if current_user.OauthToken.Valid && repo != nil {
 		token := current_user.OauthToken.String

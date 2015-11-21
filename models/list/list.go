@@ -18,19 +18,20 @@ type List interface {
 type ListStruct struct {
 	Id        int64
 	ProjectId int64
+	UserId    int64
 	Title     sql.NullString
 	ListTasks []*task.TaskStruct
 	Color     sql.NullString
 	database  db.DB
 }
 
-func NewList(id int64, projectID int64, title string, color string) *ListStruct {
+func NewList(id int64, projectID int64, userID int64, title string, color string) *ListStruct {
 	if projectID == 0 {
 		return nil
 	}
 	nullTitle := sql.NullString{String: title, Valid: true}
 	nullColor := sql.NullString{String: color, Valid: true}
-	list := &ListStruct{Id: id, ProjectId: projectID, Title: nullTitle, Color: nullColor}
+	list := &ListStruct{Id: id, ProjectId: projectID, UserId: userID, Title: nullTitle, Color: nullColor}
 	list.Initialize()
 	return list
 }
@@ -41,11 +42,11 @@ func FindList(projectID int64, listID int64) *ListStruct {
 	table := interfaceDB.Init()
 	defer table.Close()
 
-	var id, projectId int64
+	var id, projectId, userId int64
 	var title, color sql.NullString
-	rows, _ := table.Query("select id, project_id, title, color from lists where id = ? AND project_id = ?;", listID, projectID)
+	rows, _ := table.Query("select id, project_id, user_id, title, color from lists where id = ? AND project_id = ?;", listID, projectID)
 	for rows.Next() {
-		err := rows.Scan(&id, &projectId, &title, &color)
+		err := rows.Scan(&id, &projectId, &userId, &title, &color)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -54,7 +55,7 @@ func FindList(projectID int64, listID int64) *ListStruct {
 		fmt.Printf("cannot find list or project did not contain list: %v\n", listID)
 		return nil
 	} else {
-		list := NewList(id, projectId, title.String, color.String)
+		list := NewList(id, projectId, userId, title.String, color.String)
 		return list
 	}
 
@@ -70,8 +71,9 @@ func (u *ListStruct) Save() bool {
 	table := u.database.Init()
 	defer table.Close()
 
-	result, err := table.Exec("insert into lists (project_id, title, color, created_at) values (?, ?, ?, now());", u.ProjectId, u.Title, u.Color)
+	result, err := table.Exec("insert into lists (project_id, user_id, title, color, created_at) values (?, ?, ?, ?, now());", u.ProjectId, u.UserId, u.Title, u.Color)
 	if err != nil {
+		fmt.Printf("list save error: %+v\n", err)
 		return false
 	}
 	u.Id, _ = result.LastInsertId()
@@ -82,7 +84,7 @@ func (u *ListStruct) Update() bool {
 	table := u.database.Init()
 	defer table.Close()
 
-	_, err := table.Exec("update lists set project_id = ?, title = ?, color = ? where id = ?;", u.ProjectId, u.Title, u.Color, u.Id)
+	_, err := table.Exec("update lists set project_id = ?, user_id = ?, title = ?, color = ? where id = ?;", u.ProjectId, u.UserId, u.Title, u.Color, u.Id)
 	if err != nil {
 		return false
 	}

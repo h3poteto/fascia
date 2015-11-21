@@ -2,9 +2,9 @@ package project
 
 import (
 	"../db"
-	"database/sql"
 	"../list"
 	"../repository"
+	"database/sql"
 )
 
 type Project interface {
@@ -13,11 +13,11 @@ type Project interface {
 }
 
 type ProjectStruct struct {
-	Id int64
-	UserId sql.NullInt64
-	Title string
+	Id          int64
+	UserId      sql.NullInt64
+	Title       string
 	Description string
-	database db.DB
+	database    db.DB
 }
 
 func NewProject(id int64, userID int64, title string, description string) *ProjectStruct {
@@ -77,17 +77,17 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	rows, _ := table.Query("select id, project_id, title, color from lists where project_id = ?;", u.Id)
+	rows, _ := table.Query("select id, project_id, user_id, title, color from lists where project_id = ?;", u.Id)
 	var slice []*list.ListStruct
 	for rows.Next() {
-		var id, projectID int64
+		var id, projectID, userID int64
 		var title, color sql.NullString
-		err := rows.Scan(&id, &projectID, &title, &color)
+		err := rows.Scan(&id, &projectID, &userID, &title, &color)
 		if err != nil {
 			panic(err.Error())
 		}
 		if projectID == u.Id && title.Valid {
-			l := list.NewList(id, projectID, title.String, color.String)
+			l := list.NewList(id, projectID, userID, title.String, color.String)
 			slice = append(slice, l)
 		}
 	}
