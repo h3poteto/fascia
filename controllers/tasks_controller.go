@@ -83,7 +83,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Printf("post new task parameter: %+v\n", newTaskForm)
 
-	task := taskModel.NewTask(0, parentList.Id, newTaskForm.Title)
+	task := taskModel.NewTask(0, parentList.Id, parentList.UserId, newTaskForm.Title)
 
 	// github同期処理
 	// TODO: transaction内save後にapi requestして必要であればrollback

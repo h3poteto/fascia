@@ -119,7 +119,7 @@ var _ = Describe("TasksController", func() {
 		JustBeforeEach(func() {
 			newList = list.NewList(0, projectId, userId, "list2", "")
 			newList.Save()
-			newTask = task.NewTask(0, listId, "taskTitle")
+			newTask = task.NewTask(0, listId, userId, "taskTitle")
 			newTask.Save()
 		})
 		It("タスクの所属するリストが変更されること", func() {

@@ -83,7 +83,7 @@ var _ = Describe("List", func() {
 		var newTask *task.TaskStruct
 		JustBeforeEach(func() {
 			newList.Save()
-			newTask = task.NewTask(0, newList.Id, "task")
+			newTask = task.NewTask(0, newList.Id, newList.UserId, "task")
 			newTask.Save()
 		})
 		It("taskが関連づくこと", func() {

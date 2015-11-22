@@ -48,7 +48,7 @@ var _ = Describe("Task", func() {
 		newProject.Save()
 		newList = list.NewList(0, newProject.Id, newProject.UserId.Int64, "list title", "")
 		newList.Save()
-		newTask = NewTask(0, newList.Id, "task title")
+		newTask = NewTask(0, newList.Id, newList.UserId, "task title")
 	})
 
 	Describe("Save", func() {
@@ -89,7 +89,7 @@ var _ = Describe("Task", func() {
 		})
 		Context("リストにタスクがあるとき", func() {
 			JustBeforeEach(func() {
-				existTask := NewTask(0, newList.Id, "exist task title")
+				existTask := NewTask(0, newList.Id, newList.UserId, "exist task title")
 				existTask.Save()
 			})
 			It("display_indexがラストになっていること", func() {
@@ -140,7 +140,7 @@ var _ = Describe("Task", func() {
 				existTask *TaskStruct
 			)
 			JustBeforeEach(func() {
-				existTask = NewTask(0, list2.Id, "exist task title")
+				existTask = NewTask(0, list2.Id, list2.UserId, "exist task title")
 				existTask.Save()
 			})
 			Context("nil順位を渡した時", func() {
@@ -181,9 +181,9 @@ var _ = Describe("Task", func() {
 		Context("移動先リストに複数タスクがあるとき", func() {
 			var existTask1, existTask2 *TaskStruct
 			JustBeforeEach(func() {
-				existTask1 = NewTask(0, list2.Id, "exist task title1")
+				existTask1 = NewTask(0, list2.Id, list2.UserId, "exist task title1")
 				existTask1.Save()
-				existTask2 = NewTask(0, list2.Id, "exist task title2")
+				existTask2 = NewTask(0, list2.Id, list2.UserId, "exist task title2")
 				existTask2.Save()
 			})
 			Context("nil順位を渡した時", func() {

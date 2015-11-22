@@ -17,16 +17,17 @@ type Task interface {
 type TaskStruct struct {
 	Id       int64
 	ListId   int64
+	UserId   int64
 	Title    sql.NullString
 	database db.DB
 }
 
-func NewTask(id int64, listID int64, title string) *TaskStruct {
+func NewTask(id int64, listID int64, userID int64, title string) *TaskStruct {
 	if listID == 0 {
 		return nil
 	}
 	nullTitle := sql.NullString{String: title, Valid: true}
-	task := &TaskStruct{Id: id, ListId: listID, Title: nullTitle}
+	task := &TaskStruct{Id: id, ListId: listID, UserId: userID, Title: nullTitle}
 	task.Initialize()
 	return task
 }
@@ -37,11 +38,11 @@ func FindTask(listID int64, taskID int64) *TaskStruct {
 	table := interfaceDB.Init()
 	defer table.Close()
 
-	var id, listId int64
+	var id, listId, userId int64
 	var title string
-	rows, _ := table.Query("select id, list_id, title from tasks where id = ? AND list_id = ?;", taskID, listID)
+	rows, _ := table.Query("select id, list_id, user_id, title from tasks where id = ? AND list_id = ?;", taskID, listID)
 	for rows.Next() {
-		err := rows.Scan(&id, &listId, &title)
+		err := rows.Scan(&id, &listId, &userId, &title)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -50,7 +51,7 @@ func FindTask(listID int64, taskID int64) *TaskStruct {
 		fmt.Printf("cannot find task or list did not contain task: %v\n", taskID)
 		return nil
 	} else {
-		task := NewTask(id, listId, title)
+		task := NewTask(id, listId, userId, title)
 		return task
 	}
 }
