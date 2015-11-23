@@ -8,6 +8,13 @@ function unauthorized() {
   };
 }
 
+export const SERVER_ERROR = 'SERVER_ERROR';
+function serverError() {
+  return {
+    type: SERVER_ERROR
+  };
+}
+
 export const REQUEST_POSTS = 'REQUEST_POSTS';
 function requestPosts() {
   return {
@@ -29,10 +36,13 @@ export function fetchProjects() {
     return Request
       .get('/projects')
       .end((err, res)=> {
+        console.log(res);
         if (res.ok) {
           dispatch(receivePosts(res.body));
         } else if (res.unauthorized) {
           dispatch(unauthorized());
+        } else {
+          dispatch(serverError());
         }
       });
   };
@@ -79,6 +89,8 @@ export function fetchRepositories() {
           dispatch(receiveRepositories(res.body));
         } else if (res.unauthorized) {
           dispatch(unauthorized());
+        } else {
+          dispatch(serverError());
         }
       });
   };
@@ -121,6 +133,8 @@ export function fetchCreateProject(title, description, repository) {
           dispatch(receiveCreateProject(res.body.Id, res.body.UserId, res.body.Title, res.body.Description));
         } else if (res.unauthorized) {
           dispatch(unauthorized());
+        } else {
+          dispatch(serverError());
         }
       });
     };

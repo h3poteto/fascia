@@ -1,3 +1,8 @@
+$success-color: rgb(28, 184, 65);
+$error-color: rgb(202, 60, 60);
+$warning-color: rgb(223, 117, 20);
+$secondary-color: rgb(66, 184, 221);
+
 .pure-button-primary,
 .button-success,
 .button-error,
@@ -9,19 +14,43 @@
 }
 
 .button-success {
-  background: rgb(28, 184, 65); /* this is a green */
+  background: $success-color;
 }
 
 .button-error {
-  background: rgb(202, 60, 60); /* this is a maroon */
+  background: $error-color;
 }
 
 .button-warning {
-  background: rgb(223, 117, 20); /* this is an orange */
+  background: $warning-color;
 }
 
 .button-secondary {
-  background: rgb(66, 184, 221); /* this is a light blue */
+  background: $secondary-color;
+}
+
+
+.flash {
+  text-align: center;
+  color: white;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+.flash-success {
+  background: $success-color;
+}
+
+.flash-error {
+  background: $error-color;
+}
+
+.flash-warning {
+  background: $warning-color;
+}
+
+.flash-secondary {
+  background: $secondary-color;
 }
 
 body {

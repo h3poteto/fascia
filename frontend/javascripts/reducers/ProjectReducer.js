@@ -5,11 +5,16 @@ const initState = {
   newProject: {title: "", description: ""},
   projects: [],
   repositories: [],
-  selectedRepository: null
+  selectedRepository: null,
+  error: null
 };
 
 export default function ProjectReducer(state = initState, action) {
   switch(action.type) {
+  case projectActions.SERVER_ERROR:
+    return Object.assign({}, state, {
+      error: "Server Error"
+    });
   case projectActions.REQUEST_POSTS:
     return state;
   case projectActions.RECEIVE_POSTS:
