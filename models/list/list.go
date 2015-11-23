@@ -67,15 +67,45 @@ func (u *ListStruct) Initialize() {
 	u.database = interfaceDB
 }
 
-func (u *ListStruct) Save() bool {
+func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.NullString) bool {
 	table := u.database.Init()
 	defer table.Close()
+	tx, _ := table.Begin()
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("panic: %+v\n", err)
+			tx.Rollback()
+		}
+	}()
 
-	result, err := table.Exec("insert into lists (project_id, user_id, title, color, created_at) values (?, ?, ?, ?, now());", u.ProjectId, u.UserId, u.Title, u.Color)
+	result, err := tx.Exec("insert into lists (project_id, user_id, title, color, created_at) values (?, ?, ?, ?, now());", u.ProjectId, u.UserId, u.Title, u.Color)
 	if err != nil {
 		fmt.Printf("list save error: %+v\n", err)
+		tx.Rollback()
 		return false
 	}
+
+	if OauthToken != nil && OauthToken.Valid && repo != nil {
+		token := OauthToken.String
+		label := u.CheckLabelPresent(token, repo)
+		if label == nil {
+			// そもそも既に存在しているなんてことはあまりないのでは
+			label = u.CreateGithubLabel(token, repo)
+			if label == nil {
+				fmt.Printf("github label create failed\n")
+				tx.Rollback()
+				return false
+			}
+		} else {
+			label = u.UpdateGithubLabel(token, repo)
+			if label == nil {
+				fmt.Printf("github label update failed\n")
+				tx.Rollback()
+				return false
+			}
+		}
+	}
+	tx.Commit()
 	u.Id, _ = result.LastInsertId()
 	return true
 }

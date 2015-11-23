@@ -32,6 +32,7 @@ var _ = Describe("List", func() {
 		sql.Exec("truncate table users;")
 		sql.Exec("truncate table projects;")
 		sql.Exec("truncate table lists;")
+		sql.Exec("truncate table tasks;")
 		sql.Close()
 		os.Setenv("DB_NAME", currentdb)
 	})
@@ -50,12 +51,12 @@ var _ = Describe("List", func() {
 
 	Describe("Save", func() {
 		It("リストが登録できること", func() {
-			result := newList.Save()
+			result := newList.Save(nil, nil)
 			Expect(result).To(BeTrue())
 			Expect(newList.Id).NotTo(Equal(0))
 		})
 		It("プロジェクトとリストが関連づくこと", func() {
-			_ = newList.Save()
+			_ = newList.Save(nil, nil)
 			rows, _ := table.Query("select id, project_id, title from lists where id = ?;", newList.Id)
 			var id int64
 			var project_id int64
@@ -73,7 +74,7 @@ var _ = Describe("List", func() {
 
 	Describe("FindList", func() {
 		It("プロジェクトに関連づいたリストが見つかること", func() {
-			newList.Save()
+			newList.Save(nil, nil)
 			findList := FindList(newProject.Id, newList.Id)
 			Expect(findList).To(Equal(newList))
 		})
@@ -82,7 +83,7 @@ var _ = Describe("List", func() {
 	Describe("Tasks", func() {
 		var newTask *task.TaskStruct
 		JustBeforeEach(func() {
-			newList.Save()
+			newList.Save(nil, nil)
 			newTask = task.NewTask(0, newList.Id, newList.UserId, "task")
 			newTask.Save()
 		})
@@ -96,7 +97,7 @@ var _ = Describe("List", func() {
 
 	Describe("Update", func() {
 		JustBeforeEach(func() {
-			newList.Save()
+			newList.Save(nil, nil)
 		})
 		It("リストが更新できること", func() {
 			newList.Title = sql.NullString{String: "newTitle", Valid: true}

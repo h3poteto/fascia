@@ -87,7 +87,7 @@ var _ = Describe("ListsController", func() {
 		)
 		JustBeforeEach(func() {
 			newList := list.NewList(0, projectId, userId, "listTitle", "")
-			newList.Save()
+			newList.Save(nil, nil)
 			values := url.Values{}
 			values.Add("title", "newListTitle")
 			res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists/"+strconv.FormatInt(newList.Id, 10), values)

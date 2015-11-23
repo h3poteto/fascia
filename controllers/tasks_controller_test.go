@@ -118,7 +118,7 @@ var _ = Describe("TasksController", func() {
 		)
 		JustBeforeEach(func() {
 			newList = list.NewList(0, projectId, userId, "list2", "")
-			newList.Save()
+			newList.Save(nil, nil)
 			newTask = task.NewTask(0, listId, userId, "taskTitle")
 			newTask.Save()
 		})

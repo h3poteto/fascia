@@ -47,7 +47,7 @@ var _ = Describe("Task", func() {
 		newProject = project.NewProject(0, uid, "title", "desc")
 		newProject.Save()
 		newList = list.NewList(0, newProject.Id, newProject.UserId.Int64, "list title", "")
-		newList.Save()
+		newList.Save(nil, nil)
 		newTask = NewTask(0, newList.Id, newList.UserId, "task title")
 	})
 
@@ -117,7 +117,7 @@ var _ = Describe("Task", func() {
 		JustBeforeEach(func() {
 			newTask.Save()
 			list2 = list.NewList(0, newProject.Id, newProject.UserId.Int64, "list2", "")
-			list2.Save()
+			list2.Save(nil, nil)
 		})
 		Context("移動先リストにタスクがないとき", func() {
 			It("タスクが移動できること", func() {

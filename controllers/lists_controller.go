@@ -76,28 +76,8 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("post new list parameter: %+v\n", newListForm)
 	list := listModel.NewList(0, projectID, current_user.Id, newListForm.Title, newListForm.Color)
 
-	// github同期処理
-	// TODO: transaction内save後にapi requestして必要であればrollback
 	repo := parentProject.Repository()
-	if current_user.OauthToken.Valid && repo != nil {
-		token := current_user.OauthToken.String
-		label := list.CheckLabelPresent(token, repo)
-		if label == nil {
-			// そもそも既に存在しているなんてことはあまりないのでは
-			label = list.CreateGithubLabel(token, repo)
-			if label == nil {
-				http.Error(w, "failed create github label", 500)
-				return
-			}
-		} else {
-			label = list.UpdateGithubLabel(token, repo)
-			if label == nil {
-				http.Error(w, "failed update github label", 500)
-				return
-			}
-		}
-	}
-	if !list.Save() {
+	if !list.Save(repo, &current_user.OauthToken) {
 		http.Error(w, "failed save", 500)
 		return
 	}
