@@ -101,7 +101,7 @@ var _ = Describe("List", func() {
 		})
 		It("リストが更新できること", func() {
 			newList.Title = sql.NullString{String: "newTitle", Valid: true}
-			newList.Update()
+			newList.Update(nil, nil)
 			findList := FindList(newList.ProjectId, newList.Id)
 			Expect(findList.Title.String).To(Equal("newTitle"))
 		})

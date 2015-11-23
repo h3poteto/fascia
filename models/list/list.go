@@ -110,14 +110,45 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	return true
 }
 
-func (u *ListStruct) Update() bool {
+func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.NullString) bool {
 	table := u.database.Init()
 	defer table.Close()
+	tx, _ := table.Begin()
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("panic: %+v\n", err)
+			tx.Rollback()
+		}
+	}()
 
-	_, err := table.Exec("update lists set project_id = ?, user_id = ?, title = ?, color = ? where id = ?;", u.ProjectId, u.UserId, u.Title, u.Color, u.Id)
+	_, err := tx.Exec("update lists set project_id = ?, user_id = ?, title = ?, color = ? where id = ?;", u.ProjectId, u.UserId, u.Title, u.Color, u.Id)
 	if err != nil {
+		tx.Rollback()
 		return false
 	}
+
+	if OauthToken != nil && OauthToken.Valid && repo != nil {
+		token := OauthToken.String
+		fmt.Printf("repository: %+v\n", repo)
+		label := u.CheckLabelPresent(token, repo)
+		fmt.Printf("find label: %+v\n", label)
+		if label == nil {
+			// editの場合はほとんどここには入らない
+			label = u.CreateGithubLabel(token, repo)
+			if label == nil {
+				tx.Rollback()
+				return false
+			}
+		} else {
+			label = u.UpdateGithubLabel(token, repo)
+			if label == nil {
+				tx.Rollback()
+				return false
+			}
+		}
+	}
+
+	tx.Commit()
 	return true
 }
 

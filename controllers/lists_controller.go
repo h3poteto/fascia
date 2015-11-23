@@ -120,30 +120,9 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	targetList.Title = sql.NullString{String: editListForm.Title, Valid: true}
 	targetList.Color = sql.NullString{String: editListForm.Color, Valid: true}
 
-	// github同期処理
-	// TODO: transaction内save後にapi requestして必要であればrollback
 	repo := parentProject.Repository()
-	if current_user.OauthToken.Valid && repo != nil {
-		token := current_user.OauthToken.String
-		fmt.Printf("repository: %+v\n", repo)
-		label := targetList.CheckLabelPresent(token, repo)
-		fmt.Printf("find label: %+v\n", label)
-		if label == nil {
-			// editの場合はほとんどここには入らない
-			label = targetList.CreateGithubLabel(token, repo)
-			if label == nil {
-				http.Error(w, "failed create github label", 500)
-				return
-			}
-		} else {
-			label = targetList.UpdateGithubLabel(token, repo)
-			if label == nil {
-				http.Error(w, "failed update github label", 500)
-				return
-			}
-		}
-	}
-	if !targetList.Update() {
+
+	if !targetList.Update(repo, &current_user.OauthToken) {
 		http.Error(w, "save failed", 500)
 		return
 	}
