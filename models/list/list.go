@@ -141,7 +141,6 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 				return false
 			}
 		} else {
-			// TODO: ここタイトルも編集できるように
 			label := hub.UpdateGithubLabel(token, repo, &u.Title.String, title, color)
 			if label == nil {
 				tx.Rollback()
@@ -151,6 +150,8 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	}
 
 	tx.Commit()
+	u.Title = sql.NullString{String: *title, Valid: true}
+	u.Color = sql.NullString{String: *color, Valid: true}
 	return true
 }
 
