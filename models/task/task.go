@@ -1,7 +1,9 @@
 package task
 
 import (
+	"../../modules/hub"
 	"../db"
+	"../repository"
 	"database/sql"
 	"fmt"
 )
@@ -58,7 +60,7 @@ func (u *TaskStruct) Initialize() {
 	u.database = interfaceDB
 }
 
-func (u *TaskStruct) Save() bool {
+func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.NullString) bool {
 	table := u.database.Init()
 	defer table.Close()
 	transaction, _ := table.Begin()
@@ -67,6 +69,7 @@ func (u *TaskStruct) Save() bool {
 			transaction.Rollback()
 		}
 	}()
+
 	// display_indexを自動挿入する
 	count := 0
 	err := transaction.QueryRow("SELECT COUNT(id) FROM tasks WHERE list_id = ?;", u.ListId).Scan(&count)
@@ -75,6 +78,27 @@ func (u *TaskStruct) Save() bool {
 		transaction.Rollback()
 		return false
 	}
+
+	if OauthToken != nil && OauthToken.Valid && repo != nil {
+		token := OauthToken.String
+		label := hub.CheckLabelPresent(u.ListId, token, repo)
+		// もしラベルがなかった場合は作っておく
+		// 色が違っていてもアップデートは不要，それは編集でやってくれ
+		if label == nil {
+			label = hub.CreateGithubLabel(u.ListId, token, repo)
+			if label == nil {
+				transaction.Rollback()
+				return false
+			}
+		}
+		// issueを作る
+		issue := hub.CreateGithubIssue(u.Id, token, repo, []string{*label.Name})
+		if issue == nil {
+			transaction.Rollback()
+			return false
+		}
+	}
+
 	err = transaction.Commit()
 	if err != nil {
 		transaction.Rollback()

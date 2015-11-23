@@ -120,7 +120,7 @@ var _ = Describe("TasksController", func() {
 			newList = list.NewList(0, projectId, userId, "list2", "")
 			newList.Save(nil, nil)
 			newTask = task.NewTask(0, listId, userId, "taskTitle")
-			newTask.Save()
+			newTask.Save(nil, nil)
 		})
 		It("タスクの所属するリストが変更されること", func() {
 			values := url.Values{}

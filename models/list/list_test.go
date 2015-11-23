@@ -85,7 +85,7 @@ var _ = Describe("List", func() {
 		JustBeforeEach(func() {
 			newList.Save(nil, nil)
 			newTask = task.NewTask(0, newList.Id, newList.UserId, "task")
-			newTask.Save()
+			newTask.Save(nil, nil)
 		})
 		It("taskが関連づくこと", func() {
 			tasks := newList.Tasks()

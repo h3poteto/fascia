@@ -4,7 +4,6 @@ import (
 	listModel "../models/list"
 	projectModel "../models/project"
 	taskModel "../models/task"
-	"../modules/hub"
 	"encoding/json"
 	"fmt"
 	"github.com/goji/param"
@@ -86,25 +85,8 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	task := taskModel.NewTask(0, parentList.Id, parentList.UserId, newTaskForm.Title)
 
-	// github同期処理
-	// TODO: transaction内save後にapi requestして必要であればrollback
 	repo := parentProject.Repository()
-	if current_user.OauthToken.Valid && repo != nil {
-		token := current_user.OauthToken.String
-		label := hub.CheckLabelPresent(parentList.Id, token, repo)
-		// もしラベルがなかった場合は作っておく
-		// 色が違っていてもアップデートは不要，それは編集でやってくれ
-		if label == nil {
-			label = hub.CreateGithubLabel(parentList.Id, token, repo)
-			if label == nil {
-				http.Error(w, "failed create github label", 500)
-				return
-			}
-		}
-		// issueを作る
-		hub.CreateGithubIssue(task.Id, token, repo, []string{parentList.Title.String})
-	}
-	if !task.Save() {
+	if !task.Save(repo, &current_user.OauthToken) {
 		http.Error(w, "save failed", 500)
 		return
 	}
