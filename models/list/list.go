@@ -85,17 +85,17 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 
 	if OauthToken != nil && OauthToken.Valid && repo != nil {
 		token := OauthToken.String
-		label := hub.CheckLabelPresent(u.Id, token, repo)
+		label := hub.CheckLabelPresent(token, repo, &u.Title.String)
 		if label == nil {
 			// そもそも既に存在しているなんてことはあまりないのでは
-			label = hub.CreateGithubLabel(u.Id, token, repo)
+			label = hub.CreateGithubLabel(token, repo, &u.Title.String, &u.Color.String)
 			if label == nil {
 				fmt.Printf("github label create failed\n")
 				tx.Rollback()
 				return false
 			}
 		} else {
-			label = hub.UpdateGithubLabel(u.Id, token, repo)
+			label = hub.UpdateGithubLabel(token, repo, &u.Title.String, &u.Color.String)
 			if label == nil {
 				fmt.Printf("github label update failed\n")
 				tx.Rollback()
@@ -128,17 +128,17 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	if OauthToken != nil && OauthToken.Valid && repo != nil {
 		token := OauthToken.String
 		fmt.Printf("repository: %+v\n", repo)
-		label := hub.CheckLabelPresent(u.Id, token, repo)
+		label := hub.CheckLabelPresent(token, repo, &u.Title.String)
 		fmt.Printf("find label: %+v\n", label)
 		if label == nil {
 			// editの場合はほとんどここには入らない
-			label = hub.CreateGithubLabel(u.Id, token, repo)
+			label = hub.CreateGithubLabel(token, repo, &u.Title.String, &u.Color.String)
 			if label == nil {
 				tx.Rollback()
 				return false
 			}
 		} else {
-			label = hub.UpdateGithubLabel(u.Id, token, repo)
+			label = hub.UpdateGithubLabel(token, repo, &u.Title.String, &u.Color.String)
 			if label == nil {
 				tx.Rollback()
 				return false

@@ -1,9 +1,7 @@
 package hub
 
 import (
-	"../../models/db"
 	"../../models/repository"
-	"database/sql"
 	"fmt"
 
 	"github.com/google/go-github/github"
@@ -16,23 +14,18 @@ type hub interface {
 type HubStruct struct {
 }
 
-func CheckLabelPresent(listId int64, token string, repo *repository.RepositoryStruct) *github.Label {
+func CheckLabelPresent(token string, repo *repository.RepositoryStruct, title *string) *github.Label {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 	client := github.NewClient(tc)
 
-	o := &db.Database{}
-	var database db.DB = o
-	table := database.Init()
-
-	var title sql.NullString
-	err := table.QueryRow("select title from list where id = ?;", listId).Scan(&title)
-	if err != nil || !title.Valid {
+	if title == nil {
+		fmt.Printf("title is nil\n")
 		return nil
 	}
-	githubLabel, response, err := client.Issues.GetLabel(repo.Owner.String, repo.Name.String, title.String)
+	githubLabel, response, err := client.Issues.GetLabel(repo.Owner.String, repo.Name.String, *title)
 	fmt.Printf("get label for github response: %+v\n", response)
 	if err != nil {
 		fmt.Printf("cannot find github label: %v\n", repo.Name.String)
@@ -42,26 +35,21 @@ func CheckLabelPresent(listId int64, token string, repo *repository.RepositorySt
 	return githubLabel
 }
 
-func CreateGithubLabel(listId int64, token string, repo *repository.RepositoryStruct) *github.Label {
+func CreateGithubLabel(token string, repo *repository.RepositoryStruct, title *string, color *string) *github.Label {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 	client := github.NewClient(tc)
 
-	o := &db.Database{}
-	var database db.DB = o
-	table := database.Init()
-
-	var title, color sql.NullString
-	err := table.QueryRow("select title, color from list where id = ?;", listId).Scan(&title, &color)
-	if err != nil || !title.Valid {
+	if title == nil || color == nil {
+		fmt.Printf("title or color is nil\n")
 		return nil
 	}
 
 	label := &github.Label{
-		Name:  &title.String,
-		Color: &color.String,
+		Name:  title,
+		Color: color,
 	}
 	githubLabel, response, err := client.Issues.CreateLabel(repo.Owner.String, repo.Name.String, label)
 	fmt.Printf("create label for github response: %+v\n", response)
@@ -73,28 +61,23 @@ func CreateGithubLabel(listId int64, token string, repo *repository.RepositorySt
 	return githubLabel
 }
 
-func UpdateGithubLabel(listId int64, token string, repo *repository.RepositoryStruct) *github.Label {
+func UpdateGithubLabel(token string, repo *repository.RepositoryStruct, title *string, color *string) *github.Label {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 	client := github.NewClient(tc)
 
-	o := &db.Database{}
-	var database db.DB = o
-	table := database.Init()
-
-	var title, color sql.NullString
-	err := table.QueryRow("select title, color from list where id = ?;", listId).Scan(&title, &color)
-	if err != nil || !title.Valid {
+	if title == nil || color == nil {
+		fmt.Printf("title or color is nil\n")
 		return nil
 	}
 
 	label := &github.Label{
-		Name:  &title.String,
-		Color: &color.String,
+		Name:  title,
+		Color: color,
 	}
-	githubLabel, response, err := client.Issues.EditLabel(repo.Owner.String, repo.Name.String, title.String, label)
+	githubLabel, response, err := client.Issues.EditLabel(repo.Owner.String, repo.Name.String, *title, label)
 	fmt.Printf("update label for github response: %+v\n", response)
 	if err != nil {
 		panic(err.Error())
@@ -104,27 +87,22 @@ func UpdateGithubLabel(listId int64, token string, repo *repository.RepositorySt
 	return githubLabel
 }
 
-func CreateGithubIssue(taskId int64, token string, repo *repository.RepositoryStruct, labels []string) *github.Issue {
+func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels []string, title *string) *github.Issue {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 	client := github.NewClient(tc)
 
-	o := &db.Database{}
-	var database db.DB = o
-	table := database.Init()
-
-	var title sql.NullString
-	err := table.QueryRow("select title from tasks where id = ?;", taskId).Scan(&title)
-	if err != nil || !title.Valid {
+	if title == nil {
+		fmt.Printf("title is nil\n")
 		return nil
 	}
 
 	// TODO: description実装時にはbodyにdescriptionを入れる
 	description := ""
 	issueRequest := &github.IssueRequest{
-		Title:  &title.String,
+		Title:  title,
 		Body:   &description,
 		Labels: &labels,
 	}

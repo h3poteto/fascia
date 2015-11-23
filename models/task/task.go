@@ -74,6 +74,8 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	count := 0
 	err := transaction.QueryRow("SELECT COUNT(id) FROM tasks WHERE list_id = ?;", u.ListId).Scan(&count)
 	result, err := transaction.Exec("insert into tasks (list_id, title, display_index, created_at) values (?, ?, ?, now());", u.ListId, u.Title, count+1)
+	var listTitle, listColor sql.NullString
+	err = transaction.QueryRow("select title, color from lists where id = ?;", u.ListId).Scan(&listTitle, &listColor)
 	if err != nil {
 		transaction.Rollback()
 		return false
@@ -81,18 +83,18 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 
 	if OauthToken != nil && OauthToken.Valid && repo != nil {
 		token := OauthToken.String
-		label := hub.CheckLabelPresent(u.ListId, token, repo)
+		label := hub.CheckLabelPresent(token, repo, &listTitle.String)
 		// もしラベルがなかった場合は作っておく
 		// 色が違っていてもアップデートは不要，それは編集でやってくれ
 		if label == nil {
-			label = hub.CreateGithubLabel(u.ListId, token, repo)
+			label = hub.CreateGithubLabel(token, repo, &listTitle.String, &listColor.String)
 			if label == nil {
 				transaction.Rollback()
 				return false
 			}
 		}
 		// issueを作る
-		issue := hub.CreateGithubIssue(u.Id, token, repo, []string{*label.Name})
+		issue := hub.CreateGithubIssue(token, repo, []string{*label.Name}, &u.Title.String)
 		if issue == nil {
 			transaction.Rollback()
 			return false
