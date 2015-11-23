@@ -61,7 +61,7 @@ func CreateGithubLabel(token string, repo *repository.RepositoryStruct, title *s
 	return githubLabel
 }
 
-func UpdateGithubLabel(token string, repo *repository.RepositoryStruct, title *string, color *string) *github.Label {
+func UpdateGithubLabel(token string, repo *repository.RepositoryStruct, originalTitle *string, title *string, color *string) *github.Label {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
@@ -77,7 +77,7 @@ func UpdateGithubLabel(token string, repo *repository.RepositoryStruct, title *s
 		Name:  title,
 		Color: color,
 	}
-	githubLabel, response, err := client.Issues.EditLabel(repo.Owner.String, repo.Name.String, *title, label)
+	githubLabel, response, err := client.Issues.EditLabel(repo.Owner.String, repo.Name.String, *originalTitle, label)
 	fmt.Printf("update label for github response: %+v\n", response)
 	if err != nil {
 		panic(err.Error())

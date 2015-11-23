@@ -100,10 +100,12 @@ var _ = Describe("List", func() {
 			newList.Save(nil, nil)
 		})
 		It("リストが更新できること", func() {
-			newList.Title = sql.NullString{String: "newTitle", Valid: true}
-			newList.Update(nil, nil)
+			newTitle := "newTitle"
+			newColor := "newColor"
+			newList.Update(nil, nil, &newTitle, &newColor)
 			findList := FindList(newList.ProjectId, newList.Id)
-			Expect(findList.Title.String).To(Equal("newTitle"))
+			Expect(findList.Title.String).To(Equal(newTitle))
+			Expect(findList.Color.String).To(Equal(newColor))
 		})
 	})
 })
