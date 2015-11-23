@@ -3,7 +3,6 @@ package controllers
 import (
 	listModel "../models/list"
 	projectModel "../models/project"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"github.com/goji/param"
@@ -117,12 +116,9 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Printf("post edit list parameter: %+v\n", editListForm)
-	targetList.Title = sql.NullString{String: editListForm.Title, Valid: true}
-	targetList.Color = sql.NullString{String: editListForm.Color, Valid: true}
 
 	repo := parentProject.Repository()
-
-	if !targetList.Update(repo, &current_user.OauthToken) {
+	if !targetList.Update(repo, &current_user.OauthToken, &editListForm.Title, &editListForm.Color) {
 		http.Error(w, "save failed", 500)
 		return
 	}

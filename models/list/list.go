@@ -87,7 +87,6 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		token := OauthToken.String
 		label := hub.CheckLabelPresent(token, repo, &u.Title.String)
 		if label == nil {
-			// そもそも既に存在しているなんてことはあまりないのでは
 			label = hub.CreateGithubLabel(token, repo, &u.Title.String, &u.Color.String)
 			if label == nil {
 				fmt.Printf("github label create failed\n")
@@ -95,12 +94,11 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 				return false
 			}
 		} else {
-			label = hub.UpdateGithubLabel(token, repo, &u.Title.String, &u.Color.String)
-			if label == nil {
-				fmt.Printf("github label update failed\n")
-				tx.Rollback()
-				return false
-			}
+			// createしようとしたときに存在している場合，それはgithub側からの同期が失敗しているから
+			// だとするならここは素直にエラーにして，同期処理でエラーが出ないようにしておかないと連鎖バグになる可能性が高い
+			fmt.Printf("github label already exist\n")
+			tx.Rollback()
+			return false
 		}
 	}
 	tx.Commit()
@@ -108,7 +106,7 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	return true
 }
 
-func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.NullString) bool {
+func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.NullString, title *string, color *string) bool {
 	table := u.database.Init()
 	defer table.Close()
 	tx, _ := table.Begin()
@@ -119,7 +117,7 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 		}
 	}()
 
-	_, err := tx.Exec("update lists set project_id = ?, user_id = ?, title = ?, color = ? where id = ?;", u.ProjectId, u.UserId, u.Title, u.Color, u.Id)
+	_, err := tx.Exec("update lists set title = ?, color = ? where id = ?;", *title, *color, u.Id)
 	if err != nil {
 		tx.Rollback()
 		return false
@@ -128,17 +126,22 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	if OauthToken != nil && OauthToken.Valid && repo != nil {
 		token := OauthToken.String
 		fmt.Printf("repository: %+v\n", repo)
-		label := hub.CheckLabelPresent(token, repo, &u.Title.String)
-		fmt.Printf("find label: %+v\n", label)
-		if label == nil {
-			// editの場合はほとんどここには入らない
-			label = hub.CreateGithubLabel(token, repo, &u.Title.String, &u.Color.String)
+		// 編集前のラベルがそもそも存在しているかどうかを確認する
+		existLabel := hub.CheckLabelPresent(token, repo, &u.Title.String)
+		fmt.Printf("find label: %+v\n", existLabel)
+		if existLabel == nil {
+			// editの場合ここに入る可能性はほとんどない
+			// 編集前のラベルが存在しなければ新しく作るのと同義
+			// もし存在していた場合は，エラーにしたい
+			// あくまでgithub側のデータを正としたい．そしてgithub側からfasciaに同期をかけるのはここの責務ではない．
+			// そのため，ここは素直にエラーにして，同期処理側をしっかり作りこむべき
+			label := hub.CreateGithubLabel(token, repo, title, color)
 			if label == nil {
 				tx.Rollback()
 				return false
 			}
 		} else {
-			label = hub.UpdateGithubLabel(token, repo, &u.Title.String, &u.Color.String)
+			label := hub.UpdateGithubLabel(token, repo, &u.Title.String, title, color)
 			if label == nil {
 				tx.Rollback()
 				return false
@@ -147,6 +150,8 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	}
 
 	tx.Commit()
+	u.Title = sql.NullString{String: *title, Valid: true}
+	u.Color = sql.NullString{String: *color, Valid: true}
 	return true
 }
 
