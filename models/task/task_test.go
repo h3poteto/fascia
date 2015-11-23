@@ -46,19 +46,19 @@ var _ = Describe("Task", func() {
 		table = database.Init()
 		newProject = project.NewProject(0, uid, "title", "desc")
 		newProject.Save()
-		newList = list.NewList(0, newProject.Id, "list title", "")
-		newList.Save()
-		newTask = NewTask(0, newList.Id, "task title")
+		newList = list.NewList(0, newProject.Id, newProject.UserId.Int64, "list title", "")
+		newList.Save(nil, nil)
+		newTask = NewTask(0, newList.Id, newList.UserId, "task title")
 	})
 
 	Describe("Save", func() {
 		It("タスクが登録できること", func() {
-			result := newTask.Save()
+			result := newTask.Save(nil, nil)
 			Expect(result).To(BeTrue())
 			Expect(newTask.Id).NotTo(Equal(0))
 		})
 		It("タスクとリストが関連づくこと", func() {
-			_ = newTask.Save()
+			_ = newTask.Save(nil, nil)
 			rows, _ := table.Query("select id, list_id, title from tasks where id = ?;", newTask.Id)
 			var id, list_id int64
 			var title sql.NullString
@@ -72,7 +72,7 @@ var _ = Describe("Task", func() {
 		})
 		Context("リストにタスクがないとき", func() {
 			It("display_indexが追加されていること", func() {
-				result := newTask.Save()
+				result := newTask.Save(nil, nil)
 				Expect(result).To(BeTrue())
 				rows, _ := table.Query("select id, list_id, title, display_index from tasks where id = ?;", newTask.Id)
 				var id, list_id int64
@@ -89,11 +89,11 @@ var _ = Describe("Task", func() {
 		})
 		Context("リストにタスクがあるとき", func() {
 			JustBeforeEach(func() {
-				existTask := NewTask(0, newList.Id, "exist task title")
-				existTask.Save()
+				existTask := NewTask(0, newList.Id, newList.UserId, "exist task title")
+				existTask.Save(nil, nil)
 			})
 			It("display_indexがラストになっていること", func() {
-				result := newTask.Save()
+				result := newTask.Save(nil, nil)
 				Expect(result).To(BeTrue())
 				rows, _ := table.Query("select id, list_id, title, display_index from tasks where id = ?;", newTask.Id)
 				var id, list_id int64
@@ -115,9 +115,9 @@ var _ = Describe("Task", func() {
 			list2 *list.ListStruct
 		)
 		JustBeforeEach(func() {
-			newTask.Save()
-			list2 = list.NewList(0, newProject.Id, "list2", "")
-			list2.Save()
+			newTask.Save(nil, nil)
+			list2 = list.NewList(0, newProject.Id, newProject.UserId.Int64, "list2", "")
+			list2.Save(nil, nil)
 		})
 		Context("移動先リストにタスクがないとき", func() {
 			It("タスクが移動できること", func() {
@@ -140,8 +140,8 @@ var _ = Describe("Task", func() {
 				existTask *TaskStruct
 			)
 			JustBeforeEach(func() {
-				existTask = NewTask(0, list2.Id, "exist task title")
-				existTask.Save()
+				existTask = NewTask(0, list2.Id, list2.UserId, "exist task title")
+				existTask.Save(nil, nil)
 			})
 			Context("nil順位を渡した時", func() {
 				It("末尾に挿入されること", func() {
@@ -181,10 +181,10 @@ var _ = Describe("Task", func() {
 		Context("移動先リストに複数タスクがあるとき", func() {
 			var existTask1, existTask2 *TaskStruct
 			JustBeforeEach(func() {
-				existTask1 = NewTask(0, list2.Id, "exist task title1")
-				existTask1.Save()
-				existTask2 = NewTask(0, list2.Id, "exist task title2")
-				existTask2.Save()
+				existTask1 = NewTask(0, list2.Id, list2.UserId, "exist task title1")
+				existTask1.Save(nil, nil)
+				existTask2 = NewTask(0, list2.Id, list2.UserId, "exist task title2")
+				existTask2.Save(nil, nil)
 			})
 			Context("nil順位を渡した時", func() {
 				It("末尾に挿入されること", func() {

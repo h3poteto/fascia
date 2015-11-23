@@ -1,16 +1,16 @@
 package controllers_test
 
 import (
-	"io/ioutil"
-	"net/http"
-	"net/url"
-	"net/http/httptest"
-	"encoding/json"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
-	"github.com/flosch/pongo2"
 	. "../controllers"
 	"../models/user"
+	"encoding/json"
+	"github.com/flosch/pongo2"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 
 	"testing"
 
@@ -47,8 +47,7 @@ func ParseResponse(res *http.Response) (string, int) {
 	return string(contents), res.StatusCode
 }
 
-
-func LoginFaker(ts *httptest.Server, email string, password string) {
+func LoginFaker(ts *httptest.Server, email string, password string) int64 {
 	CheckCSRFToken = func(r *http.Request, token string) bool { return true }
 	id, _ := user.Registration(email, password)
 	LoginRequired = func(r *http.Request) (*user.UserStruct, bool) {
@@ -58,5 +57,6 @@ func LoginFaker(ts *httptest.Server, email string, password string) {
 	values := url.Values{}
 	values.Add("email", email)
 	values.Add("password", password)
-	http.PostForm(ts.URL + "/sign_in", values)
+	http.PostForm(ts.URL+"/sign_in", values)
+	return id
 }

@@ -1,13 +1,13 @@
 package list_test
 
 import (
-	"os"
-	"database/sql"
 	"../db"
 	. "../list"
 	"../project"
-	"../user"
 	"../task"
+	"../user"
+	"database/sql"
+	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -15,10 +15,10 @@ import (
 
 var _ = Describe("List", func() {
 	var (
-		newList *ListStruct
+		newList    *ListStruct
 		newProject *project.ProjectStruct
-		currentdb string
-		table *sql.DB
+		currentdb  string
+		table      *sql.DB
 	)
 	BeforeEach(func() {
 		testdb := os.Getenv("DB_TEST_NAME")
@@ -32,6 +32,7 @@ var _ = Describe("List", func() {
 		sql.Exec("truncate table users;")
 		sql.Exec("truncate table projects;")
 		sql.Exec("truncate table lists;")
+		sql.Exec("truncate table tasks;")
 		sql.Close()
 		os.Setenv("DB_NAME", currentdb)
 	})
@@ -45,17 +46,17 @@ var _ = Describe("List", func() {
 		table = database.Init()
 		newProject = project.NewProject(0, uid, "title", "desc")
 		newProject.Save()
-		newList = NewList(0, newProject.Id, "list title", "")
+		newList = NewList(0, newProject.Id, newProject.UserId.Int64, "list title", "")
 	})
 
 	Describe("Save", func() {
 		It("リストが登録できること", func() {
-			result := newList.Save()
+			result := newList.Save(nil, nil)
 			Expect(result).To(BeTrue())
 			Expect(newList.Id).NotTo(Equal(0))
 		})
 		It("プロジェクトとリストが関連づくこと", func() {
-			_ = newList.Save()
+			_ = newList.Save(nil, nil)
 			rows, _ := table.Query("select id, project_id, title from lists where id = ?;", newList.Id)
 			var id int64
 			var project_id int64
@@ -73,7 +74,7 @@ var _ = Describe("List", func() {
 
 	Describe("FindList", func() {
 		It("プロジェクトに関連づいたリストが見つかること", func() {
-			newList.Save()
+			newList.Save(nil, nil)
 			findList := FindList(newProject.Id, newList.Id)
 			Expect(findList).To(Equal(newList))
 		})
@@ -82,9 +83,9 @@ var _ = Describe("List", func() {
 	Describe("Tasks", func() {
 		var newTask *task.TaskStruct
 		JustBeforeEach(func() {
-			newList.Save()
-			newTask = task.NewTask(0, newList.Id, "task")
-			newTask.Save()
+			newList.Save(nil, nil)
+			newTask = task.NewTask(0, newList.Id, newList.UserId, "task")
+			newTask.Save(nil, nil)
 		})
 		It("taskが関連づくこと", func() {
 			tasks := newList.Tasks()
@@ -96,11 +97,11 @@ var _ = Describe("List", func() {
 
 	Describe("Update", func() {
 		JustBeforeEach(func() {
-			newList.Save()
+			newList.Save(nil, nil)
 		})
 		It("リストが更新できること", func() {
 			newList.Title = sql.NullString{String: "newTitle", Valid: true}
-			newList.Update()
+			newList.Update(nil, nil)
 			findList := FindList(newList.ProjectId, newList.Id)
 			Expect(findList.Title.String).To(Equal("newTitle"))
 		})

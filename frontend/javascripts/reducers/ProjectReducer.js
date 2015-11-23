@@ -13,8 +13,12 @@ export default function ProjectReducer(state = initState, action) {
   case projectActions.REQUEST_POSTS:
     return state;
   case projectActions.RECEIVE_POSTS:
+    var projects = action.projects;
+    if (projects == null) {
+      projects = [];
+    }
     return Object.assign({}, state, {
-      projects: action.projects
+      projects: projects
     });
   case projectActions.OPEN_NEW_PROJECT:
     return Object.assign({}, state, {

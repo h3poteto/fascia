@@ -1,13 +1,11 @@
 package task
 
 import (
+	"../../modules/hub"
 	"../db"
 	"../repository"
 	"database/sql"
 	"fmt"
-
-	"github.com/google/go-github/github"
-	"golang.org/x/oauth2"
 )
 
 type Task interface {
@@ -17,16 +15,17 @@ type Task interface {
 type TaskStruct struct {
 	Id       int64
 	ListId   int64
+	UserId   int64
 	Title    sql.NullString
 	database db.DB
 }
 
-func NewTask(id int64, listID int64, title string) *TaskStruct {
+func NewTask(id int64, listID int64, userID int64, title string) *TaskStruct {
 	if listID == 0 {
 		return nil
 	}
 	nullTitle := sql.NullString{String: title, Valid: true}
-	task := &TaskStruct{Id: id, ListId: listID, Title: nullTitle}
+	task := &TaskStruct{Id: id, ListId: listID, UserId: userID, Title: nullTitle}
 	task.Initialize()
 	return task
 }
@@ -37,11 +36,11 @@ func FindTask(listID int64, taskID int64) *TaskStruct {
 	table := interfaceDB.Init()
 	defer table.Close()
 
-	var id, listId int64
+	var id, listId, userId int64
 	var title string
-	rows, _ := table.Query("select id, list_id, title from tasks where id = ? AND list_id = ?;", taskID, listID)
+	rows, _ := table.Query("select id, list_id, user_id, title from tasks where id = ? AND list_id = ?;", taskID, listID)
 	for rows.Next() {
-		err := rows.Scan(&id, &listId, &title)
+		err := rows.Scan(&id, &listId, &userId, &title)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -50,7 +49,7 @@ func FindTask(listID int64, taskID int64) *TaskStruct {
 		fmt.Printf("cannot find task or list did not contain task: %v\n", taskID)
 		return nil
 	} else {
-		task := NewTask(id, listId, title)
+		task := NewTask(id, listId, userId, title)
 		return task
 	}
 }
@@ -61,7 +60,7 @@ func (u *TaskStruct) Initialize() {
 	u.database = interfaceDB
 }
 
-func (u *TaskStruct) Save() bool {
+func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.NullString) bool {
 	table := u.database.Init()
 	defer table.Close()
 	transaction, _ := table.Begin()
@@ -70,14 +69,38 @@ func (u *TaskStruct) Save() bool {
 			transaction.Rollback()
 		}
 	}()
+
 	// display_indexを自動挿入する
 	count := 0
 	err := transaction.QueryRow("SELECT COUNT(id) FROM tasks WHERE list_id = ?;", u.ListId).Scan(&count)
 	result, err := transaction.Exec("insert into tasks (list_id, title, display_index, created_at) values (?, ?, ?, now());", u.ListId, u.Title, count+1)
+	var listTitle, listColor sql.NullString
+	err = transaction.QueryRow("select title, color from lists where id = ?;", u.ListId).Scan(&listTitle, &listColor)
 	if err != nil {
 		transaction.Rollback()
 		return false
 	}
+
+	if OauthToken != nil && OauthToken.Valid && repo != nil {
+		token := OauthToken.String
+		label := hub.CheckLabelPresent(token, repo, &listTitle.String)
+		// もしラベルがなかった場合は作っておく
+		// 色が違っていてもアップデートは不要，それは編集でやってくれ
+		if label == nil {
+			label = hub.CreateGithubLabel(token, repo, &listTitle.String, &listColor.String)
+			if label == nil {
+				transaction.Rollback()
+				return false
+			}
+		}
+		// issueを作る
+		issue := hub.CreateGithubIssue(token, repo, []string{*label.Name}, &u.Title.String)
+		if issue == nil {
+			transaction.Rollback()
+			return false
+		}
+	}
+
 	err = transaction.Commit()
 	if err != nil {
 		transaction.Rollback()
@@ -85,30 +108,6 @@ func (u *TaskStruct) Save() bool {
 	}
 	u.Id, _ = result.LastInsertId()
 	return true
-}
-
-func (u *TaskStruct) CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels []string) *github.Issue {
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(oauth2.NoContext, ts)
-	client := github.NewClient(tc)
-
-	// TODO: description実装時にはbodyにdescriptionを入れる
-	description := ""
-	issueRequest := &github.IssueRequest{
-		Title:  &u.Title.String,
-		Body:   &description,
-		Labels: &labels,
-	}
-
-	githubIssue, _, err := client.Issues.Create(repo.Owner.String, repo.Name.String, issueRequest)
-	if err != nil {
-		panic(err.Error())
-		return nil
-	}
-	fmt.Printf("github issue created: %+v\n", githubIssue)
-	return githubIssue
 }
 
 // lastに追加する場合にはprevToTaskIdをnullで渡す

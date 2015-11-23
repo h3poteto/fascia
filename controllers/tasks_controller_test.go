@@ -23,6 +23,7 @@ var _ = Describe("TasksController", func() {
 		ts        *httptest.Server
 		currentdb string
 		projectId int64
+		userId    int64
 		listId    int64
 	)
 	BeforeEach(func() {
@@ -46,7 +47,7 @@ var _ = Describe("TasksController", func() {
 		os.Setenv("DB_NAME", currentdb)
 	})
 	JustBeforeEach(func() {
-		LoginFaker(ts, "tasks@example.com", "hogehoge")
+		userId = LoginFaker(ts, "tasks@example.com", "hogehoge")
 		// projectを作っておく
 		values := url.Values{}
 		values.Add("title", "projectTitle")
@@ -116,10 +117,10 @@ var _ = Describe("TasksController", func() {
 			newList *list.ListStruct
 		)
 		JustBeforeEach(func() {
-			newList = list.NewList(0, projectId, "list2", "")
-			newList.Save()
-			newTask = task.NewTask(0, listId, "taskTitle")
-			newTask.Save()
+			newList = list.NewList(0, projectId, userId, "list2", "")
+			newList.Save(nil, nil)
+			newTask = task.NewTask(0, listId, userId, "taskTitle")
+			newTask.Save(nil, nil)
 		})
 		It("タスクの所属するリストが変更されること", func() {
 			values := url.Values{}

@@ -74,29 +74,10 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Printf("post new list parameter: %+v\n", newListForm)
-	list := listModel.NewList(0, projectID, newListForm.Title, newListForm.Color)
+	list := listModel.NewList(0, projectID, current_user.Id, newListForm.Title, newListForm.Color)
 
-	// github同期処理
 	repo := parentProject.Repository()
-	if current_user.OauthToken.Valid && repo != nil {
-		token := current_user.OauthToken.String
-		label := list.CheckLabelPresent(token, repo)
-		if label == nil {
-			// そもそも既に存在しているなんてことはあまりないのでは
-			label = list.CreateGithubLabel(token, repo)
-			if label == nil {
-				http.Error(w, "failed create github label", 500)
-				return
-			}
-		} else {
-			label = list.UpdateGithubLabel(token, repo)
-			if label == nil {
-				http.Error(w, "failed update github label", 500)
-				return
-			}
-		}
-	}
-	if !list.Save() {
+	if !list.Save(repo, &current_user.OauthToken) {
 		http.Error(w, "failed save", 500)
 		return
 	}
@@ -139,29 +120,9 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	targetList.Title = sql.NullString{String: editListForm.Title, Valid: true}
 	targetList.Color = sql.NullString{String: editListForm.Color, Valid: true}
 
-	// github同期処理
 	repo := parentProject.Repository()
-	if current_user.OauthToken.Valid && repo != nil {
-		token := current_user.OauthToken.String
-		fmt.Printf("repository: %+v\n", repo)
-		label := targetList.CheckLabelPresent(token, repo)
-		fmt.Printf("find label: %+v\n", label)
-		if label == nil {
-			// editの場合はほとんどここには入らない
-			label = targetList.CreateGithubLabel(token, repo)
-			if label == nil {
-				http.Error(w, "failed create github label", 500)
-				return
-			}
-		} else {
-			label = targetList.UpdateGithubLabel(token, repo)
-			if label == nil {
-				http.Error(w, "failed update github label", 500)
-				return
-			}
-		}
-	}
-	if !targetList.Update() {
+
+	if !targetList.Update(repo, &current_user.OauthToken) {
 		http.Error(w, "save failed", 500)
 		return
 	}

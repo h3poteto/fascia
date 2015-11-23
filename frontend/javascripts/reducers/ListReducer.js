@@ -73,14 +73,19 @@ export default function ListReducer(state = initState, action) {
     });
   case listActions.RECEIVE_LISTS:
   case listActions.RECEIVE_MOVE_TASK:
-    var lists = action.lists.map(function(list, index) {
-      if (list.ListTasks == null) {
-        list.ListTasks = [];
-        return list;
-      } else {
-        return list;
-      }
-    });
+    var lists;
+    if (action.lists == null) {
+      lists = [];
+    } else {
+      lists = action.lists.map(function(list, index) {
+        if (list.ListTasks == null) {
+          list.ListTasks = [];
+          return list;
+        } else {
+          return list;
+        }
+      });
+    }
     return Object.assign({}, state, {
       lists: lists
     });

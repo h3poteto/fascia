@@ -1,12 +1,12 @@
 package project_test
 
 import (
-	"os"
-	"database/sql"
 	"../db"
+	"../list"
 	. "../project"
 	"../user"
-	"../list"
+	"database/sql"
+	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -15,9 +15,9 @@ import (
 var _ = Describe("Project", func() {
 	var (
 		newProject *ProjectStruct
-		currentdb string
-		uid int64
-		table *sql.DB
+		currentdb  string
+		uid        int64
+		table      *sql.DB
 	)
 
 	BeforeEach(func() {
@@ -74,7 +74,7 @@ var _ = Describe("Project", func() {
 
 	Describe("Lists", func() {
 		var (
-			newList *list.ListStruct
+			newList    *list.ListStruct
 			newProject *ProjectStruct
 		)
 
@@ -85,8 +85,8 @@ var _ = Describe("Project", func() {
 
 			newProject = NewProject(0, user_id, "project title", "project desc")
 			_ = newProject.Save()
-			newList = list.NewList(0, newProject.Id, "list title", "")
-			_ = newList.Save()
+			newList = list.NewList(0, newProject.Id, newProject.UserId.Int64, "list title", "")
+			_ = newList.Save(nil, nil)
 		})
 		It("プロジェクトとリストが関連づいていること", func() {
 			lists := newProject.Lists()

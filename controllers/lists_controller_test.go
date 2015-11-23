@@ -22,6 +22,7 @@ var _ = Describe("ListsController", func() {
 		ts        *httptest.Server
 		currentdb string
 		projectId int64
+		userId    int64
 	)
 	BeforeEach(func() {
 		m := web.New()
@@ -43,7 +44,7 @@ var _ = Describe("ListsController", func() {
 		os.Setenv("DB_NAME", currentdb)
 	})
 	JustBeforeEach(func() {
-		LoginFaker(ts, "lists@example.com", "hogehoge")
+		userId = LoginFaker(ts, "lists@example.com", "hogehoge")
 		// projectを作っておく
 		values := url.Values{}
 		values.Add("title", "projectTitle")
@@ -85,8 +86,8 @@ var _ = Describe("ListsController", func() {
 			err error
 		)
 		JustBeforeEach(func() {
-			newList := list.NewList(0, projectId, "listTitle", "")
-			newList.Save()
+			newList := list.NewList(0, projectId, userId, "listTitle", "")
+			newList.Save(nil, nil)
 			values := url.Values{}
 			values.Add("title", "newListTitle")
 			res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists/"+strconv.FormatInt(newList.Id, 10), values)

@@ -1,18 +1,18 @@
 package user
 
-import(
+import (
 	"../db"
-	"time"
-	"fmt"
-	"errors"
+	"../project"
+	"crypto/rand"
 	"database/sql"
 	"encoding/binary"
-	"crypto/rand"
-	"strconv"
+	"errors"
+	"fmt"
+	"github.com/google/go-github/github"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/oauth2"
-	"github.com/google/go-github/github"
-	"../project"
+	"strconv"
+	"time"
 )
 
 type User interface {
@@ -20,15 +20,15 @@ type User interface {
 }
 
 type UserStruct struct {
-	Id int64
-	Email string
-	Password string
-	Provider sql.NullString
+	Id         int64
+	Email      string
+	Password   string
+	Provider   sql.NullString
 	OauthToken sql.NullString
-	Uuid sql.NullInt64
-	UserName sql.NullString
-	Avatar sql.NullString
-	database db.DB
+	Uuid       sql.NullInt64
+	UserName   sql.NullString
+	Avatar     sql.NullString
+	database   db.DB
 }
 
 func randomString() string {
@@ -48,7 +48,6 @@ func hashPassword(password string) ([]byte, error) {
 	return hashPassword, nil
 }
 
-
 func NewUser(id int64, email string, provider sql.NullString, oauthToken sql.NullString, uuid sql.NullInt64, userName sql.NullString, avatar sql.NullString) *UserStruct {
 	user := &UserStruct{Id: id, Email: email, Provider: provider, OauthToken: oauthToken, Uuid: uuid, UserName: userName, Avatar: avatar}
 	user.Initialize()
@@ -60,7 +59,6 @@ func (u *UserStruct) Initialize() {
 	var interfaceDB db.DB = objectDB
 	u.database = interfaceDB
 }
-
 
 func CurrentUser(userID int64) (*UserStruct, error) {
 	user := UserStruct{}
@@ -178,7 +176,7 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 	}
 	user := NewUser(id, email, provider, oauthToken, uuid, userName, avatarURL)
 
- 	if id == 0 {
+	if id == 0 {
 		result := user.CreateGithubUser(token, githubUser, primaryEmail)
 		if !result {
 			return user, errors.New("cannot login")
