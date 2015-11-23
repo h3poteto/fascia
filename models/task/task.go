@@ -2,12 +2,8 @@ package task
 
 import (
 	"../db"
-	"../repository"
 	"database/sql"
 	"fmt"
-
-	"github.com/google/go-github/github"
-	"golang.org/x/oauth2"
 )
 
 type Task interface {
@@ -86,30 +82,6 @@ func (u *TaskStruct) Save() bool {
 	}
 	u.Id, _ = result.LastInsertId()
 	return true
-}
-
-func (u *TaskStruct) CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels []string) *github.Issue {
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(oauth2.NoContext, ts)
-	client := github.NewClient(tc)
-
-	// TODO: description実装時にはbodyにdescriptionを入れる
-	description := ""
-	issueRequest := &github.IssueRequest{
-		Title:  &u.Title.String,
-		Body:   &description,
-		Labels: &labels,
-	}
-
-	githubIssue, _, err := client.Issues.Create(repo.Owner.String, repo.Name.String, issueRequest)
-	if err != nil {
-		panic(err.Error())
-		return nil
-	}
-	fmt.Printf("github issue created: %+v\n", githubIssue)
-	return githubIssue
 }
 
 // lastに追加する場合にはprevToTaskIdをnullで渡す

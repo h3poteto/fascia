@@ -1,14 +1,12 @@
 package list
 
 import (
+	"../../modules/hub"
 	"../db"
 	"../repository"
 	"../task"
 	"database/sql"
 	"fmt"
-
-	"github.com/google/go-github/github"
-	"golang.org/x/oauth2"
 )
 
 type List interface {
@@ -87,17 +85,17 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 
 	if OauthToken != nil && OauthToken.Valid && repo != nil {
 		token := OauthToken.String
-		label := u.CheckLabelPresent(token, repo)
+		label := hub.CheckLabelPresent(u.Id, token, repo)
 		if label == nil {
 			// そもそも既に存在しているなんてことはあまりないのでは
-			label = u.CreateGithubLabel(token, repo)
+			label = hub.CreateGithubLabel(u.Id, token, repo)
 			if label == nil {
 				fmt.Printf("github label create failed\n")
 				tx.Rollback()
 				return false
 			}
 		} else {
-			label = u.UpdateGithubLabel(token, repo)
+			label = hub.UpdateGithubLabel(u.Id, token, repo)
 			if label == nil {
 				fmt.Printf("github label update failed\n")
 				tx.Rollback()
@@ -130,17 +128,17 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	if OauthToken != nil && OauthToken.Valid && repo != nil {
 		token := OauthToken.String
 		fmt.Printf("repository: %+v\n", repo)
-		label := u.CheckLabelPresent(token, repo)
+		label := hub.CheckLabelPresent(u.Id, token, repo)
 		fmt.Printf("find label: %+v\n", label)
 		if label == nil {
 			// editの場合はほとんどここには入らない
-			label = u.CreateGithubLabel(token, repo)
+			label = hub.CreateGithubLabel(u.Id, token, repo)
 			if label == nil {
 				tx.Rollback()
 				return false
 			}
 		} else {
-			label = u.UpdateGithubLabel(token, repo)
+			label = hub.UpdateGithubLabel(u.Id, token, repo)
 			if label == nil {
 				tx.Rollback()
 				return false
@@ -171,62 +169,4 @@ func (u *ListStruct) Tasks() []*task.TaskStruct {
 		}
 	}
 	return slice
-}
-
-func (u *ListStruct) CheckLabelPresent(token string, repo *repository.RepositoryStruct) *github.Label {
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(oauth2.NoContext, ts)
-	client := github.NewClient(tc)
-	githubLabel, response, err := client.Issues.GetLabel(repo.Owner.String, repo.Name.String, u.Title.String)
-	fmt.Printf("get label for github response: %+v\n", response)
-	if err != nil {
-		fmt.Printf("cannot find github label: %v\n", repo.Name.String)
-		return nil
-	}
-	fmt.Printf("github label: %+v\n", githubLabel)
-	return githubLabel
-}
-
-func (u *ListStruct) CreateGithubLabel(token string, repo *repository.RepositoryStruct) *github.Label {
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(oauth2.NoContext, ts)
-	client := github.NewClient(tc)
-
-	label := &github.Label{
-		Name:  &u.Title.String,
-		Color: &u.Color.String,
-	}
-	githubLabel, response, err := client.Issues.CreateLabel(repo.Owner.String, repo.Name.String, label)
-	fmt.Printf("create label for github response: %+v\n", response)
-	if err != nil {
-		panic(err.Error())
-		return nil
-	}
-	fmt.Printf("github label created: %+v\n", githubLabel)
-	return githubLabel
-}
-
-func (u *ListStruct) UpdateGithubLabel(token string, repo *repository.RepositoryStruct) *github.Label {
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(oauth2.NoContext, ts)
-	client := github.NewClient(tc)
-
-	label := &github.Label{
-		Name:  &u.Title.String,
-		Color: &u.Color.String,
-	}
-	githubLabel, response, err := client.Issues.EditLabel(repo.Owner.String, repo.Name.String, u.Title.String, label)
-	fmt.Printf("update label for github response: %+v\n", response)
-	if err != nil {
-		panic(err.Error())
-		return nil
-	}
-	fmt.Printf("github label updated: %+v\n", githubLabel)
-	return githubLabel
 }
