@@ -37,9 +37,14 @@ class ProjectView extends React.Component {
 
   render() {
     const { isModalOpen, newProject, projects, repositories, selectedRepository, error } = this.props.ProjectReducer
+
+    var flash;
+    if (error != null) {
+      flash = <div className="flash flash-error">{error}</div>;
+    }
     return (
       <div id="projects">
-        <div className="flash flash-error">{error}</div>
+        {flash}
         <Modal
           isOpen={isModalOpen}
           onRequestClose={this.props.closeNewProjectModal}

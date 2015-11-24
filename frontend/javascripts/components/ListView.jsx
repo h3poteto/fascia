@@ -33,9 +33,14 @@ export default class ListView extends React.Component {
 
   render() {
     const { isListModalOpen, newList, lists, project, isTaskModalOpen, newTask, selectedList, isListEditModalOpen, taskDraggingFrom, taskDraggingTo, error } = this.props.ListReducer
+
+    var flash;
+    if (error != null) {
+      flash = <div className="flash flash-error">{error}</div>;
+    }
     return (
       <div id="lists">
-        <div className="flash flash-error">{error}</div>
+        {flash}
         <Modal
           isOpen={isListModalOpen}
           onRequestClose={this.props.closeNewListModal}
