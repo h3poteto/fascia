@@ -140,7 +140,13 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 		}
 	}()
 
-	// TODO: リストを移動させるのか同リスト内の並び替えなのかどうかを見て，並び替えならgithub同期したくない
+	// リストを移動させるのか同リスト内の並び替えなのかどうかを見て，並び替えならgithub同期したくない
+	var isReorder bool
+	if listId == u.ListId {
+		isReorder = true
+	} else {
+		isReorder = false
+	}
 
 	var prevToTaskIndex int
 	if prevToTaskId != nil {
@@ -182,7 +188,7 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 		return false
 	}
 
-	if OauthToken != nil && OauthToken.Valid && repo != nil && u.IssueNumber.Valid {
+	if !isReorder && OauthToken != nil && OauthToken.Valid && repo != nil && u.IssueNumber.Valid {
 		token := OauthToken.String
 		var listTitle, listColor sql.NullString
 		err = transaction.QueryRow("select title, color from lists where id = ?;", listId).Scan(&listTitle, &listColor)
