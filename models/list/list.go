@@ -159,17 +159,18 @@ func (u *ListStruct) Tasks() []*task.TaskStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	rows, _ := table.Query("select id, list_id, user_id, title from tasks where list_id = ? order by display_index;", u.Id)
+	rows, _ := table.Query("select id, list_id, user_id, issue_number, title from tasks where list_id = ? order by display_index;", u.Id)
 	var slice []*task.TaskStruct
 	for rows.Next() {
 		var id, listID, userID int64
 		var title sql.NullString
-		err := rows.Scan(&id, &listID, &userID, &title)
+		var issueNumber sql.NullInt64
+		err := rows.Scan(&id, &listID, &userID, &issueNumber, &title)
 		if err != nil {
 			panic(err.Error())
 		}
 		if listID == u.Id && title.Valid {
-			l := task.NewTask(id, listID, userID, title.String)
+			l := task.NewTask(id, listID, userID, issueNumber, title.String)
 			slice = append(slice, l)
 		}
 	}
