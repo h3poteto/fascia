@@ -15,6 +15,13 @@ function serverError() {
   };
 }
 
+export const CLOSE_FLASH = "CLOSE_FLASH";
+export function closeFlash() {
+  return {
+    type: CLOSE_FLASH
+  };
+}
+
 export const OPEN_NEW_LIST = 'PEN_NEW_LIST';
 export function openNewListModal() {
   return {

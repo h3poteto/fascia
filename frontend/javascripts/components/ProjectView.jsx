@@ -35,6 +35,12 @@ class ProjectView extends React.Component {
     this.props.fetchRepositories();
   }
 
+  componentWillReceiveProps(nextProps) {
+    setTimeout(() => {
+      this.props.closeFlash()
+    }, 3000);
+  }
+
   render() {
     const { isModalOpen, newProject, projects, repositories, selectedRepository, error } = this.props.ProjectReducer
 

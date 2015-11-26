@@ -15,6 +15,10 @@ export default function ProjectReducer(state = initState, action) {
     return Object.assign({}, state, {
       error: "Server Error"
     });
+  case projectActions.CLOSE_FLASH:
+    return Object.assign({}, state, {
+      error: null
+    });
   case projectActions.REQUEST_POSTS:
     return state;
   case projectActions.RECEIVE_POSTS:

@@ -15,6 +15,13 @@ function serverError() {
   };
 }
 
+export const CLOSE_FLASH = "CLOSE_FLASH";
+export function closeFlash() {
+  return {
+    type: CLOSE_FLASH
+  };
+}
+
 export const REQUEST_POSTS = 'REQUEST_POSTS';
 function requestPosts() {
   return {

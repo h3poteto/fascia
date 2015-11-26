@@ -21,6 +21,10 @@ export default function ListReducer(state = initState, action) {
     return Object.assign({}, state, {
       error: "Server Error"
     });
+  case listActions.CLOSE_FLASH:
+    return Object.assign({}, state, {
+      error: null
+    });
   case listActions.OPEN_NEW_LIST:
   case listActions.CLOSE_NEW_LIST:
     return Object.assign({}, state, {
