@@ -84,7 +84,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Printf("post new task parameter: %+v\n", newTaskForm)
 
-	task := taskModel.NewTask(0, parentList.Id, parentList.UserId, sql.NullInt64{Int64: 0, Valid: false}, newTaskForm.Title)
+	task := taskModel.NewTask(0, parentList.Id, parentList.UserId, sql.NullInt64{}, newTaskForm.Title)
 
 	repo := parentProject.Repository()
 	if !task.Save(repo, &current_user.OauthToken) {
