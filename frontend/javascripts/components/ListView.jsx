@@ -31,10 +31,22 @@ export default class ListView extends React.Component {
     this.props.fetchProject(this.props.params.projectId);
   }
 
+  componentWillReceiveProps(nextProps) {
+    setTimeout(() => {
+      this.props.closeFlash()
+    }, 3000);
+  }
+
   render() {
-    const { isListModalOpen, newList, lists, project, isTaskModalOpen, newTask, selectedList, isListEditModalOpen, taskDraggingFrom, taskDraggingTo } = this.props.ListReducer
+    const { isListModalOpen, newList, lists, project, isTaskModalOpen, newTask, selectedList, isListEditModalOpen, taskDraggingFrom, taskDraggingTo, error } = this.props.ListReducer
+
+    var flash;
+    if (error != null) {
+      flash = <div className="flash flash-error">{error}</div>;
+    }
     return (
       <div id="lists">
+        {flash}
         <Modal
           isOpen={isListModalOpen}
           onRequestClose={this.props.closeNewListModal}

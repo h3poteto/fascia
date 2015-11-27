@@ -11,11 +11,20 @@ const initState = {
   project: null,
   isTaskDraggingOver: false,
   taskDraggingFrom: null,
-  taskDraggingTo: null
+  taskDraggingTo: null,
+  error: null
 };
 
 export default function ListReducer(state = initState, action) {
   switch(action.type) {
+  case listActions.SERVER_ERROR:
+    return Object.assign({}, state, {
+      error: "Server Error"
+    });
+  case listActions.CLOSE_FLASH:
+    return Object.assign({}, state, {
+      error: null
+    });
   case listActions.OPEN_NEW_LIST:
   case listActions.CLOSE_NEW_LIST:
     return Object.assign({}, state, {

@@ -8,6 +8,20 @@ function unauthorized() {
   };
 }
 
+export const SERVER_ERROR = 'SERVER_ERROR';
+function serverError() {
+  return {
+    type: SERVER_ERROR
+  };
+}
+
+export const CLOSE_FLASH = "CLOSE_FLASH";
+export function closeFlash() {
+  return {
+    type: CLOSE_FLASH
+  };
+}
+
 export const OPEN_NEW_LIST = 'PEN_NEW_LIST';
 export function openNewListModal() {
   return {
@@ -123,6 +137,8 @@ export function fetchLists(projectId) {
           dispatch(receiveLists(res.body));
         } else if (res.unauthorized) {
           dispatch(unauthorized());
+        } else {
+          dispatch(serverError());
         }
       });
   };
@@ -153,6 +169,8 @@ export function fetchProject(projectId) {
           dispatch(receiveProject(res.body));
         } else if (res.unauthorized) {
           dispatch(unauthorized());
+        } else {
+          dispatch(serverError());
         }
       });
   };
@@ -186,6 +204,8 @@ export function fetchCreateList(projectId, title, color) {
           dispatch(receiveCreateList(res.body));
         } else if (res.unauthorized) {
           dispatch(unauthorized());
+        } else {
+          dispatch(serverError());
         }
       });
   };
@@ -218,6 +238,8 @@ export function fetchCreateTask(projectId, listId, title) {
           dispatch(receiveCreateTask(res.body));
         } else if (res.unauthorized) {
           dispatch(unauthorized());
+        } else {
+          dispatch(serverError());
         }
       });
   };
@@ -250,6 +272,8 @@ export function fetchUpdateList(projectId, list) {
           dispatch(receiveUpdateList(res.body));
         } else if (res.unauthorized) {
           dispatch(unauthorized());
+        } else {
+          dispatch(serverError());
         }
       });
   };
@@ -329,6 +353,9 @@ export function taskDrop(projectId, taskDraggingFrom, taskDraggingTo) {
             dispatch(receiveMoveTask(res.body));
           } else if(res.unauthorized) {
             dispatch(unauthorized());
+          } else {
+            // TODO: ここはドラッグしたviewを元に戻す必要がある
+            dispatch(serverError());
           }
         });
     };
