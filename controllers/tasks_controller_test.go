@@ -5,6 +5,7 @@ import (
 	"../models/db"
 	"../models/list"
 	"../models/task"
+	"database/sql"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -119,7 +120,7 @@ var _ = Describe("TasksController", func() {
 		JustBeforeEach(func() {
 			newList = list.NewList(0, projectId, userId, "list2", "")
 			newList.Save(nil, nil)
-			newTask = task.NewTask(0, listId, userId, "taskTitle")
+			newTask = task.NewTask(0, listId, userId, sql.NullInt64{}, "taskTitle")
 			newTask.Save(nil, nil)
 		})
 		It("タスクの所属するリストが変更されること", func() {

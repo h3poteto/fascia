@@ -115,3 +115,20 @@ func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels [
 	fmt.Printf("github issue created: %+v\n", githubIssue)
 	return githubIssue
 }
+
+func ReplaceLabelsForIssue(token string, repo *repository.RepositoryStruct, number int64, labels []string) bool {
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(oauth2.NoContext, ts)
+	client := github.NewClient(tc)
+
+	issueNumber := int(number)
+	_, _, err := client.Issues.ReplaceLabelsForIssue(repo.Owner.String, repo.Name.String, issueNumber, labels)
+	if err != nil {
+		panic(err.Error())
+		return false
+	}
+	fmt.Printf("github issue replaced labels: %+v\n", labels)
+	return true
+}

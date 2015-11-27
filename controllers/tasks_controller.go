@@ -4,6 +4,7 @@ import (
 	listModel "../models/list"
 	projectModel "../models/project"
 	taskModel "../models/task"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"github.com/goji/param"
@@ -83,7 +84,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Printf("post new task parameter: %+v\n", newTaskForm)
 
-	task := taskModel.NewTask(0, parentList.Id, parentList.UserId, newTaskForm.Title)
+	task := taskModel.NewTask(0, parentList.Id, parentList.UserId, sql.NullInt64{}, newTaskForm.Title)
 
 	repo := parentProject.Repository()
 	if !task.Save(repo, &current_user.OauthToken) {
@@ -136,7 +137,9 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 	if moveTaskFrom.PrevToTaskId != 0 {
 		prevToTaskId = &moveTaskFrom.PrevToTaskId
 	}
-	if !task.ChangeList(moveTaskFrom.ToListId, prevToTaskId) {
+
+	repo := parentProject.Repository()
+	if !task.ChangeList(moveTaskFrom.ToListId, prevToTaskId, repo, &current_user.OauthToken) {
 		http.Error(w, "failed change list", 500)
 		return
 	}
