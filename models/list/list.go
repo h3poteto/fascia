@@ -94,11 +94,8 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 				return false
 			}
 		} else {
-			// createしようとしたときに存在している場合，それはgithub側からの同期が失敗しているから
-			// だとするならここは素直にエラーにして，同期処理でエラーが出ないようにしておかないと連鎖バグになる可能性が高い
+			// createしようとしたときに存在している場合，それはあまり気にしなくて良い．むしろこれで同等の状態になる
 			fmt.Printf("github label already exist\n")
-			tx.Rollback()
-			return false
 		}
 	}
 	tx.Commit()

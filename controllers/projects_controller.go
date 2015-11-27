@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	listModel "../models/list"
 	projectModel "../models/project"
 	repositoryModel "../models/repository"
 	"encoding/json"
@@ -79,9 +80,22 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "save failed", 500)
 		return
 	}
+
+	// 初期リストを作っておく
+	todo := listModel.NewList(0, project.Id, current_user.Id, "ToDo", "ff0000")
+	inprogress := listModel.NewList(0, project.Id, current_user.Id, "InProgress", "0000ff")
+	done := listModel.NewList(0, project.Id, current_user.Id, "Done", "0a0a0a")
 	if newProjectForm.RepositoryID != 0 {
 		repository := repositoryModel.NewRepository(0, project.Id, newProjectForm.RepositoryID, newProjectForm.RepositoryOwner, newProjectForm.RepositoryName)
 		repository.Save()
+		todo.Save(repository, &current_user.OauthToken)
+		inprogress.Save(repository, &current_user.OauthToken)
+		done.Save(repository, &current_user.OauthToken)
+	} else {
+		todo.Save(nil, nil)
+		inprogress.Save(nil, nil)
+		done.Save(nil, nil)
 	}
+
 	encoder.Encode(*project)
 }
