@@ -7,6 +7,7 @@ import (
 	"../repository"
 	"../task"
 	"database/sql"
+	"errors"
 )
 
 type Project interface {
@@ -116,7 +117,7 @@ func (u *ProjectStruct) Repository() *repository.RepositoryStruct {
 	return nil
 }
 
-func (u *ProjectStruct) FetchGithub() bool {
+func (u *ProjectStruct) FetchGithub() (bool, error) {
 	table := u.database.Init()
 	defer table.Close()
 
@@ -126,29 +127,31 @@ func (u *ProjectStruct) FetchGithub() bool {
 		panic(err.Error())
 	}
 	if !oauthToken.Valid {
-		return false
+		return false, errors.New("oauth token is required")
 	}
 	openIssues, closedIssues := hub.GetGithubIssues(oauthToken.String, u.Repository())
+	var openList, closedList *list.ListStruct
+	for _, list := range u.Lists() {
+		// openとcloseのリストは用意しておく
+		if list.Title.Valid && list.Title.String == "ToDo" {
+			openList = list
+		} else if list.Title.Valid && list.Title.String == "Done" {
+			closedList = list
+		}
+	}
 
 	for _, issue := range append(openIssues, closedIssues...) {
 		var githubLabels []list.ListStruct
-		var openList, closedList *list.ListStruct
 		for _, label := range issue.Labels {
 			for _, list := range u.Lists() {
-				// openとcloseのリストは用意しておく
-				if list.Title.Valid && list.Title.String == "ToDo" {
-					openList = list
-				} else if list.Title.Valid && list.Title.String == "Done" {
-					closedList = list
-				}
 				// 紐付いているlabelのlistを持っている時
 				if list.Title.Valid && list.Title.String == *label.Name {
 					githubLabels = append(githubLabels, *list)
 				}
 			}
 		}
-		issueTask := task.FindByIssueNumber(*issue.Number)
-		if issueTask == nil {
+		issueTask, err := task.FindByIssueNumber(*issue.Number)
+		if err != nil {
 			issueTask = task.NewTask(0, 0, u.UserId.Int64, sql.NullInt64{Int64: int64(*issue.Number), Valid: true}, *issue.Title)
 		}
 		if len(githubLabels) == 1 {
@@ -163,6 +166,9 @@ func (u *ProjectStruct) FetchGithub() bool {
 				issueTask.ListId = openList.Id
 			} else if closedList != nil {
 				issueTask.ListId = closedList.Id
+			} else {
+				// openやcloseが用意できていない場合なので，想定外
+				return false, errors.New("cannot find ToDo or Done list")
 			}
 		}
 		// ここはgithub側への同期不要
@@ -173,5 +179,5 @@ func (u *ProjectStruct) FetchGithub() bool {
 		}
 	}
 
-	return true
+	return true, nil
 }

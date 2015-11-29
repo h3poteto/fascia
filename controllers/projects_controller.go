@@ -99,3 +99,27 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	encoder.Encode(*project)
 }
+
+func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	current_user, result := LoginRequired(r)
+	encoder := json.NewEncoder(w)
+	if !result {
+		http.Error(w, "not logined", 401)
+		return
+	}
+	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	project := projectModel.FindProject(projectID)
+	if project == nil && project.UserId.Int64 != current_user.Id {
+		http.Error(w, "project not found", 404)
+		return
+	}
+	_, err := project.FetchGithub()
+	if err != nil {
+		http.Error(w, "failed fetch github", 500)
+		return
+	} else {
+		encoder.Encode("success")
+		return
+	}
+}
