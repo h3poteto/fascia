@@ -1,9 +1,11 @@
 package project
 
 import (
+	"../../modules/hub"
 	"../db"
 	"../list"
 	"../repository"
+	"../task"
 	"database/sql"
 )
 
@@ -112,4 +114,64 @@ func (u *ProjectStruct) Repository() *repository.RepositoryStruct {
 		}
 	}
 	return nil
+}
+
+func (u *ProjectStruct) FetchGithub() bool {
+	table := u.database.Init()
+	defer table.Close()
+
+	var oauthToken sql.NullString
+	err := table.QueryRow("select users.oauth_token from projects left join users on users.id = projects.user_id where projects.id = ?;", u.Id).Scan(&oauthToken)
+	if err != nil {
+		panic(err.Error())
+	}
+	if !oauthToken.Valid {
+		return false
+	}
+	openIssues, closedIssues := hub.GetGithubIssues(oauthToken.String, u.Repository())
+
+	for _, issue := range append(openIssues, closedIssues...) {
+		var githubLabels []list.ListStruct
+		var openList, closedList *list.ListStruct
+		for _, label := range issue.Labels {
+			for _, list := range u.Lists() {
+				// openとcloseのリストは用意しておく
+				if list.Title.Valid && list.Title.String == "ToDo" {
+					openList = list
+				} else if list.Title.Valid && list.Title.String == "Done" {
+					closedList = list
+				}
+				// 紐付いているlabelのlistを持っている時
+				if list.Title.Valid && list.Title.String == *label.Name {
+					githubLabels = append(githubLabels, *list)
+				}
+			}
+		}
+		issueTask := task.FindByIssueNumber(*issue.Number)
+		if issueTask == nil {
+			issueTask = task.NewTask(0, 0, u.UserId.Int64, sql.NullInt64{Int64: int64(*issue.Number), Valid: true}, *issue.Title)
+		}
+		if len(githubLabels) == 1 {
+			// 一つのlistだけが該当するとき
+			issueTask.ListId = githubLabels[0].Id
+		} else if len(githubLabels) > 1 {
+			// 複数のlistが該当するとき
+			issueTask.ListId = githubLabels[0].Id
+		} else {
+			// ついているlabelのlistを持ってない時
+			if *issue.State == "open" && openList != nil {
+				issueTask.ListId = openList.Id
+			} else if closedList != nil {
+				issueTask.ListId = closedList.Id
+			}
+		}
+		// ここはgithub側への同期不要
+		if issueTask.Id == 0 {
+			issueTask.Save(nil, nil)
+		} else {
+			issueTask.Update(nil, nil)
+		}
+	}
+
+	return true
 }

@@ -53,6 +53,28 @@ func FindTask(listID int64, taskID int64) *TaskStruct {
 	}
 }
 
+func FindByIssueNumber(issueNumber int) *TaskStruct {
+	objectDB := &db.Database{}
+	var interfaceDB db.DB = objectDB
+	table := interfaceDB.Init()
+	defer table.Close()
+
+	var id, listId, userId int64
+	var title string
+	var number sql.NullInt64
+	err := table.QueryRow("select id, list_id, user_id, issue_number, title from tasks where issue_number = ?;", issueNumber).Scan(&id, &listId, &userId, &number, &title)
+	if err != nil {
+		panic(err.Error())
+	}
+	if !number.Valid || number.Int64 != int64(issueNumber) {
+		fmt.Printf("cannot find task issue number: %v\n", issueNumber)
+		return nil
+	} else {
+		task := NewTask(id, listId, userId, number, title)
+		return task
+	}
+}
+
 func (u *TaskStruct) Initialize() {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
@@ -124,6 +146,18 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		return false
 	}
 	u.Id, _ = result.LastInsertId()
+	return true
+}
+
+func (u *TaskStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.NullString) bool {
+	table := u.database.Init()
+	defer table.Close()
+
+	_, err := table.Exec("update tasks set list_id = ?, issue_number = ?, title = ? where id = ?;", u.ListId, u.IssueNumber, u.Title, u.Id)
+	if err != nil {
+		fmt.Printf("update error: %+v\n", err)
+		return false
+	}
 	return true
 }
 
