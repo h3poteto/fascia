@@ -393,3 +393,36 @@ export function taskDragOver(ev) {
     taskDragToList: targetList
   };
 }
+
+export const REQUEST_FETCH_GITHUB = "REQUEST_FETCH_GITHUB";
+function requestFetchGithub() {
+  return {
+    type: REQUEST_FETCH_GITHUB
+  };
+}
+
+export const RECEIVE_FETCH_GITHUB = "RECEIVE_FETCH_GITHUB";
+function receiveFetchGithub(lists) {
+  return {
+    type: RECEIVE_FETCH_GITHUB,
+    lists: lists
+  };
+}
+
+export const FETCH_PROJECT_GITHUB = "FETCH_PROJECT_GITHUB";
+export function fetchProjectGithub(projectId) {
+  return dispatch => {
+    dispatch(requestFetchGithub());
+    return Request
+      .post(`/projects/${projectId}/fetch_github`)
+      .end((err, res) => {
+        if (res.ok) {
+          dispatch(receiveFetchGithub(res.body));
+        } else if(res.unauthorized) {
+          dispatch(unauthorized());
+        } else {
+          dispatch(serverError());
+        }
+      });
+  };
+}

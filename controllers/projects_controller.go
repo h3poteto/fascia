@@ -119,7 +119,11 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "failed fetch github", 500)
 		return
 	} else {
-		encoder.Encode("success")
+		lists := project.Lists()
+		for _, l := range lists {
+			l.ListTasks = l.Tasks()
+		}
+		encoder.Encode(lists)
 		return
 	}
 }
