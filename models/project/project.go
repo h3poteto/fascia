@@ -180,16 +180,19 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		}
 	}
 	// github側へ同期
-	rows, err := table.Query("select title, color from lists where user_id = ? and issue_number IS NULL;", u.UserId)
+	rows, err := table.Query("select tasks.title, lists.title, lists.color from tasks left join lists on lists.id = tasks.list_id where tasks.user_id = ? and tasks.issue_number IS NULL;", u.UserId)
+	if err != nil {
+		return false, err
+	}
 	for rows.Next() {
-		var title, color sql.NullString
-		err := rows.Scan(&title, &color)
+		var title, listTitle, listColor sql.NullString
+		err := rows.Scan(&title, &listTitle, &listColor)
 		if err != nil {
 			panic(err.Error())
 		}
-		label := hub.CheckLabelPresent(oauthToken.String, repo, &title.String)
+		label := hub.CheckLabelPresent(oauthToken.String, repo, &listTitle.String)
 		if label == nil {
-			label = hub.CreateGithubLabel(oauthToken.String, repo, &title.String, &color.String)
+			label = hub.CreateGithubLabel(oauthToken.String, repo, &listTitle.String, &listColor.String)
 			if label == nil {
 				return false, errors.New("cannot create github label")
 			}
