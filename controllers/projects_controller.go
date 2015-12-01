@@ -116,7 +116,7 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 	}
 	_, err := project.FetchGithub()
 	if err != nil {
-		http.Error(w, "failed fetch github", 500)
+		http.Error(w, err.Error(), 500)
 		return
 	} else {
 		lists := project.Lists()

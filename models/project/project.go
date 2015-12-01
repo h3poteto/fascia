@@ -129,7 +129,8 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 	if !oauthToken.Valid {
 		return false, errors.New("oauth token is required")
 	}
-	openIssues, closedIssues := hub.GetGithubIssues(oauthToken.String, u.Repository())
+	repo := u.Repository()
+	openIssues, closedIssues := hub.GetGithubIssues(oauthToken.String, repo)
 	var openList, closedList *list.ListStruct
 	for _, list := range u.Lists() {
 		// openとcloseのリストは用意しておく
@@ -176,6 +177,26 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 			issueTask.Save(nil, nil)
 		} else {
 			issueTask.Update(nil, nil)
+		}
+	}
+	// github側へ同期
+	rows, err := table.Query("select title, color from lists where user_id = ? and issue_number IS NULL;", u.UserId)
+	for rows.Next() {
+		var title, color sql.NullString
+		err := rows.Scan(&title, &color)
+		if err != nil {
+			panic(err.Error())
+		}
+		label := hub.CheckLabelPresent(oauthToken.String, repo, &title.String)
+		if label == nil {
+			label = hub.CreateGithubLabel(oauthToken.String, repo, &title.String, &color.String)
+			if label == nil {
+				return false, errors.New("cannot create github label")
+			}
+		}
+		issue := hub.CreateGithubIssue(oauthToken.String, repo, []string{*label.Name}, &title.String)
+		if issue == nil {
+			return false, errors.New("cannot create github issue")
 		}
 	}
 
