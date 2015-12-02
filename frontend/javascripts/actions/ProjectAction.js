@@ -130,11 +130,16 @@ function receiveCreateProject(id, userId, title, description) {
 export function fetchCreateProject(title, description, repository) {
   return dispatch => {
     dispatch(requestCreateProject());
-    console.log(repository);
+    var repositoryId, repositoryOwner, repositoryName;
+    if (repository != null) {
+      repositoryId = repository.id;
+      repositoryOwner = repository.owner.login;
+      repositoryName = repository.name;
+    }
     return Request
       .post('/projects')
       .type('form')
-      .send({title: title, description: description, repositoryId: repository.id, repositoryOwner: repository.owner.login, repositoryName: repository.name})
+      .send({title: title, description: description, repositoryId: repositoryId, repositoryOwner: repositoryOwner, repositoryName: repositoryName})
       .end((err, res)=> {
         if (res.ok) {
           dispatch(receiveCreateProject(res.body.Id, res.body.UserId, res.body.Title, res.body.Description));

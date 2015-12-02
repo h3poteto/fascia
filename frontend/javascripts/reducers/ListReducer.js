@@ -81,6 +81,7 @@ export default function ListReducer(state = initState, action) {
       newTask: newTask
     });
   case listActions.RECEIVE_LISTS:
+  case listActions.RECEIVE_FETCH_GITHUB:
   case listActions.RECEIVE_MOVE_TASK:
     var lists;
     if (action.lists == null) {

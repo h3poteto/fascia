@@ -132,3 +132,25 @@ func ReplaceLabelsForIssue(token string, repo *repository.RepositoryStruct, numb
 	fmt.Printf("github issue replaced labels: %+v\n", labels)
 	return true
 }
+
+func GetGithubIssues(token string, repo *repository.RepositoryStruct) ([]github.Issue, []github.Issue) {
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(oauth2.NoContext, ts)
+	client := github.NewClient(tc)
+
+	openIssueOption := github.IssueListByRepoOptions{
+		State: "open",
+	}
+	closedIssueOption := github.IssueListByRepoOptions{
+		State: "closed",
+	}
+	opneIssues, _, err := client.Issues.ListByRepo(repo.Owner.String, repo.Name.String, &openIssueOption)
+	if err != nil {
+		panic(err.Error())
+	}
+	closedIssues, _, err := client.Issues.ListByRepo(repo.Owner.String, repo.Name.String, &closedIssueOption)
+
+	return opneIssues, closedIssues
+}

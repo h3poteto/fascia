@@ -5,6 +5,7 @@ import (
 	"../db"
 	"../repository"
 	"database/sql"
+	"errors"
 	"fmt"
 )
 
@@ -22,9 +23,6 @@ type TaskStruct struct {
 }
 
 func NewTask(id int64, listID int64, userID int64, issueNumber sql.NullInt64, title string) *TaskStruct {
-	if listID == 0 {
-		return nil
-	}
 	nullTitle := sql.NullString{String: title, Valid: true}
 	task := &TaskStruct{Id: id, ListId: listID, UserId: userID, IssueNumber: issueNumber, Title: nullTitle}
 	task.Initialize()
@@ -53,6 +51,28 @@ func FindTask(listID int64, taskID int64) *TaskStruct {
 	}
 }
 
+func FindByIssueNumber(issueNumber int) (*TaskStruct, error) {
+	objectDB := &db.Database{}
+	var interfaceDB db.DB = objectDB
+	table := interfaceDB.Init()
+	defer table.Close()
+
+	var id, listId, userId int64
+	var title string
+	var number sql.NullInt64
+	err := table.QueryRow("select id, list_id, user_id, issue_number, title from tasks where issue_number = ?;", issueNumber).Scan(&id, &listId, &userId, &number, &title)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+	if !number.Valid || number.Int64 != int64(issueNumber) {
+		fmt.Printf("cannot find task issue number: %v\n", issueNumber)
+		return nil, errors.New("task not found")
+	} else {
+		task := NewTask(id, listId, userId, number, title)
+		return task, nil
+	}
+}
+
 func (u *TaskStruct) Initialize() {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
@@ -73,7 +93,7 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	// display_indexを自動挿入する
 	count := 0
 	err := transaction.QueryRow("SELECT COUNT(id) FROM tasks WHERE list_id = ?;", u.ListId).Scan(&count)
-	result, err := transaction.Exec("insert into tasks (list_id, user_id, title, display_index, created_at) values (?, ?, ?, ?, now());", u.ListId, u.UserId, u.Title, count+1)
+	result, err := transaction.Exec("insert into tasks (list_id, user_id, issue_number, title, display_index, created_at) values (?, ?, ?, ?, ?, now());", u.ListId, u.UserId, u.IssueNumber, u.Title, count+1)
 	if err != nil {
 		fmt.Printf("insert task error: %+v\n", err)
 		transaction.Rollback()
@@ -124,6 +144,18 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		return false
 	}
 	u.Id, _ = result.LastInsertId()
+	return true
+}
+
+func (u *TaskStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.NullString) bool {
+	table := u.database.Init()
+	defer table.Close()
+
+	_, err := table.Exec("update tasks set list_id = ?, issue_number = ?, title = ? where id = ?;", u.ListId, u.IssueNumber, u.Title, u.Id)
+	if err != nil {
+		fmt.Printf("update error: %+v\n", err)
+		return false
+	}
 	return true
 }
 

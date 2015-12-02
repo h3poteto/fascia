@@ -32,9 +32,11 @@ export default class ListView extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    setTimeout(() => {
-      this.props.closeFlash()
-    }, 3000);
+    if (this.props.ListReducer.error != null) {
+      setTimeout(() => {
+        this.props.closeFlash()
+      }, 3000);
+    }
   }
 
   render() {
@@ -106,6 +108,7 @@ export default class ListView extends React.Component {
           </div>
         </Modal>
         <div className="title-wrapper">
+          <div className="project-operation"><i className="fa fa-repeat" onClick={e => this.props.fetchProjectGithub(this.props.params.projectId)}></i></div>
           <h3 className="project-title">{project != null ? project.Title : ''}</h3>
         </div>
         <div className="items">

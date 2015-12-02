@@ -1,10 +1,13 @@
 package project
 
 import (
+	"../../modules/hub"
 	"../db"
 	"../list"
 	"../repository"
+	"../task"
 	"database/sql"
+	"errors"
 )
 
 type Project interface {
@@ -112,4 +115,93 @@ func (u *ProjectStruct) Repository() *repository.RepositoryStruct {
 		}
 	}
 	return nil
+}
+
+func (u *ProjectStruct) FetchGithub() (bool, error) {
+	table := u.database.Init()
+	defer table.Close()
+
+	var oauthToken sql.NullString
+	err := table.QueryRow("select users.oauth_token from projects left join users on users.id = projects.user_id where projects.id = ?;", u.Id).Scan(&oauthToken)
+	if err != nil {
+		panic(err.Error())
+	}
+	if !oauthToken.Valid {
+		return false, errors.New("oauth token is required")
+	}
+	repo := u.Repository()
+	openIssues, closedIssues := hub.GetGithubIssues(oauthToken.String, repo)
+	var openList, closedList *list.ListStruct
+	for _, list := range u.Lists() {
+		// openとcloseのリストは用意しておく
+		if list.Title.Valid && list.Title.String == "ToDo" {
+			openList = list
+		} else if list.Title.Valid && list.Title.String == "Done" {
+			closedList = list
+		}
+	}
+
+	for _, issue := range append(openIssues, closedIssues...) {
+		var githubLabels []list.ListStruct
+		for _, label := range issue.Labels {
+			for _, list := range u.Lists() {
+				// 紐付いているlabelのlistを持っている時
+				if list.Title.Valid && list.Title.String == *label.Name {
+					githubLabels = append(githubLabels, *list)
+				}
+			}
+		}
+		issueTask, err := task.FindByIssueNumber(*issue.Number)
+		if err != nil {
+			issueTask = task.NewTask(0, 0, u.UserId.Int64, sql.NullInt64{Int64: int64(*issue.Number), Valid: true}, *issue.Title)
+		}
+		if len(githubLabels) == 1 {
+			// 一つのlistだけが該当するとき
+			issueTask.ListId = githubLabels[0].Id
+		} else if len(githubLabels) > 1 {
+			// 複数のlistが該当するとき
+			issueTask.ListId = githubLabels[0].Id
+		} else {
+			// ついているlabelのlistを持ってない時
+			if *issue.State == "open" && openList != nil {
+				issueTask.ListId = openList.Id
+			} else if closedList != nil {
+				issueTask.ListId = closedList.Id
+			} else {
+				// openやcloseが用意できていない場合なので，想定外
+				return false, errors.New("cannot find ToDo or Done list")
+			}
+		}
+		// ここはgithub側への同期不要
+		if issueTask.Id == 0 {
+			issueTask.Save(nil, nil)
+		} else {
+			issueTask.Update(nil, nil)
+		}
+	}
+	// github側へ同期
+	rows, err := table.Query("select tasks.title, lists.title, lists.color from tasks left join lists on lists.id = tasks.list_id where tasks.user_id = ? and tasks.issue_number IS NULL;", u.UserId)
+	if err != nil {
+		return false, err
+	}
+	for rows.Next() {
+		var title, listTitle, listColor sql.NullString
+		err := rows.Scan(&title, &listTitle, &listColor)
+		if err != nil {
+			panic(err.Error())
+		}
+		label := hub.CheckLabelPresent(oauthToken.String, repo, &listTitle.String)
+		if label == nil {
+			label = hub.CreateGithubLabel(oauthToken.String, repo, &listTitle.String, &listColor.String)
+			if label == nil {
+				return false, errors.New("cannot create github label")
+			}
+		}
+		issue := hub.CreateGithubIssue(oauthToken.String, repo, []string{*label.Name}, &title.String)
+		if issue == nil {
+			return false, errors.New("cannot create github issue")
+		}
+	}
+
+	return true, nil
 }

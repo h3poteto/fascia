@@ -132,8 +132,9 @@ var _ = Describe("TasksController", func() {
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
-			Expect(contents[0].ListTasks).To(BeEmpty())
-			Expect(contents[1].ListTasks[0].Id).To(Equal(newTask.Id))
+			// 初期リストが入るようになったのでそれ以降
+			Expect(contents[3].ListTasks).To(BeEmpty())
+			Expect(contents[4].ListTasks[0].Id).To(Equal(newTask.Id))
 		})
 	})
 })

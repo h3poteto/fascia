@@ -116,8 +116,9 @@ var _ = Describe("ListsController", func() {
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
-			Expect(contents[0].Title.String).To(Equal("list1"))
-			Expect(contents[1].Title.String).To(Equal("list2"))
+			// 初期リストが入るようになったのでそれ以降
+			Expect(contents[3].Title.String).To(Equal("list1"))
+			Expect(contents[4].Title.String).To(Equal("list2"))
 		})
 	})
 })
