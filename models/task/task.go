@@ -108,20 +108,25 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	}
 	if OauthToken != nil && OauthToken.Valid && repo != nil {
 		token := OauthToken.String
-		label := hub.CheckLabelPresent(token, repo, &listTitle.String)
+		label, err := hub.CheckLabelPresent(token, repo, &listTitle.String)
 		// もしラベルがなかった場合は作っておく
 		// 色が違っていてもアップデートは不要，それは編集でやってくれ
-		if label == nil {
-			label = hub.CreateGithubLabel(token, repo, &listTitle.String, &listColor.String)
-			if label == nil {
+		if err != nil {
+			transaction.Rollback()
+			fmt.Printf("check label error: %+v\n", err.Error())
+			return false
+		} else if label == nil {
+			label, err = hub.CreateGithubLabel(token, repo, &listTitle.String, &listColor.String)
+			if err != nil {
 				transaction.Rollback()
+				fmt.Printf("create label error: %+v\n", err.Error())
 				return false
 			}
 		}
 		// issueを作る
-		issue := hub.CreateGithubIssue(token, repo, []string{*label.Name}, &u.Title.String)
-		if issue == nil {
-			fmt.Printf("issue create failed:%+v\n", issue)
+		issue, err := hub.CreateGithubIssue(token, repo, []string{*label.Name}, &u.Title.String)
+		if err != nil {
+			fmt.Printf("issue create failed:%+v\n", err.Error())
 			transaction.Rollback()
 			return false
 		}
@@ -229,17 +234,22 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 			transaction.Rollback()
 			return false
 		}
-		label := hub.CheckLabelPresent(token, repo, &listTitle.String)
-		if label == nil {
+		label, err := hub.CheckLabelPresent(token, repo, &listTitle.String)
+		if err != nil {
+			transaction.Rollback()
+			fmt.Printf("check label error: %+v\n", err.Error())
+			return false
+		} else if label == nil {
 			// 移動先がない場合はつくろう
-			label = hub.CreateGithubLabel(token, repo, &listTitle.String, &listColor.String)
+			label, err = hub.CreateGithubLabel(token, repo, &listTitle.String, &listColor.String)
 			if label == nil {
 				transaction.Rollback()
 				return false
 			}
 		}
 		// issueを移動
-		if !hub.ReplaceLabelsForIssue(token, repo, u.IssueNumber.Int64, []string{*label.Name}) {
+		result, err := hub.ReplaceLabelsForIssue(token, repo, u.IssueNumber.Int64, []string{*label.Name})
+		if err != nil || !result {
 			transaction.Rollback()
 			return false
 		}
