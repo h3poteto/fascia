@@ -4,6 +4,7 @@ import (
 	listModel "../models/list"
 	projectModel "../models/project"
 	repositoryModel "../models/repository"
+	"../modules/logging"
 	"encoding/json"
 	"fmt"
 	"github.com/goji/param"
@@ -28,6 +29,7 @@ func (u *Projects) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	current_user, result := LoginRequired(r)
 	encoder := json.NewEncoder(w)
 	if !result {
+		logging.SharedInstance().BaseInfo("ProjectsController", "Index").Error("not logined")
 		http.Error(w, "not logined", 401)
 		return
 	}

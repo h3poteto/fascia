@@ -2,6 +2,7 @@ package hub
 
 import (
 	"../../models/repository"
+	"../logging"
 	"errors"
 	"fmt"
 
@@ -23,15 +24,16 @@ func CheckLabelPresent(token string, repo *repository.RepositoryStruct, title *s
 	client := github.NewClient(tc)
 
 	if title == nil {
-		return nil, errors.New("title is require")
+		logging.SharedInstance().BaseInfo("hub", "CheckLabelPresent").Error("title is nil")
+		return nil, errors.New("title is nil")
 	}
 	githubLabel, response, err := client.Issues.GetLabel(repo.Owner.String, repo.Name.String, *title)
-	fmt.Printf("get label for github response: %+v\n", response)
+	logging.SharedInstance().BaseInfo("hub", "CheckLabelPresent").Debugf("respone of geting github label: %+v", response)
 	if err != nil {
-		fmt.Printf("cannot find github label: %v\n", repo.Name.String)
+		logging.SharedInstance().BaseInfo("hub", "CheckLabelPresent").Infof("cannot find github label: %v", repo.Name.String)
 		return nil, nil
 	}
-	fmt.Printf("github label: %+v\n", githubLabel)
+	logging.SharedInstance().BaseInfo("hub", "CheckLabelPresent").Debugf("github label is exist: %+v", githubLabel)
 	return githubLabel, nil
 }
 
@@ -43,6 +45,7 @@ func CreateGithubLabel(token string, repo *repository.RepositoryStruct, title *s
 	client := github.NewClient(tc)
 
 	if title == nil || color == nil {
+		logging.SharedInstance().BaseInfo("hub", "CreateGithubLabel").Error("title or color is nil")
 		return nil, errors.New("title or color is nil")
 	}
 
@@ -51,11 +54,11 @@ func CreateGithubLabel(token string, repo *repository.RepositoryStruct, title *s
 		Color: color,
 	}
 	githubLabel, response, err := client.Issues.CreateLabel(repo.Owner.String, repo.Name.String, label)
-	fmt.Printf("create label for github response: %+v\n", response)
+	logging.SharedInstance().BaseInfo("hub", "CreateGithubLabel").Debugf("response of creating github label: %+v\n", response)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("github label created: %+v\n", githubLabel)
+	logging.SharedInstance().BaseInfo("hub", "CreateGithubLabel").Debugf("github label is created: %+v", githubLabel)
 	return githubLabel, nil
 }
 
@@ -67,6 +70,7 @@ func UpdateGithubLabel(token string, repo *repository.RepositoryStruct, original
 	client := github.NewClient(tc)
 
 	if title == nil || color == nil {
+		logging.SharedInstance().BaseInfo("hub", "UpdateGithubLabel").Error("title or color is nil")
 		return nil, errors.New("title or color is nil")
 	}
 
@@ -75,11 +79,11 @@ func UpdateGithubLabel(token string, repo *repository.RepositoryStruct, original
 		Color: color,
 	}
 	githubLabel, response, err := client.Issues.EditLabel(repo.Owner.String, repo.Name.String, *originalTitle, label)
-	fmt.Printf("update label for github response: %+v\n", response)
+	logging.SharedInstance().BaseInfo("hub", "UpddateGithubLabel").Debugf("response of updating github label: %+v\n", response)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("github label updated: %+v\n", githubLabel)
+	logging.SharedInstance().BaseInfo("hub", "UpdateGithubLabel").Debugf("github label is updated: %+v", githubLabel)
 	return githubLabel, nil
 }
 
@@ -91,6 +95,7 @@ func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels [
 	client := github.NewClient(tc)
 
 	if title == nil {
+		logging.SharedInstance().BaseInfo("hub", "CreateGithubIssue").Error("title is nil")
 		return nil, errors.New("title is nil")
 	}
 
@@ -106,7 +111,7 @@ func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels [
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("github issue created: %+v\n", githubIssue)
+	logging.SharedInstance().BaseInfo("hub", "CreateGithubIssue").Debugf("github issue is created: %+v", githubIssue)
 	return githubIssue, nil
 }
 
@@ -122,7 +127,7 @@ func ReplaceLabelsForIssue(token string, repo *repository.RepositoryStruct, numb
 	if err != nil {
 		return false, err
 	}
-	fmt.Printf("github issue replaced labels: %+v\n", labels)
+	logging.SharedInstance().BaseInfo("hub", "ReplaceLabelsForIssue").Debugf("label of github issue is replaced: %+v", labels)
 	return true, nil
 }
 
