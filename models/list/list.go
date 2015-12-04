@@ -2,11 +2,11 @@ package list
 
 import (
 	"../../modules/hub"
+	"../../modules/logging"
 	"../db"
 	"../repository"
 	"../task"
 	"database/sql"
-	"fmt"
 )
 
 type List interface {
@@ -50,7 +50,7 @@ func FindList(projectID int64, listID int64) *ListStruct {
 		}
 	}
 	if id != listID {
-		fmt.Printf("cannot find list or project did not contain list: %v\n", listID)
+		logging.SharedInstance().MethodInfo("list", "FindList").Errorf("cannot find list or project did not contain list: %v", listID)
 		return nil
 	} else {
 		list := NewList(id, projectId, userId, title.String, color.String)
@@ -71,14 +71,14 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	tx, _ := table.Begin()
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Printf("panic: %+v\n", err)
+			logging.SharedInstance().MethodInfo("list", "Save").Error("unexpected error")
 			tx.Rollback()
 		}
 	}()
 
 	result, err := tx.Exec("insert into lists (project_id, user_id, title, color, created_at) values (?, ?, ?, ?, now());", u.ProjectId, u.UserId, u.Title, u.Color)
 	if err != nil {
-		fmt.Printf("list save error: %+v\n", err)
+		logging.SharedInstance().MethodInfo("project", "Save").Errorf("list save error: %v", err.Error())
 		tx.Rollback()
 		return false
 	}
@@ -88,18 +88,18 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		label, err := hub.CheckLabelPresent(token, repo, &u.Title.String)
 		if err != nil {
 			tx.Rollback()
-			fmt.Printf("check label error: %+v\n", err)
+			logging.SharedInstance().MethodInfo("project", "Save").Errorf("check label error: %v", err.Error())
 			return false
 		} else if label == nil {
 			label, err = hub.CreateGithubLabel(token, repo, &u.Title.String, &u.Color.String)
 			if err != nil {
-				fmt.Printf("github label create failed\n")
+				logging.SharedInstance().MethodInfo("project", "Save").Error("github label create failed")
 				tx.Rollback()
 				return false
 			}
 		} else {
 			// createしようとしたときに存在している場合，それはあまり気にしなくて良い．むしろこれで同等の状態になる
-			fmt.Printf("github label already exist\n")
+			logging.SharedInstance().MethodInfo("project", "Save").Info("github label already exist")
 		}
 	}
 	tx.Commit()
@@ -113,7 +113,7 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	tx, _ := table.Begin()
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Printf("panic: %+v\n", err)
+			logging.SharedInstance().MethodInfo("project", "Update").Error("unexpected error")
 			tx.Rollback()
 		}
 	}()
@@ -126,12 +126,11 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 
 	if OauthToken != nil && OauthToken.Valid && repo != nil {
 		token := OauthToken.String
-		fmt.Printf("repository: %+v\n", repo)
 		// 編集前のラベルがそもそも存在しているかどうかを確認する
 		existLabel, err := hub.CheckLabelPresent(token, repo, &u.Title.String)
-		fmt.Printf("find label: %+v\n", existLabel)
 		if err != nil {
 			tx.Rollback()
+			logging.SharedInstance().MethodInfo("project", "Update").Errorf("check label error: %v", err.Error())
 			return false
 		} else if existLabel == nil {
 			// editの場合ここに入る可能性はほとんどない

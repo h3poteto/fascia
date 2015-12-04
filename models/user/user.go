@@ -8,7 +8,6 @@ import (
 	"database/sql"
 	"encoding/binary"
 	"errors"
-	"fmt"
 	"github.com/google/go-github/github"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/oauth2"
@@ -182,6 +181,7 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 	if id == 0 {
 		result := user.CreateGithubUser(token, githubUser, primaryEmail)
 		if !result {
+			logging.SharedInstance().MethodInfo("user", "FindOrCreateGithub").Error("cannot login")
 			return user, errors.New("cannot login")
 		}
 	}
@@ -189,6 +189,7 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 	if !user.OauthToken.Valid || user.OauthToken.String != token {
 		result := user.UpdateGithubUserInfo(token, githubUser)
 		if !result {
+			logging.SharedInstance().MethodInfo("user", "FindOrCreateGithub").Error("cannot update user")
 			return user, errors.New("cannot update user")
 		}
 	}
@@ -226,11 +227,11 @@ func (u *UserStruct) Save() bool {
 
 	result, err := table.Exec("insert into users (email, password, provider, oauth_token, uuid, user_name, avatar_url, created_at) values (?, ?, ?, ?, ?, ?, ?, now());", u.Email, u.Password, u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar)
 	if err != nil {
-		fmt.Printf("user save error: %+v\n", err)
+		logging.SharedInstance().MethodInfo("user", "Save").Errorf("user save error: %+v", err.Error())
 		return false
 	}
 	u.Id, _ = result.LastInsertId()
-	fmt.Printf("user saved: %v\n", u.Id)
+	logging.SharedInstance().MethodInfo("user", "Save").Infof("user saved: %v", u.Id)
 	return true
 }
 
@@ -240,7 +241,7 @@ func (u *UserStruct) Update() bool {
 
 	_, err := table.Exec("update users set provider = ?, oauth_token = ?, uuid = ?, user_name = ?, avatar_url = ? where email = ?;", u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar, u.Email)
 	if err != nil {
-		fmt.Printf("user update error: %+v\n", err)
+		logging.SharedInstance().MethodInfo("user", "Update").Errorf("user update error: %+v", err.Error())
 		return false
 	}
 	return true
