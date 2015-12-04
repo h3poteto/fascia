@@ -1,6 +1,7 @@
 package user
 
 import (
+	"../../modules/logging"
 	"../db"
 	"../project"
 	"crypto/rand"
@@ -43,6 +44,7 @@ func hashPassword(password string) ([]byte, error) {
 	hashPassword, _ := bcrypt.GenerateFromPassword(bytePassword, cost)
 	err := bcrypt.CompareHashAndPassword(hashPassword, bytePassword)
 	if err != nil {
+		logging.SharedInstance().MethodInfo("user", "hashPassword").Error("hash password error")
 		return nil, errors.New("hash password error")
 	}
 	return hashPassword, nil
@@ -86,12 +88,13 @@ func CurrentUser(userID int64) (*UserStruct, error) {
 	user.Uuid = uuid
 	user.Avatar = avatarURL
 	if id == 0 {
+		logging.SharedInstance().MethodInfo("user", "CurrentUser").Errorf("cannot find user: %v", userID)
 		return &user, errors.New("cannot find user")
 	}
 	return &user, nil
 }
 
-func Registration(email string, password string) (int64, bool) {
+func Registration(email string, password string) (int64, error) {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
 	table := interfaceDB.Init()
@@ -99,15 +102,15 @@ func Registration(email string, password string) (int64, bool) {
 
 	hashPassword, err := hashPassword(password)
 	if err != nil {
-		return 0, false
+		return 0, err
 	}
 	result, err := table.Exec("insert into users (email, password, created_at) values (?, ?, ?)", email, hashPassword, time.Now())
 	if err != nil {
-		fmt.Printf("mysql connect error: %v \n", err)
-		return 0, false
+		logging.SharedInstance().MethodInfo("user", "Registration").Errorf("mysql error: %+v", err.Error())
+		return 0, err
 	}
 	id, _ := result.LastInsertId()
-	return id, true
+	return id, nil
 }
 
 func Login(userEmail string, userPassword string) (*UserStruct, error) {
@@ -132,10 +135,10 @@ func Login(userEmail string, userPassword string) (*UserStruct, error) {
 	bytePassword := []byte(userPassword)
 	err := bcrypt.CompareHashAndPassword([]byte(password), bytePassword)
 	if err != nil {
-		fmt.Printf("cannot login: %v\n", userEmail)
+		logging.SharedInstance().MethodInfo("user", "Login").Errorf("cannot login: %v", userEmail)
 		return &UserStruct{}, errors.New("cannot login")
 	}
-	fmt.Printf("login success\n")
+	logging.SharedInstance().MethodInfo("user", "Login").Info("login success")
 	return user, nil
 }
 

@@ -1,12 +1,13 @@
 package controllers
+
 import (
-	"fmt"
-	"net/http"
-	"github.com/zenazn/goji/web"
-	"github.com/goji/param"
-	"github.com/flosch/pongo2"
-	"golang.org/x/oauth2"
 	userModel "../models/user"
+	"fmt"
+	"github.com/flosch/pongo2"
+	"github.com/goji/param"
+	"github.com/zenazn/goji/web"
+	"golang.org/x/oauth2"
+	"net/http"
 )
 
 type Registrations struct {
@@ -19,7 +20,7 @@ type SignUpForm struct {
 	Token           string `param:"token"`
 }
 
-func (u *Registrations)SignUp(c web.C, w http.ResponseWriter, r *http.Request) {
+func (u *Registrations) SignUp(c web.C, w http.ResponseWriter, r *http.Request) {
 	url := githubOauthConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
 
 	token, result := GenerateCSRFToken(c, w, r)
@@ -36,7 +37,7 @@ func (u *Registrations)SignUp(c web.C, w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteWriter(pongo2.Context{"title": "SignUp", "oauthURL": url, "token": token}, w)
 }
 
-func (u *Registrations)Registration(c web.C, w http.ResponseWriter, r *http.Request) {
+func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	err := r.ParseForm()
 	if err != nil {
@@ -61,8 +62,8 @@ func (u *Registrations)Registration(c web.C, w http.ResponseWriter, r *http.Requ
 
 	if signUpForm.Password == signUpForm.PasswordConfirm {
 		// login
-		_, res := userModel.Registration(signUpForm.Email, signUpForm.Password)
-		if !res {
+		_, err := userModel.Registration(signUpForm.Email, signUpForm.Password)
+		if err != nil {
 			http.Redirect(w, r, "/sign_up", 302)
 		} else {
 			http.Redirect(w, r, "/sign_in", 302)
