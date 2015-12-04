@@ -22,7 +22,7 @@ func SharedInstance() *LogStruct {
 	return sharedInstance
 }
 
-func (u *LogStruct) BaseInfo(model string, method string) *logrus.Entry {
+func (u *LogStruct) MethodInfo(model string, method string) *logrus.Entry {
 	return u.log.WithFields(logrus.Fields{
 		"model":  model,
 		"method": method,
