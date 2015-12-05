@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"../modules/logging"
 	"encoding/json"
 	"github.com/google/go-github/github"
 	"github.com/zenazn/goji/web"
@@ -13,12 +14,13 @@ type Github struct {
 
 func (u *Github) Repositories(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	current_user, result := LoginRequired(r)
-	encoder := json.NewEncoder(w)
-	if !result {
+	current_user, err := LoginRequired(r)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("GithubController", "Repositories").Errorf("login error: %v", err.Error())
 		http.Error(w, "not logined", 401)
 		return
 	}
+	encoder := json.NewEncoder(w)
 	if !current_user.OauthToken.Valid {
 		encoder.Encode(nil)
 		return
@@ -47,8 +49,8 @@ func (u *Github) Repositories(c web.C, w http.ResponseWriter, r *http.Request) {
 		repos, res, err := client.Repositories.List("", repositoryOption)
 		nextPage = res.NextPage
 		if err != nil {
-			error := JsonError{Error: "repository error"}
-			encoder.Encode(error)
+			logging.SharedInstance().MethodInfo("GithubController", "Repositories").Errorf("repository error: %v", err.Error())
+			http.Error(w, err.Error(), 500)
 			return
 		}
 		repositories = append(repositories, repos...)
