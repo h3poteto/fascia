@@ -41,8 +41,18 @@ func (u *Sessions) SignIn(c web.C, w http.ResponseWriter, r *http.Request) {
 func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	// 旧セッションの削除
 	session, err := cookieStore.Get(r, "fascia")
+	if err != nil {
+		logging.SharedInstance().MethodInfo("SessionsController", "NewSession").Errorf("get session error: %v", err.Error())
+		http.Error(w, "session error", 500)
+		return
+	}
 	session.Options = &sessions.Options{MaxAge: -1}
-	session.Save(r, w)
+	err = session.Save(r, w)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("SessionsController", "NewSession").Errorf("save session error: %v", err.Error())
+		http.Error(w, "session error", 500)
+		return
+	}
 	err = r.ParseForm()
 	if err != nil {
 		logging.SharedInstance().MethodInfo("SessionsController", "NewSession").Errorf("wrong form: %v", err.Error())
@@ -72,17 +82,30 @@ func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	session, err = cookieStore.Get(r, "fascia")
 	session.Options = &sessions.Options{Path: "/", MaxAge: 3600}
 	session.Values["current_user_id"] = current_user.Id
-	// TODO: err処理を増やす
-	session.Save(r, w)
+	err = session.Save(r, w)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("SessionsController", "NewSessions").Errorf("session error: %v", err.Error())
+		http.Error(w, "session error", 500)
+		return
+	}
 	http.Redirect(w, r, "/", 302)
 	return
 }
 
 func (u *Sessions) SignOut(c web.C, w http.ResponseWriter, r *http.Request) {
-	session, _ := cookieStore.Get(r, "fascia")
+	session, err := cookieStore.Get(r, "fascia")
+	if err != nil {
+		logging.SharedInstance().MethodInfo("SessionsController", "SignOut").Errorf("get session error: %v", err.Error())
+		http.Error(w, "session error", 500)
+		return
+	}
 	session.Options = &sessions.Options{MaxAge: -1}
-	// TODO: err処理を増やす
-	session.Save(r, w)
+	err = session.Save(r, w)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("SessionsController", "SignOut").Errorf("session error: %v", err.Error())
+		http.Error(w, "session error", 500)
+		return
+	}
 	http.Redirect(w, r, "/sign_in", 302)
 	return
 }

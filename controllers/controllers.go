@@ -70,7 +70,10 @@ func GenerateCSRFToken(c web.C, w http.ResponseWriter, r *http.Request) (string,
 	token := fmt.Sprintf("%x", h.Sum(nil))
 	session.Values["token"] = token
 
-	cookieStore.Save(r, w, session)
+	err = cookieStore.Save(r, w, session)
+	if err != nil {
+		return "", err
+	}
 	return token, nil
 }
 
