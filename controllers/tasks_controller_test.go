@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"os"
 	"strconv"
 
 	. "github.com/onsi/ginkgo"
@@ -22,7 +21,6 @@ import (
 var _ = Describe("TasksController", func() {
 	var (
 		ts        *httptest.Server
-		currentdb string
 		projectId int64
 		userId    int64
 		listId    int64
@@ -31,9 +29,6 @@ var _ = Describe("TasksController", func() {
 		m := web.New()
 		Routes(m)
 		ts = httptest.NewServer(m)
-		testdb := os.Getenv("DB_TEST_NAME")
-		currentdb = os.Getenv("DB_NAME")
-		os.Setenv("DB_NAME", testdb)
 	})
 	AfterEach(func() {
 		ts.Close()
@@ -45,7 +40,6 @@ var _ = Describe("TasksController", func() {
 		table.Exec("truncate table lists;")
 		table.Exec("truncate table tasks;")
 		table.Close()
-		os.Setenv("DB_NAME", currentdb)
 	})
 	JustBeforeEach(func() {
 		userId = LoginFaker(ts, "tasks@example.com", "hogehoge")

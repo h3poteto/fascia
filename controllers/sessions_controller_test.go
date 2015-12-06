@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -17,16 +16,12 @@ import (
 
 var _ = Describe("SessionsController", func() {
 	var (
-		ts        *httptest.Server
-		currentdb string
+		ts *httptest.Server
 	)
 	BeforeEach(func() {
 		m := web.New()
 		Routes(m)
 		ts = httptest.NewServer(m)
-		testdb := os.Getenv("DB_TEST_NAME")
-		currentdb = os.Getenv("DB_NAME")
-		os.Setenv("DB_NAME", testdb)
 	})
 	AfterEach(func() {
 		ts.Close()
@@ -36,7 +31,6 @@ var _ = Describe("SessionsController", func() {
 		table.Exec("truncate table users;")
 		table.Exec("truncate table projects;")
 		table.Close()
-		os.Setenv("DB_NAME", currentdb)
 	})
 	Describe("SignIn", func() {
 		JustBeforeEach(func() {

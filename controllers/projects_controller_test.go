@@ -1,15 +1,14 @@
 package controllers_test
 
 import (
-	"os"
-	"net/http"
-	"net/http/httptest"
-	"net/url"
-	"io/ioutil"
-	"encoding/json"
 	. "../../fascia"
 	"../models/db"
 	"../models/project"
+	"encoding/json"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -19,15 +18,11 @@ import (
 var _ = Describe("ProjectsController", func() {
 	var (
 		ts *httptest.Server
-		currentdb string
 	)
 	BeforeEach(func() {
 		m := web.New()
 		Routes(m)
 		ts = httptest.NewServer(m)
-		testdb := os.Getenv("DB_TEST_NAME")
-		currentdb = os.Getenv("DB_NAME")
-		os.Setenv("DB_NAME", testdb)
 	})
 	AfterEach(func() {
 		ts.Close()
@@ -37,7 +32,6 @@ var _ = Describe("ProjectsController", func() {
 		table.Exec("truncate table users;")
 		table.Exec("truncate table projects;")
 		table.Close()
-		os.Setenv("DB_NAME", currentdb)
 	})
 	JustBeforeEach(func() {
 		LoginFaker(ts, "projects@example.com", "hogehoge")
@@ -50,7 +44,7 @@ var _ = Describe("ProjectsController", func() {
 		JustBeforeEach(func() {
 			values := url.Values{}
 			values.Add("title", "projectTitle")
-			res, err = http.PostForm(ts.URL + "/projects", values)
+			res, err = http.PostForm(ts.URL+"/projects", values)
 		})
 		It("新規登録できること", func() {
 			Expect(err).To(BeNil())
@@ -74,9 +68,9 @@ var _ = Describe("ProjectsController", func() {
 		JustBeforeEach(func() {
 			values := url.Values{}
 			values.Add("title", "project1")
-			_, _ = http.PostForm(ts.URL + "/projects", values)
+			_, _ = http.PostForm(ts.URL+"/projects", values)
 			values.Set("title", "project2")
-			_, _ = http.PostForm(ts.URL + "/projects", values)
+			_, _ = http.PostForm(ts.URL+"/projects", values)
 		})
 		It("プロジェクト一覧が取得できること", func() {
 			res, err := http.Get(ts.URL + "/projects")
@@ -94,7 +88,7 @@ var _ = Describe("ProjectsController", func() {
 		JustBeforeEach(func() {
 			values := url.Values{}
 			values.Add("title", "project")
-			_, _ = http.PostForm(ts.URL + "/projects", values)
+			_, _ = http.PostForm(ts.URL+"/projects", values)
 		})
 		It("プロジェクトのタイトルが取得できること", func() {
 			res, err := http.Get(ts.URL + "/projects")

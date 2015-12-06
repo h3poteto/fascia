@@ -14,13 +14,6 @@ import (
 )
 
 var _ = Describe("User", func() {
-	var currentdb string
-
-	BeforeEach(func() {
-		testdb := os.Getenv("DB_TEST_NAME")
-		currentdb = os.Getenv("DB_NAME")
-		os.Setenv("DB_NAME", testdb)
-	})
 	AfterEach(func() {
 		mydb := &db.Database{}
 		var database db.DB = mydb
@@ -28,7 +21,6 @@ var _ = Describe("User", func() {
 		table.Exec("truncate table users;")
 		table.Exec("truncate table projects;")
 		table.Close()
-		os.Setenv("DB_NAME", currentdb)
 	})
 
 	Describe("Registration", func() {

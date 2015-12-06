@@ -7,7 +7,6 @@ import (
 	. "../task"
 	"../user"
 	"database/sql"
-	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -19,13 +18,7 @@ var _ = Describe("Task", func() {
 		newTask    *TaskStruct
 		newProject *project.ProjectStruct
 		table      *sql.DB
-		currentdb  string
 	)
-	BeforeEach(func() {
-		testdb := os.Getenv("DB_TEST_NAME")
-		currentdb = os.Getenv("DB_NAME")
-		os.Setenv("DB_NAME", testdb)
-	})
 	AfterEach(func() {
 		mydb := &db.Database{}
 		var database db.DB = mydb
@@ -35,7 +28,6 @@ var _ = Describe("Task", func() {
 		sql.Exec("truncate table lists;")
 		sql.Exec("truncate table tasks;")
 		sql.Close()
-		os.Setenv("DB_NAME", currentdb)
 	})
 	JustBeforeEach(func() {
 		email := "save@example.com"

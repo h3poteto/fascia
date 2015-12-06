@@ -17,4 +17,4 @@ database:
 
 test:
   override:
-    - gom exec ginkgo -r ./
+    - export GOJIENV=test; gom exec ginkgo -r ./

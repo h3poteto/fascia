@@ -1,32 +1,28 @@
 package controllers_test
 
 import (
-	"os"
-	"net/http"
-	"net/http/httptest"
 	. "../../fascia"
 	"../models/db"
+	"net/http"
+	"net/http/httptest"
+	"os"
 
+	"github.com/google/go-github/github"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/zenazn/goji/web"
 	"golang.org/x/oauth2"
-	"github.com/google/go-github/github"
 )
 
 var _ = Describe("GithubController", func() {
 	var (
 		ts *httptest.Server
-		currentdb string
 	)
 	userEmail := "github@example.com"
 	BeforeEach(func() {
 		m := web.New()
 		Routes(m)
 		ts = httptest.NewServer(m)
-		testdb := os.Getenv("DB_TEST_NAME")
-		currentdb = os.Getenv("DB_NAME")
-		os.Setenv("DB_NAME", testdb)
 	})
 	AfterEach(func() {
 		ts.Close()
@@ -35,7 +31,6 @@ var _ = Describe("GithubController", func() {
 		table := database.Init()
 		table.Exec("truncate table users;")
 		table.Close()
-		os.Setenv("DB_NAME", currentdb)
 	})
 	JustBeforeEach(func() {
 		LoginFaker(ts, userEmail, "hogehoge")
