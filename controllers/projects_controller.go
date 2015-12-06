@@ -136,7 +136,7 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 		for _, l := range lists {
 			l.ListTasks = l.Tasks()
 		}
-		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Error("success to fetch github")
+		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Info("success to fetch github")
 		encoder.Encode(lists)
 		return
 	}
