@@ -87,6 +87,7 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "save failed", 500)
 		return
 	}
+	logging.SharedInstance().MethodInfo("ProjectsController", "Create").Info("success to create project")
 
 	// 初期リストを作っておく
 	// TODO: ここエラーハンドリングしたほうがいい
@@ -104,6 +105,7 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		inprogress.Save(nil, nil)
 		done.Save(nil, nil)
 	}
+	logging.SharedInstance().MethodInfo("ProjectsController", "Create").Info("success to create initial lists")
 
 	encoder.Encode(*project)
 }
@@ -134,6 +136,7 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 		for _, l := range lists {
 			l.ListTasks = l.Tasks()
 		}
+		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Error("success to fetch github")
 		encoder.Encode(lists)
 		return
 	}

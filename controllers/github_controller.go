@@ -22,6 +22,7 @@ func (u *Github) Repositories(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	encoder := json.NewEncoder(w)
 	if !current_user.OauthToken.Valid {
+		logging.SharedInstance().MethodInfo("GithubController", "Repositories").Info("user did not have oauth")
 		encoder.Encode(nil)
 		return
 	}
@@ -56,5 +57,6 @@ func (u *Github) Repositories(c web.C, w http.ResponseWriter, r *http.Request) {
 		repositories = append(repositories, repos...)
 
 	}
+	logging.SharedInstance().MethodInfo("GithubController", "Repositories").Info("success to get repositories")
 	encoder.Encode(repositories)
 }

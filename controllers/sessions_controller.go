@@ -88,6 +88,7 @@ func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "session error", 500)
 		return
 	}
+	logging.SharedInstance().MethodInfo("SessionsController", "NewSession").Info("login success")
 	http.Redirect(w, r, "/", 302)
 	return
 }
@@ -106,6 +107,7 @@ func (u *Sessions) SignOut(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "session error", 500)
 		return
 	}
+	logging.SharedInstance().MethodInfo("SessionsController", "SignOut").Info("logout success")
 	http.Redirect(w, r, "/sign_in", 302)
 	return
 }

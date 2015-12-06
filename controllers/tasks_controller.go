@@ -100,6 +100,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "save failed", 500)
 		return
 	}
+	logging.SharedInstance().MethodInfo("TasksController", "Create").Info("success to create task")
 	encoder.Encode(*task)
 }
 
@@ -160,7 +161,8 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 	for _, l := range allLists {
 		l.ListTasks = l.Tasks()
 	}
-	logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Infof("move task: %+v", allLists)
+	logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Debugf("move task: %+v", allLists)
+	logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Info("success to move task")
 	encoder.Encode(allLists)
 	return
 }

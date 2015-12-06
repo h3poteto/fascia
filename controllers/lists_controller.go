@@ -87,6 +87,7 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed save", 500)
 		return
 	}
+	logging.SharedInstance().MethodInfo("ListsController", "Create").Info("success to create list")
 	encoder.Encode(*list)
 }
 
@@ -136,5 +137,6 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	targetList.ListTasks = targetList.Tasks()
+	logging.SharedInstance().MethodInfo("ListsController", "Update").Info("success to update list")
 	encoder.Encode(*targetList)
 }

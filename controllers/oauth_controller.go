@@ -44,6 +44,7 @@ func (u *Oauth) Github(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "session error", 500)
 		return
 	}
+	logging.SharedInstance().MethodInfo("OauthController", "Github").Info("github login success")
 	http.Redirect(w, r, "/", 302)
 	return
 }

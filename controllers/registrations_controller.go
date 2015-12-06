@@ -69,10 +69,12 @@ func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Req
 			logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp").Errorf("registration error: %v", err)
 			http.Redirect(w, r, "/sign_up", 302)
 		} else {
+			logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp").Info("registration success")
 			http.Redirect(w, r, "/sign_in", 302)
 		}
 	} else {
 		// error
+		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp").Error("cannot confirm password")
 		http.Redirect(w, r, "/sign_up", 302)
 	}
 }
