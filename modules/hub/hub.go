@@ -2,7 +2,8 @@ package hub
 
 import (
 	"../../models/repository"
-	"fmt"
+	"../logging"
+	"errors"
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
@@ -14,7 +15,7 @@ type hub interface {
 type HubStruct struct {
 }
 
-func CheckLabelPresent(token string, repo *repository.RepositoryStruct, title *string) *github.Label {
+func CheckLabelPresent(token string, repo *repository.RepositoryStruct, title *string) (*github.Label, error) {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
@@ -22,20 +23,20 @@ func CheckLabelPresent(token string, repo *repository.RepositoryStruct, title *s
 	client := github.NewClient(tc)
 
 	if title == nil {
-		fmt.Printf("title is nil\n")
-		return nil
+		logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent").Error("title is nil")
+		return nil, errors.New("title is nil")
 	}
 	githubLabel, response, err := client.Issues.GetLabel(repo.Owner.String, repo.Name.String, *title)
-	fmt.Printf("get label for github response: %+v\n", response)
+	logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent").Debugf("respone of geting github label: %+v", response)
 	if err != nil {
-		fmt.Printf("cannot find github label: %v\n", repo.Name.String)
-		return nil
+		logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent").Debugf("cannot find github label: %v", repo.Name.String)
+		return nil, nil
 	}
-	fmt.Printf("github label: %+v\n", githubLabel)
-	return githubLabel
+	logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent").Debugf("github label is exist: %+v", githubLabel)
+	return githubLabel, nil
 }
 
-func CreateGithubLabel(token string, repo *repository.RepositoryStruct, title *string, color *string) *github.Label {
+func CreateGithubLabel(token string, repo *repository.RepositoryStruct, title *string, color *string) (*github.Label, error) {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
@@ -43,8 +44,8 @@ func CreateGithubLabel(token string, repo *repository.RepositoryStruct, title *s
 	client := github.NewClient(tc)
 
 	if title == nil || color == nil {
-		fmt.Printf("title or color is nil\n")
-		return nil
+		logging.SharedInstance().MethodInfo("hub", "CreateGithubLabel").Error("title or color is nil")
+		return nil, errors.New("title or color is nil")
 	}
 
 	label := &github.Label{
@@ -52,16 +53,15 @@ func CreateGithubLabel(token string, repo *repository.RepositoryStruct, title *s
 		Color: color,
 	}
 	githubLabel, response, err := client.Issues.CreateLabel(repo.Owner.String, repo.Name.String, label)
-	fmt.Printf("create label for github response: %+v\n", response)
+	logging.SharedInstance().MethodInfo("hub", "CreateGithubLabel").Debugf("response of creating github label: %+v\n", response)
 	if err != nil {
-		panic(err.Error())
-		return nil
+		return nil, err
 	}
-	fmt.Printf("github label created: %+v\n", githubLabel)
-	return githubLabel
+	logging.SharedInstance().MethodInfo("hub", "CreateGithubLabel").Debugf("github label is created: %+v", githubLabel)
+	return githubLabel, nil
 }
 
-func UpdateGithubLabel(token string, repo *repository.RepositoryStruct, originalTitle *string, title *string, color *string) *github.Label {
+func UpdateGithubLabel(token string, repo *repository.RepositoryStruct, originalTitle *string, title *string, color *string) (*github.Label, error) {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
@@ -69,8 +69,8 @@ func UpdateGithubLabel(token string, repo *repository.RepositoryStruct, original
 	client := github.NewClient(tc)
 
 	if title == nil || color == nil {
-		fmt.Printf("title or color is nil\n")
-		return nil
+		logging.SharedInstance().MethodInfo("hub", "UpdateGithubLabel").Error("title or color is nil")
+		return nil, errors.New("title or color is nil")
 	}
 
 	label := &github.Label{
@@ -78,16 +78,15 @@ func UpdateGithubLabel(token string, repo *repository.RepositoryStruct, original
 		Color: color,
 	}
 	githubLabel, response, err := client.Issues.EditLabel(repo.Owner.String, repo.Name.String, *originalTitle, label)
-	fmt.Printf("update label for github response: %+v\n", response)
+	logging.SharedInstance().MethodInfo("hub", "UpddateGithubLabel").Debugf("response of updating github label: %+v\n", response)
 	if err != nil {
-		panic(err.Error())
-		return nil
+		return nil, err
 	}
-	fmt.Printf("github label updated: %+v\n", githubLabel)
-	return githubLabel
+	logging.SharedInstance().MethodInfo("hub", "UpdateGithubLabel").Debugf("github label is updated: %+v", githubLabel)
+	return githubLabel, nil
 }
 
-func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels []string, title *string) *github.Issue {
+func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels []string, title *string) (*github.Issue, error) {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
@@ -95,8 +94,8 @@ func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels [
 	client := github.NewClient(tc)
 
 	if title == nil {
-		fmt.Printf("title is nil\n")
-		return nil
+		logging.SharedInstance().MethodInfo("hub", "CreateGithubIssue").Error("title is nil")
+		return nil, errors.New("title is nil")
 	}
 
 	// TODO: description実装時にはbodyにdescriptionを入れる
@@ -109,14 +108,13 @@ func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels [
 
 	githubIssue, _, err := client.Issues.Create(repo.Owner.String, repo.Name.String, issueRequest)
 	if err != nil {
-		panic(err.Error())
-		return nil
+		return nil, err
 	}
-	fmt.Printf("github issue created: %+v\n", githubIssue)
-	return githubIssue
+	logging.SharedInstance().MethodInfo("hub", "CreateGithubIssue").Debugf("github issue is created: %+v", githubIssue)
+	return githubIssue, nil
 }
 
-func ReplaceLabelsForIssue(token string, repo *repository.RepositoryStruct, number int64, labels []string) bool {
+func ReplaceLabelsForIssue(token string, repo *repository.RepositoryStruct, number int64, labels []string) (bool, error) {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
@@ -126,14 +124,13 @@ func ReplaceLabelsForIssue(token string, repo *repository.RepositoryStruct, numb
 	issueNumber := int(number)
 	_, _, err := client.Issues.ReplaceLabelsForIssue(repo.Owner.String, repo.Name.String, issueNumber, labels)
 	if err != nil {
-		panic(err.Error())
-		return false
+		return false, err
 	}
-	fmt.Printf("github issue replaced labels: %+v\n", labels)
-	return true
+	logging.SharedInstance().MethodInfo("hub", "ReplaceLabelsForIssue").Debugf("label of github issue is replaced: %+v", labels)
+	return true, nil
 }
 
-func GetGithubIssues(token string, repo *repository.RepositoryStruct) ([]github.Issue, []github.Issue) {
+func GetGithubIssues(token string, repo *repository.RepositoryStruct) ([]github.Issue, []github.Issue, error) {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
@@ -148,9 +145,9 @@ func GetGithubIssues(token string, repo *repository.RepositoryStruct) ([]github.
 	}
 	opneIssues, _, err := client.Issues.ListByRepo(repo.Owner.String, repo.Name.String, &openIssueOption)
 	if err != nil {
-		panic(err.Error())
+		return nil, nil, err
 	}
 	closedIssues, _, err := client.Issues.ListByRepo(repo.Owner.String, repo.Name.String, &closedIssueOption)
 
-	return opneIssues, closedIssues
+	return opneIssues, closedIssues, nil
 }

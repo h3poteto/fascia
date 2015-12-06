@@ -2,6 +2,7 @@ package project
 
 import (
 	"../../modules/hub"
+	"../../modules/logging"
 	"../db"
 	"../list"
 	"../repository"
@@ -124,13 +125,18 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 	var oauthToken sql.NullString
 	err := table.QueryRow("select users.oauth_token from projects left join users on users.id = projects.user_id where projects.id = ?;", u.Id).Scan(&oauthToken)
 	if err != nil {
-		panic(err.Error())
+		logging.SharedInstance().MethodInfo("project", "FetchGithub").Error("oauth_token select error: %v", err.Error())
+		return false, err
 	}
 	if !oauthToken.Valid {
+		logging.SharedInstance().MethodInfo("project", "FetchGithub").Error("oauth token is not nil")
 		return false, errors.New("oauth token is required")
 	}
 	repo := u.Repository()
-	openIssues, closedIssues := hub.GetGithubIssues(oauthToken.String, repo)
+	openIssues, closedIssues, err := hub.GetGithubIssues(oauthToken.String, repo)
+	if err != nil {
+		return false, err
+	}
 	var openList, closedList *list.ListStruct
 	for _, list := range u.Lists() {
 		// openとcloseのリストは用意しておく
@@ -190,15 +196,18 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		if err != nil {
 			panic(err.Error())
 		}
-		label := hub.CheckLabelPresent(oauthToken.String, repo, &listTitle.String)
+		label, err := hub.CheckLabelPresent(oauthToken.String, repo, &listTitle.String)
+		if err != nil {
+			return false, err
+		}
 		if label == nil {
-			label = hub.CreateGithubLabel(oauthToken.String, repo, &listTitle.String, &listColor.String)
-			if label == nil {
+			label, err = hub.CreateGithubLabel(oauthToken.String, repo, &listTitle.String, &listColor.String)
+			if err != nil {
 				return false, errors.New("cannot create github label")
 			}
 		}
-		issue := hub.CreateGithubIssue(oauthToken.String, repo, []string{*label.Name}, &title.String)
-		if issue == nil {
+		_, err = hub.CreateGithubIssue(oauthToken.String, repo, []string{*label.Name}, &title.String)
+		if err != nil {
 			return false, errors.New("cannot create github issue")
 		}
 	}

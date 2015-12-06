@@ -1,16 +1,16 @@
 package user_test
 
 import (
-	"os"
-	"database/sql"
+	"../db"
 	"../project"
 	. "../user"
-	"../db"
+	"database/sql"
+	"os"
 
+	"github.com/google/go-github/github"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"golang.org/x/oauth2"
-	"github.com/google/go-github/github"
 )
 
 var _ = Describe("User", func() {
@@ -35,8 +35,8 @@ var _ = Describe("User", func() {
 		email := "registration@example.com"
 		password := "hogehoge"
 		It("登録できること", func() {
-			id, reg := Registration(email, password)
-			Expect(reg).To(BeTrue())
+			id, err := Registration(email, password)
+			Expect(err).To(BeNil())
 			Expect(id).NotTo(Equal(int64(0)))
 		})
 		Context("登録後", func() {
@@ -61,8 +61,8 @@ var _ = Describe("User", func() {
 				Expect(id).NotTo(Equal(int64(0)))
 			})
 			It("ユーザが二重登録できないこと", func() {
-				id, reg := Registration(email, password)
-				Expect(reg).To(BeFalse())
+				id, err := Registration(email, password)
+				Expect(err).NotTo(BeNil())
 				Expect(id).To(Equal(int64(0)))
 			})
 		})
@@ -109,7 +109,7 @@ var _ = Describe("User", func() {
 	Describe("FindOrCreateGithub", func() {
 		token := os.Getenv("TEST_TOKEN")
 		It("Github経由で新規登録できること", func() {
-			_ , err := FindOrCreateGithub(token)
+			_, err := FindOrCreateGithub(token)
 			Expect(err).To(BeNil())
 		})
 		It("github登録後であればすでに登録されているユーザを探せること", func() {
@@ -136,7 +136,7 @@ var _ = Describe("User", func() {
 
 	Describe("Projects", func() {
 		var (
-			newProject *project.ProjectStruct
+			newProject   *project.ProjectStruct
 			current_user *UserStruct
 		)
 

@@ -1,13 +1,13 @@
 package user
 
 import (
+	"../../modules/logging"
 	"../db"
 	"../project"
 	"crypto/rand"
 	"database/sql"
 	"encoding/binary"
 	"errors"
-	"fmt"
 	"github.com/google/go-github/github"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/oauth2"
@@ -43,6 +43,7 @@ func hashPassword(password string) ([]byte, error) {
 	hashPassword, _ := bcrypt.GenerateFromPassword(bytePassword, cost)
 	err := bcrypt.CompareHashAndPassword(hashPassword, bytePassword)
 	if err != nil {
+		logging.SharedInstance().MethodInfo("user", "hashPassword").Error("hash password error")
 		return nil, errors.New("hash password error")
 	}
 	return hashPassword, nil
@@ -86,12 +87,13 @@ func CurrentUser(userID int64) (*UserStruct, error) {
 	user.Uuid = uuid
 	user.Avatar = avatarURL
 	if id == 0 {
+		logging.SharedInstance().MethodInfo("user", "CurrentUser").Errorf("cannot find user: %v", userID)
 		return &user, errors.New("cannot find user")
 	}
 	return &user, nil
 }
 
-func Registration(email string, password string) (int64, bool) {
+func Registration(email string, password string) (int64, error) {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
 	table := interfaceDB.Init()
@@ -99,15 +101,15 @@ func Registration(email string, password string) (int64, bool) {
 
 	hashPassword, err := hashPassword(password)
 	if err != nil {
-		return 0, false
+		return 0, err
 	}
 	result, err := table.Exec("insert into users (email, password, created_at) values (?, ?, ?)", email, hashPassword, time.Now())
 	if err != nil {
-		fmt.Printf("mysql connect error: %v \n", err)
-		return 0, false
+		logging.SharedInstance().MethodInfo("user", "Registration").Errorf("mysql error: %+v", err.Error())
+		return 0, err
 	}
 	id, _ := result.LastInsertId()
-	return id, true
+	return id, nil
 }
 
 func Login(userEmail string, userPassword string) (*UserStruct, error) {
@@ -132,10 +134,10 @@ func Login(userEmail string, userPassword string) (*UserStruct, error) {
 	bytePassword := []byte(userPassword)
 	err := bcrypt.CompareHashAndPassword([]byte(password), bytePassword)
 	if err != nil {
-		fmt.Printf("cannot login: %v\n", userEmail)
+		logging.SharedInstance().MethodInfo("user", "Login").Errorf("cannot login: %v", userEmail)
 		return &UserStruct{}, errors.New("cannot login")
 	}
-	fmt.Printf("login success\n")
+	logging.SharedInstance().MethodInfo("user", "Login").Info("login success")
 	return user, nil
 }
 
@@ -179,6 +181,7 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 	if id == 0 {
 		result := user.CreateGithubUser(token, githubUser, primaryEmail)
 		if !result {
+			logging.SharedInstance().MethodInfo("user", "FindOrCreateGithub").Error("cannot login")
 			return user, errors.New("cannot login")
 		}
 	}
@@ -186,6 +189,7 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 	if !user.OauthToken.Valid || user.OauthToken.String != token {
 		result := user.UpdateGithubUserInfo(token, githubUser)
 		if !result {
+			logging.SharedInstance().MethodInfo("user", "FindOrCreateGithub").Error("cannot update user")
 			return user, errors.New("cannot update user")
 		}
 	}
@@ -223,11 +227,11 @@ func (u *UserStruct) Save() bool {
 
 	result, err := table.Exec("insert into users (email, password, provider, oauth_token, uuid, user_name, avatar_url, created_at) values (?, ?, ?, ?, ?, ?, ?, now());", u.Email, u.Password, u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar)
 	if err != nil {
-		fmt.Printf("user save error: %+v\n", err)
+		logging.SharedInstance().MethodInfo("user", "Save").Errorf("user save error: %+v", err.Error())
 		return false
 	}
 	u.Id, _ = result.LastInsertId()
-	fmt.Printf("user saved: %v\n", u.Id)
+	logging.SharedInstance().MethodInfo("user", "Save").Infof("user saved: %v", u.Id)
 	return true
 }
 
@@ -237,7 +241,7 @@ func (u *UserStruct) Update() bool {
 
 	_, err := table.Exec("update users set provider = ?, oauth_token = ?, uuid = ?, user_name = ?, avatar_url = ? where email = ?;", u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar, u.Email)
 	if err != nil {
-		fmt.Printf("user update error: %+v\n", err)
+		logging.SharedInstance().MethodInfo("user", "Update").Errorf("user update error: %+v", err.Error())
 		return false
 	}
 	return true
