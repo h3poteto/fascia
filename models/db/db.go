@@ -6,6 +6,7 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 )
 
 type DB interface {
@@ -17,7 +18,9 @@ type Database struct {
 
 func (u *Database) Init() *sql.DB {
 	env := os.Getenv("GOJIENV")
-	buf, err := ioutil.ReadFile("db/dbconf.yml")
+	root := os.Getenv("GOJIROOT")
+	path := filepath.Join(root, "db/dbconf.yml")
+	buf, err := ioutil.ReadFile(path)
 	if err != nil {
 		panic(err)
 	}
