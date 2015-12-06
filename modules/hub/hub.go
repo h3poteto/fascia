@@ -29,7 +29,7 @@ func CheckLabelPresent(token string, repo *repository.RepositoryStruct, title *s
 	githubLabel, response, err := client.Issues.GetLabel(repo.Owner.String, repo.Name.String, *title)
 	logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent").Debugf("respone of geting github label: %+v", response)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent").Infof("cannot find github label: %v", repo.Name.String)
+		logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent").Debugf("cannot find github label: %v", repo.Name.String)
 		return nil, nil
 	}
 	logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent").Debugf("github label is exist: %+v", githubLabel)

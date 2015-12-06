@@ -13,7 +13,9 @@ type Root struct {
 func (u *Root) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	current_user, err := LoginRequired(r)
 	if err != nil || current_user.Id == 0 {
-		logging.SharedInstance().MethodInfo("RootController", "Index").Error("login error: %v", err.Error())
+		if err != nil {
+			logging.SharedInstance().MethodInfo("RootController", "Index").Error("login error: %v", err.Error())
+		}
 		http.Redirect(w, r, "/sign_in", 302)
 		return
 	}

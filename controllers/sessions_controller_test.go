@@ -1,14 +1,14 @@
 package controllers_test
 
 import (
-	"os"
-	"net/http"
-	"net/http/httptest"
-	"net/url"
 	. "../../fascia"
 	. "../controllers"
 	"../models/db"
 	"../models/user"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -17,7 +17,7 @@ import (
 
 var _ = Describe("SessionsController", func() {
 	var (
-		ts *httptest.Server
+		ts        *httptest.Server
 		currentdb string
 	)
 	BeforeEach(func() {
@@ -41,7 +41,7 @@ var _ = Describe("SessionsController", func() {
 	Describe("SignIn", func() {
 		JustBeforeEach(func() {
 			values := url.Values{}
-			http.PostForm(ts.URL + "/sign_out", values)
+			http.PostForm(ts.URL+"/sign_out", values)
 		})
 		Context("/sign_in", func() {
 			It("アクセスできること", func() {
@@ -72,7 +72,7 @@ var _ = Describe("SessionsController", func() {
 				values := url.Values{}
 				values.Add("email", "sign_in@example.com")
 				values.Add("password", "hogehoge")
-				res, err := http.PostForm(ts.URL + "/sign_in", values)
+				res, err := http.PostForm(ts.URL+"/sign_in", values)
 				Expect(err).To(BeNil())
 				Expect(res.Request.URL.Path).To(Equal("/sign_in"))
 			})
@@ -80,9 +80,9 @@ var _ = Describe("SessionsController", func() {
 		Context("登録済みのとき", func() {
 			JustBeforeEach(func() {
 				id, _ := user.Registration("registration@example.com", "hogehoge")
-				LoginRequired = func(r *http.Request) (*user.UserStruct, bool) {
+				LoginRequired = func(r *http.Request) (*user.UserStruct, error) {
 					current_user, _ := user.CurrentUser(id)
-					return current_user, true
+					return current_user, nil
 				}
 			})
 			Context("パスワードが正しいとき", func() {
@@ -90,7 +90,7 @@ var _ = Describe("SessionsController", func() {
 					values := url.Values{}
 					values.Add("email", "registration@example.com")
 					values.Add("password", "hogehoge")
-					res, err := http.PostForm(ts.URL + "/sign_in", values)
+					res, err := http.PostForm(ts.URL+"/sign_in", values)
 					Expect(err).To(BeNil())
 					Expect(res.Request.URL.Path).To(Equal("/"))
 				})
@@ -100,7 +100,7 @@ var _ = Describe("SessionsController", func() {
 					values := url.Values{}
 					values.Add("email", "registration@example.com")
 					values.Add("password", "fugafuga")
-					res, err := http.PostForm(ts.URL + "/sign_in", values)
+					res, err := http.PostForm(ts.URL+"/sign_in", values)
 					Expect(err).To(BeNil())
 					Expect(res.Request.URL.Path).To(Equal("/sign_in"))
 				})
@@ -114,7 +114,7 @@ var _ = Describe("SessionsController", func() {
 		})
 		It("ログアウトできること", func() {
 			values := url.Values{}
-			res, err := http.PostForm(ts.URL + "/sign_out", values)
+			res, err := http.PostForm(ts.URL+"/sign_out", values)
 			Expect(err).To(BeNil())
 			Expect(res.Request.URL.Path).To(Equal("/sign_in"))
 		})
