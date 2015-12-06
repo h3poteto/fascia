@@ -27,7 +27,7 @@ func (u *Projects) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Index").Errorf("login error: %v", err.Error())
+		logging.SharedInstance().MethodInfo("ProjectsController", "Index").Errorf("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -40,7 +40,7 @@ func (u *Projects) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Show").Error("login error: %v", err.Error())
+		logging.SharedInstance().MethodInfo("ProjectsController", "Show").Errorf("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -60,7 +60,7 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Create").Error("login error: %v", err.Error())
+		logging.SharedInstance().MethodInfo("ProjectsController", "Create").Errorf("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -68,7 +68,7 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	err = r.ParseForm()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Create").Errorf("wrong form: %v", err.Error())
+		logging.SharedInstance().MethodInfo("ProjectsController", "Create").Errorf("wrong form: %v", err)
 		http.Error(w, "Wrong Form", 400)
 		return
 	}
@@ -76,11 +76,11 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	err = param.Parse(r.PostForm, &newProjectForm)
 
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Create").Errorf("wrong paramter: %v", err.Error())
+		logging.SharedInstance().MethodInfo("ProjectsController", "Create").Errorf("wrong paramter: %v", err)
 		http.Error(w, "Wrong parameter", 500)
 		return
 	}
-	logging.SharedInstance().MethodInfo("ProjectsController", "Create").Debugf("post new project parameter: %v", newProjectForm)
+	logging.SharedInstance().MethodInfo("ProjectsController", "Create").Debugf("post new project parameter: %+v", newProjectForm)
 	project := projectModel.NewProject(0, current_user.Id, newProjectForm.Title, newProjectForm.Description)
 	if !project.Save() {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Create").Error("save failed")
@@ -112,7 +112,7 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Errorf("login error: %v", err.Error())
+		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Errorf("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -126,7 +126,7 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 	}
 	_, err = project.FetchGithub()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Errorf("github fetch error: %v", err.Error())
+		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Errorf("github fetch error: %v", err)
 		http.Error(w, err.Error(), 500)
 		return
 	} else {

@@ -16,7 +16,7 @@ func (u *Github) Repositories(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("GithubController", "Repositories").Errorf("login error: %v", err.Error())
+		logging.SharedInstance().MethodInfo("GithubController", "Repositories").Errorf("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -49,7 +49,7 @@ func (u *Github) Repositories(c web.C, w http.ResponseWriter, r *http.Request) {
 		repos, res, err := client.Repositories.List("", repositoryOption)
 		nextPage = res.NextPage
 		if err != nil {
-			logging.SharedInstance().MethodInfo("GithubController", "Repositories").Errorf("repository error: %v", err.Error())
+			logging.SharedInstance().MethodInfo("GithubController", "Repositories").Errorf("repository error: %v", err)
 			http.Error(w, err.Error(), 500)
 			return
 		}

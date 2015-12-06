@@ -125,7 +125,7 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 	var oauthToken sql.NullString
 	err := table.QueryRow("select users.oauth_token from projects left join users on users.id = projects.user_id where projects.id = ?;", u.Id).Scan(&oauthToken)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("project", "FetchGithub").Error("oauth_token select error: %v", err.Error())
+		logging.SharedInstance().MethodInfo("project", "FetchGithub").Error("oauth_token select error: %v", err)
 		return false, err
 	}
 	if !oauthToken.Valid {

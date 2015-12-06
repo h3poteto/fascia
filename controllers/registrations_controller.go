@@ -25,14 +25,14 @@ func (u *Registrations) SignUp(c web.C, w http.ResponseWriter, r *http.Request) 
 
 	token, err := GenerateCSRFToken(c, w, r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp").Errorf("CSRF error: %v", err.Error())
+		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp").Errorf("CSRF error: %v", err)
 		http.Error(w, "CSRF error", 500)
 		return
 	}
 
 	tpl, err := pongo2.DefaultSet.FromFile("sign_up.html.tpl")
 	if err != nil {
-		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp").Errorf("template error: %v", err.Error())
+		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp").Errorf("template error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -42,7 +42,7 @@ func (u *Registrations) SignUp(c web.C, w http.ResponseWriter, r *http.Request) 
 func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp").Errorf("wrong form: %v", err.Error())
+		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp").Errorf("wrong form: %v", err)
 		http.Error(w, "Wrong Form", 400)
 		return
 	}
@@ -50,7 +50,7 @@ func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Req
 	var signUpForm SignUpForm
 	err = param.Parse(r.PostForm, &signUpForm)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp").Errorf("wrong parameter: %v", err.Error())
+		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp").Errorf("wrong parameter: %v", err)
 		http.Error(w, "Wrong Parameter", 500)
 		return
 	}
@@ -66,7 +66,7 @@ func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Req
 		// login
 		_, err := userModel.Registration(signUpForm.Email, signUpForm.Password)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp").Errorf("registration error: %v", err.Error())
+			logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp").Errorf("registration error: %v", err)
 			http.Redirect(w, r, "/sign_up", 302)
 		} else {
 			http.Redirect(w, r, "/sign_in", 302)

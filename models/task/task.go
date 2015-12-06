@@ -95,14 +95,14 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	err := transaction.QueryRow("SELECT COUNT(id) FROM tasks WHERE list_id = ?;", u.ListId).Scan(&count)
 	result, err := transaction.Exec("insert into tasks (list_id, user_id, issue_number, title, display_index, created_at) values (?, ?, ?, ?, ?, now());", u.ListId, u.UserId, u.IssueNumber, u.Title, count+1)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("task", "Save").Errorf("insert task error: %v", err.Error())
+		logging.SharedInstance().MethodInfo("task", "Save").Errorf("insert task error: %v", err)
 		transaction.Rollback()
 		return false
 	}
 	var listTitle, listColor sql.NullString
 	err = transaction.QueryRow("select title, color from lists where id = ?;", u.ListId).Scan(&listTitle, &listColor)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("task", "Save").Errorf("select list error: %v", err.Error())
+		logging.SharedInstance().MethodInfo("task", "Save").Errorf("select list error: %v", err)
 		transaction.Rollback()
 		return false
 	}
@@ -113,20 +113,20 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		// 色が違っていてもアップデートは不要，それは編集でやってくれ
 		if err != nil {
 			transaction.Rollback()
-			logging.SharedInstance().MethodInfo("task", "Save").Errorf("check label error: %v", err.Error())
+			logging.SharedInstance().MethodInfo("task", "Save").Errorf("check label error: %v", err)
 			return false
 		} else if label == nil {
 			label, err = hub.CreateGithubLabel(token, repo, &listTitle.String, &listColor.String)
 			if err != nil {
 				transaction.Rollback()
-				logging.SharedInstance().MethodInfo("task", "Save").Errorf("create label error: %v", err.Error())
+				logging.SharedInstance().MethodInfo("task", "Save").Errorf("create label error: %v", err)
 				return false
 			}
 		}
 		// issueを作る
 		issue, err := hub.CreateGithubIssue(token, repo, []string{*label.Name}, &u.Title.String)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("task", "Save").Errorf("issue create failed:%v", err.Error())
+			logging.SharedInstance().MethodInfo("task", "Save").Errorf("issue create failed:%v", err)
 			transaction.Rollback()
 			return false
 		}
@@ -134,7 +134,7 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		_, err = transaction.Exec("update tasks set issue_number = ? where id = ?;", *issue.Number, currentId)
 		if err != nil {
 			// TODO: そもそもこのときはissueを削除しなければいけないのでは？
-			logging.SharedInstance().MethodInfo("task", "Save").Errorf("issue_number update error: %v", err.Error())
+			logging.SharedInstance().MethodInfo("task", "Save").Errorf("issue_number update error: %v", err)
 			transaction.Rollback()
 			return false
 		}
@@ -144,7 +144,7 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 
 	err = transaction.Commit()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("task", "Save").Errorf("commit error:%v", err.Error())
+		logging.SharedInstance().MethodInfo("task", "Save").Errorf("commit error:%v", err)
 		transaction.Rollback()
 		return false
 	}
@@ -158,7 +158,7 @@ func (u *TaskStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 
 	_, err := table.Exec("update tasks set list_id = ?, issue_number = ?, title = ? where id = ?;", u.ListId, u.IssueNumber, u.Title, u.Id)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("task", "Update").Errorf("update error: %v", err.Error())
+		logging.SharedInstance().MethodInfo("task", "Update").Errorf("update error: %v", err)
 		return false
 	}
 	return true
@@ -190,7 +190,7 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 		// 途中に入れるパターン
 		err := transaction.QueryRow("select display_index from tasks where id = ?;", *prevToTaskId).Scan(&prevToTaskIndex)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("task", "ChangeList").Errorf("select display index error: %v", err.Error())
+			logging.SharedInstance().MethodInfo("task", "ChangeList").Errorf("select display index error: %v", err)
 			transaction.Rollback()
 			return false
 		}
@@ -198,7 +198,7 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 		// prevToTaskIndex = nilのときは，末尾挿入なので払い出しは不要
 		_, err = transaction.Exec("update tasks set display_index = display_index + 1 where id in (select id from (select id from tasks where list_id = ? and display_index >= ?) as tmp);", listId, prevToTaskIndex)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("task", "ChangeList").Errorf("update display index error: %v", err.Error())
+			logging.SharedInstance().MethodInfo("task", "ChangeList").Errorf("update display index error: %v", err)
 			transaction.Rollback()
 			return false
 		}
@@ -210,7 +210,7 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 		err := transaction.QueryRow("select max(display_index) from tasks where list_id = ?;", listId).Scan(&index)
 		if err != nil {
 			// 該当するtaskが存在しないとき，indexにはnillが入るが，エラーにはならないので，ここのハンドリングには入らない
-			logging.SharedInstance().MethodInfo("task", "ChangeList").Errorf("select max display index error:%v", err.Error())
+			logging.SharedInstance().MethodInfo("task", "ChangeList").Errorf("select max display index error:%v", err)
 			transaction.Rollback()
 			return false
 		}
@@ -223,7 +223,7 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 
 	_, err := transaction.Exec("update tasks set list_id = ?, display_index = ? where id = ?;", listId, prevToTaskIndex, u.Id)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("task", "ChangeList").Errorf("update task error:%v", err.Error())
+		logging.SharedInstance().MethodInfo("task", "ChangeList").Errorf("update task error:%v", err)
 		transaction.Rollback()
 		return false
 	}
@@ -233,20 +233,20 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 		var listTitle, listColor sql.NullString
 		err = transaction.QueryRow("select title, color from lists where id = ?;", listId).Scan(&listTitle, &listColor)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("task", "ChangeList").Errorf("select list error:%v", err.Error())
+			logging.SharedInstance().MethodInfo("task", "ChangeList").Errorf("select list error:%v", err)
 			transaction.Rollback()
 			return false
 		}
 		label, err := hub.CheckLabelPresent(token, repo, &listTitle.String)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("task", "ChangeList").Errorf("check label error: %v", err.Error())
+			logging.SharedInstance().MethodInfo("task", "ChangeList").Errorf("check label error: %v", err)
 			transaction.Rollback()
 			return false
 		} else if label == nil {
 			// 移動先がない場合はつくろう
 			label, err = hub.CreateGithubLabel(token, repo, &listTitle.String, &listColor.String)
 			if label == nil {
-				logging.SharedInstance().MethodInfo("task", "ChangeList").Errorf("create label error: %v", err.Error())
+				logging.SharedInstance().MethodInfo("task", "ChangeList").Errorf("create label error: %v", err)
 				transaction.Rollback()
 				return false
 			}
