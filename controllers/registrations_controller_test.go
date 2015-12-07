@@ -1,13 +1,12 @@
 package controllers_test
 
 import (
-	"os"
-	"net/http"
-	"net/http/httptest"
-	"net/url"
 	. "../../fascia"
 	. "../controllers"
 	"../models/db"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -17,15 +16,11 @@ import (
 var _ = Describe("RegistrationsController", func() {
 	var (
 		ts *httptest.Server
-		currentdb string
 	)
 	BeforeEach(func() {
 		m := web.New()
 		Routes(m)
 		ts = httptest.NewServer(m)
-		testdb := os.Getenv("DB_TEST_NAME")
-		currentdb = os.Getenv("DB_NAME")
-		os.Setenv("DB_NAME", testdb)
 	})
 	AfterEach(func() {
 		ts.Close()
@@ -34,7 +29,6 @@ var _ = Describe("RegistrationsController", func() {
 		table := database.Init()
 		table.Exec("truncate table users;")
 		table.Close()
-		os.Setenv("DB_NAME", currentdb)
 	})
 
 	Describe("SignUp", func() {
@@ -59,7 +53,7 @@ var _ = Describe("RegistrationsController", func() {
 				values.Add("email", "registration@example.com")
 				values.Add("password", "hogehoge")
 				values.Add("password-confirm", "hogehoge")
-				res, err := http.PostForm(ts.URL + "/sign_up", values)
+				res, err := http.PostForm(ts.URL+"/sign_up", values)
 				Expect(err).To(BeNil())
 				Expect(res.Request.URL.Path).To(Equal("/sign_in"))
 			})
@@ -68,7 +62,7 @@ var _ = Describe("RegistrationsController", func() {
 				values.Add("email", "registration@example.com")
 				values.Add("password", "hogehoge")
 				values.Add("password-confirm", "hogehoge")
-				http.PostForm(ts.URL + "/sign_up", values)
+				http.PostForm(ts.URL+"/sign_up", values)
 				mydb := &db.Database{}
 				var database db.DB = mydb
 				table := database.Init()
@@ -89,14 +83,14 @@ var _ = Describe("RegistrationsController", func() {
 				values.Add("email", "registration@example.com")
 				values.Add("password", "hogehoge")
 				values.Add("password-confirm", "hogehoge")
-				http.PostForm(ts.URL + "/sign_up", values)
+				http.PostForm(ts.URL+"/sign_up", values)
 			})
 			It("エラーになること", func() {
 				values := url.Values{}
 				values.Add("email", "registration@example.com")
 				values.Add("password", "hogehoge")
 				values.Add("password-confirm", "hogehoge")
-				res, err := http.PostForm(ts.URL + "/sign_up", values)
+				res, err := http.PostForm(ts.URL+"/sign_up", values)
 				Expect(err).To(BeNil())
 				Expect(res.Request.URL.Path).To(Equal("/sign_up"))
 			})

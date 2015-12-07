@@ -1,12 +1,11 @@
 package repository_test
 
 import (
-	"os"
-	"database/sql"
 	"../db"
-	. "../repository"
 	"../project"
+	. "../repository"
 	"../user"
+	"database/sql"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -15,14 +14,8 @@ import (
 var _ = Describe("Repository", func() {
 	var (
 		newProject *project.ProjectStruct
-		currentdb string
-		table *sql.DB
+		table      *sql.DB
 	)
-	BeforeEach(func() {
-		testdb := os.Getenv("DB_TEST_NAME")
-		currentdb = os.Getenv("DB_NAME")
-		os.Setenv("DB_NAME", testdb)
-	})
 	AfterEach(func() {
 		mydb := &db.Database{}
 		var database db.DB = mydb
@@ -31,7 +24,6 @@ var _ = Describe("Repository", func() {
 		sql.Exec("truncate table projects;")
 		sql.Exec("truncate table repositories;")
 		sql.Close()
-		os.Setenv("DB_NAME", currentdb)
 	})
 	JustBeforeEach(func() {
 		email := "repository@example.com"

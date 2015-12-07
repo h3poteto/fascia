@@ -7,7 +7,6 @@ import (
 	"../task"
 	"../user"
 	"database/sql"
-	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -17,14 +16,8 @@ var _ = Describe("List", func() {
 	var (
 		newList    *ListStruct
 		newProject *project.ProjectStruct
-		currentdb  string
 		table      *sql.DB
 	)
-	BeforeEach(func() {
-		testdb := os.Getenv("DB_TEST_NAME")
-		currentdb = os.Getenv("DB_NAME")
-		os.Setenv("DB_NAME", testdb)
-	})
 	AfterEach(func() {
 		mydb := &db.Database{}
 		var database db.DB = mydb
@@ -34,7 +27,6 @@ var _ = Describe("List", func() {
 		sql.Exec("truncate table lists;")
 		sql.Exec("truncate table tasks;")
 		sql.Close()
-		os.Setenv("DB_NAME", currentdb)
 	})
 
 	JustBeforeEach(func() {

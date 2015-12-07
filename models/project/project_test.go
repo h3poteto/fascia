@@ -6,7 +6,6 @@ import (
 	. "../project"
 	"../user"
 	"database/sql"
-	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -15,16 +14,10 @@ import (
 var _ = Describe("Project", func() {
 	var (
 		newProject *ProjectStruct
-		currentdb  string
 		uid        int64
 		table      *sql.DB
 	)
 
-	BeforeEach(func() {
-		testdb := os.Getenv("DB_TEST_NAME")
-		currentdb = os.Getenv("DB_NAME")
-		os.Setenv("DB_NAME", testdb)
-	})
 	AfterEach(func() {
 		mydb := &db.Database{}
 		var database db.DB = mydb
@@ -33,7 +26,6 @@ var _ = Describe("Project", func() {
 		sql.Exec("truncate table projects;")
 		sql.Exec("truncate table lists;")
 		sql.Close()
-		os.Setenv("DB_NAME", currentdb)
 	})
 
 	JustBeforeEach(func() {
