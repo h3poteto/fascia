@@ -76,7 +76,7 @@ function getBundler(entry, isWatch) {
         bundler = watchify(bundler, {poll: true});
     }
 
-    bundler.transform(babelify);
+    bundler.transform(babelify, {presets: ["es2015", "react"]});
     return bundler;
 }
 
