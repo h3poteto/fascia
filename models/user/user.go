@@ -105,7 +105,7 @@ func Registration(email string, password string) (int64, error) {
 	}
 	result, err := table.Exec("insert into users (email, password, created_at) values (?, ?, ?)", email, hashPassword, time.Now())
 	if err != nil {
-		logging.SharedInstance().MethodInfo("user", "Registration").Errorf("mysql error: %+v", err.Error())
+		logging.SharedInstance().MethodInfo("user", "Registration").Errorf("mysql error: %v", err)
 		return 0, err
 	}
 	id, _ := result.LastInsertId()
@@ -227,7 +227,7 @@ func (u *UserStruct) Save() bool {
 
 	result, err := table.Exec("insert into users (email, password, provider, oauth_token, uuid, user_name, avatar_url, created_at) values (?, ?, ?, ?, ?, ?, ?, now());", u.Email, u.Password, u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("user", "Save").Errorf("user save error: %+v", err.Error())
+		logging.SharedInstance().MethodInfo("user", "Save").Errorf("user save error: %v", err)
 		return false
 	}
 	u.Id, _ = result.LastInsertId()
@@ -241,7 +241,7 @@ func (u *UserStruct) Update() bool {
 
 	_, err := table.Exec("update users set provider = ?, oauth_token = ?, uuid = ?, user_name = ?, avatar_url = ? where email = ?;", u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar, u.Email)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("user", "Update").Errorf("user update error: %+v", err.Error())
+		logging.SharedInstance().MethodInfo("user", "Update").Errorf("user update error: %v", err)
 		return false
 	}
 	return true

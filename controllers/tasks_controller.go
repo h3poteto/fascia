@@ -29,7 +29,7 @@ func (u *Tasks) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Index").Errorf("login error: %v", err.Error())
+		logging.SharedInstance().MethodInfo("TasksController", "Index").Errorf("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -57,7 +57,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Create").Errorf("login error: %v", err.Error())
+		logging.SharedInstance().MethodInfo("TasksController", "Create").Errorf("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -79,14 +79,14 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	err = r.ParseForm()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Create").Errorf("wrong form: %v", err.Error())
+		logging.SharedInstance().MethodInfo("TasksController", "Create").Errorf("wrong form: %v", err)
 		http.Error(w, "Wrong Form", 400)
 		return
 	}
 	var newTaskForm NewTaskForm
 	err = param.Parse(r.PostForm, &newTaskForm)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Create").Errorf("wrong parameter: %v", err.Error())
+		logging.SharedInstance().MethodInfo("TasksController", "Create").Errorf("wrong parameter: %v", err)
 		http.Error(w, "Wrong parameter", 500)
 		return
 	}
@@ -100,6 +100,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "save failed", 500)
 		return
 	}
+	logging.SharedInstance().MethodInfo("TasksController", "Create").Info("success to create task")
 	encoder.Encode(*task)
 }
 
@@ -107,7 +108,7 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Errorf("login error: %v", err.Error())
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Errorf("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -133,14 +134,14 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	err = r.ParseForm()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Errorf("wrong form: %v", err.Error())
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Errorf("wrong form: %v", err)
 		http.Error(w, "Wrong Form", 400)
 		return
 	}
 	var moveTaskFrom MoveTaskFrom
 	err = param.Parse(r.PostForm, &moveTaskFrom)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Errorf("wrong parameter: %v", err.Error())
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Errorf("wrong parameter: %v", err)
 		http.Error(w, "Wrong parameter", 500)
 		return
 	}
@@ -160,7 +161,8 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 	for _, l := range allLists {
 		l.ListTasks = l.Tasks()
 	}
-	logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Infof("move task: %+v", allLists)
+	logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Debugf("move task: %+v", allLists)
+	logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Info("success to move task")
 	encoder.Encode(allLists)
 	return
 }

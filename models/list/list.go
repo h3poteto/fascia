@@ -78,7 +78,7 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 
 	result, err := tx.Exec("insert into lists (project_id, user_id, title, color, created_at) values (?, ?, ?, ?, now());", u.ProjectId, u.UserId, u.Title, u.Color)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("project", "Save").Errorf("list save error: %v", err.Error())
+		logging.SharedInstance().MethodInfo("project", "Save").Errorf("list save error: %v", err)
 		tx.Rollback()
 		return false
 	}
@@ -88,7 +88,7 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		label, err := hub.CheckLabelPresent(token, repo, &u.Title.String)
 		if err != nil {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("project", "Save").Errorf("check label error: %v", err.Error())
+			logging.SharedInstance().MethodInfo("project", "Save").Errorf("check label error: %v", err)
 			return false
 		} else if label == nil {
 			label, err = hub.CreateGithubLabel(token, repo, &u.Title.String, &u.Color.String)
@@ -130,7 +130,7 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 		existLabel, err := hub.CheckLabelPresent(token, repo, &u.Title.String)
 		if err != nil {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("project", "Update").Errorf("check label error: %v", err.Error())
+			logging.SharedInstance().MethodInfo("project", "Update").Errorf("check label error: %v", err)
 			return false
 		} else if existLabel == nil {
 			// editの場合ここに入る可能性はほとんどない

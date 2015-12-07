@@ -28,7 +28,7 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Index").Errorf("login error: %v", err.Error())
+		logging.SharedInstance().MethodInfo("ListsController", "Index").Errorf("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -52,7 +52,7 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Create").Errorf("login error: %v", err.Error())
+		logging.SharedInstance().MethodInfo("ListsController", "Create").Errorf("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -67,14 +67,14 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	err = r.ParseForm()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Create").Errorf("wrong form: %v", err.Error())
+		logging.SharedInstance().MethodInfo("ListsController", "Create").Errorf("wrong form: %v", err)
 		http.Error(w, "Wrong Form", 400)
 		return
 	}
 	var newListForm NewListForm
 	err = param.Parse(r.PostForm, &newListForm)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Create").Errorf("wrong parameter: %v", err.Error())
+		logging.SharedInstance().MethodInfo("ListsController", "Create").Errorf("wrong parameter: %v", err)
 		http.Error(w, "Wrong parameter", 500)
 		return
 	}
@@ -87,6 +87,7 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed save", 500)
 		return
 	}
+	logging.SharedInstance().MethodInfo("ListsController", "Create").Info("success to create list")
 	encoder.Encode(*list)
 }
 
@@ -94,7 +95,7 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Update").Errorf("login error: %v", err.Error())
+		logging.SharedInstance().MethodInfo("ListsController", "Update").Errorf("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -116,14 +117,14 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	err = r.ParseForm()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Update").Errorf("wrong form: %v", err.Error())
+		logging.SharedInstance().MethodInfo("ListsController", "Update").Errorf("wrong form: %v", err)
 		http.Error(w, "Wrong Form", 400)
 		return
 	}
 	var editListForm EditListForm
 	err = param.Parse(r.PostForm, &editListForm)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Update").Errorf("wrong parameter: %v", err.Error())
+		logging.SharedInstance().MethodInfo("ListsController", "Update").Errorf("wrong parameter: %v", err)
 		http.Error(w, "Wrong parameter", 500)
 		return
 	}
@@ -136,5 +137,6 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	targetList.ListTasks = targetList.Tasks()
+	logging.SharedInstance().MethodInfo("ListsController", "Update").Info("success to update list")
 	encoder.Encode(*targetList)
 }

@@ -12,9 +12,14 @@ type LogStruct struct {
 var sharedInstance *LogStruct = New()
 
 func New() *LogStruct {
+	goenv := os.Getenv("GOJIENV")
 	log := logrus.New()
 	log.Out = os.Stdout
-	log.Level = logrus.DebugLevel
+	if goenv == "production" {
+		log.Level = logrus.InfoLevel
+	} else {
+		log.Level = logrus.DebugLevel
+	}
 	return &LogStruct{log: log}
 }
 
