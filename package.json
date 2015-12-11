@@ -47,6 +47,7 @@
     "gulp-util": "~3.0.6",
     "history": "^1.12.2",
     "mocha": "^2.3.4",
+    "nock": "^3.4.0",
     "react": "~0.13.3",
     "react-modal": "~0.5.0",
     "react-redux": "~3.1.0",

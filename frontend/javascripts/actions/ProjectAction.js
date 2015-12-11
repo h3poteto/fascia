@@ -43,7 +43,6 @@ export function fetchProjects() {
     return Request
       .get('/projects')
       .end((err, res)=> {
-        console.log(res);
         if (res.ok) {
           dispatch(receivePosts(res.body));
         } else if (res.unauthorized) {
