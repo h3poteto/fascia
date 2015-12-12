@@ -132,7 +132,7 @@ describe('fetchLists', () => {
         .reply(200, { lists: ['list1', 'list2'] })
     })
 
-    it('create RECEIVE_LISTS', (done) => {
+    it('call RECEIVE_LISTS and get lists', (done) => {
       const expectedActions = [
         { type: listActions.REQUEST_LISTS },
         { type: listActions.RECEIVE_LISTS, lists: { lists: ['list1', 'list2'] } }
@@ -155,7 +155,7 @@ describe('fetchProject', () => {
         .reply(200, { Id: 1, Title: "projectTitle" } )
     })
 
-    it('create RECEIVE_PROJECT', (done) => {
+    it('call RECEIVE_PROJECT and get project', (done) => {
       const expectedActions = [
         { type: listActions.REQUEST_PROJECT },
         { type: listActions.RECEIVE_PROJECT, project: { Id: 1, Title: "projectTitle" } }
@@ -174,7 +174,7 @@ describe('fetchCreateList', () => {
     const projectId = 1
     const title = "listTitle"
     const color = "ffffff"
-    const postForm = "title=listTitle&color=ffffff"
+    const postForm = `title=${title}&color=${color}`
     beforeEach(() => {
       nock('http://localhost')
         .post(`/projects/${projectId}/lists`, postForm)
@@ -187,7 +187,7 @@ describe('fetchCreateList', () => {
         })
     })
 
-    it('create RECEIVE_CREATE_LIST', (done) => {
+    it('call RECEIVE_CREATE_LIST and get list', (done) => {
       const expectedActions = [
         { type: listActions.REQUEST_CREATE_LIST },
         { type: listActions.RECEIVE_CREATE_LIST, list: { Id: 1, ProjectId: projectId, Title: title, Color: color, ListTasks: ["task1"] } }
@@ -217,7 +217,7 @@ describe('fetchCreateTask', () => {
         })
     })
 
-    it('create RECEIVE_CREATE_TASK', (done) => {
+    it('call RECEIVE_CREATE_TASK and get task', (done) => {
       const expectedActions = [
         { type: listActions.REQUEST_CREATE_TASK },
         { type: listActions.RECEIVE_CREATE_TASK, task: { Id: 1, ListId: listId, Title: title } }
@@ -256,7 +256,7 @@ describe('fetchUpdateList', () => {
           ListTasks: []
         })
     })
-    it('create RECEIVE_UPDATE_LIST', (done) => {
+    it('call RECEIVE_UPDATE_LIST and get list', (done) => {
       const expectedActions = [
         { type: listActions.REQUEST_UPDATE_LIST },
         { type: listActions.RECEIVE_UPDATE_LIST, list: { Id: list.Id, ProjectId: list.ProjectId, Title: list.Title.String, Color: list.Color.String, ListTasks: [] } }
@@ -280,7 +280,7 @@ describe('fetchPorjectGithub', () => {
           lists: ["list1", "list2"]
         })
     })
-    it('create RECEIVE_FETCH_GITHUB', (done) => {
+    it('call RECEIVE_FETCH_GITHUB and get lists', (done) => {
       const expectedActions = [
         { type: listActions.REQUEST_FETCH_GITHUB },
         { type: listActions.RECEIVE_FETCH_GITHUB, lists: { lists: ["list1", "list2"] } }

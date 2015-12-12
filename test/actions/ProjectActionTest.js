@@ -86,13 +86,13 @@ describe('fetchProjects', () => {
     beforeEach(() => {
       nock('http://localhost')
         .get('/projects')
-        .reply(200, { projects: ['do something'] })
+        .reply(200, { projects: ['project1', 'project2'] })
     })
 
-    it('creates RECEIVE_POSTS when fetching projects has been done', (done) => {
+    it('call RECEIVE_POSTS and get projects', (done) => {
       const expectedActions = [
         { type: projectActions.REQUEST_POSTS },
-        { type: projectActions.RECEIVE_POSTS, projects: { projects: ['do something']  } }
+        { type: projectActions.RECEIVE_POSTS, projects: { projects: ['project1', 'project2']  } }
       ]
       const store = mockStore({ projects: [] }, expectedActions, done)
       store.dispatch(projectActions.fetchProjects())
@@ -128,7 +128,7 @@ describe('fetchRepositories', () => {
         .reply(200, { repositories: [ "repo1", "repo2" ] })
     })
 
-    it('creates RECEIVE_REPOSITORIES', (done) => {
+    it('call RECEIVE_REPOSITORIES and get repositories', (done) => {
       const expectedActions = [
         { type: projectActions.REQUEST_REPOSITORIES },
         { type: projectActions.RECEIVE_REPOSITORIES, repositories: { repositories: [ "repo1", "repo2" ] } }
@@ -144,38 +144,36 @@ describe('fetchCreateProject', () => {
     nock.cleanAll()
   })
   context('when response is right', () => {
-
+    const title = "projectTitle"
+    const description = "projectDescription"
+    const repository = {
+      id: 1,
+      name: "repo1",
+      owner: {
+        login: "ownerName"
+      }
+    }
+    // TODO: できれば文字列じゃなくてハッシュでやりたいけど，とりあえずこれで通しておく
+    const postForm = `title=${title}&description=${description}&repositoryId=${repository.id}&repositoryOwner=${repository.owner.login}&repositoryName=${repository.name}`
     beforeEach(() => {
-      // TODO: できれば文字列じゃなくてハッシュでやりたいけど，とりあえずこれで通しておく
-      const postForm = "title=projectTitle&description=projectDescription&repositoryId=1&repositoryOwner=ownerName&repositoryName=repo1"
-
       nock('http://localhost')
-        .post('/projects', (body) => {
-          return JSON.stringify(body) === JSON.stringify(postForm)
-        })
+        .post('/projects', postForm)
         .reply(201, {
           ok: true,
           Id: 1,
           UserId: 12,
-          Title: 'projectTitle',
-          Description: 'projectDescription'
+          Title: title,
+          Description: description
         })
     })
 
-    it('creates RECEIVE_CREATE_PROJECT', (done) => {
+    it('call RECEIVE_CREATE_PROJECT and get project', (done) => {
       const expectedActions = [
         { type: projectActions.REQUEST_CREATE_PROJECT },
-        { type: projectActions.RECEIVE_CREATE_PROJECT, project: {Id: 1, UserId: 12, Title: 'projectTitle', Description: 'projectDescription' } }
+        { type: projectActions.RECEIVE_CREATE_PROJECT, project: {Id: 1, UserId: 12, Title: title, Description: description } }
       ]
       const store = mockStore({ project: null }, expectedActions, done)
-      const repository = {
-        id: 1,
-        name: "repo1",
-        owner: {
-          login: "ownerName"
-        }
-      }
-      store.dispatch(projectActions.fetchCreateProject("projectTitle", "projectDescription", repository))
+      store.dispatch(projectActions.fetchCreateProject(title, description, repository))
     })
   })
 })
