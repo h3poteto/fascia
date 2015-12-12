@@ -22,7 +22,7 @@ export function closeFlash() {
   };
 }
 
-export const OPEN_NEW_LIST = 'PEN_NEW_LIST';
+export const OPEN_NEW_LIST = 'OPEN_NEW_LIST';
 export function openNewListModal() {
   return {
     type: OPEN_NEW_LIST,

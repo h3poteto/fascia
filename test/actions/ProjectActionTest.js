@@ -1,50 +1,7 @@
-import * as projectActions from '../../frontend/javascripts/actions/ProjectAction';
-import expect from 'expect';
-import { applyMiddleware } from 'redux';
-import thunk from 'redux-thunk';
-import nock from 'nock';
-
-const middlewares = [ thunk ];
-
-// mock for async
-function mockStore(getState, expectedActions, done) {
-  if (!Array.isArray(expectedActions)) {
-    throw new Error('expectedActions should be an array of expected actions.')
-  }
-  if (typeof done !== 'undefined' && typeof done !== 'function') {
-    throw new Error('done should either be undefined or function.')
-  }
-
-  function mockStoreWithoutMiddleware() {
-    return {
-      getState() {
-        return typeof getState === 'function' ?
-          getState() :
-          getState
-      },
-
-      dispatch(action) {
-        const expectedAction = expectedActions.shift()
-
-        try {
-          expect(action).toEqual(expectedAction)
-          if (done && !expectedActions.length) {
-            done()
-          }
-          return action
-        } catch (e) {
-          done(e)
-        }
-      }
-    }
-  }
-
-  const mockStoreWithMiddleware = applyMiddleware(
-    ...middlewares
-  )(mockStoreWithoutMiddleware)
-
-  return mockStoreWithMiddleware()
-}
+import * as projectActions from '../../frontend/javascripts/actions/ProjectAction'
+import expect from 'expect'
+import nock from 'nock'
+import mockStore from '../support/MockStore'
 
 // normal tests
 
@@ -125,7 +82,7 @@ describe('fetchProjects', () => {
   afterEach(() => {
     nock.cleanAll()
   })
-  context('when response is right', () =>{
+  context('when response is right', () => {
     beforeEach(() => {
       nock('http://localhost')
         .get('/projects')
@@ -222,3 +179,5 @@ describe('fetchCreateProject', () => {
     })
   })
 })
+
+// TODO: update系のテストが足りてない
