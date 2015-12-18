@@ -177,5 +177,3 @@ describe('fetchCreateProject', () => {
     })
   })
 })
-
-// TODO: update系のテストが足りてない

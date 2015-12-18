@@ -291,4 +291,230 @@ describe('fetchPorjectGithub', () => {
   })
 })
 
-// TODO: drag関連のテストは真面目に考えて書くこと
+
+// drag
+
+describe('taskDragStart', () => {
+  it('should set drag target', () => {
+    const event = {
+      dataTransfer: {
+        effectAllowed: null,
+        setData: (format, target) => {
+          return format, target
+        }
+      },
+      currentTarget: {
+        parentNode: {
+          parentNode: {
+            name: "parent"
+          }
+        }
+      }
+    }
+    const expectedAction = {
+      type: listActions.TASK_DRAG_START,
+      taskDragTarget: event.currentTarget,
+      taskDragFromList: event.currentTarget.parentNode.parentNode
+    }
+    expect(listActions.taskDragStart(event)).toEqual(expectedAction)
+  })
+})
+
+describe('taskDragLeave', () => {
+  it('should free drag target', () => {
+    const expectedAction = {
+      type: listActions.TASK_DRAG_LEAVE,
+    }
+    expect(listActions.taskDragLeave()).toEqual(expectedAction)
+  })
+})
+
+describe('taskDrop', () => {
+  afterEach(() => {
+    nock.cleanAll()
+  })
+  context('when add task to list at the last', () => {
+    const projectId = 1
+    const taskDraggingFrom = {
+      fromList: {
+        Id: 1
+      },
+      fromTask: {
+        Id: 5
+      }
+    }
+    const taskDraggingTo = {
+      toList: {
+        Id: 2
+      },
+      prevToTask: null
+    }
+    beforeEach(() => {
+      nock('http://localhost')
+        .post(`/projects/${projectId}/lists/${taskDraggingFrom.fromList.Id}/tasks/${taskDraggingFrom.fromTask.Id}/move_task`)
+        .reply(200, {
+          lists: ["list1", "list2"]
+        })
+    })
+
+    it('call RECEIVE_MOVE_TASK and get lists', (done) => {
+      const expectedActions = [
+        { type: listActions.REQUEST_MOVE_TASK },
+        { type: listActions.RECEIVE_MOVE_TASK, lists: { lists: ["list1", "list2"] } }
+      ]
+      const store = mockStore({ lists: [] }, expectedActions, done)
+      store.dispatch(listActions.taskDrop(projectId, taskDraggingFrom, taskDraggingTo))
+    })
+  })
+  context('when add task to list at halfway', () => {
+    const projectId = 1
+    const taskDraggingFrom = {
+      fromList: {
+        Id: 1
+      },
+      fromTask: {
+        Id: 5
+      }
+    }
+    const taskDraggingTo = {
+      toList: {
+        Id: 2
+      },
+      prevToTask: {
+        Id: 6
+      }
+    }
+    beforeEach(() => {
+      nock('http://localhost')
+        .post(`/projects/${projectId}/lists/${taskDraggingFrom.fromList.Id}/tasks/${taskDraggingFrom.fromTask.Id}/move_task`)
+        .reply(200, {
+          lists: ["list1", "list2"]
+        })
+    })
+
+    it('call RECEIVE_MOVE_TASK and get lists', (done) => {
+      const expectedActions = [
+        { type: listActions.REQUEST_MOVE_TASK },
+        { type: listActions.RECEIVE_MOVE_TASK, lists: { lists: ["list1", "list2"] } }
+      ]
+      const store = mockStore({ lists: [] }, expectedActions, done)
+      store.dispatch(listActions.taskDrop(projectId, taskDraggingFrom, taskDraggingTo))
+    })
+  })
+  context('when dragg target is undefined', () => {
+    it('call TASK_DROP and do nothing', () => {
+      const projectId = 1
+      const taskDraggingFrom = {
+        fromList: {
+          Id: 1
+        },
+        fromTask: {
+          Id: 5
+        }
+      }
+      const taskDraggingTo = null
+      const expectedAction = {
+        type: listActions.TASK_DROP
+      }
+      expect(listActions.taskDrop(projectId, taskDraggingFrom, taskDraggingTo)).toEqual(expectedAction)
+    })
+  })
+})
+
+describe('taskDragOver', () => {
+  context('when drag over list element', () => {
+    it('should get target task and list', () => {
+      const event = {
+        preventDefault: () => {
+          return true
+        },
+        target: {
+          dataset: {
+            droppedDepth: "0"
+          }
+        }
+      }
+      const expectedAction = {
+        type: listActions.TASK_DRAG_OVER,
+        taskDragToTask: event.target,
+        taskDragToList: event.target
+      }
+      expect(listActions.taskDragOver(event)).toEqual(expectedAction)
+    })
+  })
+  context('when drag over list title element', () => {
+    it('should get target task and list', () => {
+      const event = {
+        preventDefault: () => {
+          return true
+        },
+        target: {
+          dataset: {
+            droppedDepth: "1"
+          },
+          parentNode: {
+            Id: 1
+          }
+        }
+      }
+      const expectedAction = {
+        type: listActions.TASK_DRAG_OVER,
+        taskDragToTask: event.target,
+        taskDragToList: event.target.parentNode
+      }
+      expect(listActions.taskDragOver(event)).toEqual(expectedAction)
+    })
+  })
+  context('when drag over li element', () => {
+    it('should get target task and list', () => {
+      const event = {
+        preventDefault: () => {
+          return true
+        },
+        target: {
+          dataset: {
+            droppedDepth: "2"
+          },
+          parentNode: {
+            parentNode: {
+              Id: 1
+            }
+          }
+        }
+      }
+      const expectedAction = {
+        type: listActions.TASK_DRAG_OVER,
+        taskDragToTask: event.target,
+        taskDragToList: event.target.parentNode.parentNode
+      }
+      expect(listActions.taskDragOver(event)).toEqual(expectedAction)
+    })
+  })
+  context('when drag over icon element', () => {
+    it('should get target task and list', () => {
+      const event = {
+        preventDefault: () => {
+          return true
+        },
+        target: {
+          dataset: {
+            droppedDepth: "3"
+          },
+          parentNode: {
+            parentNode: {
+              parentNode: {
+                Id: 2
+              }
+            }
+          }
+        }
+      }
+      const expectedAction = {
+        type: listActions.TASK_DRAG_OVER,
+        taskDragToTask: event.target,
+        taskDragToList: event.target.parentNode.parentNode.parentNode
+      }
+      expect(listActions.taskDragOver(event)).toEqual(expectedAction)
+    })
+  })
+})
