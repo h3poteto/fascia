@@ -89,12 +89,6 @@ export default function ListReducer(state = initState, action) {
       lists = [];
     } else {
       lists = action.lists.map(function(list, index) {
-        list.Color = createFragment({
-          String: list.Color.String
-        })
-        list.Title = createFragment({
-          String: list.Title.String
-        })
         if (list.ListTasks == null) {
           list.ListTasks = [];
           return list;

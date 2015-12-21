@@ -97,9 +97,9 @@ export default class ListView extends React.Component {
               <fieldset>
                 <legend>Edit List</legend>
                 <label htmlFor="title">Title</label>
-                <input id="title" name="title" type="text" value={selectedList !=null ? selectedList.Title.String : ''} onChange={this.props.updateSelectedListTitle} className="form-control" />
+                <input id="title" name="title" type="text" value={selectedList !=null ? selectedList.Title : ''} onChange={this.props.updateSelectedListTitle} className="form-control" />
                 <label htmlFor="color">Color</label>
-                <input id="color" name="color" type="text" value={selectedList !=null ? selectedList.Color.String : ''} onChange={this.props.updateSelectedListColor} className="form-control" />
+                <input id="color" name="color" type="text" value={selectedList !=null ? selectedList.Color : ''} onChange={this.props.updateSelectedListColor} className="form-control" />
                 <div className="form-action">
                   <button onClick={e => this.props.fetchUpdateList(this.props.params.projectId, selectedList)} className="pure-button pure-button-primary" type="button">Update List</button>
                 </div>
@@ -122,10 +122,10 @@ export default class ListView extends React.Component {
                     if (task.draggedOn) {
                       return <li className="arrow"></li>
                     } else {
-                      return <li style={{"border-left": `solid 6px #${list.Color.String}`}} className="task" draggable="true" data-dropped-depth="2" data-id={task.Id} onDragStart={this.props.taskDragStart}>{task.Title.String}</li>
+                      return <li style={{"border-left": `solid 6px #${list.Color}`}} className="task" draggable="true" data-dropped-depth="2" data-id={task.Id} onDragStart={this.props.taskDragStart}>{task.Title}</li>
                     }
                   }, this)}
-                  <li className="new-task" data-dropped-depth="2" style={{"border-left": `solid 6px #${list.Color.String}`}} onClick={e => this.props.openNewTaskModal(list)}>
+                  <li className="new-task" data-dropped-depth="2" style={{"border-left": `solid 6px #${list.Color}`}} onClick={e => this.props.openNewTaskModal(list)}>
                     <i className="fa fa-plus" data-dropped-depth="3"></i>
                   </li>
                 </ul>
