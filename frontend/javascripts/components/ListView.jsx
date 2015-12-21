@@ -122,10 +122,10 @@ export default class ListView extends React.Component {
                     if (task.draggedOn) {
                       return <li className="arrow"></li>
                     } else {
-                      return <li style={{"border-left": `solid 6px #${list.Color}`}} className="task" draggable="true" data-dropped-depth="2" data-id={task.Id} onDragStart={this.props.taskDragStart}>{task.Title}</li>
+                      return <li style={{"borderLeft": `solid 6px #${list.Color}`}} className="task" draggable="true" data-dropped-depth="2" data-id={task.Id} onDragStart={this.props.taskDragStart}>{task.Title}</li>
                     }
                   }, this)}
-                  <li className="new-task" data-dropped-depth="2" style={{"border-left": `solid 6px #${list.Color}`}} onClick={e => this.props.openNewTaskModal(list)}>
+                  <li className="new-task" data-dropped-depth="2" style={{"borderLeft": `solid 6px #${list.Color}`}} onClick={e => this.props.openNewTaskModal(list)}>
                     <i className="fa fa-plus" data-dropped-depth="3"></i>
                   </li>
                 </ul>
