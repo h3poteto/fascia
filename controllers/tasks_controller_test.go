@@ -2,6 +2,7 @@ package controllers_test
 
 import (
 	. "../../fascia"
+	"../controllers"
 	"../models/db"
 	"../models/list"
 	"../models/task"
@@ -97,12 +98,12 @@ var _ = Describe("TasksController", func() {
 		It("タスク一覧が取得できること ", func() {
 			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(projectId, 10) + "/lists/" + strconv.FormatInt(listId, 10) + "/tasks")
 			Expect(err).To(BeNil())
-			var contents []task.TaskStruct
+			var contents []controllers.TaskJsonFormat
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
-			Expect(contents[0].Title.String).To(Equal("task1"))
-			Expect(contents[1].Title.String).To(Equal("task2"))
+			Expect(contents[0].Title).To(Equal("task1"))
+			Expect(contents[1].Title).To(Equal("task2"))
 		})
 	})
 
