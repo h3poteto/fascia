@@ -2,6 +2,7 @@ package controllers_test
 
 import (
 	. "../../fascia"
+	"../controllers"
 	"../models/db"
 	"../models/list"
 	"encoding/json"
@@ -106,13 +107,13 @@ var _ = Describe("ListsController", func() {
 		It("リスト一覧が取得できること", func() {
 			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(projectId, 10) + "/lists")
 			Expect(err).To(BeNil())
-			var contents []list.ListStruct
+			var contents []controllers.ListJsonFormat
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
 			// 初期リストが入るようになったのでそれ以降
-			Expect(contents[3].Title.String).To(Equal("list1"))
-			Expect(contents[4].Title.String).To(Equal("list2"))
+			Expect(contents[3].Title).To(Equal("list1"))
+			Expect(contents[4].Title).To(Equal("list2"))
 		})
 	})
 })
