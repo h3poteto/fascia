@@ -23,6 +23,13 @@ type NewProjectForm struct {
 	RepositoryName  string `param:"repositoryName"`
 }
 
+type ProjectJsonFormat struct {
+	Id          int64
+	UserId      int64
+	Title       string
+	Description string
+}
+
 func (u *Projects) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)
@@ -33,7 +40,11 @@ func (u *Projects) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	encoder := json.NewEncoder(w)
 	projects := current_user.Projects()
-	encoder.Encode(projects)
+	jsonProjects := make([]*ProjectJsonFormat, 0)
+	for _, p := range projects {
+		jsonProjects = append(jsonProjects, &ProjectJsonFormat{Id: p.Id, UserId: p.UserId.Int64, Title: p.Title, Description: p.Description})
+	}
+	encoder.Encode(jsonProjects)
 }
 
 func (u *Projects) Show(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -52,7 +63,8 @@ func (u *Projects) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "project not found", 404)
 		return
 	}
-	encoder.Encode(project)
+	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId.Int64, Title: project.Title, Description: project.Description}
+	encoder.Encode(jsonProject)
 	return
 }
 
@@ -107,7 +119,8 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Create").Info("success to create initial lists")
 
-	encoder.Encode(*project)
+	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId.Int64, Title: project.Title, Description: project.Description}
+	encoder.Encode(jsonProject)
 }
 
 func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -133,8 +146,9 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 		return
 	} else {
 		lists := project.Lists()
+		jsonLists := make([]*ListJsonFormat, 0)
 		for _, l := range lists {
-			l.ListTasks = l.Tasks()
+			jsonLists = append(jsonLists, &ListJsonFormat{Id: l.Id, ProjectId: l.ProjectId, UserId: l.UserId, Title: l.Title.String, ListTasks: l.Tasks(), Color: l.Color.String})
 		}
 		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Info("success to fetch github")
 		encoder.Encode(lists)
