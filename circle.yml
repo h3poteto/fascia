@@ -18,3 +18,4 @@ database:
 test:
   override:
     - export GOJIENV=test; gom exec ginkgo -r ./
+    - npm test

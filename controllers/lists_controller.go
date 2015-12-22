@@ -3,6 +3,7 @@ package controllers
 import (
 	listModel "../models/list"
 	projectModel "../models/project"
+	"../models/task"
 	"../modules/logging"
 	"encoding/json"
 	"github.com/goji/param"
@@ -24,6 +25,15 @@ type EditListForm struct {
 	Color string `param:"color"`
 }
 
+type ListJsonFormat struct {
+	Id        int64
+	ProjectId int64
+	UserId    int64
+	Title     string
+	ListTasks []*task.TaskStruct
+	Color     string
+}
+
 func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)
@@ -41,10 +51,11 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	lists := parentProject.Lists()
+	jsonLists := make([]*ListJsonFormat, 0)
 	for _, l := range lists {
-		l.ListTasks = l.Tasks()
+		jsonLists = append(jsonLists, &ListJsonFormat{Id: l.Id, ProjectId: l.ProjectId, UserId: l.UserId, Title: l.Title.String, ListTasks: l.Tasks(), Color: l.Color.String})
 	}
-	encoder.Encode(lists)
+	encoder.Encode(jsonLists)
 	return
 }
 
@@ -88,7 +99,8 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ListsController", "Create").Info("success to create list")
-	encoder.Encode(*list)
+	jsonList := ListJsonFormat{Id: list.Id, ProjectId: list.ProjectId, UserId: list.UserId, Title: list.Title.String, Color: list.Color.String}
+	encoder.Encode(jsonList)
 }
 
 func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -136,7 +148,7 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "save failed", 500)
 		return
 	}
-	targetList.ListTasks = targetList.Tasks()
 	logging.SharedInstance().MethodInfo("ListsController", "Update").Info("success to update list")
-	encoder.Encode(*targetList)
+	jsonList := ListJsonFormat{Id: targetList.Id, ProjectId: targetList.ProjectId, UserId: targetList.UserId, Title: targetList.Title.String, ListTasks: targetList.Tasks(), Color: targetList.Color.String}
+	encoder.Encode(jsonList)
 }

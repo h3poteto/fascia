@@ -22,7 +22,7 @@ export function closeFlash() {
   };
 }
 
-export const OPEN_NEW_LIST = 'PEN_NEW_LIST';
+export const OPEN_NEW_LIST = 'OPEN_NEW_LIST';
 export function openNewListModal() {
   return {
     type: OPEN_NEW_LIST,
@@ -292,29 +292,9 @@ export function taskDragStart(ev) {
 }
 
 export const TASK_DRAG_LEAVE = "TASK_DRAG_LEAVE";
-export function taskDragLeave(ev) {
-  var targetList;
-  switch(ev.target.dataset.droppedDepth) {
-  case "0":
-    targetList = ev.target;
-    break;
-  case "1":
-    targetList = ev.target.parentNode;
-    break;
-  case "2":
-    targetList = ev.target.parentNode.parentNode;
-    break;
-  case "3":
-    targetList = ev.target.parentNode.parentNode.parentNode;
-    break;
-  default:
-    targetList = ev.target.parentNode.parentNode;
-    break;
-  }
+export function taskDragLeave() {
   return {
-    type: TASK_DRAG_LEAVE,
-    taskDragLeavList: targetList,
-    taskDragLeavTask: ev.target
+    type: TASK_DRAG_LEAVE
   };
 }
 

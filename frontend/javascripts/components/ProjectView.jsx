@@ -44,7 +44,13 @@ class ProjectView extends React.Component {
   }
 
   render() {
-    const { isModalOpen, newProject, projects, repositories, selectedRepository, error } = this.props.ProjectReducer
+    const { isModalOpen, newProject, projects, selectedRepository, error } = this.props.ProjectReducer
+    var { repositories } = this.props.ProjectReducer
+
+    // ここsetState扱いになるのでwarningが出るよ．別変数が良さそう
+    if (repositories == null ) {
+      repositories = []
+    }
 
     var flash;
     if (error != null) {

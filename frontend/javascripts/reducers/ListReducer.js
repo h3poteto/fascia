@@ -1,4 +1,5 @@
 import * as listActions from '../actions/ListAction';
+import createFragment from 'react-addons-create-fragment'
 
 const initState = {
   isListModalOpen: false,

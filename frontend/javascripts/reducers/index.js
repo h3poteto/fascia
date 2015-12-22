@@ -1,10 +1,10 @@
 import { combineReducers } from 'redux';
 import ProjectReducer from './ProjectReducer';
 import ListReducer from './ListReducer';
-import { routerStateReducer } from 'redux-router';
+import { routeReducer } from 'redux-simple-router'
 
 const rootReducer = combineReducers({
-  router: routerStateReducer,
+  routing: routeReducer,
   ProjectReducer,
   ListReducer
 });
