@@ -1,5 +1,4 @@
 import * as listActions from '../actions/ListAction';
-import createFragment from 'react-addons-create-fragment'
 
 const initState = {
   isListModalOpen: false,
@@ -65,13 +64,13 @@ export default function ListReducer(state = initState, action) {
     });
   case listActions.UPDATE_SELECTED_LIST_TITLE:
     var list = state.selectedList;
-    list.Title.String = action.title;
+    list.Title = action.title;
     return Object.assign({}, state, {
       selectedList: list
     });
   case listActions.UPDATE_SELECTED_LIST_COLOR:
     var list = state.selectedList;
-    list.Color.String = action.color;
+    list.Color = action.color;
     return Object.assign({}, state, {
       selectedList: list
     });
@@ -146,7 +145,6 @@ export default function ListReducer(state = initState, action) {
       isListEditModalOpen: false
     });
   case listActions.TASK_DRAG_START:
-    var fromList = null;
     var lists = state.lists;
     var taskDraggingFrom;
     state.lists.map(function(list, i) {
