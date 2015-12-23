@@ -3,7 +3,6 @@ package controllers
 import (
 	listModel "../models/list"
 	projectModel "../models/project"
-	"../models/task"
 	"../modules/logging"
 	"encoding/json"
 	"github.com/goji/param"
@@ -30,7 +29,7 @@ type ListJsonFormat struct {
 	ProjectId int64
 	UserId    int64
 	Title     string
-	ListTasks []*task.TaskStruct
+	ListTasks []*TaskJsonFormat
 	Color     string
 }
 
@@ -53,7 +52,7 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	lists := parentProject.Lists()
 	jsonLists := make([]*ListJsonFormat, 0)
 	for _, l := range lists {
-		jsonLists = append(jsonLists, &ListJsonFormat{Id: l.Id, ProjectId: l.ProjectId, UserId: l.UserId, Title: l.Title.String, ListTasks: l.Tasks(), Color: l.Color.String})
+		jsonLists = append(jsonLists, &ListJsonFormat{Id: l.Id, ProjectId: l.ProjectId, UserId: l.UserId, Title: l.Title.String, ListTasks: TaskFormatToJson(l.Tasks()), Color: l.Color.String})
 	}
 	encoder.Encode(jsonLists)
 	return
@@ -149,6 +148,6 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ListsController", "Update").Info("success to update list")
-	jsonList := ListJsonFormat{Id: targetList.Id, ProjectId: targetList.ProjectId, UserId: targetList.UserId, Title: targetList.Title.String, ListTasks: targetList.Tasks(), Color: targetList.Color.String}
+	jsonList := ListJsonFormat{Id: targetList.Id, ProjectId: targetList.ProjectId, UserId: targetList.UserId, Title: targetList.Title.String, ListTasks: TaskFormatToJson(targetList.Tasks()), Color: targetList.Color.String}
 	encoder.Encode(jsonList)
 }

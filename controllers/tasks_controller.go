@@ -173,10 +173,18 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 	allLists := parentProject.Lists()
 	jsonLists := make([]*ListJsonFormat, 0)
 	for _, l := range allLists {
-		jsonLists = append(jsonLists, &ListJsonFormat{Id: l.Id, ProjectId: l.ProjectId, UserId: l.UserId, Title: l.Title.String, ListTasks: l.Tasks(), Color: l.Color.String})
+		jsonLists = append(jsonLists, &ListJsonFormat{Id: l.Id, ProjectId: l.ProjectId, UserId: l.UserId, Title: l.Title.String, ListTasks: TaskFormatToJson(l.Tasks()), Color: l.Color.String})
 	}
 	logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Debugf("move task: %+v", allLists)
 	logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Info("success to move task")
 	encoder.Encode(jsonLists)
 	return
+}
+
+func TaskFormatToJson(tasks []*taskModel.TaskStruct) []*TaskJsonFormat {
+	jsonTasks := make([]*TaskJsonFormat, 0)
+	for _, t := range tasks {
+		jsonTasks = append(jsonTasks, &TaskJsonFormat{Id: t.Id, ListId: t.ListId, UserId: t.UserId, IssueNumber: t.IssueNumber.Int64, Title: t.Title.String})
+	}
+	return jsonTasks
 }

@@ -148,10 +148,10 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 		lists := project.Lists()
 		jsonLists := make([]*ListJsonFormat, 0)
 		for _, l := range lists {
-			jsonLists = append(jsonLists, &ListJsonFormat{Id: l.Id, ProjectId: l.ProjectId, UserId: l.UserId, Title: l.Title.String, ListTasks: l.Tasks(), Color: l.Color.String})
+			jsonLists = append(jsonLists, &ListJsonFormat{Id: l.Id, ProjectId: l.ProjectId, UserId: l.UserId, Title: l.Title.String, ListTasks: TaskFormatToJson(l.Tasks()), Color: l.Color.String})
 		}
 		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Info("success to fetch github")
-		encoder.Encode(lists)
+		encoder.Encode(jsonLists)
 		return
 	}
 }
