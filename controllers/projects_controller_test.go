@@ -2,6 +2,7 @@ package controllers_test
 
 import (
 	. "../../fascia"
+	"../controllers"
 	"../models/db"
 	"../models/project"
 	"encoding/json"
@@ -75,7 +76,7 @@ var _ = Describe("ProjectsController", func() {
 		It("プロジェクト一覧が取得できること", func() {
 			res, err := http.Get(ts.URL + "/projects")
 			Expect(err).To(BeNil())
-			var resp []project.ProjectStruct
+			var resp []controllers.ProjectJsonFormat
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &resp)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
@@ -93,7 +94,7 @@ var _ = Describe("ProjectsController", func() {
 		It("プロジェクトのタイトルが取得できること", func() {
 			res, err := http.Get(ts.URL + "/projects")
 			Expect(err).To(BeNil())
-			var resp []project.ProjectStruct
+			var resp []controllers.ProjectJsonFormat
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &resp)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
