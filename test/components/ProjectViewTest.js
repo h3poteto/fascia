@@ -51,9 +51,147 @@ describe('ProjectView', () => {
       expect(props.openNewProjectModal.calls.length).toBe(1)
     })
   })
-  // TODO: write
   context('when one error, no repositories, and one project', () => {
+    let state = {
+      ProjectReducer: {
+        isModalOpen: true,
+        newProject: {
+          title: "Title",
+          description: ""
+        },
+        projects: [{
+          Id: 1,
+          Title: "project title",
+          Description: "project description"
+        }]
+      },
+      fetchProjects: expect.createSpy(),
+      fetchRepositories: expect.createSpy(),
+      closeFlash: expect.createSpy(),
+      openNewProjectModal: expect.createSpy(),
+      updateNewProjectTitle: expect.createSpy(),
+      changeSelectedRepository: expect.createSpy(),
+      fetchCreateProject: expect.createSpy()
+    }
+    it('should render page and modal', () => {
+      const { output, props } = setup(state)
+
+      expect(output.type).toBe('div')
+      expect(output.props.id).toBe('projects')
+
+      let [ flash, modal, items ] = output.props.children
+      expect(modal.props.isOpen).toBe(true)
+      let formWrapper = modal.props.children
+      let form = formWrapper.props.children
+      let field = form.props.children
+      let [ legend, titileLabel, titleInput, descriptionLabel, descriptionInput, repositoryLabel, repositorySelect, action ] = field.props.children
+      expect(titleInput.props.value).toBe("Title")
+      titleInput.props.onChange()
+      expect(props.updateNewProjectTitle.calls.length).toBe(1)
+      let button = action.props.children
+      button.props.onClick()
+      expect(props.fetchCreateProject.calls.length).toBe(1)
+    })
   })
   context('when open project modal with repositories', () => {
+    context('without selectedRepository', () => {
+      let state = {
+        ProjectReducer: {
+          isModalOpen: true,
+          newProject: {
+            title: "Title",
+            description: ""
+          },
+          projects: [{
+            Id: 1,
+            Title: "project title",
+            Description: "project description"
+          }],
+          selectedRepository: null,
+          repositories: [{
+            id: 1,
+            full_name: "repo1"
+          }, {
+            id: 2,
+            full_name: "repo2"
+          }]
+        },
+        fetchProjects: expect.createSpy(),
+        fetchRepositories: expect.createSpy(),
+        closeFlash: expect.createSpy(),
+        openNewProjectModal: expect.createSpy(),
+        updateNewProjectTitle: expect.createSpy(),
+        changeSelectedRepository: expect.createSpy(),
+        fetchCreateProject: expect.createSpy()
+      }
+      it('should render repositories', () => {
+        const { output, props } = setup(state)
+
+        expect(output.type).toBe('div')
+        expect(output.props.id).toBe('projects')
+
+        let [ flash, modal, items ] = output.props.children
+        expect(modal.props.isOpen).toBe(true)
+        let formWrapper = modal.props.children
+        let form = formWrapper.props.children
+        let field = form.props.children
+        let [ legend, titileLabel, titleInput, descriptionLabel, descriptionInput, repositoryLabel, repositorySelect, action ] = field.props.children
+        let [ option1, repos ] = repositorySelect.props.children
+        let [ repo1, repo2 ] = repos
+        expect(repo1.props.children).toBe('repo1')
+        expect(repo2.props.children).toBe('repo2')
+      })
+    })
+    context('with selectedRepository', () => {
+      let state = {
+        ProjectReducer: {
+          isModalOpen: true,
+          newProject: {
+            title: "Title",
+            description: ""
+          },
+          projects: [{
+            Id: 1,
+            Title: "project title",
+            Description: "project description"
+          }],
+          selectedRepository: {
+            id: 1
+          },
+          repositories: [{
+            id: 1,
+            full_name: "repo1"
+          }, {
+            id: 2,
+            full_name: "repo2"
+          }]
+        },
+        fetchProjects: expect.createSpy(),
+        fetchRepositories: expect.createSpy(),
+        closeFlash: expect.createSpy(),
+        openNewProjectModal: expect.createSpy(),
+        updateNewProjectTitle: expect.createSpy(),
+        changeSelectedRepository: expect.createSpy(),
+        fetchCreateProject: expect.createSpy()
+      }
+      it('should render repositories', () => {
+        const { output, props } = setup(state)
+
+        expect(output.type).toBe('div')
+        expect(output.props.id).toBe('projects')
+
+        let [ flash, modal, items ] = output.props.children
+        expect(modal.props.isOpen).toBe(true)
+        let formWrapper = modal.props.children
+        let form = formWrapper.props.children
+        let field = form.props.children
+        let [ legend, titileLabel, titleInput, descriptionLabel, descriptionInput, repositoryLabel, repositorySelect, action ] = field.props.children
+        let [ option1, repos ] = repositorySelect.props.children
+        let [ repo1, repo2 ] = repos
+        expect(repo1.props.children).toBe('repo1')
+        expect(repo1.props.selected).toBe(true)
+        expect(repo2.props.children).toBe('repo2')
+      })
+    })
   })
 })
