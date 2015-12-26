@@ -44,7 +44,7 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil || parentProject.UserId.Int64 != current_user.Id {
+	if parentProject == nil || parentProject.UserId != current_user.Id {
 		logging.SharedInstance().MethodInfo("ListsController", "Index").Error("project not found")
 		http.Error(w, "project not found", 404)
 		return
@@ -69,7 +69,7 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil || parentProject.UserId.Int64 != current_user.Id {
+	if parentProject == nil || parentProject.UserId != current_user.Id {
 		logging.SharedInstance().MethodInfo("ListsController", "Create").Error("project not found")
 		http.Error(w, "project not found", 404)
 		return
@@ -113,7 +113,7 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil || parentProject.UserId.Int64 != current_user.Id {
+	if parentProject == nil || parentProject.UserId != current_user.Id {
 		logging.SharedInstance().MethodInfo("ListsController", "Update").Error("project not found")
 		http.Error(w, "project not found", 404)
 		return

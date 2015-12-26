@@ -42,7 +42,7 @@ func (u *Projects) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	projects := current_user.Projects()
 	jsonProjects := make([]*ProjectJsonFormat, 0)
 	for _, p := range projects {
-		jsonProjects = append(jsonProjects, &ProjectJsonFormat{Id: p.Id, UserId: p.UserId.Int64, Title: p.Title, Description: p.Description})
+		jsonProjects = append(jsonProjects, &ProjectJsonFormat{Id: p.Id, UserId: p.UserId, Title: p.Title, Description: p.Description})
 	}
 	encoder.Encode(jsonProjects)
 }
@@ -58,12 +58,12 @@ func (u *Projects) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	project := projectModel.FindProject(projectID)
-	if project == nil || project.UserId.Int64 != current_user.Id {
+	if project == nil || project.UserId != current_user.Id {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Show").Error("project not found")
 		http.Error(w, "project not found", 404)
 		return
 	}
-	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId.Int64, Title: project.Title, Description: project.Description}
+	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId, Title: project.Title, Description: project.Description}
 	encoder.Encode(jsonProject)
 	return
 }
@@ -119,7 +119,7 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Create").Info("success to create initial lists")
 
-	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId.Int64, Title: project.Title, Description: project.Description}
+	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId, Title: project.Title, Description: project.Description}
 	encoder.Encode(jsonProject)
 }
 
@@ -134,7 +134,7 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 	encoder := json.NewEncoder(w)
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	project := projectModel.FindProject(projectID)
-	if project == nil || project.UserId.Int64 != current_user.Id {
+	if project == nil || project.UserId != current_user.Id {
 		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Error("project not found")
 		http.Error(w, "project not found", 404)
 		return
