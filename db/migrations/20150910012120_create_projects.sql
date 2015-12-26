@@ -3,7 +3,7 @@
 -- SQL in section 'Up' is executed when this migration is applied
 CREATE TABLE IF NOT EXISTS projects (
 id int(11) NOT NULL AUTO_INCREMENT,
-user_id int(11) DEFAULT NULL,
+user_id int(11) NOT NULL,
 title varchar(255) NOT NULL DEFAULT "",
 created_at datetime DEFAULT NULL,
 updated_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

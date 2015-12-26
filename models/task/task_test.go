@@ -38,7 +38,7 @@ var _ = Describe("Task", func() {
 		table = database.Init()
 		newProject = project.NewProject(0, uid, "title", "desc")
 		newProject.Save()
-		newList = list.NewList(0, newProject.Id, newProject.UserId.Int64, "list title", "")
+		newList = list.NewList(0, newProject.Id, newProject.UserId, "list title", "")
 		newList.Save(nil, nil)
 		newTask = NewTask(0, newList.Id, newList.UserId, sql.NullInt64{}, "task title")
 	})
@@ -108,7 +108,7 @@ var _ = Describe("Task", func() {
 		)
 		JustBeforeEach(func() {
 			newTask.Save(nil, nil)
-			list2 = list.NewList(0, newProject.Id, newProject.UserId.Int64, "list2", "")
+			list2 = list.NewList(0, newProject.Id, newProject.UserId, "list2", "")
 			list2.Save(nil, nil)
 		})
 		Context("移動先リストにタスクがないとき", func() {

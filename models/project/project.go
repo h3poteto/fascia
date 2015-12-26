@@ -18,7 +18,7 @@ type Project interface {
 
 type ProjectStruct struct {
 	Id          int64
-	UserId      sql.NullInt64
+	UserId      int64
 	Title       string
 	Description string
 	database    db.DB
@@ -28,8 +28,7 @@ func NewProject(id int64, userID int64, title string, description string) *Proje
 	if userID == 0 {
 		return nil
 	}
-	nullUserID := sql.NullInt64{Int64: int64(userID), Valid: true}
-	project := &ProjectStruct{Id: id, UserId: nullUserID, Title: title, Description: description}
+	project := &ProjectStruct{Id: id, UserId: userID, Title: title, Description: description}
 	project.Initialize()
 	return project
 }
@@ -159,7 +158,7 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		}
 		issueTask, err := task.FindByIssueNumber(*issue.Number)
 		if err != nil {
-			issueTask = task.NewTask(0, 0, u.UserId.Int64, sql.NullInt64{Int64: int64(*issue.Number), Valid: true}, *issue.Title)
+			issueTask = task.NewTask(0, 0, u.UserId, sql.NullInt64{Int64: int64(*issue.Number), Valid: true}, *issue.Title)
 		}
 		if len(githubLabels) == 1 {
 			// 一つのlistだけが該当するとき
