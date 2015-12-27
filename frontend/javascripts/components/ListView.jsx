@@ -32,7 +32,7 @@ export default class ListView extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.ListReducer.error != null) {
+    if (this.props.ListReducer.error != null || nextProps.ListReducer.error != null) {
       setTimeout(() => {
         this.props.closeFlash()
       }, 3000);

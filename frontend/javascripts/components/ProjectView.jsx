@@ -36,7 +36,7 @@ class ProjectView extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.ProjectReducer.error != null) {
+    if (this.props.ProjectReducer.error != null || nextProps.ProjectReducer.error != null) {
       setTimeout(() => {
         this.props.closeFlash()
       }, 3000);
