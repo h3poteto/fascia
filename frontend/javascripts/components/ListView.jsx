@@ -114,15 +114,15 @@ export default class ListView extends React.Component {
         <div className="items">
           {lists.map(function(list, index) {
             return (
-              <div className="fascia-list" data-dropped-depth="0" data-id={list.Id} onDragOver={this.props.taskDragOver} onDrop={e=> this.props.taskDrop(project.Id, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.taskDragLeave}>
+              <div key={index} className="fascia-list" data-dropped-depth="0" data-id={list.Id} onDragOver={this.props.taskDragOver} onDrop={e=> this.props.taskDrop(project.Id, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.taskDragLeave}>
                 <div className="fascia-list-menu" data-dropped-depth="1"><i className="fa fa-pencil" onClick={e => this.props.openEditListModal(list)} data-dropped-depth="2"></i></div>
                 <span className="list-title" data-dropped-depth="1">{list.Title}</span>
                 <ul className="fascia-task" data-dropped-depth="1">
                   {list.ListTasks.map(function(task, index) {
                     if (task.draggedOn) {
-                      return <li className="arrow"></li>
+                      return <li key={index} className="arrow"></li>
                     } else {
-                      return <li style={{"borderLeft": `solid 6px #${list.Color}`}} className="task" draggable="true" data-dropped-depth="2" data-id={task.Id} onDragStart={this.props.taskDragStart}>{task.Title}</li>
+                      return <li key={index} style={{"borderLeft": `solid 6px #${list.Color}`}} className="task" draggable="true" data-dropped-depth="2" data-id={task.Id} onDragStart={this.props.taskDragStart}>{task.Title}</li>
                     }
                   }, this)}
                   <li className="new-task" data-dropped-depth="2" style={{"borderLeft": `solid 6px #${list.Color}`}} onClick={e => this.props.openNewTaskModal(list)}>

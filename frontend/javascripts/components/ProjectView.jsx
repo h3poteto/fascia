@@ -47,7 +47,6 @@ class ProjectView extends React.Component {
     const { isModalOpen, newProject, projects, selectedRepository, error } = this.props.ProjectReducer
     var { repositories } = this.props.ProjectReducer
 
-    // ここsetState扱いになるのでwarningが出るよ．別変数が良さそう
     if (repositories == null ) {
       repositories = []
     }
@@ -77,9 +76,9 @@ class ProjectView extends React.Component {
                   <option value="0">--</option>
                   {repositories.map(function(repo, index) {
                     if (selectedRepository != null && repo.id == selectedRepository.id) {
-                      return <option value={repo.id} selected>{repo.full_name}</option>;
+                      return <option key={index} value={repo.id} selected>{repo.full_name}</option>;
                     } else {
-                      return<option value={repo.id}>{repo.full_name}</option>;
+                      return<option key={index} value={repo.id}>{repo.full_name}</option>;
                     }
                    }, this)}
                 </select>
@@ -93,11 +92,11 @@ class ProjectView extends React.Component {
         <div className="items">
           {projects.map(function(item, index) {
             return (
-              <Link to={`/projects/${item.Id}`}>
-              <div className="fascia-project pure-button button-secondary" data-id={item.Id}>
-              <span className="project-title">{item.Title}</span>
-              <span className="project-description">{item.Description}</span>
-              </div>
+              <Link key={index} to={`/projects/${item.Id}`}>
+                <div className="fascia-project pure-button button-secondary" data-id={item.Id}>
+                  <span className="project-title">{item.Title}</span>
+                  <span className="project-description">{item.Description}</span>
+                </div>
               </Link>
             );
            }, this)}
