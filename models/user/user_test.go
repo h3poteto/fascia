@@ -26,16 +26,16 @@ var _ = Describe("User", func() {
 	Describe("Registration", func() {
 		email := "registration@example.com"
 		password := "hogehoge"
-		It("登録できること", func() {
+		It("can regist", func() {
 			id, err := Registration(email, password)
 			Expect(err).To(BeNil())
 			Expect(id).NotTo(Equal(int64(0)))
 		})
-		Context("登録後", func() {
+		Context("after registration", func() {
 			BeforeEach(func() {
 				_, _ = Registration(email, password)
 			})
-			It("DBにユーザが保存されていること", func() {
+			It("should save user in database", func() {
 				mydb := &db.Database{}
 				var database db.DB = mydb
 				table := database.Init()
@@ -52,7 +52,7 @@ var _ = Describe("User", func() {
 				Expect(dbemail).NotTo(Equal(""))
 				Expect(id).NotTo(Equal(int64(0)))
 			})
-			It("ユーザが二重登録できないこと", func() {
+			It("cannot double regist", func() {
 				id, err := Registration(email, password)
 				Expect(err).NotTo(BeNil())
 				Expect(id).To(Equal(int64(0)))
@@ -68,29 +68,29 @@ var _ = Describe("User", func() {
 			_, _ = Registration(email, password)
 		})
 
-		Context("正しいログイン情報のとき", func() {
-			It("ログインできること", func() {
+		Context("when send correctly login information", func() {
+			It("can login", func() {
 				current_user, err := Login(email, password)
 				Expect(err).To(BeNil())
 				Expect(current_user.Email).To(Equal(email))
 			})
 		})
-		Context("パスワードを間違えているとき", func() {
-			It("ログインできないこと", func() {
+		Context("when send wrong login information", func() {
+			It("cannot login", func() {
 				current_user, err := Login(email, "fugafuga")
 				Expect(err).NotTo(BeNil())
 				Expect(current_user.Email).NotTo(Equal(email))
 			})
 		})
-		Context("メールアドレスを間違えているとき", func() {
-			It("ログインできないこと", func() {
+		Context("when send wrong email address", func() {
+			It("cannot login", func() {
 				current_user, err := Login("hogehoge@example.com", password)
 				Expect(err).NotTo(BeNil())
 				Expect(current_user.Email).NotTo(Equal(email))
 			})
 		})
-		Context("メールアドレスもパスワードも間違えているとき", func() {
-			It("ログインできないこと", func() {
+		Context("when send wrong email address and password", func() {
+			It("cannot login", func() {
 				current_user, err := Login("hogehoge@example.com", "fugafuga")
 				Expect(err).NotTo(BeNil())
 				Expect(current_user.Email).NotTo(Equal(email))
@@ -100,24 +100,24 @@ var _ = Describe("User", func() {
 
 	Describe("FindOrCreateGithub", func() {
 		token := os.Getenv("TEST_TOKEN")
-		It("Github経由で新規登録できること", func() {
+		It("can regist through github", func() {
 			_, err := FindOrCreateGithub(token)
 			Expect(err).To(BeNil())
 		})
-		It("github登録後であればすでに登録されているユーザを探せること", func() {
+		It("after regist through github, can search this user", func() {
 			current_user, _ := FindOrCreateGithub(token)
 			find_user, _ := FindOrCreateGithub(token)
 			Expect(find_user.Id).To(Equal(current_user.Id))
 			Expect(find_user.Id).NotTo(BeZero())
 		})
-		Context("ユーザがEmailで登録済みだったとき", func() {
+		Context("after regist with email address", func() {
 			email := "already_regist@example.com"
 			var current_user *UserStruct
 			BeforeEach(func() {
 				Registration(email, "hogehoge")
 				current_user, _ = FindOrCreateGithub(token)
 			})
-			It("github情報が更新されること", func() {
+			It("should update github information", func() {
 				Expect(current_user.OauthToken.Valid).To(BeTrue())
 				Expect(current_user.OauthToken.String).To(Equal(token))
 				Expect(current_user.Uuid.Valid).To(BeTrue())

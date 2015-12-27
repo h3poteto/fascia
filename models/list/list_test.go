@@ -42,12 +42,12 @@ var _ = Describe("List", func() {
 	})
 
 	Describe("Save", func() {
-		It("リストが登録できること", func() {
+		It("can registrate list", func() {
 			result := newList.Save(nil, nil)
 			Expect(result).To(BeTrue())
 			Expect(newList.Id).NotTo(Equal(0))
 		})
-		It("プロジェクトとリストが関連づくこと", func() {
+		It("should relate list to project", func() {
 			_ = newList.Save(nil, nil)
 			rows, _ := table.Query("select id, project_id, title from lists where id = ?;", newList.Id)
 			var id int64
@@ -65,7 +65,7 @@ var _ = Describe("List", func() {
 	})
 
 	Describe("FindList", func() {
-		It("プロジェクトに関連づいたリストが見つかること", func() {
+		It("should find list which related project", func() {
 			newList.Save(nil, nil)
 			findList := FindList(newProject.Id, newList.Id)
 			Expect(findList).To(Equal(newList))
@@ -79,7 +79,7 @@ var _ = Describe("List", func() {
 			newTask = task.NewTask(0, newList.Id, newList.UserId, sql.NullInt64{}, "task")
 			newTask.Save(nil, nil)
 		})
-		It("taskが関連づくこと", func() {
+		It("should related task to list", func() {
 			tasks := newList.Tasks()
 			Expect(tasks).NotTo(BeEmpty())
 			Expect(tasks[0].Id).To(Equal(newTask.Id))
@@ -91,7 +91,7 @@ var _ = Describe("List", func() {
 		JustBeforeEach(func() {
 			newList.Save(nil, nil)
 		})
-		It("リストが更新できること", func() {
+		It("should update list", func() {
 			newTitle := "newTitle"
 			newColor := "newColor"
 			newList.Update(nil, nil, &newTitle, &newColor)
