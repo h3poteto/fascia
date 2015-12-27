@@ -38,7 +38,7 @@ var _ = Describe("SessionsController", func() {
 			http.PostForm(ts.URL+"/sign_out", values)
 		})
 		Context("/sign_in", func() {
-			It("アクセスできること", func() {
+			It("should correctly access", func() {
 				res, err := http.Get(ts.URL + "/sign_in")
 				Expect(err).To(BeNil())
 				contents, status := ParseResponse(res)
@@ -46,9 +46,8 @@ var _ = Describe("SessionsController", func() {
 				Expect(contents).NotTo(BeNil())
 			})
 		})
-		// これの前にログアウト処理をしておかないと
 		Context("/", func() {
-			It("リダイレクトされること", func() {
+			It("should redirect to sign in", func() {
 				res, err := http.Get(ts.URL + "/")
 				Expect(err).To(BeNil())
 				Expect(res.StatusCode).To(Equal(200))
@@ -61,8 +60,8 @@ var _ = Describe("SessionsController", func() {
 		JustBeforeEach(func() {
 			CheckCSRFToken = func(r *http.Request, token string) bool { return true }
 		})
-		Context("未登録のとき", func() {
-			It("ログインできないこと", func() {
+		Context("before registration", func() {
+			It("should not login", func() {
 				values := url.Values{}
 				values.Add("email", "sign_in@example.com")
 				values.Add("password", "hogehoge")
@@ -71,7 +70,7 @@ var _ = Describe("SessionsController", func() {
 				Expect(res.Request.URL.Path).To(Equal("/sign_in"))
 			})
 		})
-		Context("登録済みのとき", func() {
+		Context("after registration", func() {
 			JustBeforeEach(func() {
 				id, _ := user.Registration("registration@example.com", "hogehoge")
 				LoginRequired = func(r *http.Request) (*user.UserStruct, error) {
@@ -79,8 +78,8 @@ var _ = Describe("SessionsController", func() {
 					return current_user, nil
 				}
 			})
-			Context("パスワードが正しいとき", func() {
-				It("ログインできること", func() {
+			Context("when use correctly password", func() {
+				It("can login", func() {
 					values := url.Values{}
 					values.Add("email", "registration@example.com")
 					values.Add("password", "hogehoge")
@@ -89,8 +88,8 @@ var _ = Describe("SessionsController", func() {
 					Expect(res.Request.URL.Path).To(Equal("/"))
 				})
 			})
-			Context("パスワードが違うとき", func() {
-				It("ログインできないこと", func() {
+			Context("when use wrong password", func() {
+				It("cannot login", func() {
 					values := url.Values{}
 					values.Add("email", "registration@example.com")
 					values.Add("password", "fugafuga")
@@ -106,7 +105,7 @@ var _ = Describe("SessionsController", func() {
 		JustBeforeEach(func() {
 			LoginFaker(ts, "sign_out@example.com", "hogehoge")
 		})
-		It("ログアウトできること", func() {
+		It("can logout", func() {
 			values := url.Values{}
 			res, err := http.PostForm(ts.URL+"/sign_out", values)
 			Expect(err).To(BeNil())

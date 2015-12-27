@@ -59,14 +59,14 @@ var _ = Describe("ListsController", func() {
 			values.Add("title", "listTitle")
 			res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists", values)
 		})
-		It("新規登録できること", func() {
+		It("can registration", func() {
 			Expect(err).To(BeNil())
 			contents, status := ParseJson(res)
 			Expect(status).To(Equal(http.StatusOK))
 			Expect(contents).NotTo(BeNil())
 			Expect(contents).To(HaveKey("Id"))
 		})
-		It("DBに登録されていること", func() {
+		It("should exist in database", func() {
 			contents, _ := ParseJson(res)
 			parseContents := contents.(map[string]interface{})
 			newList := list.FindList(projectId, int64(parseContents["Id"].(float64)))
@@ -87,7 +87,7 @@ var _ = Describe("ListsController", func() {
 			values.Add("title", "newListTitle")
 			res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists/"+strconv.FormatInt(newList.Id, 10), values)
 		})
-		It("更新されること", func() {
+		It("should update", func() {
 			Expect(err).To(BeNil())
 			contents, status := ParseJson(res)
 			Expect(status).To(Equal(http.StatusOK))
@@ -104,7 +104,7 @@ var _ = Describe("ListsController", func() {
 			values.Set("title", "list2")
 			_, _ = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists", values)
 		})
-		It("リスト一覧が取得できること", func() {
+		It("should receive lists", func() {
 			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(projectId, 10) + "/lists")
 			Expect(err).To(BeNil())
 			var contents []controllers.ListJsonFormat

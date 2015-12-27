@@ -70,14 +70,14 @@ var _ = Describe("TasksController", func() {
 			values.Add("title", "taskTitle")
 			res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists/"+strconv.FormatInt(listId, 10)+"/tasks", values)
 		})
-		It("新規登録できること", func() {
+		It("can registration", func() {
 			Expect(err).To(BeNil())
 			contents, status := ParseJson(res)
 			Expect(status).To(Equal(http.StatusOK))
 			Expect(contents).NotTo(BeNil())
 			Expect(contents).To(HaveKey("Id"))
 		})
-		It("DBに登録されていること", func() {
+		It("should exist in database", func() {
 			contents, _ := ParseJson(res)
 			parseContents := contents.(map[string]interface{})
 			newTask := task.FindTask(listId, int64(parseContents["Id"].(float64)))
@@ -95,7 +95,7 @@ var _ = Describe("TasksController", func() {
 			values.Add("title", "task2")
 			http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists/"+strconv.FormatInt(listId, 10)+"/tasks", values)
 		})
-		It("タスク一覧が取得できること ", func() {
+		It("should receive tasks", func() {
 			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(projectId, 10) + "/lists/" + strconv.FormatInt(listId, 10) + "/tasks")
 			Expect(err).To(BeNil())
 			var contents []controllers.TaskJsonFormat
@@ -118,7 +118,7 @@ var _ = Describe("TasksController", func() {
 			newTask = task.NewTask(0, listId, userId, sql.NullInt64{}, "taskTitle")
 			newTask.Save(nil, nil)
 		})
-		It("タスクの所属するリストが変更されること", func() {
+		It("should change list the task belongs", func() {
 			values := url.Values{}
 			values.Add("to_list_id", strconv.FormatInt(newList.Id, 10))
 			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists/"+strconv.FormatInt(listId, 10)+"/tasks/"+strconv.FormatInt(newTask.Id, 10)+"/move_task", values)

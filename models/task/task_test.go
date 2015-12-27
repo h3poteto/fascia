@@ -44,12 +44,12 @@ var _ = Describe("Task", func() {
 	})
 
 	Describe("Save", func() {
-		It("タスクが登録できること", func() {
+		It("can regist list", func() {
 			result := newTask.Save(nil, nil)
 			Expect(result).To(BeTrue())
 			Expect(newTask.Id).NotTo(Equal(0))
 		})
-		It("タスクとリストが関連づくこと", func() {
+		It("should relate taks to list", func() {
 			_ = newTask.Save(nil, nil)
 			rows, _ := table.Query("select id, list_id, title from tasks where id = ?;", newTask.Id)
 			var id, list_id int64
@@ -62,8 +62,8 @@ var _ = Describe("Task", func() {
 			}
 			Expect(list_id).To(Equal(newTask.Id))
 		})
-		Context("リストにタスクがないとき", func() {
-			It("display_indexが追加されていること", func() {
+		Context("when list do not have tasks", func() {
+			It("should add display_index to task", func() {
 				result := newTask.Save(nil, nil)
 				Expect(result).To(BeTrue())
 				rows, _ := table.Query("select id, list_id, title, display_index from tasks where id = ?;", newTask.Id)
@@ -79,12 +79,12 @@ var _ = Describe("Task", func() {
 				Expect(display_index).To(Equal(1))
 			})
 		})
-		Context("リストにタスクがあるとき", func() {
+		Context("when list have tasks", func() {
 			JustBeforeEach(func() {
 				existTask := NewTask(0, newList.Id, newList.UserId, sql.NullInt64{}, "exist task title")
 				existTask.Save(nil, nil)
 			})
-			It("display_indexがラストになっていること", func() {
+			It("should set last display_index to task", func() {
 				result := newTask.Save(nil, nil)
 				Expect(result).To(BeTrue())
 				rows, _ := table.Query("select id, list_id, title, display_index from tasks where id = ?;", newTask.Id)
@@ -111,8 +111,8 @@ var _ = Describe("Task", func() {
 			list2 = list.NewList(0, newProject.Id, newProject.UserId, "list2", "")
 			list2.Save(nil, nil)
 		})
-		Context("移動先リストにタスクがないとき", func() {
-			It("タスクが移動できること", func() {
+		Context("when destination list do not have tasks", func() {
+			It("can move task", func() {
 				result := newTask.ChangeList(list2.Id, nil, nil, nil)
 				Expect(result).To(BeTrue())
 				rows, _ := table.Query("select id, list_id, title from tasks where id = ?;", newTask.Id)
@@ -127,7 +127,7 @@ var _ = Describe("Task", func() {
 				Expect(list_id).To(Equal(list2.Id))
 			})
 		})
-		Context("移動先リストにタスクがひとつだけの時", func() {
+		Context("when destination list have a task", func() {
 			var (
 				existTask *TaskStruct
 			)
@@ -135,8 +135,8 @@ var _ = Describe("Task", func() {
 				existTask = NewTask(0, list2.Id, list2.UserId, sql.NullInt64{}, "exist task title")
 				existTask.Save(nil, nil)
 			})
-			Context("nil順位を渡した時", func() {
-				It("末尾に挿入されること", func() {
+			Context("when send nil", func() {
+				It("should add task to end of list", func() {
 					result := newTask.ChangeList(list2.Id, nil, nil, nil)
 					Expect(result).To(BeTrue())
 					rows, _ := table.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.Id, newTask.Id)
@@ -152,8 +152,8 @@ var _ = Describe("Task", func() {
 					Expect(displayIndex).To(Equal(2))
 				})
 			})
-			Context("存在するタスクの前に入れたいとき", func() {
-				It("先頭に挿入されること", func() {
+			Context("when add task before exist task", func() {
+				It("should add task to top of list", func() {
 					result := newTask.ChangeList(list2.Id, &existTask.Id, nil, nil)
 					Expect(result).To(BeTrue())
 					rows, _ := table.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.Id, newTask.Id)
@@ -170,7 +170,7 @@ var _ = Describe("Task", func() {
 				})
 			})
 		})
-		Context("移動先リストに複数タスクがあるとき", func() {
+		Context("when destination list have tasks", func() {
 			var existTask1, existTask2 *TaskStruct
 			JustBeforeEach(func() {
 				existTask1 = NewTask(0, list2.Id, list2.UserId, sql.NullInt64{}, "exist task title1")
@@ -178,8 +178,8 @@ var _ = Describe("Task", func() {
 				existTask2 = NewTask(0, list2.Id, list2.UserId, sql.NullInt64{}, "exist task title2")
 				existTask2.Save(nil, nil)
 			})
-			Context("nil順位を渡した時", func() {
-				It("末尾に挿入されること", func() {
+			Context("when send nil", func() {
+				It("should add task to end of list", func() {
 					result := newTask.ChangeList(list2.Id, nil, nil, nil)
 					Expect(result).To(BeTrue())
 					rows, _ := table.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.Id, newTask.Id)
@@ -195,8 +195,8 @@ var _ = Describe("Task", func() {
 					Expect(displayIndex).To(Equal(3))
 				})
 			})
-			Context("先頭に入れたいとき", func() {
-				It("先頭に挿入されること", func() {
+			Context("when send task to top of list", func() {
+				It("should add task to top of list", func() {
 					result := newTask.ChangeList(list2.Id, &existTask1.Id, nil, nil)
 					Expect(result).To(BeTrue())
 					rows, _ := table.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.Id, newTask.Id)
@@ -212,8 +212,8 @@ var _ = Describe("Task", func() {
 					Expect(displayIndex).To(Equal(1))
 				})
 			})
-			Context("途中に入れたいとき", func() {
-				It("途中に挿入されること", func() {
+			Context("when send task to mid-flow", func() {
+				It("should add task to mid-flow", func() {
 					result := newTask.ChangeList(list2.Id, &existTask2.Id, nil, nil)
 					Expect(result).To(BeTrue())
 					rows, _ := table.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.Id, newTask.Id)
@@ -228,7 +228,7 @@ var _ = Describe("Task", func() {
 					}
 					Expect(displayIndex).To(Equal(2))
 				})
-				It("他のタスクが押し出されていること", func() {
+				It("other tasks should be pushed out", func() {
 					result := newTask.ChangeList(list2.Id, &existTask2.Id, nil, nil)
 					Expect(result).To(BeTrue())
 					rows, _ := table.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.Id, existTask2.Id)
