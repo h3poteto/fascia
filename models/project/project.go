@@ -132,6 +132,12 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		return false, errors.New("oauth token is required")
 	}
 	repo := u.Repository()
+	// user自体はgithub連携していても，projectが連携していない可能性もあるのでチェック
+	if repo == nil {
+		logging.SharedInstance().MethodInfo("project", "FetchGithub").Error("repository related project is nil")
+		return false, errors.New("project did not related to repository")
+	}
+
 	openIssues, closedIssues, err := hub.GetGithubIssues(oauthToken.String, repo)
 	if err != nil {
 		return false, err
