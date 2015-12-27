@@ -47,7 +47,7 @@ var _ = Describe("ProjectsController", func() {
 			values.Add("title", "projectTitle")
 			res, err = http.PostForm(ts.URL+"/projects", values)
 		})
-		It("新規登録できること", func() {
+		It("can registration", func() {
 			Expect(err).To(BeNil())
 			contents, status := ParseJson(res)
 			Expect(status).To(Equal(http.StatusOK))
@@ -56,7 +56,7 @@ var _ = Describe("ProjectsController", func() {
 			Expect(contents).To(HaveKey("UserId"))
 			Expect(contents).To(HaveKeyWithValue("Title", "projectTitle"))
 		})
-		It("DBに登録されていること", func() {
+		It("should exist in database", func() {
 			contents, _ := ParseJson(res)
 			parseContents := contents.(map[string]interface{})
 			newProject := project.FindProject(int64(parseContents["Id"].(float64)))
@@ -73,7 +73,7 @@ var _ = Describe("ProjectsController", func() {
 			values.Set("title", "project2")
 			_, _ = http.PostForm(ts.URL+"/projects", values)
 		})
-		It("プロジェクト一覧が取得できること", func() {
+		It("should receive projects", func() {
 			res, err := http.Get(ts.URL + "/projects")
 			Expect(err).To(BeNil())
 			var resp []controllers.ProjectJsonFormat
@@ -91,7 +91,7 @@ var _ = Describe("ProjectsController", func() {
 			values.Add("title", "project")
 			_, _ = http.PostForm(ts.URL+"/projects", values)
 		})
-		It("プロジェクトのタイトルが取得できること", func() {
+		It("should receive project title", func() {
 			res, err := http.Get(ts.URL + "/projects")
 			Expect(err).To(BeNil())
 			var resp []controllers.ProjectJsonFormat

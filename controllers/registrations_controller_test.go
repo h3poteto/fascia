@@ -32,7 +32,7 @@ var _ = Describe("RegistrationsController", func() {
 	})
 
 	Describe("SignUp", func() {
-		It("アクセスできること", func() {
+		It("should correctly access", func() {
 			res, err := http.Get(ts.URL + "/sign_up")
 			Expect(err).To(BeNil())
 			contents, status := ParseResponse(res)

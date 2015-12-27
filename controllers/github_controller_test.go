@@ -52,7 +52,7 @@ var _ = Describe("GithubController", func() {
 
 	})
 	Describe("Repositories", func() {
-		It("リポジトリが取得できること", func() {
+		It("should receive repositories", func() {
 			res, err := http.Get(ts.URL + "/github/repositories")
 			Expect(err).To(BeNil())
 			contents, status := ParseJson(res)
