@@ -69,7 +69,7 @@ describe('ListView', () => {
       expect(output.type).toBe('div')
       expect(output.props.id).toBe('lists')
 
-      let [ flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
+      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
       let [ icon, projectTitle ] = projectTitleWrapper.props.children
       expect(projectTitle.props.children).toBe('testProject')
 
@@ -156,7 +156,7 @@ describe('ListView', () => {
     }
     it('should render error', () => {
       const { output } = setup(state)
-      let [ flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
+      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
       expect(flash.props.children).toBe('Server Error')
     })
   })
@@ -209,7 +209,7 @@ describe('ListView', () => {
     }
     it('should render modal', () => {
       const { output, props } = setup(state)
-      let [ flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
+      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
       expect(listModal.props.isOpen).toBe(true)
     })
   })
@@ -262,7 +262,7 @@ describe('ListView', () => {
     }
     it('should render task modal', () => {
       const { output } = setup(state)
-      let [ flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
+      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
       expect(taskModal.props.isOpen).toBe(true)
     })
   })
@@ -315,7 +315,7 @@ describe('ListView', () => {
     }
     it('should render list edit modal', () => {
       const { output, props } = setup(state)
-      let [ flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
+      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
       expect(listEditModal.props.isOpen).toBe(true)
     })
   })

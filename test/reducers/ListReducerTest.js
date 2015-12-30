@@ -11,6 +11,7 @@ function sharedExampleInitState(action) {
     isListModalOpen: false,
     isTaskModalOpen: false,
     isListEditModalOpen: false,
+    isLoading: false,
     newList: {title: "", color: "0effff"},
     newTask: {title: ""},
     lists: [],
@@ -37,7 +38,8 @@ describe('ListReducer', () => {
           type: listActions.SERVER_ERROR
         })
       ).toEqual({
-        error: "Server Error"
+        error: "Server Error",
+        isLoading: false,
       })
     })
   })
@@ -229,7 +231,8 @@ describe('ListReducer', () => {
             lists: null
           })
         ).toEqual({
-          lists: []
+          lists: [],
+          isLoading: false
         })
       })
     })
@@ -249,7 +252,8 @@ describe('ListReducer', () => {
           lists: [
             { title: "list1", ListTasks: [] },
             { title: "list2", ListTasks: [] }
-          ]
+          ],
+          isLoading: false
         })
       })
     })
@@ -289,7 +293,8 @@ describe('ListReducer', () => {
                 { title: "task2" }
               ]
             },
-          ]
+          ],
+          isLoading: false
         })
       })
     })
