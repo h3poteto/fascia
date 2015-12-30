@@ -40,14 +40,20 @@ export default class ListView extends React.Component {
   }
 
   render() {
-    const { isListModalOpen, newList, lists, project, isTaskModalOpen, newTask, selectedList, isListEditModalOpen, taskDraggingFrom, taskDraggingTo, error } = this.props.ListReducer
+    const { isLoading, isListModalOpen, newList, lists, project, isTaskModalOpen, newTask, selectedList, isListEditModalOpen, taskDraggingFrom, taskDraggingTo, error } = this.props.ListReducer
 
     var flash;
     if (error != null) {
       flash = <div className="flash flash-error">{error}</div>;
     }
+
+    var wholeLoading;
+    if (isLoading) {
+      wholeLoading = <div className="whole-loading"><div className="whole-circle-wrapper"><div className="whole-circle-body"><div id="circularG"><div id="circularG_1" className="circularG"></div><div id="circularG_2" className="circularG"></div><div id="circularG_3" className="circularG"></div><div id="circularG_4" className="circularG"></div><div id="circularG_5" className="circularG"></div><div id="circularG_6" className="circularG"></div><div id="circularG_7" className="circularG"></div><div id="circularG_8" className="circularG"></div></div></div></div></div>
+    }
     return (
       <div id="lists">
+        {wholeLoading}
         {flash}
         <Modal
           isOpen={isListModalOpen}
