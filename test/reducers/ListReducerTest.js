@@ -56,6 +56,19 @@ describe('ListReducer', () => {
       })
     })
   })
+  describe('REQUEST_FETCH_GITHUB', () => {
+    it('should render whole loading window', () => {
+      expect(
+        ListReducer({
+          isLoading: false
+        }, {
+          type: listActions.REQUEST_FETCH_GITHUB
+        })
+      ).toEqual({
+        isLoading: true
+      })
+    })
+  })
   describe('OPEN_NEW_LIST', () => {
     it('should open list modal', () => {
       expect(
@@ -225,7 +238,8 @@ describe('ListReducer', () => {
       it('should return empty lists', () => {
         expect(
           ListReducer({
-            lists: null
+            lists: null,
+            isLoading: true
           }, {
             type: listActions.RECEIVE_LISTS,
             lists: null

@@ -160,6 +160,62 @@ describe('ListView', () => {
       expect(flash.props.children).toBe('Server Error')
     })
   })
+  context('when whole loading is open', () => {
+    let state = {
+      ListReducer: {
+        isListModalOpen: false,
+        isTaskModalOpen: false,
+        isListEditModalOpen: false,
+        isLoading: true,
+        newList: {title: "", color: "0effff"},
+        newTask: {title: ""},
+        lists: [
+          {
+            Id: 1,
+            Title: "list1",
+            ListTasks: [
+              {
+                Id: 1,
+                Title: "task1"
+              }, {
+                Id: 2,
+                Title: "task2"
+              }
+            ]
+          }, {
+            Id: 2,
+            Title: "list2",
+            ListTasks: []
+          }
+        ],
+        selectedList: null,
+        project: {
+          Title: "testProject"
+        },
+        isTaskDraggingOver: false,
+        taskDraggingFrom: null,
+        taskDraggingTo: null,
+        error: null
+      },
+      params: {
+        projectId: 1
+      },
+      fetchLists: expect.createSpy(),
+      fetchProject: expect.createSpy(),
+      closeFlash: expect.createSpy(),
+      taskDrop: expect.createSpy(),
+      openNewListModal: expect.createSpy(),
+      taskDragStart: expect.createSpy(),
+      openNewTaskModal: expect.createSpy()
+    }
+    it('should render loading window', () => {
+      const { output } = setup(state)
+      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
+      expect(wholeLoading.type).toBe('div')
+      expect(wholeLoading.props.className).toBe('whole-loading')
+    })
+  })
+
   context('when list modal open', () => {
     let state = {
       ListReducer: {
