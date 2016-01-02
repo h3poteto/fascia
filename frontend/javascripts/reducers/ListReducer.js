@@ -200,6 +200,10 @@ export default function ListReducer(state = initState, action) {
           list.ListTasks.splice(taskIndex, 1);
         }
       });
+      // loadingを表示する
+      if (list.Id == state.taskDraggingFrom.fromList.Id || list.Id == state.taskDraggingTo.toList.Id) {
+        list.isLoading = true
+      }
       return list;
     });
     return Object.assign({}, state, {

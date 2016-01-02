@@ -51,6 +51,9 @@ export default class ListView extends React.Component {
     if (isLoading) {
       wholeLoading = <div className="whole-loading"><div className="whole-circle-wrapper"><div className="whole-circle-body"><div id="circularG"><div id="circularG_1" className="circularG"></div><div id="circularG_2" className="circularG"></div><div id="circularG_3" className="circularG"></div><div id="circularG_4" className="circularG"></div><div id="circularG_5" className="circularG"></div><div id="circularG_6" className="circularG"></div><div id="circularG_7" className="circularG"></div><div id="circularG_8" className="circularG"></div></div></div></div></div>
     }
+
+    var listLoading = <div className="list-loading"><div className="list-circle-wrapper"><div className="list-circle-body"><div id="circularG"><div id="circularG_1" className="circularG"></div><div id="circularG_2" className="circularG"></div><div id="circularG_3" className="circularG"></div><div id="circularG_4" className="circularG"></div><div id="circularG_5" className="circularG"></div><div id="circularG_6" className="circularG"></div><div id="circularG_7" className="circularG"></div><div id="circularG_8" className="circularG"></div></div></div></div></div>
+
     return (
       <div id="lists">
         {wholeLoading}
@@ -135,6 +138,7 @@ export default class ListView extends React.Component {
                     <i className="fa fa-plus" data-dropped-depth="3"></i>
                   </li>
                 </ul>
+                {list.isLoading != undefined && list.isLoading ? listLoading : ''}
               </div>
             );
            }, this)}
