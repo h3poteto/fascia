@@ -188,6 +188,25 @@ export default function ListReducer(state = initState, action) {
       taskDraggingTo: null
     });
   case listActions.TASK_DROP:
+    var lists = state.lists.map(function(list, i) {
+      // arrowを抜く
+      var taskIndex = null;
+      list.ListTasks.map(function(task, j) {
+        if (task.draggedOn) {
+          taskIndex = j;
+        }
+        if (taskIndex != null) {
+          list.ListTasks.splice(taskIndex, 1);
+        }
+      });
+      return list;
+    });
+    return Object.assign({}, state, {
+      isTaskDraggingOver: false,
+      lists: lists,
+      taskDraggingFrom: null,
+      taskDraggingTo: null
+    });
   case listActions.REQUEST_MOVE_TASK:
     var lists = state.lists.map(function(list, i) {
       // arrowを抜く

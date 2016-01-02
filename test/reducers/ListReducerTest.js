@@ -588,8 +588,73 @@ describe('ListReducer', () => {
       })
     })
   })
+  describe('REQUEST_MOVE_TASK', () => {
+    it('should return do not contain arrow and contain isLoading flag', () => {
+      expect(
+        ListReducer({
+          lists: [{
+            Id: 1,
+            Title: "list1",
+            ListTasks: [
+              { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
+              { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+            ]
+          }, {
+            Id: 2,
+            Title: "list2",
+            ListTasks: [ { draggedOn: true } ]
+          }],
+          isTaskDraggingOver: true,
+          taskDraggingTo: {
+            toList: {
+              Id: 2,
+              Title: "list2",
+              ListTasks: []
+            },
+            prevToTask: null
+          },
+          taskDraggingFrom: {
+            fromList: {
+              Id: 1,
+              Title: "list1",
+              ListTasks: [
+                { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
+                { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+              ]
+            },
+            fromTask: {
+              Id: 2,
+              ListId: 1,
+              Title: "task2",
+              Color: "0effff"
+            }
+          }
+        }, {
+          type: listActions.REQUEST_MOVE_TASK,
+        })
+      ).toEqual({
+        isTaskDraggingOver: false,
+        taskDraggingTo: null,
+        taskDraggingFrom: null,
+        lists: [{
+          Id: 1,
+          Title: "list1",
+          ListTasks: [
+            { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
+            { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+          ],
+          isLoading: true
+        }, {
+          Id: 2,
+          Title: "list2",
+          ListTasks: [],
+          isLoading: true
+        }]
+      })
+    })
+  })
   describe('TASK_DROP', () => {
-    it('should return do not contain arrow', () => {
+    it('should return do not contain arrow and isLoading', () => {
       expect(
         ListReducer({
           lists: [{
