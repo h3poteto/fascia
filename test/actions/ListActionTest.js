@@ -206,24 +206,26 @@ describe('fetchCreateTask', () => {
     const projectId = 1
     const listId = 2
     const title = "taskTitle"
-    const postForm = `title=${title}`
+    const description = "taskDescription"
+    const postForm = `title=${title}&description=${description}`
     beforeEach(() => {
       nock('http://localhost')
         .post(`/projects/${projectId}/lists/${listId}/tasks`, postForm)
         .reply(200, {
           Id: 1,
           ListId: listId,
-          Title: title
+          Title: title,
+          Description: description
         })
     })
 
     it('call RECEIVE_CREATE_TASK and get task', (done) => {
       const expectedActions = [
         { type: listActions.REQUEST_CREATE_TASK },
-        { type: listActions.RECEIVE_CREATE_TASK, task: { Id: 1, ListId: listId, Title: title } }
+        { type: listActions.RECEIVE_CREATE_TASK, task: { Id: 1, ListId: listId, Title: title, Description: description } }
       ]
       const store = mockStore({ task: null }, expectedActions, done)
-      store.dispatch(listActions.fetchCreateTask(projectId, listId, title))
+      store.dispatch(listActions.fetchCreateTask(projectId, listId, title, description))
     })
   })
 })

@@ -13,7 +13,7 @@ function sharedExampleInitState(action) {
     isListEditModalOpen: false,
     isLoading: false,
     newList: {title: "", color: "0effff"},
-    newTask: {title: ""},
+    newTask: {title: "", description: ""},
     lists: [],
     selectedList: null,
     project: null,
@@ -407,33 +407,33 @@ describe('ListReducer', () => {
             Id: 1,
             Title: "list1",
             ListTasks: [
-              { ListId: 1, Title: "task1", Color: "0effff" }
+              { ListId: 1, Title: "task1", Description: "fugafuga" }
             ]
           }, {
             Id: 2,
             Title: "list2",
             ListTasks: []
           }],
-          newTask: { title: "task2", color: "ffffff" },
+          newTask: { title: "task2", description: "hogehoge" },
           isTaskModalOpen: true
         }, {
           type: listActions.RECEIVE_CREATE_TASK,
-          task: { ListId: 1, Title: "task2", Color: "ffffff" }
+          task: { ListId: 1, Title: "task2", Description: "hogehoge" }
         })
       ).toEqual({
         lists: [{
           Id: 1,
           Title: "list1",
           ListTasks: [
-            { ListId: 1, Title: "task1", Color: "0effff" },
-            { ListId: 1, Title: "task2", Color: "ffffff" }
+            { ListId: 1, Title: "task1", Description: "fugafuga" },
+            { ListId: 1, Title: "task2", Description: "hogehoge" }
           ]
         }, {
           Id: 2,
           Title: "list2",
           ListTasks: []
         }],
-        newTask: { title: "", color: "0effff" },
+        newTask: { title: "", description: "" },
         isTaskModalOpen: false
       })
     })
@@ -446,7 +446,7 @@ describe('ListReducer', () => {
             Id: 1,
             Title: "list1",
             ListTasks: [
-              { ListId: 1, Title: "task1", Color: "0effff" }
+              { ListId: 1, Title: "task1", Description: "hogehoge" }
             ]
           }, {
             Id: 2,
@@ -460,7 +460,7 @@ describe('ListReducer', () => {
             Id: 1,
             Title: "updateList1",
             ListTasks: [
-              { ListId: 1, Title: "task1", Color: "0effff" }
+              { ListId: 1, Title: "task1", Description: "hogehoge" }
             ]
           }
         })
@@ -469,7 +469,7 @@ describe('ListReducer', () => {
           Id: 1,
           Title: "updateList1",
           ListTasks: [
-            { ListId: 1, Title: "task1", Color: "0effff" }
+            { ListId: 1, Title: "task1", Description: "hogehoge" }
           ]
         }, {
           Id: 2,
@@ -488,8 +488,8 @@ describe('ListReducer', () => {
             Id: 1,
             Title: "list1",
             ListTasks: [
-              { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
-              { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+              { Id: 1, ListId: 1, Title: "task1", Description: "hogehoge" },
+              { Id: 2, ListId: 1, Title: "task2", Description: "hogehoge" }
             ]
           }, {
             Id: 2,
@@ -515,8 +515,8 @@ describe('ListReducer', () => {
           Id: 1,
           Title: "list1",
           ListTasks: [
-            { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
-            { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+            { Id: 1, ListId: 1, Title: "task1", Description: "hogehoge" },
+            { Id: 2, ListId: 1, Title: "task2", Description: "hogehoge" }
           ]
         }, {
           Id: 2,
@@ -528,15 +528,15 @@ describe('ListReducer', () => {
             Id: 1,
             Title: "list1",
             ListTasks: [
-              { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
-              { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+              { Id: 1, ListId: 1, Title: "task1", Description: "hogehoge" },
+              { Id: 2, ListId: 1, Title: "task2", Description: "hogehoge" }
             ]
           },
           fromTask: {
             Id: 2,
             ListId: 1,
             Title: "task2",
-            Color: "0effff"
+            Description: "hogehoge"
           }
         }
       })
@@ -550,8 +550,8 @@ describe('ListReducer', () => {
             Id: 1,
             Title: "list1",
             ListTasks: [
-              { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
-              { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+              { Id: 1, ListId: 1, Title: "task1", Description: "hogehoge" },
+              { Id: 2, ListId: 1, Title: "task2", Description: "hogehoge" }
             ]
           }, {
             Id: 2,
@@ -577,8 +577,8 @@ describe('ListReducer', () => {
           Id: 1,
           Title: "list1",
           ListTasks: [
-            { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
-            { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+            { Id: 1, ListId: 1, Title: "task1", Description: "hogehoge" },
+            { Id: 2, ListId: 1, Title: "task2", Description: "hogehoge" }
           ]
         }, {
           Id: 2,
@@ -596,8 +596,8 @@ describe('ListReducer', () => {
             Id: 1,
             Title: "list1",
             ListTasks: [
-              { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
-              { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+              { Id: 1, ListId: 1, Title: "task1", Description: "hogehoge" },
+              { Id: 2, ListId: 1, Title: "task2", Description: "hogehoge" }
             ]
           }, {
             Id: 2,
@@ -618,15 +618,15 @@ describe('ListReducer', () => {
               Id: 1,
               Title: "list1",
               ListTasks: [
-                { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
-                { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+                { Id: 1, ListId: 1, Title: "task1", Description: "hogehoge" },
+                { Id: 2, ListId: 1, Title: "task2", Description: "hogehoge" }
               ]
             },
             fromTask: {
               Id: 2,
               ListId: 1,
               Title: "task2",
-              Color: "0effff"
+              Description: "hogehoge"
             }
           }
         }, {
@@ -640,8 +640,8 @@ describe('ListReducer', () => {
           Id: 1,
           Title: "list1",
           ListTasks: [
-            { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
-            { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+            { Id: 1, ListId: 1, Title: "task1", Description: "hogehoge" },
+            { Id: 2, ListId: 1, Title: "task2", Description: "hogehoge" }
           ],
           isLoading: true
         }, {
@@ -661,8 +661,8 @@ describe('ListReducer', () => {
             Id: 1,
             Title: "list1",
             ListTasks: [
-              { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
-              { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+              { Id: 1, ListId: 1, Title: "task1", Description: "hogehoge" },
+              { Id: 2, ListId: 1, Title: "task2", Description: "hogehoge" }
             ]
           }, {
             Id: 2,
@@ -683,15 +683,15 @@ describe('ListReducer', () => {
               Id: 1,
               Title: "list1",
               ListTasks: [
-                { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
-                { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+                { Id: 1, ListId: 1, Title: "task1", Description: "hogehoge" },
+                { Id: 2, ListId: 1, Title: "task2", Description: "hogehoge" }
               ]
             },
             fromTask: {
               Id: 2,
               ListId: 1,
               Title: "task2",
-              Color: "0effff"
+              Description: "hogehoge"
             }
           }
         }, {
@@ -705,8 +705,8 @@ describe('ListReducer', () => {
           Id: 1,
           Title: "list1",
           ListTasks: [
-            { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
-            { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+            { Id: 1, ListId: 1, Title: "task1", Description: "hogehoge" },
+            { Id: 2, ListId: 1, Title: "task2", Description: "hogehoge" }
           ]
         }, {
           Id: 2,
@@ -725,15 +725,15 @@ describe('ListReducer', () => {
               Id: 1,
               Title: "list1",
               ListTasks: [
-                { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
-                { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+                { Id: 1, ListId: 1, Title: "task1", Description: "hogehoge" },
+                { Id: 2, ListId: 1, Title: "task2", Description: "hogehoge" }
               ]
             }, {
               Id: 2,
               Title: "list2",
               ListTasks: [
-                { Id: 3, ListId: 2, Title: "task3", Color: "0effff" },
-                { Id: 4, ListId: 2, Title: "task4", Color: "0effff" }]
+                { Id: 3, ListId: 2, Title: "task3", Description: "hogehoge" },
+                { Id: 4, ListId: 2, Title: "task4", Description: "hogehoge" }]
             }],
             taskDraggingTo: null,
             taskDraggingFrom: {
@@ -741,15 +741,15 @@ describe('ListReducer', () => {
                 Id: 1,
                 Title: "list1",
                 ListTasks: [
-                  { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
-                  { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+                  { Id: 1, ListId: 1, Title: "task1", Description: "hogehoge" },
+                  { Id: 2, ListId: 1, Title: "task2", Description: "hogehoge" }
                 ]
               },
               fromTask: {
                 Id: 2,
                 ListId: 1,
                 Title: "task2",
-                Color: "0effff"
+                Description: "hogehoge"
               }
             }
           }, {
@@ -770,8 +770,8 @@ describe('ListReducer', () => {
               Id: 2,
               Title: "list2",
               ListTasks: [
-                { Id: 3, ListId: 2, Title: "task3", Color: "0effff" },
-                { Id: 4, ListId: 2, Title: "task4", Color: "0effff" },
+                { Id: 3, ListId: 2, Title: "task3", Description: "hogehoge" },
+                { Id: 4, ListId: 2, Title: "task4", Description: "hogehoge" },
                 { draggedOn: true }
               ]
             },
@@ -781,15 +781,15 @@ describe('ListReducer', () => {
             Id: 1,
             Title: "list1",
             ListTasks: [
-              { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
-              { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+              { Id: 1, ListId: 1, Title: "task1", Description: "hogehoge" },
+              { Id: 2, ListId: 1, Title: "task2", Description: "hogehoge" }
             ]
           }, {
             Id: 2,
             Title: "list2",
             ListTasks: [
-              { Id: 3, ListId: 2, Title: "task3", Color: "0effff" },
-              { Id: 4, ListId: 2, Title: "task4", Color: "0effff" },
+              { Id: 3, ListId: 2, Title: "task3", Description: "hogehoge" },
+              { Id: 4, ListId: 2, Title: "task4", Description: "hogehoge" },
               { draggedOn: true }
             ]
           }],
@@ -798,15 +798,15 @@ describe('ListReducer', () => {
               Id: 1,
               Title: "list1",
               ListTasks: [
-                { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
-                { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+                { Id: 1, ListId: 1, Title: "task1", Description: "hogehoge" },
+                { Id: 2, ListId: 1, Title: "task2", Description: "hogehoge" }
               ]
             },
             fromTask: {
               Id: 2,
               ListId: 1,
               Title: "task2",
-              Color: "0effff"
+              Description: "hogehoge"
             }
           }
         })
@@ -820,15 +820,15 @@ describe('ListReducer', () => {
               Id: 1,
               Title: "list1",
               ListTasks: [
-                { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
-                { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+                { Id: 1, ListId: 1, Title: "task1", Description: "hogehoge" },
+                { Id: 2, ListId: 1, Title: "task2", Description: "hogehoge" }
               ]
             }, {
               Id: 2,
               Title: "list2",
               ListTasks: [
-                { Id: 3, ListId: 2, Title: "task3", Color: "0effff" },
-                { Id: 4, ListId: 2, Title: "task4", Color: "0effff" }]
+                { Id: 3, ListId: 2, Title: "task3", Description: "hogehoge" },
+                { Id: 4, ListId: 2, Title: "task4", Description: "hogehoge" }]
             }],
             taskDraggingTo: null,
             taskDraggingFrom: {
@@ -836,15 +836,15 @@ describe('ListReducer', () => {
                 Id: 1,
                 Title: "list1",
                 ListTasks: [
-                  { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
-                  { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+                  { Id: 1, ListId: 1, Title: "task1", Description: "hogehoge" },
+                  { Id: 2, ListId: 1, Title: "task2", Description: "hogehoge" }
                 ]
               },
               fromTask: {
                 Id: 2,
                 ListId: 1,
                 Title: "task2",
-                Color: "0effff"
+                Description: "hogehoge"
               }
             }
           }, {
@@ -868,27 +868,27 @@ describe('ListReducer', () => {
               Id: 2,
               Title: "list2",
               ListTasks: [
-                { Id: 3, ListId: 2, Title: "task3", Color: "0effff" },
+                { Id: 3, ListId: 2, Title: "task3", Description: "hogehoge" },
                 { draggedOn: true },
-                { Id: 4, ListId: 2, Title: "task4", Color: "0effff" }
+                { Id: 4, ListId: 2, Title: "task4", Description: "hogehoge" }
               ]
             },
-            prevToTask: { Id: 4, ListId: 2, Title: "task4", Color: "0effff" }
+            prevToTask: { Id: 4, ListId: 2, Title: "task4", Description: "hogehoge" }
           },
           lists: [{
             Id: 1,
             Title: "list1",
             ListTasks: [
-              { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
-              { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+              { Id: 1, ListId: 1, Title: "task1", Description: "hogehoge" },
+              { Id: 2, ListId: 1, Title: "task2", Description: "hogehoge" }
             ]
           }, {
             Id: 2,
             Title: "list2",
             ListTasks: [
-              { Id: 3, ListId: 2, Title: "task3", Color: "0effff" },
+              { Id: 3, ListId: 2, Title: "task3", Description: "hogehoge" },
               { draggedOn: true },
-              { Id: 4, ListId: 2, Title: "task4", Color: "0effff" }
+              { Id: 4, ListId: 2, Title: "task4", Description: "hogehoge" }
             ]
           }],
           taskDraggingFrom: {
@@ -896,15 +896,15 @@ describe('ListReducer', () => {
               Id: 1,
               Title: "list1",
               ListTasks: [
-                { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
-                { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+                { Id: 1, ListId: 1, Title: "task1", Description: "hogehoge" },
+                { Id: 2, ListId: 1, Title: "task2", Description: "hogehoge" }
               ]
             },
             fromTask: {
               Id: 2,
               ListId: 1,
               Title: "task2",
-              Color: "0effff"
+              Description: "hogehoge"
             }
           }
         })

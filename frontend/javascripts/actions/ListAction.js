@@ -230,7 +230,7 @@ export const RECEIVE_CREATE_TASK = 'RECEIVE_CREATE_TASK';
 function receiveCreateTask(task) {
   return {
     type: RECEIVE_CREATE_TASK,
-    task: {Id: task.Id, ListId: task.ListId, Title: task.Title }
+    task: {Id: task.Id, ListId: task.ListId, Title: task.Title, Description: task.Description }
   };
 }
 
