@@ -12,6 +12,7 @@ const initState = {
   isTaskDraggingOver: false,
   taskDraggingFrom: null,
   taskDraggingTo: null,
+  isLoading: false,
   error: null
 };
 
@@ -19,12 +20,17 @@ export default function ListReducer(state = initState, action) {
   switch(action.type) {
   case listActions.SERVER_ERROR:
     return Object.assign({}, state, {
-      error: "Server Error"
+      error: "Server Error",
+      isLoading: false
     });
   case listActions.CLOSE_FLASH:
     return Object.assign({}, state, {
       error: null
     });
+  case listActions.REQUEST_FETCH_GITHUB:
+    return Object.assign({}, state, {
+      isLoading: true
+    })
   case listActions.OPEN_NEW_LIST:
   case listActions.CLOSE_NEW_LIST:
     return Object.assign({}, state, {
@@ -97,7 +103,8 @@ export default function ListReducer(state = initState, action) {
       });
     }
     return Object.assign({}, state, {
-      lists: lists
+      lists: lists,
+      isLoading: false
     });
   case listActions.RECEIVE_PROJECT:
     return Object.assign({}, state, {
@@ -181,6 +188,25 @@ export default function ListReducer(state = initState, action) {
       taskDraggingTo: null
     });
   case listActions.TASK_DROP:
+    var lists = state.lists.map(function(list, i) {
+      // arrowを抜く
+      var taskIndex = null;
+      list.ListTasks.map(function(task, j) {
+        if (task.draggedOn) {
+          taskIndex = j;
+        }
+        if (taskIndex != null) {
+          list.ListTasks.splice(taskIndex, 1);
+        }
+      });
+      return list;
+    });
+    return Object.assign({}, state, {
+      isTaskDraggingOver: false,
+      lists: lists,
+      taskDraggingFrom: null,
+      taskDraggingTo: null
+    });
   case listActions.REQUEST_MOVE_TASK:
     var lists = state.lists.map(function(list, i) {
       // arrowを抜く
@@ -193,6 +219,10 @@ export default function ListReducer(state = initState, action) {
           list.ListTasks.splice(taskIndex, 1);
         }
       });
+      // loadingを表示する
+      if (list.Id == state.taskDraggingFrom.fromList.Id || list.Id == state.taskDraggingTo.toList.Id) {
+        list.isLoading = true
+      }
       return list;
     });
     return Object.assign({}, state, {

@@ -39,15 +39,61 @@ export default class ListView extends React.Component {
     }
   }
 
+  wholeLoading(isLoading) {
+    if (isLoading) {
+      return (
+        <div className="whole-loading">
+          <div className="whole-circle-wrapper">
+            <div className="whole-circle-body">
+              <div id="circularG">
+                <div id="circularG_1" className="circularG"></div>
+                <div id="circularG_2" className="circularG"></div>
+                <div id="circularG_3" className="circularG"></div>
+                <div id="circularG_4" className="circularG"></div>
+                <div id="circularG_5" className="circularG"></div>
+                <div id="circularG_6" className="circularG"></div>
+                <div id="circularG_7" className="circularG"></div>
+                <div id="circularG_8" className="circularG"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+  }
+
+  listLoading() {
+    return (
+      <div className="list-loading">
+        <div className="list-circle-wrapper">
+          <div className="list-circle-body">
+            <div id="circularG">
+              <div id="circularG_1" className="circularG"></div>
+              <div id="circularG_2" className="circularG"></div>
+              <div id="circularG_3" className="circularG"></div>
+              <div id="circularG_4" className="circularG"></div>
+              <div id="circularG_5" className="circularG"></div>
+              <div id="circularG_6" className="circularG"></div>
+              <div id="circularG_7" className="circularG"></div>
+              <div id="circularG_8" className="circularG"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   render() {
-    const { isListModalOpen, newList, lists, project, isTaskModalOpen, newTask, selectedList, isListEditModalOpen, taskDraggingFrom, taskDraggingTo, error } = this.props.ListReducer
+    const { isLoading, isListModalOpen, newList, lists, project, isTaskModalOpen, newTask, selectedList, isListEditModalOpen, taskDraggingFrom, taskDraggingTo, error } = this.props.ListReducer
 
     var flash;
     if (error != null) {
       flash = <div className="flash flash-error">{error}</div>;
     }
+
     return (
       <div id="lists">
+        {this.wholeLoading(isLoading)}
         {flash}
         <Modal
           isOpen={isListModalOpen}
@@ -129,6 +175,7 @@ export default class ListView extends React.Component {
                     <i className="fa fa-plus" data-dropped-depth="3"></i>
                   </li>
                 </ul>
+                {list.isLoading != undefined && list.isLoading ? this.listLoading() : ''}
               </div>
             );
            }, this)}

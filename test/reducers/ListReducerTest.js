@@ -11,6 +11,7 @@ function sharedExampleInitState(action) {
     isListModalOpen: false,
     isTaskModalOpen: false,
     isListEditModalOpen: false,
+    isLoading: false,
     newList: {title: "", color: "0effff"},
     newTask: {title: ""},
     lists: [],
@@ -37,7 +38,8 @@ describe('ListReducer', () => {
           type: listActions.SERVER_ERROR
         })
       ).toEqual({
-        error: "Server Error"
+        error: "Server Error",
+        isLoading: false,
       })
     })
   })
@@ -51,6 +53,19 @@ describe('ListReducer', () => {
         })
       ).toEqual({
         error: null
+      })
+    })
+  })
+  describe('REQUEST_FETCH_GITHUB', () => {
+    it('should render whole loading window', () => {
+      expect(
+        ListReducer({
+          isLoading: false
+        }, {
+          type: listActions.REQUEST_FETCH_GITHUB
+        })
+      ).toEqual({
+        isLoading: true
       })
     })
   })
@@ -223,13 +238,15 @@ describe('ListReducer', () => {
       it('should return empty lists', () => {
         expect(
           ListReducer({
-            lists: null
+            lists: null,
+            isLoading: true
           }, {
             type: listActions.RECEIVE_LISTS,
             lists: null
           })
         ).toEqual({
-          lists: []
+          lists: [],
+          isLoading: false
         })
       })
     })
@@ -249,7 +266,8 @@ describe('ListReducer', () => {
           lists: [
             { title: "list1", ListTasks: [] },
             { title: "list2", ListTasks: [] }
-          ]
+          ],
+          isLoading: false
         })
       })
     })
@@ -289,7 +307,8 @@ describe('ListReducer', () => {
                 { title: "task2" }
               ]
             },
-          ]
+          ],
+          isLoading: false
         })
       })
     })
@@ -569,8 +588,73 @@ describe('ListReducer', () => {
       })
     })
   })
+  describe('REQUEST_MOVE_TASK', () => {
+    it('should return do not contain arrow and contain isLoading flag', () => {
+      expect(
+        ListReducer({
+          lists: [{
+            Id: 1,
+            Title: "list1",
+            ListTasks: [
+              { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
+              { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+            ]
+          }, {
+            Id: 2,
+            Title: "list2",
+            ListTasks: [ { draggedOn: true } ]
+          }],
+          isTaskDraggingOver: true,
+          taskDraggingTo: {
+            toList: {
+              Id: 2,
+              Title: "list2",
+              ListTasks: []
+            },
+            prevToTask: null
+          },
+          taskDraggingFrom: {
+            fromList: {
+              Id: 1,
+              Title: "list1",
+              ListTasks: [
+                { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
+                { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+              ]
+            },
+            fromTask: {
+              Id: 2,
+              ListId: 1,
+              Title: "task2",
+              Color: "0effff"
+            }
+          }
+        }, {
+          type: listActions.REQUEST_MOVE_TASK,
+        })
+      ).toEqual({
+        isTaskDraggingOver: false,
+        taskDraggingTo: null,
+        taskDraggingFrom: null,
+        lists: [{
+          Id: 1,
+          Title: "list1",
+          ListTasks: [
+            { Id: 1, ListId: 1, Title: "task1", Color: "0effff" },
+            { Id: 2, ListId: 1, Title: "task2", Color: "0effff" }
+          ],
+          isLoading: true
+        }, {
+          Id: 2,
+          Title: "list2",
+          ListTasks: [],
+          isLoading: true
+        }]
+      })
+    })
+  })
   describe('TASK_DROP', () => {
-    it('should return do not contain arrow', () => {
+    it('should return do not contain arrow and isLoading', () => {
       expect(
         ListReducer({
           lists: [{
