@@ -116,6 +116,10 @@ export default function ListReducer(state = initState, action) {
     return Object.assign({}, state, {
       project: action.project
     });
+  case listActions.REQUEST_CREATE_LIST:
+    return Object.assign({}, state, {
+      isLoading: true
+    })
   case listActions.RECEIVE_CREATE_LIST:
     var createdList = action.list;
     if (createdList.ListTasks == null) {
@@ -125,8 +129,13 @@ export default function ListReducer(state = initState, action) {
     return Object.assign({}, state, {
       newList: {title: "", color: "0effff"},
       lists: lists,
-      isListModalOpen: false
+      isListModalOpen: false,
+      isLoading: false
     });
+  case listActions.REQUEST_CREATE_TASK:
+    return Object.assign({}, state, {
+      isLoading: true
+    })
   case listActions.RECEIVE_CREATE_TASK:
     var lists = state.lists.map(function(l, index) {
       if (l.Id == action.task.ListId) {
@@ -139,8 +148,13 @@ export default function ListReducer(state = initState, action) {
     return Object.assign({}, state, {
       newTask: {title: "", description: ""},
       lists: lists,
-      isTaskModalOpen: false
+      isTaskModalOpen: false,
+      isLoading: false
     });
+  case listActions.REQUEST_UPDATE_LIST:
+    return Object.assign({}, state, {
+      isLoading: true
+    })
   case listActions.RECEIVE_UPDATE_LIST:
     var updatedList = action.list;
     if (updatedList.ListTasks == null) {
@@ -155,7 +169,8 @@ export default function ListReducer(state = initState, action) {
     });
     return Object.assign({}, state, {
       lists: lists,
-      isListEditModalOpen: false
+      isListEditModalOpen: false,
+      isLoading: false
     });
   case listActions.TASK_DRAG_START:
     var lists = state.lists;
