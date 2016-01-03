@@ -5,7 +5,7 @@ const initState = {
   isTaskModalOpen: false,
   isListEditModalOpen: false,
   newList: {title: "", color: "0effff"},
-  newTask: {title: ""},
+  newTask: {title: "", description: ""},
   lists: [],
   selectedList: null,
   project: null,
@@ -86,6 +86,12 @@ export default function ListReducer(state = initState, action) {
     return Object.assign({}, state, {
       newTask: newTask
     });
+  case listActions.UPDATE_NEW_TASK_DESCRIPTION:
+    var newTask = state.newTask
+    newTask.description = action.description
+    return Object.assign({}, state, {
+      newTask: newTask
+    })
   case listActions.RECEIVE_LISTS:
   case listActions.RECEIVE_FETCH_GITHUB:
   case listActions.RECEIVE_MOVE_TASK:
@@ -131,7 +137,7 @@ export default function ListReducer(state = initState, action) {
       }
     });
     return Object.assign({}, state, {
-      newTask: {title: "", color: "0effff"},
+      newTask: {title: "", description: ""},
       lists: lists,
       isTaskModalOpen: false
     });
