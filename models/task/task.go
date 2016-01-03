@@ -126,7 +126,7 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 			}
 		}
 		// issueを作る
-		issue, err := hub.CreateGithubIssue(token, repo, []string{*label.Name}, &u.Title)
+		issue, err := hub.CreateGithubIssue(token, repo, []string{*label.Name}, &u.Title, &u.Description)
 		if err != nil {
 			logging.SharedInstance().MethodInfo("task", "Save").Errorf("issue create failed:%v", err)
 			transaction.Rollback()

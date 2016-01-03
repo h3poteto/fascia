@@ -86,7 +86,7 @@ func UpdateGithubLabel(token string, repo *repository.RepositoryStruct, original
 	return githubLabel, nil
 }
 
-func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels []string, title *string) (*github.Issue, error) {
+func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels []string, title *string, description *string) (*github.Issue, error) {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
@@ -98,11 +98,9 @@ func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels [
 		return nil, errors.New("title is nil")
 	}
 
-	// TODO: description実装時にはbodyにdescriptionを入れる
-	description := ""
 	issueRequest := &github.IssueRequest{
 		Title:  title,
-		Body:   &description,
+		Body:   description,
 		Labels: &labels,
 	}
 
