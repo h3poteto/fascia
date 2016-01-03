@@ -163,8 +163,9 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 			}
 		}
 		issueTask, err := task.FindByIssueNumber(*issue.Number)
+		// TODO: ここupdateも考慮したほうがいいのでは？
 		if err != nil {
-			issueTask = task.NewTask(0, 0, u.UserId, sql.NullInt64{Int64: int64(*issue.Number), Valid: true}, *issue.Title)
+			issueTask = task.NewTask(0, 0, u.UserId, sql.NullInt64{Int64: int64(*issue.Number), Valid: true}, *issue.Title, *issue.Body)
 		}
 		if len(githubLabels) == 1 {
 			// 一つのlistだけが該当するとき

@@ -162,18 +162,18 @@ func (u *ListStruct) Tasks() []*task.TaskStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	rows, _ := table.Query("select id, list_id, user_id, issue_number, title from tasks where list_id = ? order by display_index;", u.Id)
+	rows, _ := table.Query("select id, list_id, user_id, issue_number, title, description from tasks where list_id = ? order by display_index;", u.Id)
 	var slice []*task.TaskStruct
 	for rows.Next() {
 		var id, listID, userID int64
-		var title sql.NullString
+		var title, description string
 		var issueNumber sql.NullInt64
-		err := rows.Scan(&id, &listID, &userID, &issueNumber, &title)
+		err := rows.Scan(&id, &listID, &userID, &issueNumber, &title, &description)
 		if err != nil {
 			panic(err.Error())
 		}
-		if listID == u.Id && title.Valid {
-			l := task.NewTask(id, listID, userID, issueNumber, title.String)
+		if listID == u.Id {
+			l := task.NewTask(id, listID, userID, issueNumber, title, description)
 			slice = append(slice, l)
 		}
 	}

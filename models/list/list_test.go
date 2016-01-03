@@ -76,7 +76,7 @@ var _ = Describe("List", func() {
 		var newTask *task.TaskStruct
 		JustBeforeEach(func() {
 			newList.Save(nil, nil)
-			newTask = task.NewTask(0, newList.Id, newList.UserId, sql.NullInt64{}, "task")
+			newTask = task.NewTask(0, newList.Id, newList.UserId, sql.NullInt64{}, "task", "description")
 			newTask.Save(nil, nil)
 		})
 		It("should related task to list", func() {

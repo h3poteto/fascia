@@ -115,7 +115,7 @@ var _ = Describe("TasksController", func() {
 		JustBeforeEach(func() {
 			newList = list.NewList(0, projectId, userId, "list2", "")
 			newList.Save(nil, nil)
-			newTask = task.NewTask(0, listId, userId, sql.NullInt64{}, "taskTitle")
+			newTask = task.NewTask(0, listId, userId, sql.NullInt64{}, "taskTitle", "taskDescription")
 			newTask.Save(nil, nil)
 		})
 		It("should change list the task belongs", func() {

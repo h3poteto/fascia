@@ -17,7 +17,8 @@ type Tasks struct {
 }
 
 type NewTaskForm struct {
-	Title string `param:"title"`
+	Title       string `param:"title"`
+	Description string `param:"description"`
 }
 
 type MoveTaskFrom struct {
@@ -104,7 +105,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	logging.SharedInstance().MethodInfo("TasksController", "Create").Debugf("post new task parameter: %+v", newTaskForm)
 
-	task := taskModel.NewTask(0, parentList.Id, parentList.UserId, sql.NullInt64{}, newTaskForm.Title)
+	task := taskModel.NewTask(0, parentList.Id, parentList.UserId, sql.NullInt64{}, newTaskForm.Title, newTaskForm.Description)
 
 	repo := parentProject.Repository()
 	if !task.Save(repo, &current_user.OauthToken) {
