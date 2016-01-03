@@ -313,6 +313,19 @@ describe('ListReducer', () => {
       })
     })
   })
+  describe('REQUEST_CREATE_LIST', () => {
+    it('should open whole loading window', () => {
+      expect(
+        ListReducer({
+          isLoading: false
+        }, {
+          type: listActions.REQUEST_CREATE_LIST
+        })
+      ).toEqual({
+        isLoading: true
+      })
+    })
+  })
   describe('RECEIVE_CREATE_LIST', () => {
     context('when receive list and empty ListTasks', () => {
       it('should return list and empty ListTasks', () => {
@@ -330,7 +343,8 @@ describe('ListReducer', () => {
               }
             ],
             isListModalOpen: true,
-            newList: { title: "list3", color: "ffffff" }
+            newList: { title: "list3", color: "ffffff" },
+            isLoading: true
           }, {
             type: listActions.RECEIVE_CREATE_LIST,
             list: { title: "list3", ListTasks: null }
@@ -351,7 +365,8 @@ describe('ListReducer', () => {
             }
           ],
           isListModalOpen: false,
-          newList: { title: "", color: "0effff" }
+          newList: { title: "", color: "0effff" },
+          isLoading: false
         })
       })
     })
@@ -371,7 +386,8 @@ describe('ListReducer', () => {
               }
             ],
             isListModalOpen: false,
-            newList: { title: "", color: "ffffff" }
+            newList: { title: "", color: "ffffff" },
+            isLoading: true
           }, {
             type: listActions.RECEIVE_CREATE_LIST,
             list: { title: "list3", ListTasks: [ { title: "task3" } ] }
@@ -394,8 +410,22 @@ describe('ListReducer', () => {
             }
           ],
           isListModalOpen: false,
-          newList: { title: "", color: "0effff" }
+          newList: { title: "", color: "0effff" },
+          isLoading: false
         })
+      })
+    })
+  })
+  describe('REQUEST_CREATE_TASK', () => {
+    it('should open whole loading window', () => {
+      expect(
+        ListReducer({
+          isLoading: false
+        }, {
+          type: listActions.REQUEST_CREATE_TASK
+        })
+      ).toEqual({
+        isLoading: true
       })
     })
   })
@@ -415,7 +445,8 @@ describe('ListReducer', () => {
             ListTasks: []
           }],
           newTask: { title: "task2", description: "hogehoge" },
-          isTaskModalOpen: true
+          isTaskModalOpen: true,
+          isLoading: true
         }, {
           type: listActions.RECEIVE_CREATE_TASK,
           task: { ListId: 1, Title: "task2", Description: "hogehoge" }
@@ -434,7 +465,21 @@ describe('ListReducer', () => {
           ListTasks: []
         }],
         newTask: { title: "", description: "" },
-        isTaskModalOpen: false
+        isTaskModalOpen: false,
+        isLoading: false
+      })
+    })
+  })
+  describe('REQUEST_UPDATE_LIST', () => {
+    it('should open whole loading window', () => {
+      expect(
+        ListReducer({
+          isLoading: false
+        }, {
+          type: listActions.REQUEST_UPDATE_LIST
+        })
+      ).toEqual({
+        isLoading: true
       })
     })
   })
@@ -453,7 +498,8 @@ describe('ListReducer', () => {
             Title: "list2",
             ListTasks: []
           }],
-          isListEditModalOpen: true
+          isListEditModalOpen: true,
+          isLoading: true
         }, {
           type: listActions.RECEIVE_UPDATE_LIST,
           list: {
@@ -476,7 +522,8 @@ describe('ListReducer', () => {
           Title: "list2",
           ListTasks: []
         }],
-        isListEditModalOpen: false
+        isListEditModalOpen: false,
+        isLoading: false
       })
     })
   })
