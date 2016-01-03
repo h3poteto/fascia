@@ -18,17 +18,18 @@ type TaskStruct struct {
 	ListId      int64
 	UserId      int64
 	IssueNumber sql.NullInt64
-	Title       sql.NullString
+	Title       string
+	Description string
 	database    db.DB
 }
 
-func NewTask(id int64, listID int64, userID int64, issueNumber sql.NullInt64, title string) *TaskStruct {
-	nullTitle := sql.NullString{String: title, Valid: true}
-	task := &TaskStruct{Id: id, ListId: listID, UserId: userID, IssueNumber: issueNumber, Title: nullTitle}
+func NewTask(id int64, listID int64, userID int64, issueNumber sql.NullInt64, title string, description string) *TaskStruct {
+	task := &TaskStruct{Id: id, ListId: listID, UserId: userID, IssueNumber: issueNumber, Title: title, Description: description}
 	task.Initialize()
 	return task
 }
 
+// TODO: ここerrorを返すようにしなくていいのか要検証
 func FindTask(listID int64, taskID int64) *TaskStruct {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
@@ -36,9 +37,9 @@ func FindTask(listID int64, taskID int64) *TaskStruct {
 	defer table.Close()
 
 	var id, listId, userId int64
-	var title string
+	var title, description string
 	var issueNumber sql.NullInt64
-	err := table.QueryRow("select id, list_id, user_id, issue_number, title from tasks where id = ? AND list_id = ?;", taskID, listID).Scan(&id, &listId, &userId, &issueNumber, &title)
+	err := table.QueryRow("select id, list_id, user_id, issue_number, title, description from tasks where id = ? AND list_id = ?;", taskID, listID).Scan(&id, &listId, &userId, &issueNumber, &title, &description)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -46,7 +47,7 @@ func FindTask(listID int64, taskID int64) *TaskStruct {
 		logging.SharedInstance().MethodInfo("task", "FindTask").Errorf("cannot find task or list did not contain task: %v", taskID)
 		return nil
 	} else {
-		task := NewTask(id, listId, userId, issueNumber, title)
+		task := NewTask(id, listId, userId, issueNumber, title, description)
 		return task
 	}
 }
@@ -58,9 +59,9 @@ func FindByIssueNumber(issueNumber int) (*TaskStruct, error) {
 	defer table.Close()
 
 	var id, listId, userId int64
-	var title string
+	var title, description string
 	var number sql.NullInt64
-	err := table.QueryRow("select id, list_id, user_id, issue_number, title from tasks where issue_number = ?;", issueNumber).Scan(&id, &listId, &userId, &number, &title)
+	err := table.QueryRow("select id, list_id, user_id, issue_number, title, description from tasks where issue_number = ?;", issueNumber).Scan(&id, &listId, &userId, &number, &title, &description)
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
@@ -68,7 +69,7 @@ func FindByIssueNumber(issueNumber int) (*TaskStruct, error) {
 		logging.SharedInstance().MethodInfo("task", "FindByIssueNumber").Errorf("cannot find task issue number: %v", issueNumber)
 		return nil, errors.New("task not found")
 	} else {
-		task := NewTask(id, listId, userId, number, title)
+		task := NewTask(id, listId, userId, number, title, description)
 		return task, nil
 	}
 }
@@ -93,12 +94,13 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	// display_indexを自動挿入する
 	count := 0
 	err := transaction.QueryRow("SELECT COUNT(id) FROM tasks WHERE list_id = ?;", u.ListId).Scan(&count)
-	result, err := transaction.Exec("insert into tasks (list_id, user_id, issue_number, title, display_index, created_at) values (?, ?, ?, ?, ?, now());", u.ListId, u.UserId, u.IssueNumber, u.Title, count+1)
+	result, err := transaction.Exec("insert into tasks (list_id, user_id, issue_number, title, description, display_index, created_at) values (?, ?, ?, ?, ?, ?, now());", u.ListId, u.UserId, u.IssueNumber, u.Title, u.Description, count+1)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("task", "Save").Errorf("insert task error: %v", err)
 		transaction.Rollback()
 		return false
 	}
+	// TODO: これoauth判定の内側に
 	var listTitle, listColor sql.NullString
 	err = transaction.QueryRow("select title, color from lists where id = ?;", u.ListId).Scan(&listTitle, &listColor)
 	if err != nil {
@@ -124,7 +126,7 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 			}
 		}
 		// issueを作る
-		issue, err := hub.CreateGithubIssue(token, repo, []string{*label.Name}, &u.Title.String)
+		issue, err := hub.CreateGithubIssue(token, repo, []string{*label.Name}, &u.Title, &u.Description)
 		if err != nil {
 			logging.SharedInstance().MethodInfo("task", "Save").Errorf("issue create failed:%v", err)
 			transaction.Rollback()
@@ -156,7 +158,7 @@ func (u *TaskStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	table := u.database.Init()
 	defer table.Close()
 
-	_, err := table.Exec("update tasks set list_id = ?, issue_number = ?, title = ? where id = ?;", u.ListId, u.IssueNumber, u.Title, u.Id)
+	_, err := table.Exec("update tasks set list_id = ?, issue_number = ?, title = ?, description = ? where id = ?;", u.ListId, u.IssueNumber, u.Title, u.Description, u.Id)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("task", "Update").Errorf("update error: %v", err)
 		return false

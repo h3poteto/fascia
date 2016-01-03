@@ -163,8 +163,9 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 			}
 		}
 		issueTask, err := task.FindByIssueNumber(*issue.Number)
+		// TODO: ここupdateも考慮したほうがいいのでは？
 		if err != nil {
-			issueTask = task.NewTask(0, 0, u.UserId, sql.NullInt64{Int64: int64(*issue.Number), Valid: true}, *issue.Title)
+			issueTask = task.NewTask(0, 0, u.UserId, sql.NullInt64{Int64: int64(*issue.Number), Valid: true}, *issue.Title, *issue.Body)
 		}
 		if len(githubLabels) == 1 {
 			// 一つのlistだけが該当するとき
@@ -191,13 +192,14 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		}
 	}
 	// github側へ同期
-	rows, err := table.Query("select tasks.title, lists.title, lists.color from tasks left join lists on lists.id = tasks.list_id where tasks.user_id = ? and tasks.issue_number IS NULL;", u.UserId)
+	rows, err := table.Query("select tasks.title, tasks.description, lists.title, lists.color from tasks left join lists on lists.id = tasks.list_id where tasks.user_id = ? and tasks.issue_number IS NULL;", u.UserId)
 	if err != nil {
 		return false, err
 	}
 	for rows.Next() {
-		var title, listTitle, listColor sql.NullString
-		err := rows.Scan(&title, &listTitle, &listColor)
+		var title, description string
+		var listTitle, listColor sql.NullString
+		err := rows.Scan(&title, &description, &listTitle, &listColor)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -211,7 +213,9 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 				return false, errors.New("cannot create github label")
 			}
 		}
-		_, err = hub.CreateGithubIssue(oauthToken.String, repo, []string{*label.Name}, &title.String)
+		// ここcreateだけでなくupdateも考慮したほうが良いのではと思ったが，そもそも現状fasciaにはtaskのupdateアクションがないので，updateされることはありえない．そのため，未実装でも問題はない．
+		// todo: task#update実装時にはここも実装すること
+		_, err = hub.CreateGithubIssue(oauthToken.String, repo, []string{*label.Name}, &title, &description)
 		if err != nil {
 			return false, errors.New("cannot create github issue")
 		}

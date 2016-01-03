@@ -82,7 +82,7 @@ var _ = Describe("TasksController", func() {
 			parseContents := contents.(map[string]interface{})
 			newTask := task.FindTask(listId, int64(parseContents["Id"].(float64)))
 			Expect(newTask.Id).To(BeEquivalentTo(parseContents["Id"]))
-			Expect(newTask.Title.String).To(Equal("taskTitle"))
+			Expect(newTask.Title).To(Equal("taskTitle"))
 		})
 	})
 
@@ -115,7 +115,7 @@ var _ = Describe("TasksController", func() {
 		JustBeforeEach(func() {
 			newList = list.NewList(0, projectId, userId, "list2", "")
 			newList.Save(nil, nil)
-			newTask = task.NewTask(0, listId, userId, sql.NullInt64{}, "taskTitle")
+			newTask = task.NewTask(0, listId, userId, sql.NullInt64{}, "taskTitle", "taskDescription")
 			newTask.Save(nil, nil)
 		})
 		It("should change list the task belongs", func() {

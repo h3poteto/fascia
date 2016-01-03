@@ -112,6 +112,14 @@ export function updateNewTaskTitle(ev) {
   };
 }
 
+export const UPDATE_NEW_TASK_DESCRIPTION = 'UPDATE_NEW_TASK_DESCRIPTION'
+export function updateNewTaskDescription(ev) {
+  return {
+    type: UPDATE_NEW_TASK_DESCRIPTION,
+    description: ev.target.value
+  }
+}
+
 export const REQUEST_LISTS = 'REQUEST_LISTS';
 function requestLists() {
   return {
@@ -222,17 +230,17 @@ export const RECEIVE_CREATE_TASK = 'RECEIVE_CREATE_TASK';
 function receiveCreateTask(task) {
   return {
     type: RECEIVE_CREATE_TASK,
-    task: {Id: task.Id, ListId: task.ListId, Title: task.Title }
+    task: {Id: task.Id, ListId: task.ListId, Title: task.Title, Description: task.Description }
   };
 }
 
-export function fetchCreateTask(projectId, listId, title) {
+export function fetchCreateTask(projectId, listId, title, description) {
   return dispatch => {
     dispatch(requestCreateTask());
     return Request
       .post(`/projects/${projectId}/lists/${listId}/tasks`)
       .type('form')
-      .send({title: title})
+      .send({title: title, description: description})
       .end((err, res)=> {
         if(res.ok) {
           dispatch(receiveCreateTask(res.body));

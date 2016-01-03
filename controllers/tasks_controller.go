@@ -17,7 +17,8 @@ type Tasks struct {
 }
 
 type NewTaskForm struct {
-	Title string `param:"title"`
+	Title       string `param:"title"`
+	Description string `param:"description"`
 }
 
 type MoveTaskFrom struct {
@@ -59,7 +60,7 @@ func (u *Tasks) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	tasks := parentList.Tasks()
 	jsonTasks := make([]*TaskJsonFormat, 0)
 	for _, t := range tasks {
-		jsonTasks = append(jsonTasks, &TaskJsonFormat{Id: t.Id, ListId: t.ListId, UserId: t.UserId, IssueNumber: t.IssueNumber.Int64, Title: t.Title.String})
+		jsonTasks = append(jsonTasks, &TaskJsonFormat{Id: t.Id, ListId: t.ListId, UserId: t.UserId, IssueNumber: t.IssueNumber.Int64, Title: t.Title})
 	}
 	encoder.Encode(jsonTasks)
 	return
@@ -104,7 +105,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	logging.SharedInstance().MethodInfo("TasksController", "Create").Debugf("post new task parameter: %+v", newTaskForm)
 
-	task := taskModel.NewTask(0, parentList.Id, parentList.UserId, sql.NullInt64{}, newTaskForm.Title)
+	task := taskModel.NewTask(0, parentList.Id, parentList.UserId, sql.NullInt64{}, newTaskForm.Title, newTaskForm.Description)
 
 	repo := parentProject.Repository()
 	if !task.Save(repo, &current_user.OauthToken) {
@@ -112,7 +113,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "save failed", 500)
 		return
 	}
-	jsonTask := TaskJsonFormat{Id: task.Id, ListId: task.ListId, UserId: task.UserId, IssueNumber: task.IssueNumber.Int64, Title: task.Title.String}
+	jsonTask := TaskJsonFormat{Id: task.Id, ListId: task.ListId, UserId: task.UserId, IssueNumber: task.IssueNumber.Int64, Title: task.Title}
 	logging.SharedInstance().MethodInfo("TasksController", "Create").Info("success to create task")
 	encoder.Encode(jsonTask)
 }
@@ -184,7 +185,7 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 func TaskFormatToJson(tasks []*taskModel.TaskStruct) []*TaskJsonFormat {
 	jsonTasks := make([]*TaskJsonFormat, 0)
 	for _, t := range tasks {
-		jsonTasks = append(jsonTasks, &TaskJsonFormat{Id: t.Id, ListId: t.ListId, UserId: t.UserId, IssueNumber: t.IssueNumber.Int64, Title: t.Title.String})
+		jsonTasks = append(jsonTasks, &TaskJsonFormat{Id: t.Id, ListId: t.ListId, UserId: t.UserId, IssueNumber: t.IssueNumber.Int64, Title: t.Title})
 	}
 	return jsonTasks
 }

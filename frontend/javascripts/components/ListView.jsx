@@ -126,8 +126,10 @@ export default class ListView extends React.Component {
                 <legend>Create Task</legend>
                 <label htmlFor="title">Title</label>
                 <input id="title" name="title" type="text" value={newTask.title} onChange={this.props.updateNewTaskTitle} placeholder="Task Name" className="form-control" />
+                <label htmlFor="description">Description</label>
+                <input id="description" name="description" type="text" value={newTask.description} onChange={this.props.updateNewTaskDescription} placeholder="Task description" className="form-control" />
                 <div className="form-action">
-                  <button onClick={e => this.props.fetchCreateTask(this.props.params.projectId, selectedList.Id,  newTask.title)} className="pure-button pure-button-primary" type="button">Create Task</button>
+                  <button onClick={e => this.props.fetchCreateTask(this.props.params.projectId, selectedList.Id,  newTask.title, newTask.description)} className="pure-button pure-button-primary" type="button">Create Task</button>
                 </div>
               </fieldset>
             </form>
