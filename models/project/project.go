@@ -163,8 +163,7 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 			}
 		}
 		issueTask, err := task.FindByIssueNumber(*issue.Number)
-		// TODO: ここupdateも考慮したほうがいいのでは？
-		if err != nil {
+		if err != nil && issueTask == nil {
 			issueTask = task.NewTask(0, 0, u.UserId, sql.NullInt64{Int64: int64(*issue.Number), Valid: true}, *issue.Title, *issue.Body)
 		}
 		if len(githubLabels) == 1 {
@@ -188,6 +187,8 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		if issueTask.Id == 0 {
 			issueTask.Save(nil, nil)
 		} else {
+			issueTask.Title = *issue.Title
+			issueTask.Description = *issue.Body
 			issueTask.Update(nil, nil)
 		}
 	}
