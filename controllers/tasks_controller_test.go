@@ -82,7 +82,7 @@ var _ = Describe("TasksController", func() {
 			parseContents := contents.(map[string]interface{})
 			newTask := task.FindTask(listId, int64(parseContents["Id"].(float64)))
 			Expect(newTask.Id).To(BeEquivalentTo(parseContents["Id"]))
-			Expect(newTask.Title.String).To(Equal("taskTitle"))
+			Expect(newTask.Title).To(Equal("taskTitle"))
 		})
 	})
 

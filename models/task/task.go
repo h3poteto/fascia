@@ -18,13 +18,12 @@ type TaskStruct struct {
 	ListId      int64
 	UserId      int64
 	IssueNumber sql.NullInt64
-	Title       sql.NullString
+	Title       string
 	database    db.DB
 }
 
 func NewTask(id int64, listID int64, userID int64, issueNumber sql.NullInt64, title string) *TaskStruct {
-	nullTitle := sql.NullString{String: title, Valid: true}
-	task := &TaskStruct{Id: id, ListId: listID, UserId: userID, IssueNumber: issueNumber, Title: nullTitle}
+	task := &TaskStruct{Id: id, ListId: listID, UserId: userID, IssueNumber: issueNumber, Title: title}
 	task.Initialize()
 	return task
 }
@@ -124,7 +123,7 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 			}
 		}
 		// issueを作る
-		issue, err := hub.CreateGithubIssue(token, repo, []string{*label.Name}, &u.Title.String)
+		issue, err := hub.CreateGithubIssue(token, repo, []string{*label.Name}, &u.Title)
 		if err != nil {
 			logging.SharedInstance().MethodInfo("task", "Save").Errorf("issue create failed:%v", err)
 			transaction.Rollback()

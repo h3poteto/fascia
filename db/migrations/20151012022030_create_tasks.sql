@@ -4,7 +4,7 @@
 CREATE TABLE IF NOT EXISTS tasks (
 id int(11) NOT NULL AUTO_INCREMENT,
 list_id int(11) NOT NULL,
-title varchar(255) DEFAULT NULL,
+title varchar(255) NOT NULL DEFAULT "",
 created_at datetime DEFAULT NULL,
 updated_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 PRIMARY KEY(id))
