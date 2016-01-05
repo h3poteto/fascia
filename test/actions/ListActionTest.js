@@ -298,6 +298,29 @@ describe('fetchPorjectGithub', () => {
 })
 
 
+describe('fetchListOptions', () => {
+  afterEach(() => {
+    nock.cleanAll()
+  })
+  context('when response is right', () => {
+    beforeEach(() => {
+      nock('http://localhost')
+        .get('/list_options')
+        .reply(200, {
+          listOptions: ["option1", "option2"]
+        })
+    })
+    it('call RECEIVE_LIST_OPTIONS and get listOptions', (done) => {
+      const expectedActions = [
+        { type: listActions.REQUEST_LIST_OPTIONS },
+        { type: listActions.RECEIVE_LIST_OPTIONS, listOptions: { listOptions: ["option1", "option2"] } }
+      ]
+      const store = mockStore({ listOptions: [] }, expectedActions, done)
+      store.dispatch(listActions.fetchListOptions())
+    })
+  })
+})
+
 // drag
 
 describe('taskDragStart', () => {

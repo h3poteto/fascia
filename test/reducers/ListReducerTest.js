@@ -961,4 +961,42 @@ describe('ListReducer', () => {
       })
     })
   })
+
+  describe('CHANGE_SELECTED_LIST_OPTION', () => {
+    it('should change selected list option', () => {
+      expect(
+        ListReducer({
+          listOptions: [
+            {
+              Id: 1,
+              Action: "close",
+            }, {
+              Id: 2,
+              Action: "reopen"
+            }
+          ],
+          selectedListOption: null
+        }, {
+          type: listActions.CHANGE_SELECTED_LIST_OPTION,
+          selectEvent: {
+            value: 1
+          }
+        })
+      ).toEqual({
+          listOptions: [
+            {
+              Id: 1,
+              Action: "close",
+            }, {
+              Id: 2,
+              Action: "reopen"
+            }
+          ],
+          selectedListOption: {
+            Id: 1,
+            Action: "close"
+          }
+      })
+    })
+  })
 })
