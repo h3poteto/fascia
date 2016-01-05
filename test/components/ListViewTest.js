@@ -43,6 +43,8 @@ describe('ListView', () => {
             ListTasks: []
           }
         ],
+        listOptions: [],
+        selectedListOption: null,
         selectedList: null,
         project: {
           Title: "testProject"
@@ -57,6 +59,7 @@ describe('ListView', () => {
       },
       fetchLists: expect.createSpy(),
       fetchProject: expect.createSpy(),
+      fetchListOptions: expect.createSpy(),
       closeFlash: expect.createSpy(),
       taskDrop: expect.createSpy(),
       openNewListModal: expect.createSpy(),
@@ -134,6 +137,8 @@ describe('ListView', () => {
             ListTasks: []
           }
         ],
+        listOptions: [],
+        selectedListOption: null,
         selectedList: null,
         project: {
           Title: "testProject"
@@ -148,6 +153,7 @@ describe('ListView', () => {
       },
       fetchLists: expect.createSpy(),
       fetchProject: expect.createSpy(),
+      fetchListOptions: expect.createSpy(),
       closeFlash: expect.createSpy(),
       taskDrop: expect.createSpy(),
       openNewListModal: expect.createSpy(),
@@ -188,6 +194,8 @@ describe('ListView', () => {
             ListTasks: []
           }
         ],
+        listOptions: [],
+        selectedListOption: null,
         selectedList: null,
         project: {
           Title: "testProject"
@@ -202,6 +210,7 @@ describe('ListView', () => {
       },
       fetchLists: expect.createSpy(),
       fetchProject: expect.createSpy(),
+      fetchListOptions: expect.createSpy(),
       closeFlash: expect.createSpy(),
       taskDrop: expect.createSpy(),
       openNewListModal: expect.createSpy(),
@@ -243,6 +252,8 @@ describe('ListView', () => {
             ListTasks: []
           }
         ],
+        listOptions: [],
+        selectedListOption: null,
         selectedList: null,
         project: {
           Title: "testProject"
@@ -257,6 +268,7 @@ describe('ListView', () => {
       },
       fetchLists: expect.createSpy(),
       fetchProject: expect.createSpy(),
+      fetchListOptions: expect.createSpy(),
       closeFlash: expect.createSpy(),
       taskDrop: expect.createSpy(),
       openNewListModal: expect.createSpy(),
@@ -296,6 +308,8 @@ describe('ListView', () => {
             ListTasks: []
           }
         ],
+        listOptions: [],
+        selectedListOption: null,
         selectedList: null,
         project: {
           Title: "testProject"
@@ -310,6 +324,7 @@ describe('ListView', () => {
       },
       fetchLists: expect.createSpy(),
       fetchProject: expect.createSpy(),
+      fetchListOptions: expect.createSpy(),
       closeFlash: expect.createSpy(),
       taskDrop: expect.createSpy(),
       openNewListModal: expect.createSpy(),
@@ -349,6 +364,8 @@ describe('ListView', () => {
             ListTasks: []
           }
         ],
+        listOptions: [],
+        selectedListOption: null,
         selectedList: null,
         project: {
           Title: "testProject"
@@ -363,6 +380,7 @@ describe('ListView', () => {
       },
       fetchLists: expect.createSpy(),
       fetchProject: expect.createSpy(),
+      fetchListOptions: expect.createSpy(),
       closeFlash: expect.createSpy(),
       taskDrop: expect.createSpy(),
       openNewListModal: expect.createSpy(),

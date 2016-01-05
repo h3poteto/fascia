@@ -236,6 +236,10 @@ describe('fetchUpdateList', () => {
   })
   context('when response is right', () => {
     const projectId = 1
+    const option = {
+      Id: 1,
+      Action: "close"
+    }
     const list = {
       Id: 2,
       Title: {
@@ -246,7 +250,7 @@ describe('fetchUpdateList', () => {
       },
       ProjectId: projectId
     }
-    const postForm = `title=${list.Title.String}&color=${list.Color.String}`
+    const postForm = `title=${list.Title.String}&color=${list.Color.String}&action=${option.Action}`
     beforeEach(() => {
       nock('http://localhost')
         .post(`/projects/${projectId}/lists/${list.Id}`, postForm)
@@ -264,7 +268,7 @@ describe('fetchUpdateList', () => {
         { type: listActions.RECEIVE_UPDATE_LIST, list: { Id: list.Id, ProjectId: list.ProjectId, Title: list.Title.String, Color: list.Color.String, ListTasks: [] } }
       ]
       const store = mockStore({ list: null }, expectedActions, done)
-      store.dispatch(listActions.fetchUpdateList(projectId, list))
+      store.dispatch(listActions.fetchUpdateList(projectId, list, option))
     })
   })
 })

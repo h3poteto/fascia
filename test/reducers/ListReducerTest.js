@@ -15,6 +15,8 @@ function sharedExampleInitState(action) {
     newList: {title: "", color: "0effff"},
     newTask: {title: "", description: ""},
     lists: [],
+    listOptions: [],
+    selectedListOption: null,
     selectedList: null,
     project: null,
     isTaskDraggingOver: false,
