@@ -11,6 +11,11 @@ import (
 type ListOptions struct {
 }
 
+type ListOptionJsonFormat struct {
+	Id     int64
+	Action string
+}
+
 func (u *ListOptions) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	_, err := LoginRequired(r)
@@ -21,5 +26,9 @@ func (u *ListOptions) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 
 	encoder := json.NewEncoder(w)
-	encoder.Encode(list_option.ListOptionAll())
+	jsonOptions := make([]*ListOptionJsonFormat, 0)
+	for _, o := range list_option.ListOptionAll() {
+		jsonOptions = append(jsonOptions, &ListOptionJsonFormat{Id: o.Id, Action: o.Action})
+	}
+	encoder.Encode(jsonOptions)
 }

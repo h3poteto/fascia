@@ -5,10 +5,10 @@ import (
 )
 
 func main() {
-	list_options()
+	ListOptions()
 }
 
-func list_options() {
+func ListOptions() {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
 	table := interfaceDB.Init()
