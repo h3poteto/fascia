@@ -1,5 +1,5 @@
-import React from 'react';
-import Modal from 'react-modal';
+import React from 'react'
+import Modal from 'react-modal'
 
 const customStyles = {
   overlay : {
@@ -19,23 +19,24 @@ const customStyles = {
     marginRight : '-50%',
     transform : 'translate(-50%, -50%)'
   }
-};
+}
 
 export default class ListView extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
   }
 
   componentWillMount() {
-    this.props.fetchLists(this.props.params.projectId);
-    this.props.fetchProject(this.props.params.projectId);
+    this.props.fetchLists(this.props.params.projectId)
+    this.props.fetchProject(this.props.params.projectId)
+    this.props.fetchListOptions()
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.ListReducer.error != null || nextProps.ListReducer.error != null) {
       setTimeout(() => {
         this.props.closeFlash()
-      }, 3000);
+      }, 3000)
     }
   }
 
@@ -84,7 +85,7 @@ export default class ListView extends React.Component {
   }
 
   render() {
-    const { isLoading, isListModalOpen, newList, lists, project, isTaskModalOpen, newTask, selectedList, isListEditModalOpen, taskDraggingFrom, taskDraggingTo, error } = this.props.ListReducer
+    const { isLoading, isListModalOpen, newList, lists, listOptions, project, isTaskModalOpen, newTask, selectedList, selectedListOption, isListEditModalOpen, taskDraggingFrom, taskDraggingTo, error } = this.props.ListReducer
 
     var flash;
     if (error != null) {
@@ -148,8 +149,15 @@ export default class ListView extends React.Component {
                 <input id="title" name="title" type="text" value={selectedList !=null ? selectedList.Title : ''} onChange={this.props.updateSelectedListTitle} className="form-control" />
                 <label htmlFor="color">Color</label>
                 <input id="color" name="color" type="text" value={selectedList !=null ? selectedList.Color : ''} onChange={this.props.updateSelectedListColor} className="form-control" />
+                <label htmlFor="action">action</label>
+                <select id="action" name="action" type="text" onChange={this.props.changeSelectedListOption} className="form-control" value={selectedListOption ? selectedListOption.Id : 0}>
+                  <option value="0">nothing</option>
+                  {listOptions.map(function(option, index) {
+                     return <option key={index} value={option.Id}>{option.Action}</option>
+                  }, this)}
+                </select>
                 <div className="form-action">
-                  <button onClick={e => this.props.fetchUpdateList(this.props.params.projectId, selectedList)} className="pure-button pure-button-primary" type="button">Update List</button>
+                  <button onClick={e => this.props.fetchUpdateList(this.props.params.projectId, selectedList, selectedListOption)} className="pure-button pure-button-primary" type="button">Update List</button>
                 </div>
               </fieldset>
             </form>

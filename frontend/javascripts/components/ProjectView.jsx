@@ -78,7 +78,7 @@ class ProjectView extends React.Component {
                     if (selectedRepository != null && repo.id == selectedRepository.id) {
                       return <option key={index} value={repo.id} selected>{repo.full_name}</option>;
                     } else {
-                      return<option key={index} value={repo.id}>{repo.full_name}</option>;
+                      return <option key={index} value={repo.id}>{repo.full_name}</option>;
                     }
                    }, this)}
                 </select>
