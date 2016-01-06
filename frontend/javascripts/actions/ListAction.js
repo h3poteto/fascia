@@ -269,12 +269,16 @@ function receiveUpdateList(list) {
 }
 
 export function fetchUpdateList(projectId, list, option) {
+  var action
+  if (option != undefined && option != null) {
+    action = option.Action
+  }
   return dispatch => {
     dispatch(requestUpdateList());
     return Request
       .post(`/projects/${projectId}/lists/${list.Id}`)
       .type('form')
-      .send({title: list.Title.String, color: list.Color.String, action: option.Action})
+      .send({title: list.Title, color: list.Color, action: action})
       .end((err, res)=> {
         if(res.ok) {
           dispatch(receiveUpdateList(res.body));

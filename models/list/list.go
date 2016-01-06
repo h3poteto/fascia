@@ -14,22 +14,24 @@ type List interface {
 }
 
 type ListStruct struct {
-	Id        int64
-	ProjectId int64
-	UserId    int64
-	Title     sql.NullString
-	ListTasks []*task.TaskStruct
-	Color     sql.NullString
-	database  db.DB
+	Id           int64
+	ProjectId    int64
+	UserId       int64
+	Title        sql.NullString
+	ListTasks    []*task.TaskStruct
+	Color        sql.NullString
+	ListOptionId sql.NullInt64
+	database     db.DB
 }
 
-func NewList(id int64, projectID int64, userID int64, title string, color string) *ListStruct {
+func NewList(id int64, projectID int64, userID int64, title string, color string, optionID sql.NullInt64) *ListStruct {
 	if projectID == 0 {
 		return nil
 	}
 	nullTitle := sql.NullString{String: title, Valid: true}
 	nullColor := sql.NullString{String: color, Valid: true}
-	list := &ListStruct{Id: id, ProjectId: projectID, UserId: userID, Title: nullTitle, Color: nullColor}
+
+	list := &ListStruct{Id: id, ProjectId: projectID, UserId: userID, Title: nullTitle, Color: nullColor, ListOptionId: optionID}
 	list.Initialize()
 	return list
 }
@@ -42,9 +44,10 @@ func FindList(projectID int64, listID int64) *ListStruct {
 
 	var id, projectId, userId int64
 	var title, color sql.NullString
-	rows, _ := table.Query("select id, project_id, user_id, title, color from lists where id = ? AND project_id = ?;", listID, projectID)
+	var optionId sql.NullInt64
+	rows, _ := table.Query("select id, project_id, user_id, title, color, list_option_id from lists where id = ? AND project_id = ?;", listID, projectID)
 	for rows.Next() {
-		err := rows.Scan(&id, &projectId, &userId, &title, &color)
+		err := rows.Scan(&id, &projectId, &userId, &title, &color, &optionId)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -53,7 +56,7 @@ func FindList(projectID int64, listID int64) *ListStruct {
 		logging.SharedInstance().MethodInfo("list", "FindList").Errorf("cannot find list or project did not contain list: %v", listID)
 		return nil
 	} else {
-		list := NewList(id, projectId, userId, title.String, color.String)
+		list := NewList(id, projectId, userId, title.String, color.String, optionId)
 		return list
 	}
 
@@ -76,9 +79,9 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		}
 	}()
 
-	result, err := tx.Exec("insert into lists (project_id, user_id, title, color, created_at) values (?, ?, ?, ?, now());", u.ProjectId, u.UserId, u.Title, u.Color)
+	result, err := tx.Exec("insert into lists (project_id, user_id, title, color, list_option_id, created_at) values (?, ?, ?, ?, ?, now());", u.ProjectId, u.UserId, u.Title, u.Color, u.ListOptionId)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("project", "Save").Errorf("list save error: %v", err)
+		logging.SharedInstance().MethodInfo("list", "Save").Errorf("list save error: %v", err)
 		tx.Rollback()
 		return false
 	}
@@ -88,18 +91,18 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		label, err := hub.CheckLabelPresent(token, repo, &u.Title.String)
 		if err != nil {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("project", "Save").Errorf("check label error: %v", err)
+			logging.SharedInstance().MethodInfo("list", "Save").Errorf("check label error: %v", err)
 			return false
 		} else if label == nil {
 			label, err = hub.CreateGithubLabel(token, repo, &u.Title.String, &u.Color.String)
 			if err != nil {
-				logging.SharedInstance().MethodInfo("project", "Save").Error("github label create failed")
+				logging.SharedInstance().MethodInfo("list", "Save").Error("github label create failed")
 				tx.Rollback()
 				return false
 			}
 		} else {
 			// createしようとしたときに存在している場合，それはあまり気にしなくて良い．むしろこれで同等の状態になる
-			logging.SharedInstance().MethodInfo("project", "Save").Info("github label already exist")
+			logging.SharedInstance().MethodInfo("list", "Save").Info("github label already exist")
 		}
 	}
 	tx.Commit()
@@ -107,19 +110,27 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	return true
 }
 
-func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.NullString, title *string, color *string) bool {
+func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.NullString, title *string, color *string, action *string) bool {
 	table := u.database.Init()
 	defer table.Close()
+
+	var listOptionId sql.NullInt64
+	err := table.QueryRow("select id from list_options where action = ?;", *action).Scan(&listOptionId)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("list", "Update").Infof("cannot find list_options, set null to list_option_id: %v", err)
+	}
+
 	tx, _ := table.Begin()
 	defer func() {
 		if err := recover(); err != nil {
-			logging.SharedInstance().MethodInfo("project", "Update").Error("unexpected error")
+			logging.SharedInstance().MethodInfo("list", "Update").Error("unexpected error")
 			tx.Rollback()
 		}
 	}()
 
-	_, err := tx.Exec("update lists set title = ?, color = ? where id = ?;", *title, *color, u.Id)
+	_, err = tx.Exec("update lists set title = ?, color = ?, list_option_id = ? where id = ?;", *title, *color, listOptionId, u.Id)
 	if err != nil {
+		logging.SharedInstance().MethodInfo("list", "Update").Errorf("list update error: %v", err)
 		tx.Rollback()
 		return false
 	}
@@ -130,7 +141,7 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 		existLabel, err := hub.CheckLabelPresent(token, repo, &u.Title.String)
 		if err != nil {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("project", "Update").Errorf("check label error: %v", err)
+			logging.SharedInstance().MethodInfo("list", "Update").Errorf("check label error: %v", err)
 			return false
 		} else if existLabel == nil {
 			// editの場合ここに入る可能性はほとんどない

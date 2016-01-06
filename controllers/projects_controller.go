@@ -2,9 +2,11 @@ package controllers
 
 import (
 	listModel "../models/list"
+	"../models/list_option"
 	projectModel "../models/project"
 	repositoryModel "../models/repository"
 	"../modules/logging"
+	"database/sql"
 	"encoding/json"
 	"github.com/goji/param"
 	"github.com/zenazn/goji/web"
@@ -101,11 +103,14 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Create").Info("success to create project")
 
+	// closeのlist_optionだけはdoneにつけておきたい
+	closeListOption := list_option.FindByAction("close")
+
 	// 初期リストを作っておく
 	// TODO: ここエラーハンドリングしたほうがいい
-	todo := listModel.NewList(0, project.Id, current_user.Id, "ToDo", "ff0000")
-	inprogress := listModel.NewList(0, project.Id, current_user.Id, "InProgress", "0000ff")
-	done := listModel.NewList(0, project.Id, current_user.Id, "Done", "0a0a0a")
+	todo := listModel.NewList(0, project.Id, current_user.Id, "ToDo", "ff0000", sql.NullInt64{})
+	inprogress := listModel.NewList(0, project.Id, current_user.Id, "InProgress", "0000ff", sql.NullInt64{})
+	done := listModel.NewList(0, project.Id, current_user.Id, "Done", "0a0a0a", sql.NullInt64{Int64: closeListOption.Id, Valid: true})
 	if newProjectForm.RepositoryID != 0 {
 		repository := repositoryModel.NewRepository(0, project.Id, newProjectForm.RepositoryID, newProjectForm.RepositoryOwner, newProjectForm.RepositoryName)
 		repository.Save()

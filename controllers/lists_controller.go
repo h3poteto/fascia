@@ -4,6 +4,7 @@ import (
 	listModel "../models/list"
 	projectModel "../models/project"
 	"../modules/logging"
+	"database/sql"
 	"encoding/json"
 	"github.com/goji/param"
 	"github.com/zenazn/goji/web"
@@ -20,8 +21,9 @@ type NewListForm struct {
 }
 
 type EditListForm struct {
-	Title string `param:"title"`
-	Color string `param:"color"`
+	Title  string `param:"title"`
+	Color  string `param:"color"`
+	Action string `param:"action"`
 }
 
 type ListJsonFormat struct {
@@ -89,7 +91,7 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ListsController", "Create").Debugf("post new list parameter: %+v", newListForm)
-	list := listModel.NewList(0, projectID, current_user.Id, newListForm.Title, newListForm.Color)
+	list := listModel.NewList(0, projectID, current_user.Id, newListForm.Title, newListForm.Color, sql.NullInt64{})
 
 	repo := parentProject.Repository()
 	if !list.Save(repo, &current_user.OauthToken) {
@@ -142,7 +144,7 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	logging.SharedInstance().MethodInfo("ListsController", "Update").Debugf("post edit list parameter: %+v", editListForm)
 
 	repo := parentProject.Repository()
-	if !targetList.Update(repo, &current_user.OauthToken, &editListForm.Title, &editListForm.Color) {
+	if !targetList.Update(repo, &current_user.OauthToken, &editListForm.Title, &editListForm.Color, &editListForm.Action) {
 		logging.SharedInstance().MethodInfo("ListsController", "Update").Error("save failed")
 		http.Error(w, "save failed", 500)
 		return
