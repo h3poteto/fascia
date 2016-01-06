@@ -3,6 +3,7 @@ package controllers_test
 import (
 	. "../../fascia"
 	"../controllers"
+	seed "../db/seed"
 	"../models/db"
 	"../models/project"
 	"encoding/json"
@@ -32,11 +33,16 @@ var _ = Describe("ProjectsController", func() {
 		table := database.Init()
 		table.Exec("truncate table users;")
 		table.Exec("truncate table projects;")
+		table.Exec("truncate table list_options;")
+		table.Exec("truncate table lists;")
 		table.Close()
 	})
 	JustBeforeEach(func() {
+		seed.ListOptions()
 		LoginFaker(ts, "projects@example.com", "hogehoge")
 	})
+
+	// TODO: InitListが作られること，ListOptionが正しく紐づくことを確認
 	Describe("Create", func() {
 		var (
 			res *http.Response

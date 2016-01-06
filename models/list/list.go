@@ -4,6 +4,7 @@ import (
 	"../../modules/hub"
 	"../../modules/logging"
 	"../db"
+	"../list_option"
 	"../repository"
 	"../task"
 	"database/sql"
@@ -115,9 +116,12 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	defer table.Close()
 
 	var listOptionId sql.NullInt64
-	err := table.QueryRow("select id from list_options where action = ?;", *action).Scan(&listOptionId)
-	if err != nil {
-		logging.SharedInstance().MethodInfo("list", "Update").Infof("cannot find list_options, set null to list_option_id: %v", err)
+	listOption := list_option.FindByAction(*action)
+	if listOption == nil {
+		logging.SharedInstance().MethodInfo("list", "Update").Debug("cannot find list_options, set null to list_option_id")
+	} else {
+		listOptionId.Int64 = listOption.Id
+		listOptionId.Valid = true
 	}
 
 	tx, _ := table.Begin()
@@ -128,7 +132,7 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 		}
 	}()
 
-	_, err = tx.Exec("update lists set title = ?, color = ?, list_option_id = ? where id = ?;", *title, *color, listOptionId, u.Id)
+	_, err := tx.Exec("update lists set title = ?, color = ?, list_option_id = ? where id = ?;", *title, *color, listOptionId, u.Id)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("list", "Update").Errorf("list update error: %v", err)
 		tx.Rollback()

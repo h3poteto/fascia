@@ -3,6 +3,7 @@ package controllers_test
 import (
 	. "../../fascia"
 	"../controllers"
+	seed "../db/seed"
 	"../models/db"
 	"../models/list"
 	"../models/task"
@@ -40,9 +41,11 @@ var _ = Describe("TasksController", func() {
 		table.Exec("truncate table projects;")
 		table.Exec("truncate table lists;")
 		table.Exec("truncate table tasks;")
+		table.Exec("truncate table list_options;")
 		table.Close()
 	})
 	JustBeforeEach(func() {
+		seed.ListOptions()
 		userId = LoginFaker(ts, "tasks@example.com", "hogehoge")
 		// projectを作っておく
 		values := url.Values{}
@@ -113,7 +116,7 @@ var _ = Describe("TasksController", func() {
 			newList *list.ListStruct
 		)
 		JustBeforeEach(func() {
-			newList = list.NewList(0, projectId, userId, "list2", "")
+			newList = list.NewList(0, projectId, userId, "list2", "", sql.NullInt64{})
 			newList.Save(nil, nil)
 			newTask = task.NewTask(0, listId, userId, sql.NullInt64{}, "taskTitle", "taskDescription")
 			newTask.Save(nil, nil)

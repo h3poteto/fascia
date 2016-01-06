@@ -38,7 +38,7 @@ var _ = Describe("List", func() {
 		table = database.Init()
 		newProject = project.NewProject(0, uid, "title", "desc")
 		newProject.Save()
-		newList = NewList(0, newProject.Id, newProject.UserId, "list title", "")
+		newList = NewList(0, newProject.Id, newProject.UserId, "list title", "", sql.NullInt64{})
 	})
 
 	Describe("Save", func() {
@@ -87,6 +87,7 @@ var _ = Describe("List", func() {
 
 	})
 
+	// TODO: list_optionありの場合を追加
 	Describe("Update", func() {
 		JustBeforeEach(func() {
 			newList.Save(nil, nil)
@@ -94,7 +95,8 @@ var _ = Describe("List", func() {
 		It("should update list", func() {
 			newTitle := "newTitle"
 			newColor := "newColor"
-			newList.Update(nil, nil, &newTitle, &newColor)
+			action := "nothing"
+			newList.Update(nil, nil, &newTitle, &newColor, &action)
 			findList := FindList(newList.ProjectId, newList.Id)
 			Expect(findList.Title.String).To(Equal(newTitle))
 			Expect(findList.Color.String).To(Equal(newColor))

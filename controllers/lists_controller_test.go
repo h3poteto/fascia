@@ -3,8 +3,10 @@ package controllers_test
 import (
 	. "../../fascia"
 	"../controllers"
+	seed "../db/seed"
 	"../models/db"
 	"../models/list"
+	"database/sql"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -36,9 +38,11 @@ var _ = Describe("ListsController", func() {
 		table.Exec("truncate table users;")
 		table.Exec("truncate table projects;")
 		table.Exec("truncate table lists;")
+		table.Exec("truncate table list_options;")
 		table.Close()
 	})
 	JustBeforeEach(func() {
+		seed.ListOptions()
 		userId = LoginFaker(ts, "lists@example.com", "hogehoge")
 		// projectを作っておく
 		values := url.Values{}
@@ -75,13 +79,14 @@ var _ = Describe("ListsController", func() {
 		})
 	})
 
+	// TODO: actionありとnullのパターンを追加
 	Describe("Update", func() {
 		var (
 			res *http.Response
 			err error
 		)
 		JustBeforeEach(func() {
-			newList := list.NewList(0, projectId, userId, "listTitle", "")
+			newList := list.NewList(0, projectId, userId, "listTitle", "", sql.NullInt64{})
 			newList.Save(nil, nil)
 			values := url.Values{}
 			values.Add("title", "newListTitle")
