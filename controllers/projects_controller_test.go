@@ -5,6 +5,7 @@ import (
 	"../controllers"
 	seed "../db/seed"
 	"../models/db"
+	"../models/list_option"
 	"../models/project"
 	"encoding/json"
 	"io/ioutil"
@@ -42,7 +43,6 @@ var _ = Describe("ProjectsController", func() {
 		LoginFaker(ts, "projects@example.com", "hogehoge")
 	})
 
-	// TODO: InitListが作られること，ListOptionが正しく紐づくことを確認
 	Describe("Create", func() {
 		var (
 			res *http.Response
@@ -68,6 +68,15 @@ var _ = Describe("ProjectsController", func() {
 			newProject := project.FindProject(int64(parseContents["Id"].(float64)))
 			Expect(newProject.Id).To(BeEquivalentTo(parseContents["Id"]))
 			Expect(newProject.Title).To(Equal("projectTitle"))
+		})
+		It("should have list which have list_option", func() {
+			contents, _ := ParseJson(res)
+			parseContents := contents.(map[string]interface{})
+			newProject := project.FindProject(int64(parseContents["Id"].(float64)))
+			lists := newProject.Lists()
+			Expect(len(lists)).To(Equal(3))
+			closeListOption := list_option.FindByAction("close")
+			Expect(lists[2].ListOptionId.Int64).To(Equal(closeListOption.Id))
 		})
 	})
 

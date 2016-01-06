@@ -79,25 +79,44 @@ var _ = Describe("ListsController", func() {
 		})
 	})
 
-	// TODO: actionありとnullのパターンを追加
 	Describe("Update", func() {
 		var (
 			res *http.Response
 			err error
 		)
-		JustBeforeEach(func() {
-			newList := list.NewList(0, projectId, userId, "listTitle", "", sql.NullInt64{})
-			newList.Save(nil, nil)
-			values := url.Values{}
-			values.Add("title", "newListTitle")
-			res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists/"+strconv.FormatInt(newList.Id, 10), values)
+		Context("when action is null", func() {
+			JustBeforeEach(func() {
+				newList := list.NewList(0, projectId, userId, "listTitle", "", sql.NullInt64{})
+				newList.Save(nil, nil)
+				values := url.Values{}
+				values.Add("title", "newListTitle")
+				values.Add("action", "null")
+				res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists/"+strconv.FormatInt(newList.Id, 10), values)
+			})
+			It("should update", func() {
+				Expect(err).To(BeNil())
+				contents, status := ParseJson(res)
+				Expect(status).To(Equal(http.StatusOK))
+				Expect(contents).NotTo(BeNil())
+				Expect(contents).To(HaveKey("Id"))
+			})
 		})
-		It("should update", func() {
-			Expect(err).To(BeNil())
-			contents, status := ParseJson(res)
-			Expect(status).To(Equal(http.StatusOK))
-			Expect(contents).NotTo(BeNil())
-			Expect(contents).To(HaveKey("Id"))
+		Context("when action is close", func() {
+			JustBeforeEach(func() {
+				newList := list.NewList(0, projectId, userId, "listTitle", "", sql.NullInt64{})
+				newList.Save(nil, nil)
+				values := url.Values{}
+				values.Add("title", "newListTitle")
+				values.Add("action", "close")
+				res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists/"+strconv.FormatInt(newList.Id, 10), values)
+			})
+			It("should update", func() {
+				Expect(err).To(BeNil())
+				contents, status := ParseJson(res)
+				Expect(status).To(Equal(http.StatusOK))
+				Expect(contents).NotTo(BeNil())
+				Expect(contents).To(HaveKey("Id"))
+			})
 		})
 	})
 
