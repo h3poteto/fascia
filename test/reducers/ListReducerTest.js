@@ -161,7 +161,8 @@ describe('ListReducer', () => {
         })
       ).toEqual({
         isListEditModalOpen: false,
-        selectedList: null
+        selectedList: null,
+        selectedListOption: null
       })
     })
   })
