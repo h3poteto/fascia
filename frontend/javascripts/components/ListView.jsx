@@ -150,10 +150,10 @@ export default class ListView extends React.Component {
                 <label htmlFor="color">Color</label>
                 <input id="color" name="color" type="text" value={selectedList !=null ? selectedList.Color : ''} onChange={this.props.updateSelectedListColor} className="form-control" />
                 <label htmlFor="action">action</label>
-                <select id="action" name="action" type="text" onChange={this.props.changeSelectedListOption} className="form-control" value={selectedListOption ? selectedListOption.Id : 0}>
+                <select id="action" name="action" type="text" onChange={this.props.changeSelectedListOption} className="form-control" value={selectedListOption ? selectedListOption.Id : (selectedList ? selectedList.ListOptionId : 0)}>
                   <option value="0">nothing</option>
                   {listOptions.map(function(option, index) {
-                     return <option key={index} value={option.Id}>{option.Action}</option>
+                    return <option key={index} value={option.Id}>{option.Action}</option>
                   }, this)}
                 </select>
                 <div className="form-action">

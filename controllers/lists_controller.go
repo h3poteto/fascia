@@ -27,12 +27,13 @@ type EditListForm struct {
 }
 
 type ListJsonFormat struct {
-	Id        int64
-	ProjectId int64
-	UserId    int64
-	Title     string
-	ListTasks []*TaskJsonFormat
-	Color     string
+	Id           int64
+	ProjectId    int64
+	UserId       int64
+	Title        string
+	ListTasks    []*TaskJsonFormat
+	Color        string
+	ListOptionId int64
 }
 
 func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -54,7 +55,7 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	lists := parentProject.Lists()
 	jsonLists := make([]*ListJsonFormat, 0)
 	for _, l := range lists {
-		jsonLists = append(jsonLists, &ListJsonFormat{Id: l.Id, ProjectId: l.ProjectId, UserId: l.UserId, Title: l.Title.String, ListTasks: TaskFormatToJson(l.Tasks()), Color: l.Color.String})
+		jsonLists = append(jsonLists, &ListJsonFormat{Id: l.Id, ProjectId: l.ProjectId, UserId: l.UserId, Title: l.Title.String, ListTasks: TaskFormatToJson(l.Tasks()), Color: l.Color.String, ListOptionId: l.ListOptionId.Int64})
 	}
 	encoder.Encode(jsonLists)
 	return
@@ -100,7 +101,7 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ListsController", "Create").Info("success to create list")
-	jsonList := ListJsonFormat{Id: list.Id, ProjectId: list.ProjectId, UserId: list.UserId, Title: list.Title.String, Color: list.Color.String}
+	jsonList := ListJsonFormat{Id: list.Id, ProjectId: list.ProjectId, UserId: list.UserId, Title: list.Title.String, Color: list.Color.String, ListOptionId: list.ListOptionId.Int64}
 	encoder.Encode(jsonList)
 }
 
@@ -150,6 +151,6 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ListsController", "Update").Info("success to update list")
-	jsonList := ListJsonFormat{Id: targetList.Id, ProjectId: targetList.ProjectId, UserId: targetList.UserId, Title: targetList.Title.String, ListTasks: TaskFormatToJson(targetList.Tasks()), Color: targetList.Color.String}
+	jsonList := ListJsonFormat{Id: targetList.Id, ProjectId: targetList.ProjectId, UserId: targetList.UserId, Title: targetList.Title.String, ListTasks: TaskFormatToJson(targetList.Tasks()), Color: targetList.Color.String, ListOptionId: targetList.ListOptionId.Int64}
 	encoder.Encode(jsonList)
 }
