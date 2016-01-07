@@ -242,30 +242,26 @@ describe('fetchUpdateList', () => {
     }
     const list = {
       Id: 2,
-      Title: {
-        String: "listTitle"
-      },
-      Color: {
-        String: "ffffff"
-      },
+      Title: "listTitle",
+      Color: "ffffff",
       ProjectId: projectId
     }
-    const postForm = `title=${list.Title.String}&color=${list.Color.String}&action=${option.Action}`
+    const postForm = `title=${list.Title}&color=${list.Color}&action=${option.Action}`
     beforeEach(() => {
       nock('http://localhost')
         .post(`/projects/${projectId}/lists/${list.Id}`, postForm)
         .reply(200, {
           Id: list.Id,
           ProjectId: list.ProjectId,
-          Title: list.Title.String,
-          Color: list.Color.String,
+          Title: list.Title,
+          Color: list.Color,
           ListTasks: []
         })
     })
     it('call RECEIVE_UPDATE_LIST and get list', (done) => {
       const expectedActions = [
         { type: listActions.REQUEST_UPDATE_LIST },
-        { type: listActions.RECEIVE_UPDATE_LIST, list: { Id: list.Id, ProjectId: list.ProjectId, Title: list.Title.String, Color: list.Color.String, ListTasks: [] } }
+        { type: listActions.RECEIVE_UPDATE_LIST, list: { Id: list.Id, ProjectId: list.ProjectId, Title: list.Title, Color: list.Color, ListTasks: [] } }
       ]
       const store = mockStore({ list: null }, expectedActions, done)
       store.dispatch(listActions.fetchUpdateList(projectId, list, option))
