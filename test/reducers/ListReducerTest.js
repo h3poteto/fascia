@@ -137,15 +137,23 @@ describe('ListReducer', () => {
       expect(
         ListReducer({
           isListEditModalOpen: false,
-          selectedList: null
+          selectedList: null,
+          selectedListOption: null
         }, {
           type: listActions.OPEN_EDIT_LIST,
           isListEditModalOpen: true,
-          list: "editList"
+          list: {
+            ListOptionId: 1
+          }
         })
       ).toEqual({
         isListEditModalOpen: true,
-        selectedList: "editList"
+        selectedList: {
+          ListOptionId: 1
+        },
+        selectedListOption: {
+          Id: 1
+        }
       })
     })
   })

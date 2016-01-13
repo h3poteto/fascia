@@ -244,7 +244,8 @@ describe('fetchUpdateList', () => {
       Id: 2,
       Title: "listTitle",
       Color: "ffffff",
-      ProjectId: projectId
+      ProjectId: projectId,
+      ListOptionId: option.Id
     }
     const postForm = `title=${list.Title}&color=${list.Color}&action=${option.Action}`
     beforeEach(() => {
@@ -255,13 +256,14 @@ describe('fetchUpdateList', () => {
           ProjectId: list.ProjectId,
           Title: list.Title,
           Color: list.Color,
-          ListTasks: []
+          ListTasks: [],
+          ListOptionId: option.Id
         })
     })
     it('call RECEIVE_UPDATE_LIST and get list', (done) => {
       const expectedActions = [
         { type: listActions.REQUEST_UPDATE_LIST },
-        { type: listActions.RECEIVE_UPDATE_LIST, list: { Id: list.Id, ProjectId: list.ProjectId, Title: list.Title, Color: list.Color, ListTasks: [] } }
+        { type: listActions.RECEIVE_UPDATE_LIST, list: { Id: list.Id, ProjectId: list.ProjectId, Title: list.Title, Color: list.Color, ListTasks: [], ListOptionId: option.Id } }
       ]
       const store = mockStore({ list: null }, expectedActions, done)
       store.dispatch(listActions.fetchUpdateList(projectId, list, option))
