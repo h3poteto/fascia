@@ -49,9 +49,16 @@ export default function ListReducer(state = initState, action) {
       selectedList: null
     });
   case listActions.OPEN_EDIT_LIST:
+    var selectedListOption = null
+    if (action.list.ListOptionId != 0) {
+      selectedListOption = {
+        Id: action.list.ListOptionId
+      }
+    }
     return Object.assign({}, state, {
       isListEditModalOpen: action.isListEditModalOpen,
-      selectedList: action.list
+      selectedList: action.list,
+      selectedListOption: selectedListOption
     });
   case listActions.CLOSE_EDIT_LIST:
     return Object.assign({}, state, {

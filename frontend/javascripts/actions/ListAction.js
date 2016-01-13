@@ -264,7 +264,7 @@ export const RECEIVE_UPDATE_LIST = 'RECEIVE_UPDATE_LIST';
 function receiveUpdateList(list) {
   return {
     type: RECEIVE_UPDATE_LIST,
-    list: {Id: list.Id, ProjectId: list.ProjectId, Title: list.Title, Color: list.Color, ListTasks: list.ListTasks}
+    list: {Id: list.Id, ProjectId: list.ProjectId, Title: list.Title, Color: list.Color, ListTasks: list.ListTasks, ListOptionId: list.ListOptionId}
   };
 }
 
