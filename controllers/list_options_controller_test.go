@@ -48,7 +48,7 @@ var _ = Describe("ListOptionsController", func() {
 			json.Unmarshal(con, &contents)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
 			Expect(contents[0].Action).To(Equal("close"))
-			Expect(contents[1].Action).To(Equal("reopen"))
+			Expect(contents[1].Action).To(Equal("open"))
 		})
 	})
 })

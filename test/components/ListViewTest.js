@@ -370,7 +370,7 @@ describe('ListView', () => {
             Action: "close"
           }, {
             Id: 2,
-            Action: "reopen"
+            Action: "open"
           }
         ],
         selectedListOption: {

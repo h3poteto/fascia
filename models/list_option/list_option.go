@@ -3,6 +3,7 @@ package list_option
 import (
 	"../../modules/logging"
 	"../db"
+	"database/sql"
 )
 
 type ListOiption interface {
@@ -54,6 +55,26 @@ func FindByAction(action string) *ListOptionStruct {
 		return nil
 	}
 	return NewListOption(listOptionId, action)
+}
+
+func FindById(id sql.NullInt64) *ListOptionStruct {
+	objectDB := &db.Database{}
+	var interfaceDB db.DB = objectDB
+	table := interfaceDB.Init()
+	defer table.Close()
+
+	if id.Valid {
+		var action string
+		err := table.QueryRow("select action from list_options where id = ?;", id).Scan(&action)
+
+		if err != nil {
+			logging.SharedInstance().MethodInfo("ListOption", "FindById").Infof("cannot find list_option: %v", id)
+			return nil
+		}
+		return NewListOption(id.Int64, action)
+	} else {
+		return nil
+	}
 }
 
 func (u *ListOptionStruct) Initialize() {

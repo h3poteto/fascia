@@ -103,8 +103,8 @@ func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels [
 		Body:   description,
 		Labels: &labels,
 	}
-
-	githubIssue, _, err := client.Issues.Create(repo.Owner.String, repo.Name.String, issueRequest)
+	githubIssue, response, err := client.Issues.Create(repo.Owner.String, repo.Name.String, issueRequest)
+	logging.SharedInstance().MethodInfo("hub", "CreateGithubIssue").Debugf("response of creating github issue: %+v\n", response)
 	if err != nil {
 		return nil, err
 	}
@@ -112,19 +112,27 @@ func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels [
 	return githubIssue, nil
 }
 
-func ReplaceLabelsForIssue(token string, repo *repository.RepositoryStruct, number int64, labels []string) (bool, error) {
+func EditGithubIssue(token string, repo *repository.RepositoryStruct, number int64, labels []string, title *string, description *string, state *string) (bool, error) {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 	client := github.NewClient(tc)
 
+	issueRequest := &github.IssueRequest{
+		Title:  title,
+		Body:   description,
+		State:  state,
+		Labels: &labels,
+	}
+
 	issueNumber := int(number)
-	_, _, err := client.Issues.ReplaceLabelsForIssue(repo.Owner.String, repo.Name.String, issueNumber, labels)
+	issue, response, err := client.Issues.Edit(repo.Owner.String, repo.Name.String, issueNumber, issueRequest)
+	logging.SharedInstance().MethodInfo("hub", "EditGithubIssue").Debugf("response of edit github issue: %+v\n", response)
 	if err != nil {
 		return false, err
 	}
-	logging.SharedInstance().MethodInfo("hub", "ReplaceLabelsForIssue").Debugf("label of github issue is replaced: %+v", labels)
+	logging.SharedInstance().MethodInfo("hub", "EditGithubIssue").Debugf("github issue is updated: %+v", issue)
 	return true, nil
 }
 

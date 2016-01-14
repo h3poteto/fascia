@@ -18,7 +18,7 @@ func ListOptions() {
 		panic(err.Error())
 	}
 	_, err = table.Exec("INSERT INTO list_options (action, created_at) values (?, now()), (?, now())",
-		"reopen",
+		"open",
 		"close")
 	if err != nil {
 		panic(err.Error())

@@ -981,7 +981,7 @@ describe('ListReducer', () => {
               Action: "close",
             }, {
               Id: 2,
-              Action: "reopen"
+              Action: "open"
             }
           ],
           selectedListOption: null
@@ -998,7 +998,7 @@ describe('ListReducer', () => {
               Action: "close",
             }, {
               Id: 2,
-              Action: "reopen"
+              Action: "open"
             }
           ],
           selectedListOption: {
