@@ -338,76 +338,157 @@ describe('ListView', () => {
     })
   })
   context('when list edit modal open', () => {
-    let state = {
-      ListReducer: {
-        isListModalOpen: false,
-        isTaskModalOpen: false,
-        isListEditModalOpen: true,
-        newList: {title: "", color: "0effff"},
-        newTask: {title: ""},
-        lists: [
-          {
-            Id: 1,
-            Title: "list1",
-            ListTasks: [
-              {
-                Id: 1,
-                Title: "task1"
-              }, {
-                Id: 2,
-                Title: "task2"
-              }
-            ]
-          }, {
-            Id: 2,
-            Title: "list2",
-            ListTasks: []
-          }
-        ],
-        listOptions: [
-          {
+    context('when project does not have repository', () => {
+      let state = {
+        ListReducer: {
+          isListModalOpen: false,
+          isTaskModalOpen: false,
+          isListEditModalOpen: true,
+          newList: {title: "", color: "0effff"},
+          newTask: {title: ""},
+          lists: [
+            {
+              Id: 1,
+              Title: "list1",
+              ListTasks: [
+                {
+                  Id: 1,
+                  Title: "task1"
+                }, {
+                  Id: 2,
+                  Title: "task2"
+                }
+              ]
+            }, {
+              Id: 2,
+              Title: "list2",
+              ListTasks: []
+            }
+          ],
+          listOptions: [
+            {
+              Id: 1,
+              Action: "close"
+            }, {
+              Id: 2,
+              Action: "open"
+            }
+          ],
+          selectedListOption: {
             Id: 1,
             Action: "close"
-          }, {
-            Id: 2,
-            Action: "open"
-          }
-        ],
-        selectedListOption: {
-          Id: 1,
-          Action: "close"
+          },
+          selectedList: null,
+          project: {
+            Title: "testProject",
+            RepositoryID: 0
+          },
+          isTaskDraggingOver: false,
+          taskDraggingFrom: null,
+          taskDraggingTo: null,
+          error: null
         },
-        selectedList: null,
-        project: {
-          Title: "testProject"
+        params: {
+          projectId: 1
         },
-        isTaskDraggingOver: false,
-        taskDraggingFrom: null,
-        taskDraggingTo: null,
-        error: null
-      },
-      params: {
-        projectId: 1
-      },
-      fetchLists: expect.createSpy(),
-      fetchProject: expect.createSpy(),
-      fetchListOptions: expect.createSpy(),
-      closeFlash: expect.createSpy(),
-      taskDrop: expect.createSpy(),
-      openNewListModal: expect.createSpy(),
-      taskDragStart: expect.createSpy(),
-      openNewTaskModal: expect.createSpy()
-    }
-    it('should render list edit modal', () => {
-      const { output, props } = setup(state)
-      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
-      expect(listEditModal.props.isOpen).toBe(true)
+        fetchLists: expect.createSpy(),
+        fetchProject: expect.createSpy(),
+        fetchListOptions: expect.createSpy(),
+        fetchUpdateList: expect.createSpy(),
+        closeFlash: expect.createSpy(),
+        taskDrop: expect.createSpy(),
+        openNewListModal: expect.createSpy(),
+        taskDragStart: expect.createSpy(),
+        openNewTaskModal: expect.createSpy()
+      }
+      it('should render list edit modal without action', () => {
+        const { output, props } = setup(state)
+        let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
+        expect(listEditModal.props.isOpen).toBe(true)
 
-      let listForm = listEditModal.props.children
-      let form = listForm.props.children
-      let fieldset = form.props.children
-      let [ legend, titleLabel, titleInput, colorLabel, colorInput, actionLabel, actionSelect, formAction ] = fieldset.props.children
-      expect(actionSelect.props.value).toBe(state.ListReducer.selectedListOption.Id)
+        let listForm = listEditModal.props.children
+        let form = listForm.props.children
+        let fieldset = form.props.children
+        let [ legend, titleLabel, titleInput, colorLabel, colorInput, nil, formAction ] = fieldset.props.children
+        formAction.props.children.props.onClick()
+        expect(props.fetchUpdateList.calls.length).toBe(1)
+      })
+    })
+    context('when project has repository', () => {
+      let state = {
+        ListReducer: {
+          isListModalOpen: false,
+          isTaskModalOpen: false,
+          isListEditModalOpen: true,
+          newList: {title: "", color: "0effff"},
+          newTask: {title: ""},
+          lists: [
+            {
+              Id: 1,
+              Title: "list1",
+              ListTasks: [
+                {
+                  Id: 1,
+                  Title: "task1"
+                }, {
+                  Id: 2,
+                  Title: "task2"
+                }
+              ]
+            }, {
+              Id: 2,
+              Title: "list2",
+              ListTasks: []
+            }
+          ],
+          listOptions: [
+            {
+              Id: 1,
+              Action: "close"
+            }, {
+              Id: 2,
+              Action: "open"
+            }
+          ],
+          selectedListOption: {
+            Id: 1,
+            Action: "close"
+          },
+          selectedList: null,
+          project: {
+            Title: "testProject",
+            RepositoryID: 1
+          },
+          isTaskDraggingOver: false,
+          taskDraggingFrom: null,
+          taskDraggingTo: null,
+          error: null
+        },
+        params: {
+          projectId: 1
+        },
+        fetchLists: expect.createSpy(),
+        fetchProject: expect.createSpy(),
+        fetchListOptions: expect.createSpy(),
+        fetchUpdateList: expect.createSpy(),
+        closeFlash: expect.createSpy(),
+        taskDrop: expect.createSpy(),
+        openNewListModal: expect.createSpy(),
+        taskDragStart: expect.createSpy(),
+        openNewTaskModal: expect.createSpy()
+      }
+      it('should render list edit modal with action', () => {
+        const { output, props } = setup(state)
+        let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
+        expect(listEditModal.props.isOpen).toBe(true)
+
+        let listForm = listEditModal.props.children
+        let form = listForm.props.children
+        let fieldset = form.props.children
+        let [ legend, titleLabel, titleInput, colorLabel, colorInput, actionWrapper, formAction ] = fieldset.props.children
+        let [ actionLabel, actionSelect ] = actionWrapper.props.children
+        expect(actionSelect.props.value).toBe(state.ListReducer.selectedListOption.Id)
+      })
     })
   })
 })

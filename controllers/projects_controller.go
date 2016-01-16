@@ -26,10 +26,11 @@ type NewProjectForm struct {
 }
 
 type ProjectJsonFormat struct {
-	Id          int64
-	UserId      int64
-	Title       string
-	Description string
+	Id           int64
+	UserId       int64
+	Title        string
+	Description  string
+	RepositoryID int64
 }
 
 func (u *Projects) Index(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -65,7 +66,12 @@ func (u *Projects) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "project not found", 404)
 		return
 	}
-	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId, Title: project.Title, Description: project.Description}
+	var repoId int64
+	repo := project.Repository()
+	if repo != nil {
+		repoId = repo.Id
+	}
+	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId, Title: project.Title, Description: project.Description, RepositoryID: repoId}
 	encoder.Encode(jsonProject)
 	return
 }

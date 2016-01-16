@@ -84,6 +84,24 @@ export default class ListView extends React.Component {
     )
   }
 
+  listAction(project, listOptions, selectedList, selectedListOption) {
+    if (project == null || project.RepositoryID == undefined || project.RepositoryID == null || project.RepositoryID == 0) {
+      return null
+    } else {
+      return (
+        <div>
+          <label htmlFor="action">action</label>
+          <select id="action" name="action" type="text" onChange={this.props.changeSelectedListOption} className="form-control" value={selectedListOption ? selectedListOption.Id : (selectedList ? selectedList.ListOptionId : 0)}>
+            <option value="0">nothing</option>
+            {listOptions.map(function(option, index) {
+               return <option key={index} value={option.Id}>{option.Action}</option>
+             }, this)}
+          </select>
+        </div>
+      )
+    }
+  }
+
   render() {
     const { isLoading, isListModalOpen, newList, lists, listOptions, project, isTaskModalOpen, newTask, selectedList, selectedListOption, isListEditModalOpen, taskDraggingFrom, taskDraggingTo, error } = this.props.ListReducer
 
@@ -149,13 +167,7 @@ export default class ListView extends React.Component {
                 <input id="title" name="title" type="text" value={selectedList !=null ? selectedList.Title : ''} onChange={this.props.updateSelectedListTitle} className="form-control" />
                 <label htmlFor="color">Color</label>
                 <input id="color" name="color" type="text" value={selectedList !=null ? selectedList.Color : ''} onChange={this.props.updateSelectedListColor} className="form-control" />
-                <label htmlFor="action">action</label>
-                <select id="action" name="action" type="text" onChange={this.props.changeSelectedListOption} className="form-control" value={selectedListOption ? selectedListOption.Id : (selectedList ? selectedList.ListOptionId : 0)}>
-                  <option value="0">nothing</option>
-                  {listOptions.map(function(option, index) {
-                    return <option key={index} value={option.Id}>{option.Action}</option>
-                  }, this)}
-                </select>
+                {this.listAction(project, listOptions, selectedList, selectedListOption)}
                 <div className="form-action">
                   <button onClick={e => this.props.fetchUpdateList(this.props.params.projectId, selectedList, selectedListOption)} className="pure-button pure-button-primary" type="button">Update List</button>
                 </div>

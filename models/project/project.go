@@ -102,20 +102,20 @@ func (u *ProjectStruct) Repository() *repository.RepositoryStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	rows, _ := table.Query("select id, project_id, repository_id, owner, name from repositories where project_id = ?", u.Id)
-	for rows.Next() {
-		var id, projectId, repositoryId int64
-		var owner, name sql.NullString
-		err := rows.Scan(&id, &projectId, &repositoryId, &owner, &name)
-		if err != nil {
-			panic(err.Error())
-		}
-		if projectId == u.Id && owner.Valid {
-			r := repository.NewRepository(id, projectId, repositoryId, owner.String, name.String)
-			return r
-		}
+	var id, projectId, repositoryId int64
+	var owner, name sql.NullString
+	err := table.QueryRow("select id, project_id, repository_id, owner, name from repositories where project_id = ?", u.Id).Scan(&id, &projectId, &repositoryId, &owner, &name)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("project", "Repository").Errorf("cannot find repository: %v", err)
+		return nil
 	}
-	return nil
+	if projectId == u.Id && owner.Valid {
+		r := repository.NewRepository(id, projectId, repositoryId, owner.String, name.String)
+		return r
+	} else {
+		logging.SharedInstance().MethodInfo("project", "Repository").Error("repository owner discord from project owner")
+		return nil
+	}
 }
 
 func (u *ProjectStruct) FetchGithub() (bool, error) {
@@ -125,7 +125,7 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 	var oauthToken sql.NullString
 	err := table.QueryRow("select users.oauth_token from projects left join users on users.id = projects.user_id where projects.id = ?;", u.Id).Scan(&oauthToken)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("project", "FetchGithub").Error("oauth_token select error: %v", err)
+		logging.SharedInstance().MethodInfo("project", "FetchGithub").Errorf("oauth_token select error: %v", err)
 		return false, err
 	}
 	if !oauthToken.Valid {
