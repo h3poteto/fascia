@@ -4,6 +4,7 @@ import (
 	"../../modules/hub"
 	"../../modules/logging"
 	"../db"
+	"../list_option"
 	"../repository"
 	"database/sql"
 	"errors"
@@ -100,15 +101,16 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		transaction.Rollback()
 		return false
 	}
-	// TODO: これoauth判定の内側に
-	var listTitle, listColor sql.NullString
-	err = transaction.QueryRow("select title, color from lists where id = ?;", u.ListId).Scan(&listTitle, &listColor)
-	if err != nil {
-		logging.SharedInstance().MethodInfo("task", "Save").Errorf("select list error: %v", err)
-		transaction.Rollback()
-		return false
-	}
 	if OauthToken != nil && OauthToken.Valid && repo != nil {
+		var listTitle, listColor sql.NullString
+		var listOptionId sql.NullInt64
+		err = transaction.QueryRow("select title, color, list_option_id from lists where id = ?;", u.ListId).Scan(&listTitle, &listColor, &listOptionId)
+		if err != nil {
+			logging.SharedInstance().MethodInfo("task", "Save").Errorf("select list error: %v", err)
+			transaction.Rollback()
+			return false
+		}
+
 		token := OauthToken.String
 		label, err := hub.CheckLabelPresent(token, repo, &listTitle.String)
 		// もしラベルがなかった場合は作っておく
@@ -230,10 +232,12 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 		return false
 	}
 
+	// TODO: issue closeしたりopenしたり
 	if !isReorder && OauthToken != nil && OauthToken.Valid && repo != nil && u.IssueNumber.Valid {
 		token := OauthToken.String
 		var listTitle, listColor sql.NullString
-		err = transaction.QueryRow("select title, color from lists where id = ?;", listId).Scan(&listTitle, &listColor)
+		var listOptionId sql.NullInt64
+		err = transaction.QueryRow("select title, color, list_option_id from lists where id = ?;", listId).Scan(&listTitle, &listColor, &listOptionId)
 		if err != nil {
 			logging.SharedInstance().MethodInfo("task", "ChangeList").Errorf("select list error:%v", err)
 			transaction.Rollback()
@@ -253,8 +257,14 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 				return false
 			}
 		}
+		// list_option
+		var issueAction *string
+		listOption := list_option.FindById(listOptionId)
+		if listOption != nil {
+			issueAction = &listOption.Action
+		}
 		// issueを移動
-		result, err := hub.ReplaceLabelsForIssue(token, repo, u.IssueNumber.Int64, []string{*label.Name})
+		result, err := hub.EditGithubIssue(token, repo, u.IssueNumber.Int64, []string{*label.Name}, &u.Title, &u.Description, issueAction)
 		if err != nil || !result {
 			transaction.Rollback()
 			return false

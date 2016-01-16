@@ -1,8 +1,10 @@
 package list_test
 
 import (
+	seed "../../db/seed"
 	"../db"
 	. "../list"
+	"../list_option"
 	"../project"
 	"../task"
 	"../user"
@@ -26,10 +28,12 @@ var _ = Describe("List", func() {
 		sql.Exec("truncate table projects;")
 		sql.Exec("truncate table lists;")
 		sql.Exec("truncate table tasks;")
+		sql.Exec("truncate table list_options;")
 		sql.Close()
 	})
 
 	JustBeforeEach(func() {
+		seed.ListOptions()
 		email := "save@example.com"
 		password := "hogehoge"
 		uid, _ := user.Registration(email, password)
@@ -38,7 +42,7 @@ var _ = Describe("List", func() {
 		table = database.Init()
 		newProject = project.NewProject(0, uid, "title", "desc")
 		newProject.Save()
-		newList = NewList(0, newProject.Id, newProject.UserId, "list title", "")
+		newList = NewList(0, newProject.Id, newProject.UserId, "list title", "", sql.NullInt64{})
 	})
 
 	Describe("Save", func() {
@@ -91,13 +95,29 @@ var _ = Describe("List", func() {
 		JustBeforeEach(func() {
 			newList.Save(nil, nil)
 		})
-		It("should update list", func() {
-			newTitle := "newTitle"
-			newColor := "newColor"
-			newList.Update(nil, nil, &newTitle, &newColor)
-			findList := FindList(newList.ProjectId, newList.Id)
-			Expect(findList.Title.String).To(Equal(newTitle))
-			Expect(findList.Color.String).To(Equal(newColor))
+		Context("not have list_option", func() {
+			It("should update list", func() {
+				newTitle := "newTitle"
+				newColor := "newColor"
+				action := "nothing"
+				newList.Update(nil, nil, &newTitle, &newColor, &action)
+				findList := FindList(newList.ProjectId, newList.Id)
+				Expect(findList.Title.String).To(Equal(newTitle))
+				Expect(findList.Color.String).To(Equal(newColor))
+			})
+		})
+		Context("have list_option", func() {
+			It("should update list and have list_option", func() {
+				newTitle := "newTitle"
+				newColor := "newColor"
+				action := "close"
+				newList.Update(nil, nil, &newTitle, &newColor, &action)
+				findList := FindList(newList.ProjectId, newList.Id)
+				Expect(findList.Title.String).To(Equal(newTitle))
+				Expect(findList.Color.String).To(Equal(newColor))
+				listOption := list_option.FindByAction(action)
+				Expect(findList.ListOptionId.Int64).To(Equal(listOption.Id))
+			})
 		})
 	})
 })

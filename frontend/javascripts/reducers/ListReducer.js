@@ -7,7 +7,9 @@ const initState = {
   newList: {title: "", color: "0effff"},
   newTask: {title: "", description: ""},
   lists: [],
+  listOptions: [],
   selectedList: null,
+  selectedListOption: null,
   project: null,
   isTaskDraggingOver: false,
   taskDraggingFrom: null,
@@ -47,14 +49,22 @@ export default function ListReducer(state = initState, action) {
       selectedList: null
     });
   case listActions.OPEN_EDIT_LIST:
+    var selectedListOption = null
+    if (action.list.ListOptionId != 0) {
+      selectedListOption = {
+        Id: action.list.ListOptionId
+      }
+    }
     return Object.assign({}, state, {
       isListEditModalOpen: action.isListEditModalOpen,
-      selectedList: action.list
+      selectedList: action.list,
+      selectedListOption: selectedListOption
     });
   case listActions.CLOSE_EDIT_LIST:
     return Object.assign({}, state, {
       isListEditModalOpen: action.isListEditModalOpen,
-      selectedList: null
+      selectedList: null,
+      selectedListOption: null
     });
   case listActions.UPDATE_NEW_LIST_TITLE:
     var newList = state.newList;
@@ -300,7 +310,23 @@ export default function ListReducer(state = initState, action) {
       lists: lists,
       taskDraggingTo: taskDraggingTo
     });
+  case listActions.RECEIVE_LIST_OPTIONS:
+    return Object.assign({}, state, {
+      listOptions: action.listOptions
+    })
+  case listActions.CHANGE_SELECTED_LIST_OPTION:
+    var listOption = {
+      Id: action.selectEvent.value
+    }
+    state.listOptions.map(function(option, index) {
+      if (option.Id == action.selectEvent.value) {
+        listOption = option
+      }
+    })
+    return Object.assign({}, state, {
+      selectedListOption: listOption
+    })
   default:
-    return state;
+    return state
   }
 }

@@ -4,6 +4,7 @@ import (
 	listModel "../models/list"
 	projectModel "../models/project"
 	"../modules/logging"
+	"database/sql"
 	"encoding/json"
 	"github.com/goji/param"
 	"github.com/zenazn/goji/web"
@@ -20,17 +21,19 @@ type NewListForm struct {
 }
 
 type EditListForm struct {
-	Title string `param:"title"`
-	Color string `param:"color"`
+	Title  string `param:"title"`
+	Color  string `param:"color"`
+	Action string `param:"action"`
 }
 
 type ListJsonFormat struct {
-	Id        int64
-	ProjectId int64
-	UserId    int64
-	Title     string
-	ListTasks []*TaskJsonFormat
-	Color     string
+	Id           int64
+	ProjectId    int64
+	UserId       int64
+	Title        string
+	ListTasks    []*TaskJsonFormat
+	Color        string
+	ListOptionId int64
 }
 
 func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -52,7 +55,7 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	lists := parentProject.Lists()
 	jsonLists := make([]*ListJsonFormat, 0)
 	for _, l := range lists {
-		jsonLists = append(jsonLists, &ListJsonFormat{Id: l.Id, ProjectId: l.ProjectId, UserId: l.UserId, Title: l.Title.String, ListTasks: TaskFormatToJson(l.Tasks()), Color: l.Color.String})
+		jsonLists = append(jsonLists, &ListJsonFormat{Id: l.Id, ProjectId: l.ProjectId, UserId: l.UserId, Title: l.Title.String, ListTasks: TaskFormatToJson(l.Tasks()), Color: l.Color.String, ListOptionId: l.ListOptionId.Int64})
 	}
 	encoder.Encode(jsonLists)
 	return
@@ -89,7 +92,7 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ListsController", "Create").Debugf("post new list parameter: %+v", newListForm)
-	list := listModel.NewList(0, projectID, current_user.Id, newListForm.Title, newListForm.Color)
+	list := listModel.NewList(0, projectID, current_user.Id, newListForm.Title, newListForm.Color, sql.NullInt64{})
 
 	repo := parentProject.Repository()
 	if !list.Save(repo, &current_user.OauthToken) {
@@ -98,7 +101,7 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ListsController", "Create").Info("success to create list")
-	jsonList := ListJsonFormat{Id: list.Id, ProjectId: list.ProjectId, UserId: list.UserId, Title: list.Title.String, Color: list.Color.String}
+	jsonList := ListJsonFormat{Id: list.Id, ProjectId: list.ProjectId, UserId: list.UserId, Title: list.Title.String, Color: list.Color.String, ListOptionId: list.ListOptionId.Int64}
 	encoder.Encode(jsonList)
 }
 
@@ -142,12 +145,12 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	logging.SharedInstance().MethodInfo("ListsController", "Update").Debugf("post edit list parameter: %+v", editListForm)
 
 	repo := parentProject.Repository()
-	if !targetList.Update(repo, &current_user.OauthToken, &editListForm.Title, &editListForm.Color) {
+	if !targetList.Update(repo, &current_user.OauthToken, &editListForm.Title, &editListForm.Color, &editListForm.Action) {
 		logging.SharedInstance().MethodInfo("ListsController", "Update").Error("save failed")
 		http.Error(w, "save failed", 500)
 		return
 	}
 	logging.SharedInstance().MethodInfo("ListsController", "Update").Info("success to update list")
-	jsonList := ListJsonFormat{Id: targetList.Id, ProjectId: targetList.ProjectId, UserId: targetList.UserId, Title: targetList.Title.String, ListTasks: TaskFormatToJson(targetList.Tasks()), Color: targetList.Color.String}
+	jsonList := ListJsonFormat{Id: targetList.Id, ProjectId: targetList.ProjectId, UserId: targetList.UserId, Title: targetList.Title.String, ListTasks: TaskFormatToJson(targetList.Tasks()), Color: targetList.Color.String, ListOptionId: targetList.ListOptionId.Int64}
 	encoder.Encode(jsonList)
 }

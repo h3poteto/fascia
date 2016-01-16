@@ -15,6 +15,8 @@ function sharedExampleInitState(action) {
     newList: {title: "", color: "0effff"},
     newTask: {title: "", description: ""},
     lists: [],
+    listOptions: [],
+    selectedListOption: null,
     selectedList: null,
     project: null,
     isTaskDraggingOver: false,
@@ -135,15 +137,23 @@ describe('ListReducer', () => {
       expect(
         ListReducer({
           isListEditModalOpen: false,
-          selectedList: null
+          selectedList: null,
+          selectedListOption: null
         }, {
           type: listActions.OPEN_EDIT_LIST,
           isListEditModalOpen: true,
-          list: "editList"
+          list: {
+            ListOptionId: 1
+          }
         })
       ).toEqual({
         isListEditModalOpen: true,
-        selectedList: "editList"
+        selectedList: {
+          ListOptionId: 1
+        },
+        selectedListOption: {
+          Id: 1
+        }
       })
     })
   })
@@ -159,7 +169,8 @@ describe('ListReducer', () => {
         })
       ).toEqual({
         isListEditModalOpen: false,
-        selectedList: null
+        selectedList: null,
+        selectedListOption: null
       })
     })
   })
@@ -956,6 +967,44 @@ describe('ListReducer', () => {
           }
         })
 
+      })
+    })
+  })
+
+  describe('CHANGE_SELECTED_LIST_OPTION', () => {
+    it('should change selected list option', () => {
+      expect(
+        ListReducer({
+          listOptions: [
+            {
+              Id: 1,
+              Action: "close",
+            }, {
+              Id: 2,
+              Action: "open"
+            }
+          ],
+          selectedListOption: null
+        }, {
+          type: listActions.CHANGE_SELECTED_LIST_OPTION,
+          selectEvent: {
+            value: 1
+          }
+        })
+      ).toEqual({
+          listOptions: [
+            {
+              Id: 1,
+              Action: "close",
+            }, {
+              Id: 2,
+              Action: "open"
+            }
+          ],
+          selectedListOption: {
+            Id: 1,
+            Action: "close"
+          }
       })
     })
   })

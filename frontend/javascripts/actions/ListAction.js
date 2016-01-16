@@ -264,17 +264,21 @@ export const RECEIVE_UPDATE_LIST = 'RECEIVE_UPDATE_LIST';
 function receiveUpdateList(list) {
   return {
     type: RECEIVE_UPDATE_LIST,
-    list: {Id: list.Id, ProjectId: list.ProjectId, Title: list.Title, Color: list.Color, ListTasks: list.ListTasks}
+    list: {Id: list.Id, ProjectId: list.ProjectId, Title: list.Title, Color: list.Color, ListTasks: list.ListTasks, ListOptionId: list.ListOptionId}
   };
 }
 
-export function fetchUpdateList(projectId, list) {
+export function fetchUpdateList(projectId, list, option) {
+  var action
+  if (option != undefined && option != null) {
+    action = option.Action
+  }
   return dispatch => {
     dispatch(requestUpdateList());
     return Request
       .post(`/projects/${projectId}/lists/${list.Id}`)
       .type('form')
-      .send({title: list.Title.String, color: list.Color.String})
+      .send({title: list.Title, color: list.Color, action: action})
       .end((err, res)=> {
         if(res.ok) {
           dispatch(receiveUpdateList(res.body));
@@ -413,4 +417,45 @@ export function fetchProjectGithub(projectId) {
         }
       });
   };
+}
+
+export const REQUEST_LIST_OPTIONS = 'REQUEST_LIST_OPTIONS'
+function requestListOptions() {
+  return {
+    type: REQUEST_LIST_OPTIONS
+  }
+}
+
+export const RECEIVE_LIST_OPTIONS = 'RECEIVE_LIST_OPTIONS'
+function receiveListOptions(listOptions) {
+  return {
+    type: RECEIVE_LIST_OPTIONS,
+    listOptions: listOptions
+  }
+}
+
+export const FETCH_LIST_OPTIONS = 'FETCH_LIST_OPTIONS'
+export function fetchListOptions() {
+  return dispatch => {
+    dispatch(requestListOptions())
+    return Request
+      .get('/list_options')
+      .end((err, res) => {
+        if (res.ok) {
+          dispatch(receiveListOptions(res.body))
+        } else if (res.unauthorized) {
+          dispatch(unauthorized())
+        } else {
+          dispatch(serverError())
+        }
+      })
+  }
+}
+
+export const CHANGE_SELECTED_LIST_OPTION = 'CHANGE_SELECTED_LIST_OPTION'
+export function changeSelectedListOption(ev) {
+  return {
+    type: CHANGE_SELECTED_LIST_OPTION,
+    selectEvent: ev.target
+  }
 }

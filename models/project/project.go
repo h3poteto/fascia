@@ -80,17 +80,18 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	rows, _ := table.Query("select id, project_id, user_id, title, color from lists where project_id = ?;", u.Id)
+	rows, _ := table.Query("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ?;", u.Id)
 	var slice []*list.ListStruct
 	for rows.Next() {
 		var id, projectID, userID int64
 		var title, color sql.NullString
-		err := rows.Scan(&id, &projectID, &userID, &title, &color)
+		var optionID sql.NullInt64
+		err := rows.Scan(&id, &projectID, &userID, &title, &color, &optionID)
 		if err != nil {
 			panic(err.Error())
 		}
 		if projectID == u.Id && title.Valid {
-			l := list.NewList(id, projectID, userID, title.String, color.String)
+			l := list.NewList(id, projectID, userID, title.String, color.String, optionID)
 			slice = append(slice, l)
 		}
 	}

@@ -236,35 +236,37 @@ describe('fetchUpdateList', () => {
   })
   context('when response is right', () => {
     const projectId = 1
+    const option = {
+      Id: 1,
+      Action: "close"
+    }
     const list = {
       Id: 2,
-      Title: {
-        String: "listTitle"
-      },
-      Color: {
-        String: "ffffff"
-      },
-      ProjectId: projectId
+      Title: "listTitle",
+      Color: "ffffff",
+      ProjectId: projectId,
+      ListOptionId: option.Id
     }
-    const postForm = `title=${list.Title.String}&color=${list.Color.String}`
+    const postForm = `title=${list.Title}&color=${list.Color}&action=${option.Action}`
     beforeEach(() => {
       nock('http://localhost')
         .post(`/projects/${projectId}/lists/${list.Id}`, postForm)
         .reply(200, {
           Id: list.Id,
           ProjectId: list.ProjectId,
-          Title: list.Title.String,
-          Color: list.Color.String,
-          ListTasks: []
+          Title: list.Title,
+          Color: list.Color,
+          ListTasks: [],
+          ListOptionId: option.Id
         })
     })
     it('call RECEIVE_UPDATE_LIST and get list', (done) => {
       const expectedActions = [
         { type: listActions.REQUEST_UPDATE_LIST },
-        { type: listActions.RECEIVE_UPDATE_LIST, list: { Id: list.Id, ProjectId: list.ProjectId, Title: list.Title.String, Color: list.Color.String, ListTasks: [] } }
+        { type: listActions.RECEIVE_UPDATE_LIST, list: { Id: list.Id, ProjectId: list.ProjectId, Title: list.Title, Color: list.Color, ListTasks: [], ListOptionId: option.Id } }
       ]
       const store = mockStore({ list: null }, expectedActions, done)
-      store.dispatch(listActions.fetchUpdateList(projectId, list))
+      store.dispatch(listActions.fetchUpdateList(projectId, list, option))
     })
   })
 })
@@ -293,6 +295,29 @@ describe('fetchPorjectGithub', () => {
   })
 })
 
+
+describe('fetchListOptions', () => {
+  afterEach(() => {
+    nock.cleanAll()
+  })
+  context('when response is right', () => {
+    beforeEach(() => {
+      nock('http://localhost')
+        .get('/list_options')
+        .reply(200, {
+          listOptions: ["option1", "option2"]
+        })
+    })
+    it('call RECEIVE_LIST_OPTIONS and get listOptions', (done) => {
+      const expectedActions = [
+        { type: listActions.REQUEST_LIST_OPTIONS },
+        { type: listActions.RECEIVE_LIST_OPTIONS, listOptions: { listOptions: ["option1", "option2"] } }
+      ]
+      const store = mockStore({ listOptions: [] }, expectedActions, done)
+      store.dispatch(listActions.fetchListOptions())
+    })
+  })
+})
 
 // drag
 

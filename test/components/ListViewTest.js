@@ -43,6 +43,8 @@ describe('ListView', () => {
             ListTasks: []
           }
         ],
+        listOptions: [],
+        selectedListOption: null,
         selectedList: null,
         project: {
           Title: "testProject"
@@ -57,6 +59,7 @@ describe('ListView', () => {
       },
       fetchLists: expect.createSpy(),
       fetchProject: expect.createSpy(),
+      fetchListOptions: expect.createSpy(),
       closeFlash: expect.createSpy(),
       taskDrop: expect.createSpy(),
       openNewListModal: expect.createSpy(),
@@ -134,6 +137,8 @@ describe('ListView', () => {
             ListTasks: []
           }
         ],
+        listOptions: [],
+        selectedListOption: null,
         selectedList: null,
         project: {
           Title: "testProject"
@@ -148,6 +153,7 @@ describe('ListView', () => {
       },
       fetchLists: expect.createSpy(),
       fetchProject: expect.createSpy(),
+      fetchListOptions: expect.createSpy(),
       closeFlash: expect.createSpy(),
       taskDrop: expect.createSpy(),
       openNewListModal: expect.createSpy(),
@@ -188,6 +194,8 @@ describe('ListView', () => {
             ListTasks: []
           }
         ],
+        listOptions: [],
+        selectedListOption: null,
         selectedList: null,
         project: {
           Title: "testProject"
@@ -202,6 +210,7 @@ describe('ListView', () => {
       },
       fetchLists: expect.createSpy(),
       fetchProject: expect.createSpy(),
+      fetchListOptions: expect.createSpy(),
       closeFlash: expect.createSpy(),
       taskDrop: expect.createSpy(),
       openNewListModal: expect.createSpy(),
@@ -243,6 +252,8 @@ describe('ListView', () => {
             ListTasks: []
           }
         ],
+        listOptions: [],
+        selectedListOption: null,
         selectedList: null,
         project: {
           Title: "testProject"
@@ -257,6 +268,7 @@ describe('ListView', () => {
       },
       fetchLists: expect.createSpy(),
       fetchProject: expect.createSpy(),
+      fetchListOptions: expect.createSpy(),
       closeFlash: expect.createSpy(),
       taskDrop: expect.createSpy(),
       openNewListModal: expect.createSpy(),
@@ -296,6 +308,8 @@ describe('ListView', () => {
             ListTasks: []
           }
         ],
+        listOptions: [],
+        selectedListOption: null,
         selectedList: null,
         project: {
           Title: "testProject"
@@ -310,6 +324,7 @@ describe('ListView', () => {
       },
       fetchLists: expect.createSpy(),
       fetchProject: expect.createSpy(),
+      fetchListOptions: expect.createSpy(),
       closeFlash: expect.createSpy(),
       taskDrop: expect.createSpy(),
       openNewListModal: expect.createSpy(),
@@ -349,6 +364,19 @@ describe('ListView', () => {
             ListTasks: []
           }
         ],
+        listOptions: [
+          {
+            Id: 1,
+            Action: "close"
+          }, {
+            Id: 2,
+            Action: "open"
+          }
+        ],
+        selectedListOption: {
+          Id: 1,
+          Action: "close"
+        },
         selectedList: null,
         project: {
           Title: "testProject"
@@ -363,6 +391,7 @@ describe('ListView', () => {
       },
       fetchLists: expect.createSpy(),
       fetchProject: expect.createSpy(),
+      fetchListOptions: expect.createSpy(),
       closeFlash: expect.createSpy(),
       taskDrop: expect.createSpy(),
       openNewListModal: expect.createSpy(),
@@ -373,6 +402,12 @@ describe('ListView', () => {
       const { output, props } = setup(state)
       let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
       expect(listEditModal.props.isOpen).toBe(true)
+
+      let listForm = listEditModal.props.children
+      let form = listForm.props.children
+      let fieldset = form.props.children
+      let [ legend, titleLabel, titleInput, colorLabel, colorInput, actionLabel, actionSelect, formAction ] = fieldset.props.children
+      expect(actionSelect.props.value).toBe(state.ListReducer.selectedListOption.Id)
     })
   })
 })
