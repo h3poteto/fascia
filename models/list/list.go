@@ -1,6 +1,7 @@
 package list
 
 import (
+	"../../config"
 	"../../modules/hub"
 	"../../modules/logging"
 	"../db"
@@ -115,6 +116,14 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	table := u.database.Init()
 	defer table.Close()
 
+	// 初期リストに関しては一切編集を許可しない
+	// 色は変えられても良いが，titleとactionは変えられては困る
+	// 第一段階では色も含めてすべて固定とする
+	if u.IsInitList() {
+		logging.SharedInstance().MethodInfo("list", "Update").Error("cannot update initial list")
+		return false
+	}
+
 	var listOptionId sql.NullInt64
 	listOption := list_option.FindByAction(*action)
 	if listOption == nil {
@@ -194,4 +203,13 @@ func (u *ListStruct) Tasks() []*task.TaskStruct {
 		}
 	}
 	return slice
+}
+
+func (u *ListStruct) IsInitList() bool {
+	for _, elem := range config.Element("init_list").(map[interface{}]interface{}) {
+		if u.Title.String == elem.(string) {
+			return true
+		}
+	}
+	return false
 }

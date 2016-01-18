@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"../config"
 	listModel "../models/list"
 	"../models/list_option"
 	projectModel "../models/project"
@@ -114,9 +115,9 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	// 初期リストを作っておく
 	// TODO: ここエラーハンドリングしたほうがいい
-	todo := listModel.NewList(0, project.Id, current_user.Id, "ToDo", "ff0000", sql.NullInt64{})
-	inprogress := listModel.NewList(0, project.Id, current_user.Id, "InProgress", "0000ff", sql.NullInt64{})
-	done := listModel.NewList(0, project.Id, current_user.Id, "Done", "0a0a0a", sql.NullInt64{Int64: closeListOption.Id, Valid: true})
+	todo := listModel.NewList(0, project.Id, current_user.Id, config.Element("init_list").(map[interface{}]interface{})["todo"].(string), "ff0000", sql.NullInt64{})
+	inprogress := listModel.NewList(0, project.Id, current_user.Id, config.Element("init_list").(map[interface{}]interface{})["inprogress"].(string), "0000ff", sql.NullInt64{})
+	done := listModel.NewList(0, project.Id, current_user.Id, config.Element("init_list").(map[interface{}]interface{})["done"].(string), "0a0a0a", sql.NullInt64{Int64: closeListOption.Id, Valid: true})
 	if newProjectForm.RepositoryID != 0 {
 		repository := repositoryModel.NewRepository(0, project.Id, newProjectForm.RepositoryID, newProjectForm.RepositoryOwner, newProjectForm.RepositoryName)
 		repository.Save()

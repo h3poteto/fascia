@@ -1,0 +1,15 @@
+development:
+  init_list:
+    todo: "ToDo"
+    inprogress: "InProgress"
+    done: "Done"
+test:
+  init_list:
+    todo: "ToDo"
+    inprogress: "InProgress"
+    done: "Done"
+production:
+  init_list:
+    todo: "ToDo"
+    inprogress: "InProgress"
+    done: "Done"
