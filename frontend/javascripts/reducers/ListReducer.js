@@ -41,7 +41,7 @@ export default function ListReducer(state = initState, action) {
   case listActions.OPEN_NEW_TASK:
     return Object.assign({}, state, {
       isTaskModalOpen: action.isTaskModalOpen,
-      selectedList: action.list
+      selectedList: Object.assign({}, action.list)
     });
   case listActions.CLOSE_NEW_TASK:
     return Object.assign({}, state, {
@@ -57,7 +57,7 @@ export default function ListReducer(state = initState, action) {
     }
     return Object.assign({}, state, {
       isListEditModalOpen: action.isListEditModalOpen,
-      selectedList: action.list,
+      selectedList: Object.assign({}, action.list),
       selectedListOption: selectedListOption
     });
   case listActions.CLOSE_EDIT_LIST:
