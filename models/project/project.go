@@ -1,6 +1,7 @@
 package project
 
 import (
+	"../../config"
 	"../../modules/hub"
 	"../../modules/logging"
 	"../db"
@@ -146,9 +147,9 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 	var openList, closedList *list.ListStruct
 	for _, list := range u.Lists() {
 		// openとcloseのリストは用意しておく
-		if list.Title.Valid && list.Title.String == "ToDo" {
+		if list.Title.Valid && list.Title.String == config.Element("init_list").(map[interface{}]interface{})["todo"].(string) {
 			openList = list
-		} else if list.Title.Valid && list.Title.String == "Done" {
+		} else if list.Title.Valid && list.Title.String == config.Element("init_list").(map[interface{}]interface{})["done"].(string) {
 			closedList = list
 		}
 	}
