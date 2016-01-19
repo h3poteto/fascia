@@ -108,11 +108,15 @@ describe('ListReducer', () => {
         }, {
           type: listActions.OPEN_NEW_TASK,
           isTaskModalOpen: true,
-          list: "newList"
+          list: {
+            Title: "newList"
+          }
         })
       ).toEqual({
         isTaskModalOpen: true,
-        selectedList: "newList"
+        selectedList: {
+          Title: "newList"
+        }
       })
     })
   })
