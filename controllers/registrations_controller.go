@@ -7,6 +7,7 @@ import (
 	"github.com/goji/param"
 	"github.com/zenazn/goji/web"
 	"golang.org/x/oauth2"
+	"html/template"
 	"net/http"
 )
 
@@ -64,7 +65,7 @@ func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Req
 
 	if signUpForm.Password == signUpForm.PasswordConfirm {
 		// login
-		_, err := userModel.Registration(signUpForm.Email, signUpForm.Password)
+		_, err := userModel.Registration(template.HTMLEscapeString(signUpForm.Email), template.HTMLEscapeString(signUpForm.Password))
 		if err != nil {
 			logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp").Errorf("registration error: %v", err)
 			http.Redirect(w, r, "/sign_up", 302)

@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/zenazn/goji/web"
 	"golang.org/x/oauth2"
+	"html/template"
 	"net/http"
 )
 
@@ -72,7 +73,8 @@ func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Cannot verify CSRF token", 500)
 		return
 	}
-	current_user, err := userModel.Login(signInForm.Email, signInForm.Password)
+
+	current_user, err := userModel.Login(template.HTMLEscapeString(signInForm.Email), template.HTMLEscapeString(signInForm.Password))
 	if err != nil {
 		logging.SharedInstance().MethodInfo("SessionsController", "NewSession").Errorf("login error: %v", err)
 		http.Redirect(w, r, "/sign_in", 302)
