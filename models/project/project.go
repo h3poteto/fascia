@@ -77,6 +77,13 @@ func (u *ProjectStruct) Save() bool {
 	return true
 }
 
+func (u *ProjectStruct) Update(title string, description string, repositoryId int64) bool {
+	table := u.database.Init()
+	defer table.Close()
+
+	return false
+}
+
 func (u *ProjectStruct) Lists() []*list.ListStruct {
 	table := u.database.Init()
 	defer table.Close()
@@ -107,7 +114,7 @@ func (u *ProjectStruct) Repository() *repository.RepositoryStruct {
 	var owner, name sql.NullString
 	err := table.QueryRow("select id, project_id, repository_id, owner, name from repositories where project_id = ?", u.Id).Scan(&id, &projectId, &repositoryId, &owner, &name)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("project", "Repository").Errorf("cannot find repository: %v", err)
+		logging.SharedInstance().MethodInfo("project", "Repository").Infof("cannot find repository: %v", err)
 		return nil
 	}
 	if projectId == u.Id && owner.Valid {

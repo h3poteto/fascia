@@ -26,6 +26,12 @@ type NewProjectForm struct {
 	RepositoryName  string `param:"repositoryName"`
 }
 
+type EditProjectForm struct {
+	Title        string `param:"title"`
+	Description  string `param:"description"`
+	RepositoryID int64  `param:"repositoryId"`
+}
+
 type ProjectJsonFormat struct {
 	Id           int64
 	UserId       int64
@@ -132,6 +138,54 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	logging.SharedInstance().MethodInfo("ProjectsController", "Create").Info("success to create initial lists")
 
 	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId, Title: project.Title, Description: project.Description}
+	encoder.Encode(jsonProject)
+}
+
+// updateはrepository側の更新なしでいこう
+// そうしないと，タイトル編集できるって不一致が起こる
+func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	current_user, err := LoginRequired(r)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Update").Errorf("login error: %v", err)
+		http.Error(w, "not logined", 401)
+		return
+	}
+	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	project := projectModel.FindProject(projectID)
+	if project == nil || project.UserId != current_user.Id {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Update").Error("project not found")
+		http.Error(w, "project not found", 404)
+		return
+	}
+
+	encoder := json.NewEncoder(w)
+
+	err = r.ParseForm()
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Update").Errorf("wrong form: %v", err)
+		http.Error(w, "Wrong Form", 400)
+	}
+	var editProjectForm EditProjectForm
+	err = param.Parse(r.PostForm, &editProjectForm)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Update").Errorf("wrong parameter: %v", err)
+		http.Error(w, "Wrong parameter", 500)
+		return
+	}
+	logging.SharedInstance().MethodInfo("ProjectsController", "Update").Debug("post edit project parameter: %+v", editProjectForm)
+	if !project.Update(editProjectForm.Title, editProjectForm.Description, editProjectForm.RepositoryID) {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Update").Error("update failed")
+		http.Error(w, "update failed", 500)
+		return
+	}
+	logging.SharedInstance().MethodInfo("ProjectsController", "Update").Info("success to update project")
+	var repositoryId int64
+	repo := project.Repository()
+	if repo != nil {
+		repositoryId = repo.Id
+	}
+	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId, Title: project.Title, Description: project.Description, RepositoryID: repositoryId}
 	encoder.Encode(jsonProject)
 }
 

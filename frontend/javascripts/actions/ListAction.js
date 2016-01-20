@@ -513,7 +513,7 @@ export function fetchUpdateProject(projectID, project) {
   return dispatch => {
     dispatch(requestUpdateProject())
     return Request
-      .post(`/projects/${projectID}`)
+      .put(`/projects/${projectID}`)
       .type('form')
       .send({title: project.Title, description: project.Description, repositoryId: project.RepositoryID})
       .end((err, res) => {
