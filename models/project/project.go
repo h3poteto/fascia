@@ -18,18 +18,20 @@ type Project interface {
 }
 
 type ProjectStruct struct {
-	Id          int64
-	UserId      int64
-	Title       string
-	Description string
-	database    db.DB
+	Id           int64
+	UserId       int64
+	Title        string
+	Description  string
+	RepositoryId sql.NullInt64
+	database     db.DB
 }
 
-func NewProject(id int64, userID int64, title string, description string) *ProjectStruct {
+func NewProject(id int64, userID int64, title string, description string, repositoryId sql.NullInt64) *ProjectStruct {
 	if userID == 0 {
 		return nil
 	}
-	project := &ProjectStruct{Id: id, UserId: userID, Title: title, Description: description}
+
+	project := &ProjectStruct{Id: id, UserId: userID, Title: title, Description: description, RepositoryId: repositoryId}
 	project.Initialize()
 	return project
 }
@@ -40,19 +42,19 @@ func FindProject(projectID int64) *ProjectStruct {
 	table := interfaceDB.Init()
 	defer table.Close()
 
-	var id int64
-	var userID sql.NullInt64
+	var id, userID int64
+	var repositoryID sql.NullInt64
 	var title string
 	var description string
-	rows, _ := table.Query("select id, user_id, title, description from projects where id = ?;", projectID)
+	rows, _ := table.Query("select id, user_id, repository_id, title, description from projects where id = ?;", projectID)
 	for rows.Next() {
-		err := rows.Scan(&id, &userID, &title, &description)
+		err := rows.Scan(&id, &userID, &repositoryID, &title, &description)
 		if err != nil {
 			panic(err.Error())
 		}
 	}
-	if userID.Valid {
-		project := NewProject(id, userID.Int64, title, description)
+	if id != 0 {
+		project := NewProject(id, userID, title, description, repositoryID)
 		return project
 	} else {
 		return nil
@@ -69,7 +71,7 @@ func (u *ProjectStruct) Save() bool {
 	table := u.database.Init()
 	defer table.Close()
 
-	result, err := table.Exec("insert into projects (user_id, title, description, created_at) values (?, ?, ?, now());", u.UserId, u.Title, u.Description)
+	result, err := table.Exec("insert into projects (user_id, repository_id, title, description, created_at) values (?, ?, ?, ?, now());", u.UserId, u.RepositoryId, u.Title, u.Description)
 	if err != nil {
 		return false
 	}
@@ -110,15 +112,15 @@ func (u *ProjectStruct) Repository() *repository.RepositoryStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	var id, projectId, repositoryId int64
+	var id, repositoryId int64
 	var owner, name sql.NullString
-	err := table.QueryRow("select id, project_id, repository_id, owner, name from repositories where project_id = ?", u.Id).Scan(&id, &projectId, &repositoryId, &owner, &name)
+	err := table.QueryRow("select repositories.id, repositories.repository_id, repositories.owner, repositories.name from projects inner join repositories on repositories.id = projects.repository_id where projects.id = ?;", u.Id).Scan(&id, &repositoryId, &owner, &name)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("project", "Repository").Infof("cannot find repository: %v", err)
 		return nil
 	}
-	if projectId == u.Id && owner.Valid {
-		r := repository.NewRepository(id, projectId, repositoryId, owner.String, name.String)
+	if id == u.RepositoryId.Int64 && owner.Valid {
+		r := repository.NewRepository(id, repositoryId, owner.String, name.String)
 		return r
 	} else {
 		logging.SharedInstance().MethodInfo("project", "Repository").Error("repository owner discord from project owner")

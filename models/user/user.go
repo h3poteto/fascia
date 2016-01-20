@@ -202,19 +202,19 @@ func (u *UserStruct) Projects() []*project.ProjectStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	rows, _ := table.Query("select id, user_id, title, description from projects where user_id = ?;", u.Id)
+	rows, _ := table.Query("select id, user_id, repository_id, title, description from projects where user_id = ?;", u.Id)
 	var slice []*project.ProjectStruct
 	for rows.Next() {
-		var id int64
-		var userID sql.NullInt64
+		var id, userID int64
+		var repositoryID sql.NullInt64
 		var title string
 		var description string
-		err := rows.Scan(&id, &userID, &title, &description)
+		err := rows.Scan(&id, &userID, &repositoryID, &title, &description)
 		if err != nil {
 			panic(err.Error())
 		}
-		if userID.Valid {
-			p := project.NewProject(id, userID.Int64, title, description)
+		if id != 0 {
+			p := project.NewProject(id, userID, title, description, repositoryID)
 			slice = append(slice, p)
 		}
 	}
