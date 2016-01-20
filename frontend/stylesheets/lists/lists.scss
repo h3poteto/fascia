@@ -5,6 +5,12 @@
     .project-title {
       margin: 5px;
       color: rgb(0, 120, 230);
+      .fascia-project-menu {
+        font-size: 80%;
+        cursor: pointer;
+        padding-left: 8px;
+        color: rgb(50, 50, 50);
+      }
     }
     .project-operation {
       float: right;

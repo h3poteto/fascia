@@ -4,6 +4,7 @@ const initState = {
   isListModalOpen: false,
   isTaskModalOpen: false,
   isListEditModalOpen: false,
+  isProjectEditModalOpen: false,
   newList: {title: "", color: "0effff"},
   newTask: {title: "", description: ""},
   lists: [],
@@ -11,6 +12,7 @@ const initState = {
   selectedList: null,
   selectedListOption: null,
   project: null,
+  selectedProject: {Title: "", Description: "", RepositoryID: 0},
   isTaskDraggingOver: false,
   taskDraggingFrom: null,
   taskDraggingTo: null,
@@ -124,8 +126,9 @@ export default function ListReducer(state = initState, action) {
     });
   case listActions.RECEIVE_PROJECT:
     return Object.assign({}, state, {
-      project: action.project
-    });
+      project: action.project,
+      selectedProject: Object.assign({}, action.project)
+    })
   case listActions.REQUEST_CREATE_LIST:
     return Object.assign({}, state, {
       isLoading: true
@@ -325,6 +328,26 @@ export default function ListReducer(state = initState, action) {
     })
     return Object.assign({}, state, {
       selectedListOption: listOption
+    })
+  case listActions.OPEN_EDIT_PROJECT:
+    return Object.assign({}, state, {
+      isProjectEditModalOpen: true
+    })
+  case listActions.CLOSE_EDIT_PROJECT:
+    return Object.assign({}, state, {
+      isProjectEditModalOpen: false
+    })
+  case listActions.UPDATE_EDIT_PROJECT_TITLE:
+    var selectedProject = state.selectedProject
+    selectedProject.Title = action.title
+    return Object.assign({}, state, {
+      selectedProject: selectedProject
+    })
+  case listActions.UPDATE_EDIT_PROJECT_DESCRIPTION:
+    var selectedProject = state.selectedProject
+    selectedProject.Description = action.description
+    return Object.assign({}, state, {
+      selectedProject: selectedProject
     })
   default:
     return state
