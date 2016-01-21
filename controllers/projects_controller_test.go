@@ -7,11 +7,13 @@ import (
 	"../models/db"
 	"../models/list_option"
 	"../models/project"
+	"database/sql"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strconv"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -20,7 +22,8 @@ import (
 
 var _ = Describe("ProjectsController", func() {
 	var (
-		ts *httptest.Server
+		ts     *httptest.Server
+		userId int64
 	)
 	BeforeEach(func() {
 		m := web.New()
@@ -40,7 +43,7 @@ var _ = Describe("ProjectsController", func() {
 	})
 	JustBeforeEach(func() {
 		seed.ListOptions()
-		LoginFaker(ts, "projects@example.com", "hogehoge")
+		userId = LoginFaker(ts, "projects@example.com", "hogehoge")
 	})
 
 	Describe("Create", func() {
@@ -101,19 +104,38 @@ var _ = Describe("ProjectsController", func() {
 	})
 
 	Describe("Show", func() {
+		var newProject *project.ProjectStruct
 		JustBeforeEach(func() {
-			values := url.Values{}
-			values.Add("title", "project")
-			_, _ = http.PostForm(ts.URL+"/projects", values)
+			newProject = project.NewProject(0, userId, "title", "desc", sql.NullInt64{})
+			newProject.Save()
 		})
 		It("should receive project title", func() {
-			res, err := http.Get(ts.URL + "/projects")
+			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(newProject.Id, 10) + "/show")
 			Expect(err).To(BeNil())
-			var resp []controllers.ProjectJsonFormat
+			var resp controllers.ProjectJsonFormat
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &resp)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
-			Expect(resp[0].Title).To(Equal("project"))
+			Expect(resp.Title).To(Equal("title"))
+		})
+	})
+
+	Describe("Update", func() {
+		var newProject *project.ProjectStruct
+		JustBeforeEach(func() {
+			newProject = project.NewProject(0, userId, "title", "desc", sql.NullInt64{})
+			newProject.Save()
+		})
+		It("should receive new project", func() {
+			values := url.Values{}
+			values.Add("title", "newTitle")
+			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(newProject.Id, 10), values)
+			Expect(err).To(BeNil())
+			var resp controllers.ProjectJsonFormat
+			con, _ := ioutil.ReadAll(res.Body)
+			json.Unmarshal(con, &resp)
+			Expect(res.StatusCode).To(Equal(http.StatusOK))
+			Expect(resp.Title).To(Equal("newTitle"))
 		})
 	})
 })

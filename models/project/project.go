@@ -83,7 +83,19 @@ func (u *ProjectStruct) Update(title string, description string, repositoryId in
 	table := u.database.Init()
 	defer table.Close()
 
-	return false
+	var repo sql.NullInt64
+	if repositoryId != 0 {
+		repo = sql.NullInt64{Int64: repositoryId, Valid: true}
+	}
+	u.Title = title
+	u.Description = description
+	u.RepositoryId = repo
+	_, err := table.Exec("update projects set title = ?, description = ?, repository_id = ? where id = ?;", u.Title, u.Description, u.RepositoryId, u.Id)
+	if err != nil {
+		return false
+	}
+
+	return true
 }
 
 func (u *ProjectStruct) Lists() []*list.ListStruct {

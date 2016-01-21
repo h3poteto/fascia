@@ -66,6 +66,19 @@ var _ = Describe("Project", func() {
 		})
 	})
 
+	Describe("Update", func() {
+		BeforeEach(func() {
+			newProject.Save()
+		})
+		It("should set new value", func() {
+			result := newProject.Update("newTitle", "newDescription", 0)
+			Expect(result).To(BeTrue())
+			Expect(newProject.Title).To(Equal("newTitle"))
+			Expect(newProject.Description).To(Equal("newDescription"))
+			Expect(newProject.RepositoryId.Valid).To(BeFalse())
+		})
+	})
+
 	Describe("Repository", func() {
 		Context("when repository exist", func() {
 			It("should relate project to repository", func() {
