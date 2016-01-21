@@ -349,6 +349,11 @@ export default function ListReducer(state = initState, action) {
     return Object.assign({}, state, {
       selectedProject: selectedProject
     })
+  case listActions.RECEIVE_UPDATE_PROJECT:
+    return Object.assign({}, state, {
+      project: action.project,
+      isProjectEditModalOpen: false
+    })
   default:
     return state
   }
