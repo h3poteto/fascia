@@ -515,7 +515,7 @@ export function fetchUpdateProject(projectID, project) {
     return Request
       .post(`/projects/${projectID}`)
       .type('form')
-      .send({title: project.Title, description: project.Description, repositoryId: project.RepositoryID})
+      .send({title: project.Title, description: project.Description})
       .end((err, res) => {
         if (res.ok) {
           dispatch(receiveUpdateProject(res.body))

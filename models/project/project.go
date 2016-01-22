@@ -79,18 +79,13 @@ func (u *ProjectStruct) Save() bool {
 	return true
 }
 
-func (u *ProjectStruct) Update(title string, description string, repositoryId int64) bool {
+func (u *ProjectStruct) Update(title string, description string) bool {
 	table := u.database.Init()
 	defer table.Close()
 
-	var repo sql.NullInt64
-	if repositoryId != 0 {
-		repo = sql.NullInt64{Int64: repositoryId, Valid: true}
-	}
 	u.Title = title
 	u.Description = description
-	u.RepositoryId = repo
-	_, err := table.Exec("update projects set title = ?, description = ?, repository_id = ? where id = ?;", u.Title, u.Description, u.RepositoryId, u.Id)
+	_, err := table.Exec("update projects set title = ?, description = ? where id = ?;", u.Title, u.Description, u.Id)
 	if err != nil {
 		return false
 	}

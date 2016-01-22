@@ -71,7 +71,7 @@ var _ = Describe("Project", func() {
 			newProject.Save()
 		})
 		It("should set new value", func() {
-			result := newProject.Update("newTitle", "newDescription", 0)
+			result := newProject.Update("newTitle", "newDescription")
 			Expect(result).To(BeTrue())
 			Expect(newProject.Title).To(Equal("newTitle"))
 			Expect(newProject.Description).To(Equal("newDescription"))

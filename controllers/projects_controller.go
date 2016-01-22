@@ -27,9 +27,8 @@ type NewProjectForm struct {
 }
 
 type EditProjectForm struct {
-	Title        string `param:"title"`
-	Description  string `param:"description"`
-	RepositoryID int64  `param:"repositoryId"`
+	Title       string `param:"title"`
+	Description string `param:"description"`
 }
 
 type ProjectJsonFormat struct {
@@ -176,7 +175,7 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Update").Debug("post edit project parameter: %+v", editProjectForm)
-	if !project.Update(editProjectForm.Title, editProjectForm.Description, editProjectForm.RepositoryID) {
+	if !project.Update(editProjectForm.Title, editProjectForm.Description) {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Update").Error("update failed")
 		http.Error(w, "update failed", 500)
 		return
