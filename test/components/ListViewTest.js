@@ -22,6 +22,7 @@ describe('ListView', () => {
         isListModalOpen: false,
         isTaskModalOpen: false,
         isListEditModalOpen: false,
+        isProjectEditModalOpen: false,
         newList: {title: "", color: "0effff"},
         newTask: {title: ""},
         lists: [
@@ -49,6 +50,7 @@ describe('ListView', () => {
         project: {
           Title: "testProject"
         },
+        selectedProject: {Title: "", Description: "", RepositoryID: 0},
         isTaskDraggingOver: false,
         taskDraggingFrom: null,
         taskDraggingTo: null,
@@ -72,9 +74,10 @@ describe('ListView', () => {
       expect(output.type).toBe('div')
       expect(output.props.id).toBe('lists')
 
-      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
+      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items ] = output.props.children
       let [ icon, projectTitle ] = projectTitleWrapper.props.children
-      expect(projectTitle.props.children).toBe('testProject')
+      let [ title, editButton ] = projectTitle.props.children
+      expect(title).toBe('testProject')
 
       expect(items.props.className).toBe('items')
 
@@ -116,6 +119,7 @@ describe('ListView', () => {
         isListModalOpen: false,
         isTaskModalOpen: false,
         isListEditModalOpen: false,
+        isProjectEditModalOpen: false,
         newList: {title: "", color: "0effff"},
         newTask: {title: ""},
         lists: [
@@ -143,6 +147,7 @@ describe('ListView', () => {
         project: {
           Title: "testProject"
         },
+        selectedProject: {Title: "", Description: "", RepositoryID: 0},
         isTaskDraggingOver: false,
         taskDraggingFrom: null,
         taskDraggingTo: null,
@@ -162,7 +167,7 @@ describe('ListView', () => {
     }
     it('should render error', () => {
       const { output } = setup(state)
-      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
+      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items ] = output.props.children
       expect(flash.props.children).toBe('Server Error')
     })
   })
@@ -172,6 +177,7 @@ describe('ListView', () => {
         isListModalOpen: false,
         isTaskModalOpen: false,
         isListEditModalOpen: false,
+        isProjectEditModalOpen: false,
         isLoading: true,
         newList: {title: "", color: "0effff"},
         newTask: {title: ""},
@@ -200,6 +206,7 @@ describe('ListView', () => {
         project: {
           Title: "testProject"
         },
+        selectedProject: {Title: "", Description: "", RepositoryID: 0},
         isTaskDraggingOver: false,
         taskDraggingFrom: null,
         taskDraggingTo: null,
@@ -219,7 +226,7 @@ describe('ListView', () => {
     }
     it('should render loading window', () => {
       const { output } = setup(state)
-      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
+      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items ] = output.props.children
       expect(wholeLoading.type).toBe('div')
       expect(wholeLoading.props.className).toBe('whole-loading')
     })
@@ -231,6 +238,7 @@ describe('ListView', () => {
         isListModalOpen: true,
         isTaskModalOpen: false,
         isListEditModalOpen: false,
+        isProjectEditModalOpen: false,
         newList: {title: "", color: "0effff"},
         newTask: {title: ""},
         lists: [
@@ -258,6 +266,7 @@ describe('ListView', () => {
         project: {
           Title: "testProject"
         },
+        selectedProject: {Title: "", Description: "", RepositoryID: 0},
         isTaskDraggingOver: false,
         taskDraggingFrom: null,
         taskDraggingTo: null,
@@ -277,7 +286,7 @@ describe('ListView', () => {
     }
     it('should render modal', () => {
       const { output, props } = setup(state)
-      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
+      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items ] = output.props.children
       expect(listModal.props.isOpen).toBe(true)
     })
   })
@@ -287,6 +296,7 @@ describe('ListView', () => {
         isListModalOpen: false,
         isTaskModalOpen: true,
         isListEditModalOpen: false,
+        isProjectEditModalOpen: false,
         newList: {title: "", color: "0effff"},
         newTask: {title: ""},
         lists: [
@@ -314,6 +324,7 @@ describe('ListView', () => {
         project: {
           Title: "testProject"
         },
+        selectedProject: {Title: "", Description: "", RepositoryID: 0},
         isTaskDraggingOver: false,
         taskDraggingFrom: null,
         taskDraggingTo: null,
@@ -333,7 +344,7 @@ describe('ListView', () => {
     }
     it('should render task modal', () => {
       const { output } = setup(state)
-      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
+      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items ] = output.props.children
       expect(taskModal.props.isOpen).toBe(true)
     })
   })
@@ -344,6 +355,7 @@ describe('ListView', () => {
           isListModalOpen: false,
           isTaskModalOpen: false,
           isListEditModalOpen: true,
+          isProjectEditModalOpen: false,
           newList: {title: "", color: "0effff"},
           newTask: {title: ""},
           lists: [
@@ -383,6 +395,7 @@ describe('ListView', () => {
             Title: "testProject",
             RepositoryID: 0
           },
+          selectedProject: {Title: "", Description: "", RepositoryID: 0},
           isTaskDraggingOver: false,
           taskDraggingFrom: null,
           taskDraggingTo: null,
@@ -403,7 +416,7 @@ describe('ListView', () => {
       }
       it('should render list edit modal without action', () => {
         const { output, props } = setup(state)
-        let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
+        let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items ] = output.props.children
         expect(listEditModal.props.isOpen).toBe(true)
 
         let listForm = listEditModal.props.children
@@ -420,6 +433,7 @@ describe('ListView', () => {
           isListModalOpen: false,
           isTaskModalOpen: false,
           isListEditModalOpen: true,
+          isProjectEditModalOpen: false,
           newList: {title: "", color: "0effff"},
           newTask: {title: ""},
           lists: [
@@ -459,6 +473,7 @@ describe('ListView', () => {
             Title: "testProject",
             RepositoryID: 1
           },
+          selectedProject: {Title: "", Description: "", RepositoryID: 0},
           isTaskDraggingOver: false,
           taskDraggingFrom: null,
           taskDraggingTo: null,
@@ -479,7 +494,7 @@ describe('ListView', () => {
       }
       it('should render list edit modal with action', () => {
         const { output, props } = setup(state)
-        let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectTitleWrapper, items ] = output.props.children
+        let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items ] = output.props.children
         expect(listEditModal.props.isOpen).toBe(true)
 
         let listForm = listEditModal.props.children
