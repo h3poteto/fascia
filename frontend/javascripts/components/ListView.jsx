@@ -103,7 +103,7 @@ export default class ListView extends React.Component {
   }
 
   render() {
-    const { isLoading, isListModalOpen, newList, lists, listOptions, project, isTaskModalOpen, newTask, selectedList, selectedListOption, isListEditModalOpen, taskDraggingFrom, taskDraggingTo, error } = this.props.ListReducer
+    const { isLoading, isListModalOpen, newList, lists, listOptions, project, isTaskModalOpen, newTask, selectedList, selectedListOption, isListEditModalOpen, isProjectEditModalOpen, taskDraggingFrom, taskDraggingTo, selectedProject, error } = this.props.ListReducer
 
     var flash;
     if (error != null) {
@@ -175,9 +175,29 @@ export default class ListView extends React.Component {
             </form>
           </div>
         </Modal>
+        <Modal
+          isOpen={isProjectEditModalOpen}
+          onRequestClose={this.props.closeEditProjectModal}
+          style={customStyles}
+        >
+          <div className="project-form">
+            <form className="pure-form pure-form-stacked">
+              <fieldset>
+                <legend>Edit Project</legend>
+                <label htmlFor="title">Title</label>
+                <input id="title" name="title" type="text" value={selectedProject.Title} onChange={this.props.updateEditProjectTitle} className="form-control" />
+                <label htmlFor="description">Description</label>
+                <input id="description" name="description" type="text" value={selectedProject.Description} onChange={this.props.updateEditProjectDescription} className="form-control" />
+                <div className="form-action">
+                  <button onClick={e => this.props.fetchUpdateProject(this.props.params.projectId, selectedProject)} className="pure-button pure-button-primary" type="button">Update Project</button>
+                </div>
+              </fieldset>
+            </form>
+          </div>
+        </Modal>
         <div className="title-wrapper">
           <div className="project-operation"><i className="fa fa-repeat" onClick={e => this.props.fetchProjectGithub(this.props.params.projectId)}></i></div>
-          <h3 className="project-title">{project != null ? project.Title : ''}</h3>
+          <h3 className="project-title">{project != null ? project.Title : ''}<span className="fascia-project-menu" onClick={e => this.props.openEditProjectModal(project)}><i className="fa fa-pencil"></i></span></h3>
         </div>
         <div className="items">
           {lists.map(function(list, index) {

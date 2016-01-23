@@ -3,7 +3,6 @@
 -- SQL in section 'Up' is executed when this migration is applied
 CREATE TABLE IF NOT EXISTS repositories (
 id int(11) NOT NULL AUTO_INCREMENT,
-project_id int(11) NOT NULL,
 repository_id int(11) NOT NULL,
 full_name varchar(255) DEFAULT NULL,
 created_at datetime DEFAULT NULL,

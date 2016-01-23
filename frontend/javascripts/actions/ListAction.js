@@ -459,3 +459,71 @@ export function changeSelectedListOption(ev) {
     selectEvent: ev.target
   }
 }
+
+
+export const OPEN_EDIT_PROJECT = 'OPEN_EDIT_PROJECT';
+export function openEditProjectModal(project) {
+  return {
+    type: OPEN_EDIT_PROJECT,
+    project: project
+  }
+}
+
+export const CLOSE_EDIT_PROJECT = 'CLOSE_EDIT_PROJECT';
+export function closeEditProjectModal() {
+  return {
+    type: CLOSE_EDIT_PROJECT
+  }
+}
+
+
+export const UPDATE_EDIT_PROJECT_TITLE = 'UPDATE_EDIT_PROJECT_TITLE'
+export function updateEditProjectTitle(ev) {
+  return {
+    type: UPDATE_EDIT_PROJECT_TITLE,
+    title: ev.target.value
+  }
+}
+
+export const UPDATE_EDIT_PROJECT_DESCRIPTION = 'UPDATE_EDIT_PROJECT_DESCRIPTION'
+export function updateEditProjectDescription(ev) {
+  return {
+    type: UPDATE_EDIT_PROJECT_DESCRIPTION,
+    description: ev.target.value
+  }
+}
+
+export const REQUEST_UPDATE_PROJECT = 'REQUEST_UPDATE_PROJECT'
+function requestUpdateProject() {
+  return {
+    type: REQUEST_UPDATE_PROJECT
+  }
+}
+
+export const RECEIVE_UPDATE_PROJECT = 'RECEIVE_UPDATE_PROJECT'
+function receiveUpdateProject(project) {
+  return {
+    type: RECEIVE_UPDATE_PROJECT,
+    project: project
+  }
+}
+
+export const FETCH_UPDATE_PROJECT = 'FETCH_UPDATE_PROJECT'
+export function fetchUpdateProject(projectID, project) {
+  return dispatch => {
+    dispatch(requestUpdateProject())
+    return Request
+      .post(`/projects/${projectID}`)
+      .type('form')
+      .send({title: project.Title, description: project.Description})
+      .end((err, res) => {
+        if (res.ok) {
+          dispatch(receiveUpdateProject(res.body))
+        } else if (res.unauthorized) {
+          dispatch(unauthorized())
+        } else {
+          dispatch(serverError())
+        }
+      })
+  }
+}

@@ -36,7 +36,7 @@ var _ = Describe("Task", func() {
 		mydb := &db.Database{}
 		var database db.DB = mydb
 		table = database.Init()
-		newProject = project.NewProject(0, uid, "title", "desc")
+		newProject = project.NewProject(0, uid, "title", "desc", sql.NullInt64{})
 		newProject.Save()
 		newList = list.NewList(0, newProject.Id, newProject.UserId, "list title", "", sql.NullInt64{})
 		newList.Save(nil, nil)
