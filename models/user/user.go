@@ -141,6 +141,23 @@ func Login(userEmail string, userPassword string) (*UserStruct, error) {
 	return user, nil
 }
 
+func FindByEmail(email string) (*UserStruct, error) {
+	objectDB := &db.Database{}
+	var interfaceDB db.DB = objectDB
+	table := interfaceDB.Init()
+	defer table.Close()
+
+	var id int64
+	var uuid sql.NullInt64
+	var provider, oauthToken, userName, avatarURL sql.NullString
+	err := table.QueryRow("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where email = ?;", email).Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("User", "FindByEmail").Infof("cannot find user: %v", err)
+		return nil, err
+	}
+	return NewUser(id, email, provider, oauthToken, uuid, userName, avatarURL), nil
+}
+
 // 認証時にもう一度githubアクセスしてidを取ってくるのが無駄なので，できればoauthのcallbakcでidを受け取りたい
 func FindOrCreateGithub(token string) (*UserStruct, error) {
 	objectDB := &db.Database{}

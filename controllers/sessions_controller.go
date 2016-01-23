@@ -57,7 +57,7 @@ func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	err = r.ParseForm()
 	if err != nil {
 		logging.SharedInstance().MethodInfo("SessionsController", "NewSession").Errorf("wrong form: %v", err)
-		http.Error(w, "Wrong Form", 400)
+		http.Error(w, "Wrong Form", 500)
 		return
 	}
 	var signInForm SignInForm
