@@ -135,7 +135,7 @@ func Login(userEmail string, userPassword string) (*UserStruct, error) {
 	err := bcrypt.CompareHashAndPassword([]byte(password), bytePassword)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("user", "Login").Errorf("cannot login: %v", userEmail)
-		return &UserStruct{}, errors.New("cannot login")
+		return nil, errors.New("cannot login")
 	}
 	logging.SharedInstance().MethodInfo("user", "Login").Info("login success")
 	return user, nil
