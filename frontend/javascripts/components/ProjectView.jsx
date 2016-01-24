@@ -70,7 +70,7 @@ class ProjectView extends React.Component {
                 <label htmlFor="title">Title</label>
                 <input id="title" name="title" type="text" value={newProject.title} onChange={this.props.updateNewProjectTitle} placeholder="Project Name" className="form-control" />
                 <label htmlFor="description">Description</label>
-                <input id="description" name="description" type="text" value={newProject.description} onChange={this.props.updateNewProjectDescription} placeholder="Description" className="form-control" />
+                <textarea id="description" name="description" value={newProject.description} onChange={this.props.updateNewProjectDescription} placeholder="Description" className="form-control" />
                 <label htmlFor="repositories">GitHub</label>
                 <select id="repositories" name="repositories" onChange={this.props.changeSelectedRepository} className="form-control">
                   <option value="0">--</option>

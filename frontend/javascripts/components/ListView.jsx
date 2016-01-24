@@ -146,7 +146,7 @@ export default class ListView extends React.Component {
                 <label htmlFor="title">Title</label>
                 <input id="title" name="title" type="text" value={newTask.title} onChange={this.props.updateNewTaskTitle} placeholder="Task Name" className="form-control" />
                 <label htmlFor="description">Description</label>
-                <input id="description" name="description" type="text" value={newTask.description} onChange={this.props.updateNewTaskDescription} placeholder="Task description" className="form-control" />
+                <textarea id="description" name="description" value={newTask.description} onChange={this.props.updateNewTaskDescription} placeholder="Task description" className="form-control" />
                 <div className="form-action">
                   <button onClick={e => this.props.fetchCreateTask(this.props.params.projectId, selectedList.Id,  newTask.title, newTask.description)} className="pure-button pure-button-primary" type="button">Create Task</button>
                 </div>
@@ -187,7 +187,7 @@ export default class ListView extends React.Component {
                 <label htmlFor="title">Title</label>
                 <input id="title" name="title" type="text" value={selectedProject.Title} onChange={this.props.updateEditProjectTitle} className="form-control" />
                 <label htmlFor="description">Description</label>
-                <input id="description" name="description" type="text" value={selectedProject.Description} onChange={this.props.updateEditProjectDescription} className="form-control" />
+                <textarea id="description" name="description" value={selectedProject.Description} onChange={this.props.updateEditProjectDescription} className="form-control" />
                 <div className="form-action">
                   <button onClick={e => this.props.fetchUpdateProject(this.props.params.projectId, selectedProject)} className="pure-button pure-button-primary" type="button">Update Project</button>
                 </div>
