@@ -22,7 +22,7 @@
           </div>
 
           <div class="pure-controls control-group">
-            Forgot your password?
+            <a href="/passwords/new">Forgot your password?</a>
           </div>
           <div class="pure-controls control-group">
             <button class="pure-button pure-button-primary session-button" type="submit">SignIn</button>

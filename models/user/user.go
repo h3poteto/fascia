@@ -37,7 +37,7 @@ func randomString() string {
 	return strconv.FormatUint(n, 36)
 }
 
-func hashPassword(password string) ([]byte, error) {
+func HashPassword(password string) ([]byte, error) {
 	bytePassword := []byte(password)
 	cost := 10
 	hashPassword, _ := bcrypt.GenerateFromPassword(bytePassword, cost)
@@ -99,7 +99,7 @@ func Registration(email string, password string) (int64, error) {
 	table := interfaceDB.Init()
 	defer table.Close()
 
-	hashPassword, err := hashPassword(password)
+	hashPassword, err := HashPassword(password)
 	if err != nil {
 		return 0, err
 	}
@@ -135,10 +135,44 @@ func Login(userEmail string, userPassword string) (*UserStruct, error) {
 	err := bcrypt.CompareHashAndPassword([]byte(password), bytePassword)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("user", "Login").Errorf("cannot login: %v", userEmail)
-		return &UserStruct{}, errors.New("cannot login")
+		return nil, errors.New("cannot login")
 	}
 	logging.SharedInstance().MethodInfo("user", "Login").Info("login success")
 	return user, nil
+}
+
+func FindUser(id int64) (*UserStruct, error) {
+	objectDB := &db.Database{}
+	var interfaceDB db.DB = objectDB
+	table := interfaceDB.Init()
+	defer table.Close()
+
+	var uuid sql.NullInt64
+	var email string
+	var provider, oauthToken, userName, avatarURL sql.NullString
+	err := table.QueryRow("select email, provider, oauth_token, user_name, uuid, avatar_url from users where id = ?;", id).Scan(&email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("User", "FindUser").Infof("cannot find user: %v", err)
+		return nil, err
+	}
+	return NewUser(id, email, provider, oauthToken, uuid, userName, avatarURL), nil
+}
+
+func FindByEmail(email string) (*UserStruct, error) {
+	objectDB := &db.Database{}
+	var interfaceDB db.DB = objectDB
+	table := interfaceDB.Init()
+	defer table.Close()
+
+	var id int64
+	var uuid sql.NullInt64
+	var provider, oauthToken, userName, avatarURL sql.NullString
+	err := table.QueryRow("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where email = ?;", email).Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("User", "FindByEmail").Infof("cannot find user: %v", err)
+		return nil, err
+	}
+	return NewUser(id, email, provider, oauthToken, uuid, userName, avatarURL), nil
 }
 
 // 認証時にもう一度githubアクセスしてidを取ってくるのが無駄なので，できればoauthのcallbakcでidを受け取りたい
@@ -249,7 +283,7 @@ func (u *UserStruct) Update() bool {
 
 func (u *UserStruct) CreateGithubUser(token string, githubUser *github.User, primaryEmail string) bool {
 	u.Email = primaryEmail
-	bytePassword, _ := hashPassword(randomString())
+	bytePassword, _ := HashPassword(randomString())
 	u.Password = string(bytePassword)
 	u.Provider = sql.NullString{String: "github", Valid: true}
 	u.OauthToken = sql.NullString{String: token, Valid: true}
