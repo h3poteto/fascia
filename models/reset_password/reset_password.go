@@ -84,18 +84,27 @@ func ChangeUserPassword(id int64, token string, password string) (u *user.UserSt
 		tx.Rollback()
 		return nil, err
 	}
-	_, err = table.Exec("update users set password = ? where id = ?;", hashPassword, userId)
+	_, err = tx.Exec("update users set password = ? where id = ?;", hashPassword, userId)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ResetPassword", "ChangeUserPassword").Errorf("cannot update user password: %v", err)
 		tx.Rollback()
 		return nil, err
 	}
+
+	_, err = tx.Exec("update reset_passwords set expires_at = now() where id = ?;", id)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ResetPassword", "ChangeUserPassword").Errorf("cannot change expires_at: %v", err)
+		tx.Rollback()
+		return nil, err
+	}
+
 	u, err = user.FindUser(userId)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ResetPassword", "ChangeUserPassword").Errorf("cannot find user: %v", err)
 		tx.Rollback()
 		return nil, err
 	}
+	tx.Commit()
 	return u, nil
 }
 
