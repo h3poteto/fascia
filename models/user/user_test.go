@@ -79,21 +79,21 @@ var _ = Describe("User", func() {
 			It("cannot login", func() {
 				current_user, err := Login(email, "fugafuga")
 				Expect(err).NotTo(BeNil())
-				Expect(current_user.Email).NotTo(Equal(email))
+				Expect(current_user).To(BeNil())
 			})
 		})
 		Context("when send wrong email address", func() {
 			It("cannot login", func() {
 				current_user, err := Login("hogehoge@example.com", password)
 				Expect(err).NotTo(BeNil())
-				Expect(current_user.Email).NotTo(Equal(email))
+				Expect(current_user).To(BeNil())
 			})
 		})
 		Context("when send wrong email address and password", func() {
 			It("cannot login", func() {
 				current_user, err := Login("hogehoge@example.com", "fugafuga")
 				Expect(err).NotTo(BeNil())
-				Expect(current_user.Email).NotTo(Equal(email))
+				Expect(current_user).To(BeNil())
 			})
 		})
 	})
