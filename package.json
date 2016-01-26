@@ -48,6 +48,7 @@
     "gulp-uglify": "~1.4.0",
     "gulp-util": "~3.0.6",
     "history": "~1.17.0",
+    "html-truncate": "^1.2.1",
     "jsdom": "~7.2.1",
     "mocha": "~2.3.4",
     "nock": "~3.4.0",

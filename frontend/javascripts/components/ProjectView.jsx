@@ -1,6 +1,7 @@
-import React from 'react';
-import { Link } from 'react-router';
-import Modal from 'react-modal';
+import React from 'react'
+import { Link } from 'react-router'
+import Modal from 'react-modal'
+import truncate from 'html-truncate'
 
 const customStyles = {
   overlay : {
@@ -94,8 +95,8 @@ class ProjectView extends React.Component {
             return (
               <Link key={index} to={`/projects/${item.Id}`}>
                 <div className="fascia-project pure-button button-secondary" data-id={item.Id}>
-                  <span className="project-title">{item.Title}</span>
-                  <span className="project-description">{item.Description}</span>
+                  <div className="project-title">{item.Title}</div>
+                  <div className="project-description">{truncate(item.Description, 52)}</div>
                 </div>
               </Link>
             );
