@@ -3,13 +3,16 @@ development:
     todo: "ToDo"
     inprogress: "InProgress"
     done: "Done"
+    none: "None"
 test:
   init_list:
     todo: "ToDo"
     inprogress: "InProgress"
     done: "Done"
+    none: "None"
 production:
   init_list:
     todo: "ToDo"
     inprogress: "InProgress"
     done: "Done"
+    none: "None"

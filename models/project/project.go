@@ -97,7 +97,7 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	rows, _ := table.Query("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ?;", u.Id)
+	rows, _ := table.Query("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ? and title != ?;", u.Id, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
 	var slice []*list.ListStruct
 	for rows.Next() {
 		var id, projectID, userID int64
@@ -105,7 +105,7 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 		var optionID sql.NullInt64
 		err := rows.Scan(&id, &projectID, &userID, &title, &color, &optionID)
 		if err != nil {
-			panic(err.Error())
+			panic(err)
 		}
 		if projectID == u.Id && title.Valid {
 			l := list.NewList(id, projectID, userID, title.String, color.String, optionID)
@@ -113,6 +113,25 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 		}
 	}
 	return slice
+}
+
+func (u *ProjectStruct) NoneList() *list.ListStruct {
+	table := u.database.Init()
+	defer table.Close()
+
+	var id, projectId, userId int64
+	var title, color sql.NullString
+	var optionId sql.NullInt64
+	err := table.QueryRow("select id, project_id, user_id, title, color, list_options_id from lists where project_id = ? and title = ?;", u.Id, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectId, &userId, &title, &color, &optionId)
+	if err != nil {
+		// noneが存在しないということはProjectsController#Createがうまく行ってないので，そっちでエラーハンドリングしてほしい
+		panic(err)
+	}
+	if projectId == u.Id && title.Valid {
+		return list.NewList(id, projectId, userId, title.String, color.String, optionId)
+	} else {
+		return nil
+	}
 }
 
 func (u *ProjectStruct) Repository() *repository.RepositoryStruct {

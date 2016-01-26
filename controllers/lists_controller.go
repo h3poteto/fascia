@@ -61,6 +61,28 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func (u *Lists) NoneList(c web.C, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	current_user, err := LoginRequired(r)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Index").Errorf("login error: %v", err)
+		http.Error(w, "not logined", 401)
+		return
+	}
+	encoder := json.NewEncoder(w)
+	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	parentProject := projectModel.FindProject(projectID)
+	if parentProject == nil || parentProject.UserId != current_user.Id {
+		logging.SharedInstance().MethodInfo("ListsController", "Index").Error("project not found")
+		http.Error(w, "project not found", 404)
+		return
+	}
+	list := parentProject.NoneList()
+	jsonList := ListJsonFormat{Id: list.Id, ProjectId: list.ProjectId, UserId: list.UserId, Title: list.Title.String, ListTasks: TaskFormatToJson(list.Tasks()), Color: list.Color.String, ListOptionId: list.ListOptionId.Int64}
+	encoder.Encode(jsonList)
+	return
+}
+
 func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)

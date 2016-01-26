@@ -119,10 +119,13 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	closeListOption := list_option.FindByAction("close")
 
 	// 初期リストを作っておく
+	// TODO: これモデル層に移住できない？
 	// TODO: ここエラーハンドリングしたほうがいい
 	todo := listModel.NewList(0, project.Id, current_user.Id, config.Element("init_list").(map[interface{}]interface{})["todo"].(string), "ff0000", sql.NullInt64{})
 	inprogress := listModel.NewList(0, project.Id, current_user.Id, config.Element("init_list").(map[interface{}]interface{})["inprogress"].(string), "0000ff", sql.NullInt64{})
 	done := listModel.NewList(0, project.Id, current_user.Id, config.Element("init_list").(map[interface{}]interface{})["done"].(string), "0a0a0a", sql.NullInt64{Int64: closeListOption.Id, Valid: true})
+	none := listModel.NewList(0, project.Id, current_user.Id, config.Element("init_list").(map[interface{}]interface{})["none"].(string), "ffffff", sql.NullInt64{})
+	none.Save(nil, nil)
 	if newProjectForm.RepositoryID != 0 {
 		repository := repositoryModel.NewRepository(0, newProjectForm.RepositoryID, newProjectForm.RepositoryOwner, newProjectForm.RepositoryName)
 		repository.Save()
@@ -190,6 +193,7 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder.Encode(jsonProject)
 }
 
+// TODO: 所属なしのissueはTODOリストではなくnoneリストに突っ込む
 func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)
