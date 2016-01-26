@@ -8,6 +8,14 @@ function unauthorized() {
   };
 }
 
+export const NOT_FOUND = 'NOT_FOUND';
+function notFound() {
+  window.location.pathname = "/404";
+  return {
+    type: NOT_FOUND
+  }
+}
+
 export const SERVER_ERROR = 'SERVER_ERROR';
 function serverError() {
   return {
@@ -137,19 +145,21 @@ function receiveLists(lists) {
 
 export function fetchLists(projectId) {
   return dispatch => {
-    dispatch(requestLists());
+    dispatch(requestLists())
     return Request
       .get(`/projects/${projectId}/lists`)
       .end((err, res)=> {
         if (res.ok) {
-          dispatch(receiveLists(res.body));
+          dispatch(receiveLists(res.body))
         } else if (res.unauthorized) {
-          dispatch(unauthorized());
+          dispatch(unauthorized())
+        } else if (res.notFound) {
+          dispatch(notFound())
         } else {
-          dispatch(serverError());
+          dispatch(serverError())
         }
-      });
-  };
+      })
+  }
 }
 
 export const REQUEST_PROJECT = 'REQUEST_PROJECT';
@@ -177,6 +187,8 @@ export function fetchProject(projectId) {
           dispatch(receiveProject(res.body));
         } else if (res.unauthorized) {
           dispatch(unauthorized());
+        } else if (res.notFound) {
+          dispatch(notFound())
         } else {
           dispatch(serverError());
         }
@@ -212,6 +224,8 @@ export function fetchCreateList(projectId, title, color) {
           dispatch(receiveCreateList(res.body));
         } else if (res.unauthorized) {
           dispatch(unauthorized());
+        } else if (res.notFound) {
+          dispatch(notFound())
         } else {
           dispatch(serverError());
         }
@@ -246,6 +260,8 @@ export function fetchCreateTask(projectId, listId, title, description) {
           dispatch(receiveCreateTask(res.body));
         } else if (res.unauthorized) {
           dispatch(unauthorized());
+        } else if (res.notFound) {
+          dispatch(notFound())
         } else {
           dispatch(serverError());
         }
@@ -284,6 +300,8 @@ export function fetchUpdateList(projectId, list, option) {
           dispatch(receiveUpdateList(res.body));
         } else if (res.unauthorized) {
           dispatch(unauthorized());
+        } else if (res.notFound) {
+          dispatch(notFound())
         } else {
           dispatch(serverError());
         }
@@ -345,6 +363,8 @@ export function taskDrop(projectId, taskDraggingFrom, taskDraggingTo) {
             dispatch(receiveMoveTask(res.body));
           } else if(res.unauthorized) {
             dispatch(unauthorized());
+          } else if (res.notFound) {
+            dispatch(notFound())
           } else {
             // TODO: ここはドラッグしたviewを元に戻す必要がある
             dispatch(serverError());
@@ -412,6 +432,8 @@ export function fetchProjectGithub(projectId) {
           dispatch(receiveFetchGithub(res.body));
         } else if(res.unauthorized) {
           dispatch(unauthorized());
+        } else if (res.notFound) {
+          dispatch(notFound())
         } else {
           dispatch(serverError());
         }
@@ -445,6 +467,8 @@ export function fetchListOptions() {
           dispatch(receiveListOptions(res.body))
         } else if (res.unauthorized) {
           dispatch(unauthorized())
+        } else if (res.notFound) {
+          dispatch(notFound())
         } else {
           dispatch(serverError())
         }
@@ -521,6 +545,8 @@ export function fetchUpdateProject(projectID, project) {
           dispatch(receiveUpdateProject(res.body))
         } else if (res.unauthorized) {
           dispatch(unauthorized())
+        } else if (res.notFound) {
+          dispatch(notFound())
         } else {
           dispatch(serverError())
         }
