@@ -1,13 +1,8 @@
 package controllers
 
 import (
-	"../config"
-	listModel "../models/list"
-	"../models/list_option"
 	projectModel "../models/project"
-	repositoryModel "../models/repository"
 	"../modules/logging"
-	"database/sql"
 	"encoding/json"
 	"github.com/goji/param"
 	"github.com/zenazn/goji/web"
@@ -107,41 +102,15 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Create").Debugf("post new project parameter: %+v", newProjectForm)
-	project := projectModel.NewProject(0, current_user.Id, newProjectForm.Title, newProjectForm.Description, sql.NullInt64{})
-	if !project.Save() {
+
+	project, err := projectModel.Create(current_user.Id, newProjectForm.Title, newProjectForm.Description, newProjectForm.RepositoryID, newProjectForm.RepositoryOwner, newProjectForm.RepositoryName, current_user.OauthToken)
+	if err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Create").Error("save failed")
 		http.Error(w, "save failed", 500)
 		return
 	}
-	logging.SharedInstance().MethodInfo("ProjectsController", "Create").Info("success to create project")
-
-	// closeのlist_optionだけはdoneにつけておきたい
-	closeListOption := list_option.FindByAction("close")
-
-	// 初期リストを作っておく
-	// TODO: これモデル層に移住できない？
-	// TODO: ここエラーハンドリングしたほうがいい
-	todo := listModel.NewList(0, project.Id, current_user.Id, config.Element("init_list").(map[interface{}]interface{})["todo"].(string), "ff0000", sql.NullInt64{})
-	inprogress := listModel.NewList(0, project.Id, current_user.Id, config.Element("init_list").(map[interface{}]interface{})["inprogress"].(string), "0000ff", sql.NullInt64{})
-	done := listModel.NewList(0, project.Id, current_user.Id, config.Element("init_list").(map[interface{}]interface{})["done"].(string), "0a0a0a", sql.NullInt64{Int64: closeListOption.Id, Valid: true})
-	none := listModel.NewList(0, project.Id, current_user.Id, config.Element("init_list").(map[interface{}]interface{})["none"].(string), "ffffff", sql.NullInt64{})
-	none.Save(nil, nil)
-	if newProjectForm.RepositoryID != 0 {
-		repository := repositoryModel.NewRepository(0, newProjectForm.RepositoryID, newProjectForm.RepositoryOwner, newProjectForm.RepositoryName)
-		repository.Save()
-		project.RepositoryId = sql.NullInt64{Int64: repository.Id, Valid: true}
-		project.Save()
-		todo.Save(repository, &current_user.OauthToken)
-		inprogress.Save(repository, &current_user.OauthToken)
-		done.Save(repository, &current_user.OauthToken)
-	} else {
-		todo.Save(nil, nil)
-		inprogress.Save(nil, nil)
-		done.Save(nil, nil)
-	}
-	logging.SharedInstance().MethodInfo("ProjectsController", "Create").Info("success to create initial lists")
-
 	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId, Title: project.Title, Description: project.Description}
+	logging.SharedInstance().MethodInfo("ProjectsController", "Create").Info("success to create project")
 	encoder.Encode(jsonProject)
 }
 

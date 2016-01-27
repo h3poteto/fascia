@@ -1,6 +1,7 @@
 package project_test
 
 import (
+	seed "../../db/seed"
 	"../db"
 	"../list"
 	. "../project"
@@ -19,6 +20,9 @@ var _ = Describe("Project", func() {
 		table      *sql.DB
 	)
 
+	BeforeEach(func() {
+		seed.ListOptions()
+	})
 	AfterEach(func() {
 		mydb := &db.Database{}
 		var database db.DB = mydb
@@ -38,6 +42,17 @@ var _ = Describe("Project", func() {
 		var database db.DB = mydb
 		table = database.Init()
 		newProject = NewProject(0, uid, "title", "desc", sql.NullInt64{})
+	})
+
+	Describe("Create", func() {
+		Context("when did not set repositoryID", func() {
+			It("should create new project", func() {
+				newProject, err := Create(uid, "new project", "description", 0, "", "", sql.NullString{})
+				Expect(err).To(BeNil())
+				Expect(len(newProject.Lists())).To(Equal(3))
+				Expect(newProject.NoneList).NotTo(BeNil())
+			})
+		})
 	})
 
 	Describe("Save", func() {

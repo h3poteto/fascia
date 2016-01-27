@@ -6,6 +6,7 @@ import (
 	"../../modules/logging"
 	"../db"
 	"../list"
+	"../list_option"
 	"../repository"
 	"../task"
 	"database/sql"
@@ -59,6 +60,89 @@ func FindProject(projectID int64) *ProjectStruct {
 	} else {
 		return nil
 	}
+}
+
+func Create(userId int64, title string, description string, repositoryID int64, repositoryOwner string, repositoryName string, oauthToken sql.NullString) (p *ProjectStruct, e error) {
+	objectDB := &db.Database{}
+	var interfaceDB db.DB = objectDB
+	table := interfaceDB.Init()
+	defer table.Close()
+	tx, _ := table.Begin()
+	defer func() {
+		if err := recover(); err != nil {
+			logging.SharedInstance().MethodInfo("Project", "Create").Error("unexpected error")
+			tx.Rollback()
+			e = errors.New("unexpected error")
+			p = nil
+		}
+	}()
+
+	var repoId sql.NullInt64
+	var repo *repository.RepositoryStruct
+	if repositoryID != 0 {
+		repo = repository.NewRepository(0, repositoryID, repositoryOwner, repositoryName)
+		if !repo.Save() {
+			tx.Rollback()
+			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save repository")
+			return nil, errors.New("repository save error")
+		}
+		repoId = sql.NullInt64{Int64: repo.Id, Valid: true}
+	}
+
+	project := NewProject(0, userId, title, description, repoId)
+	if !project.Save() {
+		tx.Rollback()
+		logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save project")
+		return nil, errors.New("failed to save project")
+	}
+
+	// 初期リストの準備
+	closeListOption := list_option.FindByAction("close")
+	todo := list.NewList(0, project.Id, userId, config.Element("init_list").(map[interface{}]interface{})["todo"].(string), "ff0000", sql.NullInt64{})
+	inprogress := list.NewList(0, project.Id, userId, config.Element("init_list").(map[interface{}]interface{})["inprogress"].(string), "0000ff", sql.NullInt64{})
+	done := list.NewList(0, project.Id, userId, config.Element("init_list").(map[interface{}]interface{})["done"].(string), "0a0a0a", sql.NullInt64{Int64: closeListOption.Id, Valid: true})
+	none := list.NewList(0, project.Id, userId, config.Element("init_list").(map[interface{}]interface{})["none"].(string), "ffffff", sql.NullInt64{})
+	if !none.Save(nil, nil) {
+		tx.Rollback()
+		logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save none list")
+		return nil, errors.New("failed to save none list")
+	}
+
+	if project.RepositoryId.Valid {
+		if !todo.Save(repo, &oauthToken) {
+			tx.Rollback()
+			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save todo list")
+			return nil, errors.New("failed to save todo list")
+		}
+		if !inprogress.Save(repo, &oauthToken) {
+			tx.Rollback()
+			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save inprogress list")
+			return nil, errors.New("failed to save inprogress list")
+		}
+		if !done.Save(repo, &oauthToken) {
+			tx.Rollback()
+			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save done list")
+			return nil, errors.New("failed to save done list")
+		}
+	} else {
+		if !todo.Save(nil, nil) {
+			tx.Rollback()
+			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save todo list")
+			return nil, errors.New("failed to save todo list")
+		}
+		if !inprogress.Save(nil, nil) {
+			tx.Rollback()
+			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save inprogress list")
+			return nil, errors.New("failed to save inprogress list")
+		}
+		if !done.Save(nil, nil) {
+			tx.Rollback()
+			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save done list")
+			return nil, errors.New("failed to save done list")
+		}
+	}
+	tx.Commit()
+	return project, nil
 }
 
 func (u *ProjectStruct) Initialize() {
