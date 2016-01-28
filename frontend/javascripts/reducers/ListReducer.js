@@ -9,6 +9,7 @@ const initState = {
   newTask: {title: "", description: ""},
   lists: [],
   listOptions: [],
+  noneList: {ListTasks: []},
   selectedList: null,
   selectedListOption: null,
   project: null,
@@ -158,11 +159,16 @@ export default function ListReducer(state = initState, action) {
         return l;
       }
     });
+    var noneList = state.noneList
+    if (action.task.ListId == noneList.Id) {
+      noneList.ListTasks = noneList.ListTasks.concat([action.task])
+    }
     return Object.assign({}, state, {
       newTask: {title: "", description: ""},
       lists: lists,
       isTaskModalOpen: false,
-      isLoading: false
+      isLoading: false,
+      noneList: noneList
     });
   case listActions.REQUEST_UPDATE_LIST:
     return Object.assign({}, state, {
@@ -353,6 +359,10 @@ export default function ListReducer(state = initState, action) {
     return Object.assign({}, state, {
       project: action.project,
       isProjectEditModalOpen: false
+    })
+  case listActions.RECEIVE_NONE_LIST:
+    return Object.assign({}, state, {
+      noneList: action.list
     })
   default:
     return state

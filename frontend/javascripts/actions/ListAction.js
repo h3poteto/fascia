@@ -244,7 +244,7 @@ export const RECEIVE_CREATE_TASK = 'RECEIVE_CREATE_TASK';
 function receiveCreateTask(task) {
   return {
     type: RECEIVE_CREATE_TASK,
-    task: {Id: task.Id, ListId: task.ListId, Title: task.Title, Description: task.Description }
+    task: task
   };
 }
 
@@ -543,6 +543,41 @@ export function fetchUpdateProject(projectID, project) {
       .end((err, res) => {
         if (res.ok) {
           dispatch(receiveUpdateProject(res.body))
+        } else if (res.unauthorized) {
+          dispatch(unauthorized())
+        } else if (res.notFound) {
+          dispatch(notFound())
+        } else {
+          dispatch(serverError())
+        }
+      })
+  }
+}
+
+export const REQUEST_NONE_LIST = 'REQUEST_NONE_LIST'
+function requestNoneList() {
+  return {
+    type: REQUEST_NONE_LIST
+  }
+}
+
+export const RECEIVE_NONE_LIST = 'RECEIVE_NONE_LIST'
+function receiveNoneList(list) {
+  return {
+    type: RECEIVE_NONE_LIST,
+    list: list
+  }
+}
+
+export const FETCH_NONE_LIST = 'FETCH_NONE_LIST'
+export function fetchNoneList(projectID) {
+  return dispatch => {
+    dispatch(requestNoneList())
+    return Request
+      .get(`/projects/${projectID}/none_list`)
+      .end((err, res) => {
+        if (res.ok) {
+          dispatch(receiveNoneList(res.body))
         } else if (res.unauthorized) {
           dispatch(unauthorized())
         } else if (res.notFound) {

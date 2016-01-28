@@ -206,7 +206,7 @@ func (u *ProjectStruct) NoneList() *list.ListStruct {
 	var id, projectId, userId int64
 	var title, color sql.NullString
 	var optionId sql.NullInt64
-	err := table.QueryRow("select id, project_id, user_id, title, color, list_options_id from lists where project_id = ? and title = ?;", u.Id, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectId, &userId, &title, &color, &optionId)
+	err := table.QueryRow("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ? and title = ?;", u.Id, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectId, &userId, &title, &color, &optionId)
 	if err != nil {
 		// noneが存在しないということはProjectsController#Createがうまく行ってないので，そっちでエラーハンドリングしてほしい
 		panic(err)
