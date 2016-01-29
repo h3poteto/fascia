@@ -44,6 +44,7 @@ describe('ListView', () => {
             ListTasks: []
           }
         ],
+        noneList: {Id: 0, ListTasks: [] },
         listOptions: [],
         selectedListOption: null,
         selectedList: null,
@@ -141,6 +142,7 @@ describe('ListView', () => {
             ListTasks: []
           }
         ],
+        noneList: {Id: 0, ListTasks: [] },
         listOptions: [],
         selectedListOption: null,
         selectedList: null,
@@ -200,6 +202,7 @@ describe('ListView', () => {
             ListTasks: []
           }
         ],
+        noneList: {Id: 0, ListTasks: [] },
         listOptions: [],
         selectedListOption: null,
         selectedList: null,
@@ -260,6 +263,7 @@ describe('ListView', () => {
             ListTasks: []
           }
         ],
+        noneList: {Id: 0, ListTasks: [] },
         listOptions: [],
         selectedListOption: null,
         selectedList: null,
@@ -318,6 +322,7 @@ describe('ListView', () => {
             ListTasks: []
           }
         ],
+        noneList: {Id: 0, ListTasks: [] },
         listOptions: [],
         selectedListOption: null,
         selectedList: null,
@@ -377,6 +382,7 @@ describe('ListView', () => {
               ListTasks: []
             }
           ],
+          noneList: {Id: 0, ListTasks: [] },
           listOptions: [
             {
               Id: 1,
@@ -455,6 +461,7 @@ describe('ListView', () => {
               ListTasks: []
             }
           ],
+          noneList: {Id: 0, ListTasks: [] },
           listOptions: [
             {
               Id: 1,
