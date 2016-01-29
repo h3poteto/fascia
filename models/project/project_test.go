@@ -1,6 +1,7 @@
 package project_test
 
 import (
+	"../../config"
 	seed "../../db/seed"
 	"../db"
 	"../list"
@@ -50,7 +51,7 @@ var _ = Describe("Project", func() {
 				newProject, err := Create(uid, "new project", "description", 0, "", "", sql.NullString{})
 				Expect(err).To(BeNil())
 				Expect(len(newProject.Lists())).To(Equal(3))
-				Expect(newProject.NoneList).NotTo(BeNil())
+				Expect(newProject.NoneList()).NotTo(BeNil())
 			})
 		})
 	})
@@ -113,8 +114,8 @@ var _ = Describe("Project", func() {
 
 	Describe("Lists", func() {
 		var (
-			newList    *list.ListStruct
-			newProject *ProjectStruct
+			newList, noneList *list.ListStruct
+			newProject        *ProjectStruct
 		)
 
 		BeforeEach(func() {
@@ -126,12 +127,26 @@ var _ = Describe("Project", func() {
 			_ = newProject.Save()
 			newList = list.NewList(0, newProject.Id, newProject.UserId, "list title", "", sql.NullInt64{})
 			_ = newList.Save(nil, nil)
+			noneList = list.NewList(0, newProject.Id, newProject.UserId, config.Element("init_list").(map[interface{}]interface{})["none"].(string), "", sql.NullInt64{})
+			_ = noneList.Save(nil, nil)
 		})
-		It("プロジェクトとリストが関連づいていること", func() {
+		It("should relate project and list", func() {
 			lists := newProject.Lists()
 			Expect(lists).NotTo(BeEmpty())
 			Expect(lists[0].Id).To(Equal(newList.Id))
 		})
+		It("should not take none list", func() {
+			lists := newProject.Lists()
+			Expect(len(lists)).To(Equal(1))
+		})
 
+	})
+
+	Describe("NoneList", func() {
+		It("should contain only none list", func() {
+			newProject, _ := Create(uid, "new project", "description", 0, "", "", sql.NullString{})
+			noneList := newProject.NoneList()
+			Expect(noneList.Title.String).To(Equal(config.Element("init_list").(map[interface{}]interface{})["none"].(string)))
+		})
 	})
 })
