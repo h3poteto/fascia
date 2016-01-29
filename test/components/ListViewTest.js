@@ -44,7 +44,15 @@ describe('ListView', () => {
             ListTasks: []
           }
         ],
-        noneList: {Id: 0, ListTasks: [] },
+        noneList: {
+          Id: 3,
+          ListTasks: [
+            {
+              Id: 3,
+              Title: "task3"
+            }
+          ]
+        },
         listOptions: [],
         selectedListOption: null,
         selectedList: null,
@@ -75,7 +83,7 @@ describe('ListView', () => {
       expect(output.type).toBe('div')
       expect(output.props.id).toBe('lists')
 
-      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items ] = output.props.children
+      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
       let [ icon, projectTitle ] = projectTitleWrapper.props.children
       let [ title, editButton ] = projectTitle.props.children
       expect(title).toBe('testProject')
@@ -111,6 +119,14 @@ describe('ListView', () => {
 
       secondNewTask.props.onClick()
       expect(props.openNewTaskModal.calls.length).toBe(1)
+
+      let [ tasks, newTask ] = noneList.props.children.props.children
+      console.log(tasks[0])
+      expect(tasks[0].props['data-id']).toBe(3)
+      expect(newTask.props.className).toBe('new-task pure-button button-blue')
+
+      newTask.props.onClick()
+      expect(props.openNewTaskModal.calls.length).toBe(2)
     })
   })
 
@@ -169,7 +185,7 @@ describe('ListView', () => {
     }
     it('should render error', () => {
       const { output } = setup(state)
-      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items ] = output.props.children
+      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
       expect(flash.props.children).toBe('Server Error')
     })
   })
@@ -229,7 +245,7 @@ describe('ListView', () => {
     }
     it('should render loading window', () => {
       const { output } = setup(state)
-      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items ] = output.props.children
+      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
       expect(wholeLoading.type).toBe('div')
       expect(wholeLoading.props.className).toBe('whole-loading')
     })
@@ -290,7 +306,7 @@ describe('ListView', () => {
     }
     it('should render modal', () => {
       const { output, props } = setup(state)
-      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items ] = output.props.children
+      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
       expect(listModal.props.isOpen).toBe(true)
     })
   })
@@ -349,7 +365,7 @@ describe('ListView', () => {
     }
     it('should render task modal', () => {
       const { output } = setup(state)
-      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items ] = output.props.children
+      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
       expect(taskModal.props.isOpen).toBe(true)
     })
   })
@@ -422,7 +438,7 @@ describe('ListView', () => {
       }
       it('should render list edit modal without action', () => {
         const { output, props } = setup(state)
-        let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items ] = output.props.children
+        let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
         expect(listEditModal.props.isOpen).toBe(true)
 
         let listForm = listEditModal.props.children
@@ -501,7 +517,7 @@ describe('ListView', () => {
       }
       it('should render list edit modal with action', () => {
         const { output, props } = setup(state)
-        let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items ] = output.props.children
+        let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
         expect(listEditModal.props.isOpen).toBe(true)
 
         let listForm = listEditModal.props.children
