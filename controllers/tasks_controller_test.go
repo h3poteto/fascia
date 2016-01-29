@@ -126,13 +126,13 @@ var _ = Describe("TasksController", func() {
 			values.Add("to_list_id", strconv.FormatInt(newList.Id, 10))
 			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists/"+strconv.FormatInt(listId, 10)+"/tasks/"+strconv.FormatInt(newTask.Id, 10)+"/move_task", values)
 			Expect(err).To(BeNil())
-			var contents []controllers.ListJsonFormat
+			var contents controllers.AllListJsonFormat
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
 			// 初期リストが入るようになったのでそれ以降
-			Expect(contents[3].ListTasks).To(BeEmpty())
-			Expect(contents[4].ListTasks[0].Id).To(Equal(newTask.Id))
+			Expect(contents.Lists[3].ListTasks).To(BeEmpty())
+			Expect(contents.Lists[4].ListTasks[0].Id).To(Equal(newTask.Id))
 		})
 	})
 })
