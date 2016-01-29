@@ -162,7 +162,6 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder.Encode(jsonProject)
 }
 
-// TODO: 所属なしのissueはTODOリストではなくnoneリストに突っ込む
 func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)

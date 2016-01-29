@@ -232,7 +232,7 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 		return false
 	}
 
-	// TODO: issue closeしたりopenしたり
+	// TODO: noneListの場合はlabelを外す処理
 	if !isReorder && OauthToken != nil && OauthToken.Valid && repo != nil && u.IssueNumber.Valid {
 		token := OauthToken.String
 		var listTitle, listColor sql.NullString

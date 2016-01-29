@@ -263,15 +263,14 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	var openList, closedList *list.ListStruct
+	var closedList *list.ListStruct
 	for _, list := range u.Lists() {
-		// openとcloseのリストは用意しておく
-		if list.Title.Valid && list.Title.String == config.Element("init_list").(map[interface{}]interface{})["todo"].(string) {
-			openList = list
-		} else if list.Title.Valid && list.Title.String == config.Element("init_list").(map[interface{}]interface{})["done"].(string) {
+		// closeのリストは用意しておく
+		if list.Title.Valid && list.Title.String == config.Element("init_list").(map[interface{}]interface{})["done"].(string) {
 			closedList = list
 		}
 	}
+	noneList := u.NoneList()
 
 	for _, issue := range append(openIssues, closedIssues...) {
 		var githubLabels []list.ListStruct
@@ -295,13 +294,13 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 			issueTask.ListId = githubLabels[0].Id
 		} else {
 			// ついているlabelのlistを持ってない時
-			if *issue.State == "open" && openList != nil {
-				issueTask.ListId = openList.Id
+			if *issue.State == "open" && noneList != nil {
+				issueTask.ListId = noneList.Id
 			} else if closedList != nil {
 				issueTask.ListId = closedList.Id
 			} else {
-				// openやcloseが用意できていない場合なので，想定外
-				return false, errors.New("cannot find ToDo or Done list")
+				// noneやcloseが用意できていない場合なので，想定外
+				return false, errors.New("cannot find None or Done list")
 			}
 		}
 		// ここはgithub側への同期不要
