@@ -1,6 +1,7 @@
 package task
 
 import (
+	"../../config"
 	"../../modules/hub"
 	"../../modules/logging"
 	"../db"
@@ -243,19 +244,26 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 			transaction.Rollback()
 			return false
 		}
-		label, err := hub.CheckLabelPresent(token, repo, &listTitle.String)
-		if err != nil {
-			logging.SharedInstance().MethodInfo("task", "ChangeList").Errorf("check label error: %v", err)
-			transaction.Rollback()
-			return false
-		} else if label == nil {
-			// 移動先がない場合はつくろう
-			label, err = hub.CreateGithubLabel(token, repo, &listTitle.String, &listColor.String)
-			if label == nil {
-				logging.SharedInstance().MethodInfo("task", "ChangeList").Errorf("create label error: %v", err)
+
+		var labelName []string
+		if listTitle.String == config.Element("init_list").(map[interface{}]interface{})["none"].(string) {
+			labelName = []string{}
+		} else {
+			label, err := hub.CheckLabelPresent(token, repo, &listTitle.String)
+			if err != nil {
+				logging.SharedInstance().MethodInfo("task", "ChangeList").Errorf("check label error: %v", err)
 				transaction.Rollback()
 				return false
+			} else if label == nil {
+				// 移動先がない場合はつくろう
+				label, err = hub.CreateGithubLabel(token, repo, &listTitle.String, &listColor.String)
+				if label == nil {
+					logging.SharedInstance().MethodInfo("task", "ChangeList").Errorf("create label error: %v", err)
+					transaction.Rollback()
+					return false
+				}
 			}
+			labelName = []string{*label.Name}
 		}
 		// list_option
 		var issueAction *string
@@ -264,7 +272,7 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 			issueAction = &listOption.Action
 		}
 		// issueを移動
-		result, err := hub.EditGithubIssue(token, repo, u.IssueNumber.Int64, []string{*label.Name}, &u.Title, &u.Description, issueAction)
+		result, err := hub.EditGithubIssue(token, repo, u.IssueNumber.Int64, labelName, &u.Title, &u.Description, issueAction)
 		if err != nil || !result {
 			transaction.Rollback()
 			return false
