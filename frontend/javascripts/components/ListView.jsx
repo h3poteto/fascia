@@ -30,7 +30,6 @@ export default class ListView extends React.Component {
     this.props.fetchLists(this.props.params.projectId)
     this.props.fetchProject(this.props.params.projectId)
     this.props.fetchListOptions()
-    this.props.fetchNoneList(this.props.params.projectId)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -225,13 +224,17 @@ export default class ListView extends React.Component {
            <button onClick={this.props.openNewListModal} className="pure-button button-large fascia-new-list pure-button-primary" type="button">New</button>
            <div className="clearfix"></div>
         </div>
-        <div className="none-list-tasks">
-          <ul className="fascia-none-list-tasks">
+        <div className="none-list-tasks" data-dropped-depth="0" data-id={noneList.Id} onDragOver={this.props.taskDragOver} onDrop={e => this.props.taskDrop(project.Id, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.taskDragLeave}>
+          <ul className="fascia-none-list-tasks" data-dropped-depth="1">
             {noneList.ListTasks.map(function(task, index) {
-               return <li key={index} className="button-green task">{task.Title}</li>
+               if (task.draggedOn) {
+                 return <li key={index} className="arrow"></li>
+               } else {
+                 return <li key={index} className="button-green task" draggable="true" data-dropped-depth="2" data-id={task.Id} onDragStart={this.props.taskDragStart}>{task.Title}</li>
+               }
              }, this)}
-            <li onClick={e => this.props.openNewTaskModal(noneList)} className="new-task pure-button button-blue">
-              <i className="fa fa-plus"></i>
+            <li onClick={e => this.props.openNewTaskModal(noneList)} className="new-task pure-button button-blue" data-dropped-depth="2">
+              <i className="fa fa-plus" data-dropped-depth="3"></i>
             </li>
           </ul>
         </div>

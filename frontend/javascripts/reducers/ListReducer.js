@@ -9,7 +9,7 @@ const initState = {
   newTask: {title: "", description: ""},
   lists: [],
   listOptions: [],
-  noneList: {ListTasks: []},
+  noneList: {Id: 0, ListTasks: []},
   selectedList: null,
   selectedListOption: null,
   project: null,
@@ -108,21 +108,26 @@ export default function ListReducer(state = initState, action) {
   case listActions.RECEIVE_LISTS:
   case listActions.RECEIVE_FETCH_GITHUB:
   case listActions.RECEIVE_MOVE_TASK:
-    var lists;
+    var lists
     if (action.lists == null) {
-      lists = [];
+      lists = []
     } else {
       lists = action.lists.map(function(list, index) {
         if (list.ListTasks == null) {
-          list.ListTasks = [];
-          return list;
+          list.ListTasks = []
+          return list
         } else {
-          return list;
+          return list
         }
-      });
+      })
+    }
+    var noneList = state.noneList
+    if (action.noneList != null) {
+      noneList = action.noneList
     }
     return Object.assign({}, state, {
       lists: lists,
+      noneList: noneList,
       isLoading: false
     });
   case listActions.RECEIVE_PROJECT:
@@ -198,125 +203,183 @@ export default function ListReducer(state = initState, action) {
       if (list.Id == action.taskDragFromList.dataset.id) {
         list.ListTasks.map(function(task, j) {
           if (task.Id == action.taskDragTarget.dataset.id) {
-            taskDraggingFrom = {fromList: list, fromTask: task};
+            taskDraggingFrom = {fromList: list, fromTask: task}
           }
-        });
+        })
       }
-    });
+    })
+
+    state.noneList.ListTasks.map(function(task, j) {
+      if (task.Id == action.taskDragTarget.dataset.id) {
+        taskDraggingFrom = {fromList: state.noneList, fromTask: task}
+      }
+    })
 
     return Object.assign({}, state, {
-      lists: lists,
       taskDraggingFrom: taskDraggingFrom
     });
   case listActions.TASK_DRAG_LEAVE:
     // arrowを抜いて
     var lists = state.lists.map(function(list, i) {
-      var taskIndex = null;
+      var taskIndex = null
       list.ListTasks.map(function(task, j) {
         if (task.draggedOn) {
-          taskIndex = j;
+          taskIndex = j
         }
-      });
+      })
       if (taskIndex != null) {
-        list.ListTasks.splice(taskIndex, 1);
+        list.ListTasks.splice(taskIndex, 1)
       }
-      return list;
-    });
+      return list
+    })
+    var noneList = state.noneList
+    var taskIndex = null
+    state.noneList.ListTasks.map(function(task, j) {
+      if (task.draggedOn) {
+        taskIndex = j
+      }
+    })
+    if (taskIndex != null) {
+      noneList.ListTasks.splice(taskIndex, 1)
+    }
     return Object.assign({}, state, {
       isTaskDraggingOver: false,
       lists: lists,
+      noneList: noneList,
       taskDraggingTo: null
     });
   case listActions.TASK_DROP:
     var lists = state.lists.map(function(list, i) {
       // arrowを抜く
-      var taskIndex = null;
+      var taskIndex = null
       list.ListTasks.map(function(task, j) {
         if (task.draggedOn) {
-          taskIndex = j;
+          taskIndex = j
         }
-        if (taskIndex != null) {
-          list.ListTasks.splice(taskIndex, 1);
-        }
-      });
-      return list;
-    });
+      })
+      if (taskIndex != null) {
+        list.ListTasks.splice(taskIndex, 1)
+      }
+      return list
+    })
+    var noneList = state.noneList
+    var taskIndex = null
+    state.noneList.ListTasks.map(function(task, j) {
+      if (task.draggedOn) {
+        taskIndex = j
+      }
+    })
+    if (taskIndex != null) {
+      noneList.ListTasks.splice(taskIndex, 1)
+    }
     return Object.assign({}, state, {
       isTaskDraggingOver: false,
       lists: lists,
+      noneList: noneList,
       taskDraggingFrom: null,
       taskDraggingTo: null
     });
   case listActions.REQUEST_MOVE_TASK:
     var lists = state.lists.map(function(list, i) {
       // arrowを抜く
-      var taskIndex = null;
+      var taskIndex = null
       list.ListTasks.map(function(task, j) {
         if (task.draggedOn) {
-          taskIndex = j;
+          taskIndex = j
         }
-        if (taskIndex != null) {
-          list.ListTasks.splice(taskIndex, 1);
-        }
-      });
+      })
+      if (taskIndex != null) {
+        list.ListTasks.splice(taskIndex, 1)
+      }
       // loadingを表示する
       if (list.Id == state.taskDraggingFrom.fromList.Id || list.Id == state.taskDraggingTo.toList.Id) {
         list.isLoading = true
       }
-      return list;
-    });
+      return list
+    })
+    var noneList = state.noneList
+    var taskIndex = null
+    state.noneList.ListTasks.map(function(task, j) {
+      if (task.draggedOn) {
+        taskIndex = j
+      }
+    })
+    if (taskIndex != null) {
+      noneList.ListTasks.splice(taskIndex, 1)
+    }
     return Object.assign({}, state, {
       isTaskDraggingOver: false,
       lists: lists,
+      noneList: noneList,
       taskDraggingFrom: null,
       taskDraggingTo: null
     });
   case listActions.TASK_DRAG_OVER:
     // arrowの操作のみ
-    var toList = null;
-    var lists = state.lists;
-    var taskDraggingTo = state.taskDraggingTo;
+    var toList = null
+    var lists = state.lists
+    var noneList = state.noneList
+    var taskDraggingTo = state.taskDraggingTo
     if (!state.isTaskDraggingOver) {
       state.lists.map(function(list, i) {
         if (list.Id == action.taskDragToList.dataset.id) {
           toList = list;
         }
       });
+      if (state.noneList.Id == action.taskDragToList.dataset.id) {
+        toList = state.noneList
+      }
       if (toList == null) {
         // こんな場合はありえないが
       } else if(action.taskDragToTask.className == "task") {
         // taskの直前に入れる
         lists = state.lists.map(function(list, i) {
           if (list.Id == toList.Id) {
-            var taskIndex;
+            var taskIndex
             list.ListTasks.map(function(task, j) {
               if (task.Id == action.taskDragToTask.dataset.id) {
-                taskIndex = j;
-                taskDraggingTo = {toList: list, prevToTask: task};
+                taskIndex = j
+                taskDraggingTo = {toList: list, prevToTask: task}
               }
-            });
-            list.ListTasks.splice(taskIndex, 0, {draggedOn: true});
-            return list;
+            })
+            list.ListTasks.splice(taskIndex, 0, {draggedOn: true})
+            return list
           } else {
-            return list;
+            return list
           }
-        });
+        })
+        var taskIndex
+        if (noneList.Id == toList.Id) {
+          state.noneList.ListTasks.map(function(task, j) {
+            if (task.Id == action.taskDragToTask.dataset.id) {
+              taskIndex = j
+              taskDraggingTo = {toList: noneList, prevToTask: task}
+            }
+            return task
+          })
+          noneList.ListTasks.splice(taskIndex, 0, {draggedOn: true})
+        }
       } else {
         // taskの末尾に入れる
         lists = state.lists.map(function(list, i) {
           if (list.Id == toList.Id) {
-            list.ListTasks.push({draggedOn: true});
-            taskDraggingTo = {toList: list, prevToTask: null};
-            return list;
+            list.ListTasks.push({draggedOn: true})
+            taskDraggingTo = {toList: list, prevToTask: null}
+            return list
           } else {
-            return list;
+            return list
           }
-        });
+        })
+        if (noneList.Id == toList.Id) {
+          noneList.ListTasks.push({draggedOn: true})
+          taskDraggingTo = {toList: noneList, prevToTask: null}
+        }
       }
     }
     return Object.assign({}, state, {
       isTaskDraggingOver: true,
       lists: lists,
+      noneList: noneList,
       taskDraggingTo: taskDraggingTo
     });
   case listActions.RECEIVE_LIST_OPTIONS:
@@ -359,10 +422,6 @@ export default function ListReducer(state = initState, action) {
     return Object.assign({}, state, {
       project: action.project,
       isProjectEditModalOpen: false
-    })
-  case listActions.RECEIVE_NONE_LIST:
-    return Object.assign({}, state, {
-      noneList: action.list
     })
   default:
     return state

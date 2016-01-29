@@ -36,6 +36,11 @@ type ListJsonFormat struct {
 	ListOptionId int64
 }
 
+type AllListJsonFormat struct {
+	Lists    []*ListJsonFormat
+	NoneList *ListJsonFormat
+}
+
 func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)
@@ -57,29 +62,10 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	for _, l := range lists {
 		jsonLists = append(jsonLists, &ListJsonFormat{Id: l.Id, ProjectId: l.ProjectId, UserId: l.UserId, Title: l.Title.String, ListTasks: TaskFormatToJson(l.Tasks()), Color: l.Color.String, ListOptionId: l.ListOptionId.Int64})
 	}
-	encoder.Encode(jsonLists)
-	return
-}
-
-func (u *Lists) NoneList(c web.C, w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	current_user, err := LoginRequired(r)
-	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Index").Errorf("login error: %v", err)
-		http.Error(w, "not logined", 401)
-		return
-	}
-	encoder := json.NewEncoder(w)
-	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
-	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil || parentProject.UserId != current_user.Id {
-		logging.SharedInstance().MethodInfo("ListsController", "Index").Error("project not found")
-		http.Error(w, "project not found", 404)
-		return
-	}
-	list := parentProject.NoneList()
-	jsonList := ListJsonFormat{Id: list.Id, ProjectId: list.ProjectId, UserId: list.UserId, Title: list.Title.String, ListTasks: TaskFormatToJson(list.Tasks()), Color: list.Color.String, ListOptionId: list.ListOptionId.Int64}
-	encoder.Encode(jsonList)
+	noneList := parentProject.NoneList()
+	jsonNoneList := &ListJsonFormat{Id: noneList.Id, ProjectId: noneList.ProjectId, UserId: noneList.UserId, Title: noneList.Title.String, ListTasks: TaskFormatToJson(noneList.Tasks()), Color: noneList.Color.String, ListOptionId: noneList.ListOptionId.Int64}
+	jsonAllLists := AllListJsonFormat{Lists: jsonLists, NoneList: jsonNoneList}
+	encoder.Encode(jsonAllLists)
 	return
 }
 

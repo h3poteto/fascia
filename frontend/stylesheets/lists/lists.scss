@@ -112,6 +112,14 @@
       li.new-task {
         display: block;
       }
+      li.arrow {
+        background: rgb(100, 100, 100);
+        box-sizing: border-box;
+        padding: 4px;
+        margin-bottom: 8px;
+        content: "";
+        height: 28px;
+      }
     }
   }
 
