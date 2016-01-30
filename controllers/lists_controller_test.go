@@ -131,7 +131,7 @@ var _ = Describe("ListsController", func() {
 		It("should receive lists", func() {
 			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(projectId, 10) + "/lists")
 			Expect(err).To(BeNil())
-			var contents controllers.AllListJsonFormat
+			var contents controllers.AllListJSONFormat
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
