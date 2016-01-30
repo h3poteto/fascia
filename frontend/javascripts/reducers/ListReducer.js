@@ -5,7 +5,7 @@ const initState = {
   isTaskModalOpen: false,
   isListEditModalOpen: false,
   isProjectEditModalOpen: false,
-  newList: {title: "", color: "0effff"},
+  newList: {title: "", color: "008ed4"},
   newTask: {title: "", description: ""},
   lists: [],
   listOptions: [],
@@ -146,7 +146,7 @@ export default function ListReducer(state = initState, action) {
     }
     var lists = state.lists.concat([createdList]);
     return Object.assign({}, state, {
-      newList: {title: "", color: "0effff"},
+      newList: {title: "", color: "008ed4"},
       lists: lists,
       isListModalOpen: false,
       isLoading: false
