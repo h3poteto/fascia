@@ -62,7 +62,7 @@ func FindProject(projectID int64) *ProjectStruct {
 	}
 }
 
-func Create(userId int64, title string, description string, repositoryID int64, repositoryOwner string, repositoryName string, oauthToken sql.NullString) (p *ProjectStruct, e error) {
+func Create(userID int64, title string, description string, repositoryID int64, repositoryOwner string, repositoryName string, oauthToken sql.NullString) (p *ProjectStruct, e error) {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
 	table := interfaceDB.Init()
@@ -77,7 +77,7 @@ func Create(userId int64, title string, description string, repositoryID int64, 
 		}
 	}()
 
-	var repoId sql.NullInt64
+	var repoID sql.NullInt64
 	var repo *repository.RepositoryStruct
 	if repositoryID != 0 {
 		repo = repository.NewRepository(0, repositoryID, repositoryOwner, repositoryName)
@@ -86,10 +86,10 @@ func Create(userId int64, title string, description string, repositoryID int64, 
 			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save repository")
 			return nil, errors.New("repository save error")
 		}
-		repoId = sql.NullInt64{Int64: repo.Id, Valid: true}
+		repoID = sql.NullInt64{Int64: repo.Id, Valid: true}
 	}
 
-	project := NewProject(0, userId, title, description, repoId)
+	project := NewProject(0, userID, title, description, repoID)
 	if !project.Save() {
 		tx.Rollback()
 		logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save project")
@@ -98,10 +98,10 @@ func Create(userId int64, title string, description string, repositoryID int64, 
 
 	// 初期リストの準備
 	closeListOption := list_option.FindByAction("close")
-	todo := list.NewList(0, project.Id, userId, config.Element("init_list").(map[interface{}]interface{})["todo"].(string), "ff0000", sql.NullInt64{})
-	inprogress := list.NewList(0, project.Id, userId, config.Element("init_list").(map[interface{}]interface{})["inprogress"].(string), "0000ff", sql.NullInt64{})
-	done := list.NewList(0, project.Id, userId, config.Element("init_list").(map[interface{}]interface{})["done"].(string), "0a0a0a", sql.NullInt64{Int64: closeListOption.Id, Valid: true})
-	none := list.NewList(0, project.Id, userId, config.Element("init_list").(map[interface{}]interface{})["none"].(string), "ffffff", sql.NullInt64{})
+	todo := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["todo"].(string), "ff0000", sql.NullInt64{})
+	inprogress := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["inprogress"].(string), "0000ff", sql.NullInt64{})
+	done := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["done"].(string), "0a0a0a", sql.NullInt64{Int64: closeListOption.Id, Valid: true})
+	none := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["none"].(string), "ffffff", sql.NullInt64{})
 	if !none.Save(nil, nil) {
 		tx.Rollback()
 		logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save none list")
@@ -203,19 +203,18 @@ func (u *ProjectStruct) NoneList() *list.ListStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	var id, projectId, userId int64
+	var id, projectID, userID int64
 	var title, color sql.NullString
-	var optionId sql.NullInt64
-	err := table.QueryRow("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ? and title = ?;", u.Id, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectId, &userId, &title, &color, &optionId)
+	var optionID sql.NullInt64
+	err := table.QueryRow("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ? and title = ?;", u.Id, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID)
 	if err != nil {
 		// noneが存在しないということはProjectsController#Createがうまく行ってないので，そっちでエラーハンドリングしてほしい
 		panic(err)
 	}
-	if projectId == u.Id && title.Valid {
-		return list.NewList(id, projectId, userId, title.String, color.String, optionId)
-	} else {
-		return nil
+	if projectID == u.Id && title.Valid {
+		return list.NewList(id, projectID, userID, title.String, color.String, optionID)
 	}
+	return nil
 }
 
 func (u *ProjectStruct) Repository() *repository.RepositoryStruct {
