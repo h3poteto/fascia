@@ -185,7 +185,7 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 		return
 	} else {
 		lists := project.Lists()
-		jsonLists := make([]*ListJSONFormat, 0)
+		var jsonLists []*ListJSONFormat
 		for _, l := range lists {
 			jsonLists = append(jsonLists, &ListJSONFormat{Id: l.Id, ProjectId: l.ProjectId, UserId: l.UserId, Title: l.Title.String, ListTasks: TaskFormatToJson(l.Tasks()), Color: l.Color.String, ListOptionId: l.ListOptionId.Int64})
 		}

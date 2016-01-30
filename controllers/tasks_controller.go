@@ -172,7 +172,7 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	allLists := parentProject.Lists()
-	jsonLists := make([]*ListJSONFormat, 0)
+	var jsonLists []*ListJSONFormat
 	for _, l := range allLists {
 		jsonLists = append(jsonLists, &ListJSONFormat{Id: l.Id, ProjectId: l.ProjectId, UserId: l.UserId, Title: l.Title.String, ListTasks: TaskFormatToJson(l.Tasks()), Color: l.Color.String, ListOptionId: l.ListOptionId.Int64})
 	}
