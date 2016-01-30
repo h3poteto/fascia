@@ -13,7 +13,7 @@ function sharedExampleInitState(action) {
     isListEditModalOpen: false,
     isProjectEditModalOpen: false,
     isLoading: false,
-    newList: {title: "", color: "0effff"},
+    newList: {title: "", color: "008ed4"},
     newTask: {title: "", description: ""},
     lists: [],
     noneList: {Id: 0, ListTasks: []},
@@ -392,7 +392,7 @@ describe('ListReducer', () => {
             }
           ],
           isListModalOpen: false,
-          newList: { title: "", color: "0effff" },
+          newList: { title: "", color: "008ed4" },
           isLoading: false
         })
       })
@@ -437,7 +437,7 @@ describe('ListReducer', () => {
             }
           ],
           isListModalOpen: false,
-          newList: { title: "", color: "0effff" },
+          newList: { title: "", color: "008ed4" },
           isLoading: false
         })
       })
