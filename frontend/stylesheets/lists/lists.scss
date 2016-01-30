@@ -87,6 +87,42 @@
     box-sizing: border-box;
     background-color: rgba(0, 120, 213, 0.5);
   }
+
+  .none-list-tasks {
+    box-sizing: border-box;
+    margin: 10px 20px;
+    padding: 5px 15px 15px;
+    position: relative;
+
+    ul.fascia-none-list-tasks {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 0;
+      width: 220px;
+      li {
+        cursor: pointer;
+        border-radius: 8px;
+      }
+      li.task {;
+        text-align: center;
+        box-sizing: border-box;
+        padding: 4px;
+        margin-bottom: 8px;
+      }
+      li.new-task {
+        display: block;
+      }
+      li.arrow {
+        background: rgb(100, 100, 100);
+        box-sizing: border-box;
+        padding: 4px;
+        margin-bottom: 8px;
+        content: "";
+        height: 28px;
+      }
+    }
+  }
+
   .list-loading {
     z-index: 100;
     position: absolute;

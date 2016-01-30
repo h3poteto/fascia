@@ -6,6 +6,7 @@ import (
 	"../../modules/logging"
 	"../db"
 	"../list"
+	"../list_option"
 	"../repository"
 	"../task"
 	"database/sql"
@@ -61,6 +62,89 @@ func FindProject(projectID int64) *ProjectStruct {
 	}
 }
 
+func Create(userID int64, title string, description string, repositoryID int64, repositoryOwner string, repositoryName string, oauthToken sql.NullString) (p *ProjectStruct, e error) {
+	objectDB := &db.Database{}
+	var interfaceDB db.DB = objectDB
+	table := interfaceDB.Init()
+	defer table.Close()
+	tx, _ := table.Begin()
+	defer func() {
+		if err := recover(); err != nil {
+			logging.SharedInstance().MethodInfo("Project", "Create").Error("unexpected error")
+			tx.Rollback()
+			e = errors.New("unexpected error")
+			p = nil
+		}
+	}()
+
+	var repoID sql.NullInt64
+	var repo *repository.RepositoryStruct
+	if repositoryID != 0 {
+		repo = repository.NewRepository(0, repositoryID, repositoryOwner, repositoryName)
+		if !repo.Save() {
+			tx.Rollback()
+			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save repository")
+			return nil, errors.New("repository save error")
+		}
+		repoID = sql.NullInt64{Int64: repo.Id, Valid: true}
+	}
+
+	project := NewProject(0, userID, title, description, repoID)
+	if !project.Save() {
+		tx.Rollback()
+		logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save project")
+		return nil, errors.New("failed to save project")
+	}
+
+	// 初期リストの準備
+	closeListOption := list_option.FindByAction("close")
+	todo := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["todo"].(string), "ff0000", sql.NullInt64{})
+	inprogress := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["inprogress"].(string), "0000ff", sql.NullInt64{})
+	done := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["done"].(string), "0a0a0a", sql.NullInt64{Int64: closeListOption.Id, Valid: true})
+	none := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["none"].(string), "ffffff", sql.NullInt64{})
+	if !none.Save(nil, nil) {
+		tx.Rollback()
+		logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save none list")
+		return nil, errors.New("failed to save none list")
+	}
+
+	if project.RepositoryId.Valid {
+		if !todo.Save(repo, &oauthToken) {
+			tx.Rollback()
+			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save todo list")
+			return nil, errors.New("failed to save todo list")
+		}
+		if !inprogress.Save(repo, &oauthToken) {
+			tx.Rollback()
+			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save inprogress list")
+			return nil, errors.New("failed to save inprogress list")
+		}
+		if !done.Save(repo, &oauthToken) {
+			tx.Rollback()
+			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save done list")
+			return nil, errors.New("failed to save done list")
+		}
+	} else {
+		if !todo.Save(nil, nil) {
+			tx.Rollback()
+			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save todo list")
+			return nil, errors.New("failed to save todo list")
+		}
+		if !inprogress.Save(nil, nil) {
+			tx.Rollback()
+			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save inprogress list")
+			return nil, errors.New("failed to save inprogress list")
+		}
+		if !done.Save(nil, nil) {
+			tx.Rollback()
+			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save done list")
+			return nil, errors.New("failed to save done list")
+		}
+	}
+	tx.Commit()
+	return project, nil
+}
+
 func (u *ProjectStruct) Initialize() {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
@@ -97,7 +181,7 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	rows, _ := table.Query("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ?;", u.Id)
+	rows, _ := table.Query("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ? and title != ?;", u.Id, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
 	var slice []*list.ListStruct
 	for rows.Next() {
 		var id, projectID, userID int64
@@ -105,7 +189,7 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 		var optionID sql.NullInt64
 		err := rows.Scan(&id, &projectID, &userID, &title, &color, &optionID)
 		if err != nil {
-			panic(err.Error())
+			panic(err)
 		}
 		if projectID == u.Id && title.Valid {
 			l := list.NewList(id, projectID, userID, title.String, color.String, optionID)
@@ -113,6 +197,24 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 		}
 	}
 	return slice
+}
+
+func (u *ProjectStruct) NoneList() *list.ListStruct {
+	table := u.database.Init()
+	defer table.Close()
+
+	var id, projectID, userID int64
+	var title, color sql.NullString
+	var optionID sql.NullInt64
+	err := table.QueryRow("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ? and title = ?;", u.Id, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID)
+	if err != nil {
+		// noneが存在しないということはProjectsController#Createがうまく行ってないので，そっちでエラーハンドリングしてほしい
+		panic(err)
+	}
+	if projectID == u.Id && title.Valid {
+		return list.NewList(id, projectID, userID, title.String, color.String, optionID)
+	}
+	return nil
 }
 
 func (u *ProjectStruct) Repository() *repository.RepositoryStruct {
@@ -160,15 +262,14 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	var openList, closedList *list.ListStruct
+	var closedList *list.ListStruct
 	for _, list := range u.Lists() {
-		// openとcloseのリストは用意しておく
-		if list.Title.Valid && list.Title.String == config.Element("init_list").(map[interface{}]interface{})["todo"].(string) {
-			openList = list
-		} else if list.Title.Valid && list.Title.String == config.Element("init_list").(map[interface{}]interface{})["done"].(string) {
+		// closeのリストは用意しておく
+		if list.Title.Valid && list.Title.String == config.Element("init_list").(map[interface{}]interface{})["done"].(string) {
 			closedList = list
 		}
 	}
+	noneList := u.NoneList()
 
 	for _, issue := range append(openIssues, closedIssues...) {
 		var githubLabels []list.ListStruct
@@ -192,13 +293,13 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 			issueTask.ListId = githubLabels[0].Id
 		} else {
 			// ついているlabelのlistを持ってない時
-			if *issue.State == "open" && openList != nil {
-				issueTask.ListId = openList.Id
+			if *issue.State == "open" && noneList != nil {
+				issueTask.ListId = noneList.Id
 			} else if closedList != nil {
 				issueTask.ListId = closedList.Id
 			} else {
-				// openやcloseが用意できていない場合なので，想定外
-				return false, errors.New("cannot find ToDo or Done list")
+				// noneやcloseが用意できていない場合なので，想定外
+				return false, errors.New("cannot find None or Done list")
 			}
 		}
 		// ここはgithub側への同期不要

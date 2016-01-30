@@ -139,8 +139,9 @@ export const RECEIVE_LISTS = 'RECEIVE_LISTS';
 function receiveLists(lists) {
   return {
     type: RECEIVE_LISTS,
-    lists: lists
-  };
+    lists: lists.Lists,
+    noneList: lists.NoneList
+  }
 }
 
 export function fetchLists(projectId) {
@@ -209,7 +210,7 @@ function receiveCreateList(list) {
   return {
     type: RECEIVE_CREATE_LIST,
     list: {Id: list.Id, ProjectId: list.ProjectId, Title: list.Title, Color: list.Color, ListTasks: list.ListTasks}
-  };
+  }
 }
 
 export function fetchCreateList(projectId, title, color) {
@@ -244,7 +245,7 @@ export const RECEIVE_CREATE_TASK = 'RECEIVE_CREATE_TASK';
 function receiveCreateTask(task) {
   return {
     type: RECEIVE_CREATE_TASK,
-    task: {Id: task.Id, ListId: task.ListId, Title: task.Title, Description: task.Description }
+    task: task
   };
 }
 
@@ -339,8 +340,9 @@ export const RECEIVE_MOVE_TASK = 'RECEIVE_MOVE_TASK';
 function receiveMoveTask(lists) {
   return {
     type: RECEIVE_MOVE_TASK,
-    lists: lists
-  };
+    lists: lists.Lists,
+    noneList: lists.NoneList
+  }
 }
 
 export const TASK_DROP = 'TASK_DROP';
@@ -417,8 +419,9 @@ export const RECEIVE_FETCH_GITHUB = "RECEIVE_FETCH_GITHUB";
 function receiveFetchGithub(lists) {
   return {
     type: RECEIVE_FETCH_GITHUB,
-    lists: lists
-  };
+    lists: lists.Lists,
+    noneList: lists.NoneList
+  }
 }
 
 export const FETCH_PROJECT_GITHUB = "FETCH_PROJECT_GITHUB";

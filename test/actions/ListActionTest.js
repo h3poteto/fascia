@@ -129,13 +129,13 @@ describe('fetchLists', () => {
     beforeEach(() => {
       nock('http://localhost')
         .get(`/projects/${projectId}/lists`)
-        .reply(200, { lists: ['list1', 'list2'] })
+        .reply(200, { Lists: ['list1', 'list2'], NoneList: "noneList" })
     })
 
     it('call RECEIVE_LISTS and get lists', (done) => {
       const expectedActions = [
         { type: listActions.REQUEST_LISTS },
-        { type: listActions.RECEIVE_LISTS, lists: { lists: ['list1', 'list2'] } }
+        { type: listActions.RECEIVE_LISTS, lists: ['list1', 'list2'], noneList: "noneList" }
       ]
       const store = mockStore({ lists: [] }, expectedActions, done)
       store.dispatch(listActions.fetchLists(projectId))
@@ -281,13 +281,14 @@ describe('fetchPorjectGithub', () => {
       nock('http://localhost')
         .post(`/projects/${projectId}/fetch_github`)
         .reply(200, {
-          lists: ["list1", "list2"]
+          Lists: ["list1", "list2"],
+          NoneList: "noneList"
         })
     })
     it('call RECEIVE_FETCH_GITHUB and get lists', (done) => {
       const expectedActions = [
         { type: listActions.REQUEST_FETCH_GITHUB },
-        { type: listActions.RECEIVE_FETCH_GITHUB, lists: { lists: ["list1", "list2"] } }
+        { type: listActions.RECEIVE_FETCH_GITHUB, lists: ["list1", "list2"], noneList: "noneList" }
       ]
       const store = mockStore({ lists: [] }, expectedActions, done)
       store.dispatch(listActions.fetchProjectGithub(projectId))
@@ -380,14 +381,15 @@ describe('taskDrop', () => {
       nock('http://localhost')
         .post(`/projects/${projectId}/lists/${taskDraggingFrom.fromList.Id}/tasks/${taskDraggingFrom.fromTask.Id}/move_task`)
         .reply(200, {
-          lists: ["list1", "list2"]
+          Lists: ["list1", "list2"],
+          NoneList: "noneList"
         })
     })
 
     it('call RECEIVE_MOVE_TASK and get lists', (done) => {
       const expectedActions = [
         { type: listActions.REQUEST_MOVE_TASK },
-        { type: listActions.RECEIVE_MOVE_TASK, lists: { lists: ["list1", "list2"] } }
+        { type: listActions.RECEIVE_MOVE_TASK, lists: ["list1", "list2"], noneList: "noneList" }
       ]
       const store = mockStore({ lists: [] }, expectedActions, done)
       store.dispatch(listActions.taskDrop(projectId, taskDraggingFrom, taskDraggingTo))
@@ -415,14 +417,15 @@ describe('taskDrop', () => {
       nock('http://localhost')
         .post(`/projects/${projectId}/lists/${taskDraggingFrom.fromList.Id}/tasks/${taskDraggingFrom.fromTask.Id}/move_task`)
         .reply(200, {
-          lists: ["list1", "list2"]
+          Lists: ["list1", "list2"],
+          NoneList: "noneList"
         })
     })
 
     it('call RECEIVE_MOVE_TASK and get lists', (done) => {
       const expectedActions = [
         { type: listActions.REQUEST_MOVE_TASK },
-        { type: listActions.RECEIVE_MOVE_TASK, lists: { lists: ["list1", "list2"] } }
+        { type: listActions.RECEIVE_MOVE_TASK, lists: ["list1", "list2"], noneList: "noneList" }
       ]
       const store = mockStore({ lists: [] }, expectedActions, done)
       store.dispatch(listActions.taskDrop(projectId, taskDraggingFrom, taskDraggingTo))
