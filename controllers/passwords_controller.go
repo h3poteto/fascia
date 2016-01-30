@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"../mailers/password_mailer"
+	"../mailers/password-mailer"
 	"../models/reset_password"
 	"../models/user"
 	"../modules/logging"
@@ -84,7 +84,7 @@ func (u *Passwords) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// ここでemail送信
-	go password_mailer.Reset(targetUser.Email, reset.Token)
+	go passwordmailer.Reset(targetUser.Email, reset.Token)
 	http.Redirect(w, r, "/sign_in", 302)
 	return
 }
@@ -147,7 +147,7 @@ func (u *Passwords) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go password_mailer.Changed(targetUser.Email)
+	go passwordmailer.Changed(targetUser.Email)
 	http.Redirect(w, r, "/sign_in", 302)
 	return
 }
