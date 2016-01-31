@@ -71,7 +71,7 @@ var _ = Describe("RegistrationsController", func() {
 				for rows.Next() {
 					err := rows.Scan(&id)
 					if err != nil {
-						panic(err.Error())
+						panic(err)
 					}
 				}
 				Expect(id).NotTo(Equal(0))

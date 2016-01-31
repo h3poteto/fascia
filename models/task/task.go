@@ -32,6 +32,7 @@ func NewTask(id int64, listID int64, userID int64, issueNumber sql.NullInt64, ti
 }
 
 // TODO: ここerrorを返すようにしなくていいのか要検証
+// いやエラー返せよ
 func FindTask(listID int64, taskID int64) *TaskStruct {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
@@ -43,7 +44,7 @@ func FindTask(listID int64, taskID int64) *TaskStruct {
 	var issueNumber sql.NullInt64
 	err := table.QueryRow("select id, list_id, user_id, issue_number, title, description from tasks where id = ? AND list_id = ?;", taskID, listID).Scan(&id, &listId, &userId, &issueNumber, &title, &description)
 	if err != nil {
-		panic(err.Error())
+		logging.SharedInstance().MethodInfo("Task", "FindTask").Panic(err)
 	}
 	if id != taskID {
 		logging.SharedInstance().MethodInfo("task", "FindTask").Errorf("cannot find task or list did not contain task: %v", taskID)
@@ -175,7 +176,6 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 	defer table.Close()
 	transaction, _ := table.Begin()
 	defer func() {
-		// panicがおきたらロールバック
 		if err := recover(); err != nil {
 			logging.SharedInstance().MethodInfo("task", "ChangeList").Error("unexpected error")
 			transaction.Rollback()
@@ -281,7 +281,7 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 
 	err = transaction.Commit()
 	if err != nil {
-		panic(err.Error())
+		logging.SharedInstance().MethodInfo("Task", "ChangeList").Panic(err)
 	}
 	u.ListId = listId
 	return true

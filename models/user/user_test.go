@@ -46,7 +46,7 @@ var _ = Describe("User", func() {
 				for rows.Next() {
 					err := rows.Scan(&id, &dbemail)
 					if err != nil {
-						panic(err.Error())
+						panic(err)
 					}
 				}
 				Expect(dbemail).NotTo(Equal(""))
@@ -146,7 +146,7 @@ var _ = Describe("User", func() {
 			for rows.Next() {
 				err := rows.Scan(&userid, &dbemail)
 				if err != nil {
-					panic(err.Error())
+					panic(err)
 				}
 			}
 			newProject = project.NewProject(0, userid, "project title", "project desc", sql.NullInt64{})
@@ -179,14 +179,14 @@ var _ = Describe("User", func() {
 			table := database.Init()
 			rows, err := table.Query("select id, oauth_token from users where oauth_token = ?;", token)
 			if err != nil {
-				panic(err.Error())
+				panic(err)
 			}
 			var id int64
 			var oauthToken sql.NullString
 			for rows.Next() {
 				err := rows.Scan(&id, &oauthToken)
 				if err != nil {
-					panic(err.Error())
+					panic(err)
 				}
 			}
 			Expect(result).To(BeTrue())
@@ -217,7 +217,7 @@ var _ = Describe("User", func() {
 			table := database.Init()
 			rows, err := table.Query("select id, uuid, oauth_token from users where email = ?;", email)
 			if err != nil {
-				panic(err.Error())
+				panic(err)
 			}
 			var id int64
 			var oauthToken sql.NullString
@@ -225,7 +225,7 @@ var _ = Describe("User", func() {
 			for rows.Next() {
 				err := rows.Scan(&id, &uuid, &oauthToken)
 				if err != nil {
-					panic(err.Error())
+					panic(err)
 				}
 			}
 			Expect(result).To(BeTrue())

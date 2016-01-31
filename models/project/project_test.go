@@ -74,7 +74,7 @@ var _ = Describe("Project", func() {
 			for rows.Next() {
 				err := rows.Scan(&id, &user_id, &title, &description)
 				if err != nil {
-					panic(err.Error())
+					panic(err)
 				}
 			}
 			Expect(user_id.Valid).To(BeTrue())

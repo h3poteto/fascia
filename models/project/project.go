@@ -51,7 +51,7 @@ func FindProject(projectID int64) *ProjectStruct {
 	for rows.Next() {
 		err := rows.Scan(&id, &userID, &repositoryID, &title, &description)
 		if err != nil {
-			panic(err.Error())
+			logging.SharedInstance().MethodInfo("Project", "FindProject").Panic(err)
 		}
 	}
 	if id != 0 {
@@ -189,7 +189,7 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 		var optionID sql.NullInt64
 		err := rows.Scan(&id, &projectID, &userID, &title, &color, &optionID)
 		if err != nil {
-			panic(err)
+			logging.SharedInstance().MethodInfo("Project", "Lists").Panic(err)
 		}
 		if projectID == u.Id && title.Valid {
 			l := list.NewList(id, projectID, userID, title.String, color.String, optionID)
@@ -209,7 +209,7 @@ func (u *ProjectStruct) NoneList() *list.ListStruct {
 	err := table.QueryRow("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ? and title = ?;", u.Id, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID)
 	if err != nil {
 		// noneが存在しないということはProjectsController#Createがうまく行ってないので，そっちでエラーハンドリングしてほしい
-		panic(err)
+		logging.SharedInstance().MethodInfo("Project", "NoneList").Panic(err)
 	}
 	if projectID == u.Id && title.Valid {
 		return list.NewList(id, projectID, userID, title.String, color.String, optionID)
@@ -321,7 +321,7 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		var listTitle, listColor sql.NullString
 		err := rows.Scan(&title, &description, &listTitle, &listColor)
 		if err != nil {
-			panic(err.Error())
+			logging.SharedInstance().MethodInfo("Project", "FetchGithub").Panic(err)
 		}
 		label, err := hub.CheckLabelPresent(oauthToken.String, repo, &listTitle.String)
 		if err != nil {
