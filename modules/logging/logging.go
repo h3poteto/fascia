@@ -18,17 +18,16 @@ func New() *LogStruct {
 	log.Out = os.Stdout
 	if goenv == "production" {
 		log.Level = logrus.InfoLevel
+		log.Hooks.Add(&slackrus.SlackrusHook{
+			HookURL:        os.Getenv("SLACK_URL"),
+			AcceptedLevels: slackrus.LevelThreshold(logrus.ErrorLevel),
+			Channel:        "#fascia",
+			IconEmoji:      ":bapho:",
+			Username:       "logrus",
+		})
 	} else {
 		log.Level = logrus.DebugLevel
 	}
-	log.Hooks.Add(&slackrus.SlackrusHook{
-		HookURL:        os.Getenv("SLACK_URL"),
-		AcceptedLevels: slackrus.LevelThreshold(logrus.ErrorLevel),
-		Channel:        "#fascia",
-		IconEmoji:      ":bapho:",
-		Username:       "logrus",
-	})
-
 	return &LogStruct{log: log}
 }
 
