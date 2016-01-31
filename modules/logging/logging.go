@@ -2,6 +2,7 @@ package logging
 
 import (
 	"github.com/Sirupsen/logrus"
+	"github.com/johntdyer/slackrus"
 	"os"
 )
 
@@ -20,6 +21,14 @@ func New() *LogStruct {
 	} else {
 		log.Level = logrus.DebugLevel
 	}
+	log.Hooks.Add(&slackrus.SlackrusHook{
+		HookURL:        os.Getenv("SLACK_URL"),
+		AcceptedLevels: slackrus.LevelThreshold(logrus.PanicLevel),
+		Channel:        "#fascia",
+		IconEmoji:      ":bapho:",
+		Username:       "logrus",
+	})
+
 	return &LogStruct{log: log}
 }
 
