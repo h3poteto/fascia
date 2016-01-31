@@ -312,14 +312,14 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		if issueTask.Id == 0 {
 			if !issueTask.Save(nil, nil) {
 				logging.SharedInstance().MethodInfo("Project", "FetchGithub").Error("failed to save task")
-				return false, erros.New("failed to save task")
+				return false, errors.New("failed to save task")
 			}
 		} else {
 			issueTask.Title = *issue.Title
 			issueTask.Description = *issue.Body
 			if !issueTask.Update(nil, nil) {
 				logging.SharedInstance().MethodInfo("Project", "FetchGithub").Error("failed to update task")
-				return false, erros.New("failed to update task")
+				return false, errors.New("failed to update task")
 			}
 		}
 	}

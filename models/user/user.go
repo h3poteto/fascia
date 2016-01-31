@@ -124,7 +124,7 @@ func Login(userEmail string, userPassword string) (*UserStruct, error) {
 
 	user := NewUser(id, email, provider, oauthToken, uuid, userName, avatarURL)
 	bytePassword := []byte(userPassword)
-	err := bcrypt.CompareHashAndPassword([]byte(password), bytePassword)
+	err = bcrypt.CompareHashAndPassword([]byte(password), bytePassword)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("user", "Login").Debugf("cannot login: %v", userEmail)
 		return nil, errors.New("cannot login")

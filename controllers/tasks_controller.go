@@ -144,7 +144,12 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 
 	taskID, _ := strconv.ParseInt(c.URLParams["task_id"], 10, 64)
-	task := taskModel.FindTask(parentList.Id, taskID)
+	task, err := taskModel.FindTask(parentList.Id, taskID)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Errorf("find task error: %v", err)
+		http.Error(w, "task not find", 500)
+		return
+	}
 
 	err = r.ParseForm()
 	if err != nil {
