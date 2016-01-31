@@ -46,16 +46,7 @@ export default class ListView extends React.Component {
         <div className="whole-loading">
           <div className="whole-circle-wrapper">
             <div className="whole-circle-body">
-              <div id="circularG">
-                <div id="circularG_1" className="circularG"></div>
-                <div id="circularG_2" className="circularG"></div>
-                <div id="circularG_3" className="circularG"></div>
-                <div id="circularG_4" className="circularG"></div>
-                <div id="circularG_5" className="circularG"></div>
-                <div id="circularG_6" className="circularG"></div>
-                <div id="circularG_7" className="circularG"></div>
-                <div id="circularG_8" className="circularG"></div>
-              </div>
+              <div className="whole-spinner"></div>
             </div>
           </div>
         </div>
@@ -68,16 +59,7 @@ export default class ListView extends React.Component {
       <div className="list-loading">
         <div className="list-circle-wrapper">
           <div className="list-circle-body">
-            <div id="circularG">
-              <div id="circularG_1" className="circularG"></div>
-              <div id="circularG_2" className="circularG"></div>
-              <div id="circularG_3" className="circularG"></div>
-              <div id="circularG_4" className="circularG"></div>
-              <div id="circularG_5" className="circularG"></div>
-              <div id="circularG_6" className="circularG"></div>
-              <div id="circularG_7" className="circularG"></div>
-              <div id="circularG_8" className="circularG"></div>
-            </div>
+            <div className="list-spinner"></div>
           </div>
         </div>
       </div>
