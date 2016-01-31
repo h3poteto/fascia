@@ -122,22 +122,19 @@ func Login(userEmail string, userPassword string) (*UserStruct, error) {
 	var uuid sql.NullInt64
 	var email, password string
 	var provider, oauthToken, userName, avatarURL sql.NullString
-	rows, _ := table.Query("select id, email, password, provider, oauth_token, user_name, uuid, avatar_url from users where email = ?;", userEmail)
-	for rows.Next() {
-		err := rows.Scan(&id, &email, &password, &provider, &oauthToken, &userName, &uuid, &avatarURL)
-		if err != nil {
-			logging.SharedInstance().MethodInfo("User", "Login").Panic(err)
-		}
+	err := table.QueryRow("select id, email, password, provider, oauth_token, user_name, uuid, avatar_url from users where email = ?;", userEmail).Scan(&id, &email, &password, &provider, &oauthToken, &userName, &uuid, &avatarURL)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("User", "Login").Infof("cannot find user: %v", err)
+		return nil, err
 	}
 
 	user := NewUser(id, email, provider, oauthToken, uuid, userName, avatarURL)
 	bytePassword := []byte(userPassword)
 	err := bcrypt.CompareHashAndPassword([]byte(password), bytePassword)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("user", "Login").Errorf("cannot login: %v", userEmail)
+		logging.SharedInstance().MethodInfo("user", "Login").Debugf("cannot login: %v", userEmail)
 		return nil, errors.New("cannot login")
 	}
-	logging.SharedInstance().MethodInfo("user", "Login").Info("login success")
 	return user, nil
 }
 
@@ -261,7 +258,7 @@ func (u *UserStruct) Save() bool {
 
 	result, err := table.Exec("insert into users (email, password, provider, oauth_token, uuid, user_name, avatar_url, created_at) values (?, ?, ?, ?, ?, ?, ?, now());", u.Email, u.Password, u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("user", "Save").Errorf("user save error: %v", err)
+		logging.SharedInstance().MethodInfo("user", "Save").Panic(err)
 		return false
 	}
 	u.Id, _ = result.LastInsertId()
@@ -275,7 +272,7 @@ func (u *UserStruct) Update() bool {
 
 	_, err := table.Exec("update users set provider = ?, oauth_token = ?, uuid = ?, user_name = ?, avatar_url = ? where email = ?;", u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar, u.Email)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("user", "Update").Errorf("user update error: %v", err)
+		logging.SharedInstance().MethodInfo("User", "Update").Panic(err)
 		return false
 	}
 	return true
