@@ -47,19 +47,13 @@ func FindProject(projectID int64) *ProjectStruct {
 	var repositoryID sql.NullInt64
 	var title string
 	var description string
-	rows, _ := table.Query("select id, user_id, repository_id, title, description from projects where id = ?;", projectID)
-	for rows.Next() {
-		err := rows.Scan(&id, &userID, &repositoryID, &title, &description)
-		if err != nil {
-			logging.SharedInstance().MethodInfo("Project", "FindProject").Panic(err)
-		}
-	}
-	if id != 0 {
-		project := NewProject(id, userID, title, description, repositoryID)
-		return project
-	} else {
+	err := table.QueryRow("select id, user_id, repository_id, title, description from projects where id = ?;", projectID).Scan(&id, &userID, &repositoryID, &title, &description)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("Project", "FindProject").Errorf("cannot find project: %v", err)
 		return nil
 	}
+	project := NewProject(id, userID, title, description, repositoryID)
+	return project
 }
 
 func Create(userID int64, title string, description string, repositoryID int64, repositoryOwner string, repositoryName string, oauthToken sql.NullString) (p *ProjectStruct, e error) {
@@ -98,6 +92,11 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 
 	// 初期リストの準備
 	closeListOption := list_option.FindByAction("close")
+	if closeListOption == nil {
+		tx.Rollback()
+		logging.SharedInstance().MethodInfo("Project", "Create").Error("cannot find close list option")
+		return nil, errors.New("failed to find close list option")
+	}
 	todo := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["todo"].(string), "f37b1d", sql.NullInt64{})
 	inprogress := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["inprogress"].(string), "5eb95e", sql.NullInt64{})
 	done := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["done"].(string), "333333", sql.NullInt64{Int64: closeListOption.Id, Valid: true})
@@ -157,6 +156,7 @@ func (u *ProjectStruct) Save() bool {
 
 	result, err := table.Exec("insert into projects (user_id, repository_id, title, description, created_at) values (?, ?, ?, ?, now());", u.UserId, u.RepositoryId, u.Title, u.Description)
 	if err != nil {
+		logging.SharedInstance().MethodInfo("Project", "Save").Errorf("failed to save project: %v", err)
 		return false
 	}
 	u.Id, _ = result.LastInsertId()
@@ -171,6 +171,7 @@ func (u *ProjectStruct) Update(title string, description string) bool {
 	u.Description = description
 	_, err := table.Exec("update projects set title = ?, description = ? where id = ?;", u.Title, u.Description, u.Id)
 	if err != nil {
+		logging.SharedInstance().MethodInfo("Project", "Update").Errorf("failed to update project: %v", err)
 		return false
 	}
 
@@ -248,13 +249,13 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		return false, err
 	}
 	if !oauthToken.Valid {
-		logging.SharedInstance().MethodInfo("project", "FetchGithub").Error("oauth token is not nil")
+		logging.SharedInstance().MethodInfo("project", "FetchGithub").Info("oauth token is not valid")
 		return false, errors.New("oauth token is required")
 	}
 	repo := u.Repository()
 	// user自体はgithub連携していても，projectが連携していない可能性もあるのでチェック
 	if repo == nil {
-		logging.SharedInstance().MethodInfo("project", "FetchGithub").Error("repository related project is nil")
+		logging.SharedInstance().MethodInfo("project", "FetchGithub").Info("repository related project is nil")
 		return false, errors.New("project did not related to repository")
 	}
 
@@ -269,7 +270,15 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 			closedList = list
 		}
 	}
+	if closedList == nil {
+		logging.SharedInstance().MethodInfo("Project", "FetchGithub").Panic("cannot find close list")
+		return false, errors.New("cannot find close list")
+	}
 	noneList := u.NoneList()
+	if noneList == nil {
+		logging.SharedInstance().MethodInfo("Project", "FetchGithub").Panic("cannot find none list")
+		return false, errors.New("cannot find none list")
+	}
 
 	for _, issue := range append(openIssues, closedIssues...) {
 		var githubLabels []list.ListStruct
@@ -293,27 +302,31 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 			issueTask.ListId = githubLabels[0].Id
 		} else {
 			// ついているlabelのlistを持ってない時
-			if *issue.State == "open" && noneList != nil {
+			if *issue.State == "open" {
 				issueTask.ListId = noneList.Id
-			} else if closedList != nil {
-				issueTask.ListId = closedList.Id
 			} else {
-				// noneやcloseが用意できていない場合なので，想定外
-				return false, errors.New("cannot find None or Done list")
+				issueTask.ListId = closedList.Id
 			}
 		}
 		// ここはgithub側への同期不要
 		if issueTask.Id == 0 {
-			issueTask.Save(nil, nil)
+			if !issueTask.Save(nil, nil) {
+				logging.SharedInstance().MethodInfo("Project", "FetchGithub").Error("failed to save task")
+				return false, erros.New("failed to save task")
+			}
 		} else {
 			issueTask.Title = *issue.Title
 			issueTask.Description = *issue.Body
-			issueTask.Update(nil, nil)
+			if !issueTask.Update(nil, nil) {
+				logging.SharedInstance().MethodInfo("Project", "FetchGithub").Error("failed to update task")
+				return false, erros.New("failed to update task")
+			}
 		}
 	}
 	// github側へ同期
 	rows, err := table.Query("select tasks.title, tasks.description, lists.title, lists.color from tasks left join lists on lists.id = tasks.list_id where tasks.user_id = ? and tasks.issue_number IS NULL;", u.UserId)
 	if err != nil {
+		logging.SharedInstance().MethodInfo("Project", "FetchGithub").Panic(err)
 		return false, err
 	}
 	for rows.Next() {
@@ -321,7 +334,7 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		var listTitle, listColor sql.NullString
 		err := rows.Scan(&title, &description, &listTitle, &listColor)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("Project", "FetchGithub").Panic(err)
+			return false, err
 		}
 		label, err := hub.CheckLabelPresent(oauthToken.String, repo, &listTitle.String)
 		if err != nil {

@@ -72,12 +72,10 @@ func CurrentUser(userID int64) (*UserStruct, error) {
 	var uuid sql.NullInt64
 	var email string
 	var provider, oauthToken, userName, avatarURL sql.NullString
-	rows, _ := table.Query("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where id = ?;", userID)
-	for rows.Next() {
-		err := rows.Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
-		if err != nil {
-			logging.SharedInstance().MethodInfo("User", "CurrentUser").Panic(err)
-		}
+	err := table.QueryRow("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where id = ?;", userID).Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("User", "CurrentUser").Infof("cannot find user: %v", err)
+		return nil, err
 	}
 	user.Id = id
 	user.Email = email
@@ -86,10 +84,6 @@ func CurrentUser(userID int64) (*UserStruct, error) {
 	user.UserName = userName
 	user.Uuid = uuid
 	user.Avatar = avatarURL
-	if id == 0 {
-		logging.SharedInstance().MethodInfo("user", "CurrentUser").Errorf("cannot find user: %v", userID)
-		return &user, errors.New("cannot find user")
-	}
 	return &user, nil
 }
 
@@ -212,8 +206,8 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 	if id == 0 {
 		result := user.CreateGithubUser(token, githubUser, primaryEmail)
 		if !result {
-			logging.SharedInstance().MethodInfo("user", "FindOrCreateGithub").Error("cannot login")
-			return user, errors.New("cannot login")
+			logging.SharedInstance().MethodInfo("user", "FindOrCreateGithub").Error("cannot login to github")
+			return user, errors.New("cannot login to github")
 		}
 	}
 
@@ -258,7 +252,7 @@ func (u *UserStruct) Save() bool {
 
 	result, err := table.Exec("insert into users (email, password, provider, oauth_token, uuid, user_name, avatar_url, created_at) values (?, ?, ?, ?, ?, ?, ?, now());", u.Email, u.Password, u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("user", "Save").Panic(err)
+		logging.SharedInstance().MethodInfo("user", "Save").Errorf("failed to create user: %v", err)
 		return false
 	}
 	u.Id, _ = result.LastInsertId()
@@ -288,7 +282,9 @@ func (u *UserStruct) CreateGithubUser(token string, githubUser *github.User, pri
 	u.UserName = sql.NullString{String: *githubUser.Login, Valid: true}
 	u.Uuid = sql.NullInt64{Int64: int64(*githubUser.ID), Valid: true}
 	u.Avatar = sql.NullString{String: *githubUser.AvatarURL, Valid: true}
-	u.Save()
+	if !u.Save() {
+		return false
+	}
 	return true
 }
 

@@ -23,7 +23,7 @@ func New() *LogStruct {
 	}
 	log.Hooks.Add(&slackrus.SlackrusHook{
 		HookURL:        os.Getenv("SLACK_URL"),
-		AcceptedLevels: slackrus.LevelThreshold(logrus.PanicLevel),
+		AcceptedLevels: slackrus.LevelThreshold(logrus.ErrorLevel),
 		Channel:        "#fascia",
 		IconEmoji:      ":bapho:",
 		Username:       "logrus",
