@@ -18,6 +18,7 @@ export GOJIROOT="/home/ubuntu/fascia"
 export CLIENT_ID="hogehoge"
 export CLIENT_SECRET="fugafuga"
 export TEST_TOKEN="testhoge"
+export SLACK_URL="https://hooks.slack.com/services/hogehoge/fugafuga"
 ```
 `CLIENT_ID`, `CLIENT_SECRET`, `TEST_TOKEN` は適当にgithubでアプリケーションを作成して自分で用意してください．
 DB関連の設定については，`db/dbconf.yml` を参考に必要項目を用意してください．
