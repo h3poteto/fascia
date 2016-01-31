@@ -76,7 +76,7 @@ func CurrentUser(userID int64) (*UserStruct, error) {
 	for rows.Next() {
 		err := rows.Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 		if err != nil {
-			panic(err.Error())
+			logging.SharedInstance().MethodInfo("User", "CurrentUser").Panic(err)
 		}
 	}
 	user.Id = id
@@ -126,7 +126,7 @@ func Login(userEmail string, userPassword string) (*UserStruct, error) {
 	for rows.Next() {
 		err := rows.Scan(&id, &email, &password, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 		if err != nil {
-			panic(err.Error())
+			logging.SharedInstance().MethodInfo("User", "Login").Panic(err)
 		}
 	}
 
@@ -207,7 +207,7 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 	for rows.Next() {
 		err := rows.Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 		if err != nil {
-			panic(err.Error())
+			logging.SharedInstance().MethodInfo("User", "FindOrCreateGithub").Panic(err)
 		}
 	}
 	user := NewUser(id, email, provider, oauthToken, uuid, userName, avatarURL)
@@ -245,7 +245,7 @@ func (u *UserStruct) Projects() []*project.ProjectStruct {
 		var description string
 		err := rows.Scan(&id, &userID, &repositoryID, &title, &description)
 		if err != nil {
-			panic(err.Error())
+			logging.SharedInstance().MethodInfo("User", "Projects").Panic(err)
 		}
 		if id != 0 {
 			p := project.NewProject(id, userID, title, description, repositoryID)

@@ -57,7 +57,7 @@ var _ = Describe("Task", func() {
 			for rows.Next() {
 				err := rows.Scan(&id, &list_id, &title)
 				if err != nil {
-					panic(err.Error())
+					panic(err)
 				}
 			}
 			Expect(list_id).To(Equal(newTask.Id))
@@ -73,7 +73,7 @@ var _ = Describe("Task", func() {
 				for rows.Next() {
 					err := rows.Scan(&id, &list_id, &title, &display_index)
 					if err != nil {
-						panic(err.Error())
+						panic(err)
 					}
 				}
 				Expect(display_index).To(Equal(1))
@@ -94,7 +94,7 @@ var _ = Describe("Task", func() {
 				for rows.Next() {
 					err := rows.Scan(&id, &list_id, &title, &display_index)
 					if err != nil {
-						panic(err.Error())
+						panic(err)
 					}
 				}
 				Expect(display_index).To(Equal(2))
@@ -121,7 +121,7 @@ var _ = Describe("Task", func() {
 				for rows.Next() {
 					err := rows.Scan(&id, &list_id, &title)
 					if err != nil {
-						panic(err.Error())
+						panic(err)
 					}
 				}
 				Expect(list_id).To(Equal(list2.Id))
@@ -146,7 +146,7 @@ var _ = Describe("Task", func() {
 					for rows.Next() {
 						err := rows.Scan(&id, &title, &displayIndex)
 						if err != nil {
-							panic(err.Error())
+							panic(err)
 						}
 					}
 					Expect(displayIndex).To(Equal(2))
@@ -163,7 +163,7 @@ var _ = Describe("Task", func() {
 					for rows.Next() {
 						err := rows.Scan(&id, &title, &displayIndex)
 						if err != nil {
-							panic(err.Error())
+							panic(err)
 						}
 					}
 					Expect(displayIndex).To(Equal(1))
@@ -189,7 +189,7 @@ var _ = Describe("Task", func() {
 					for rows.Next() {
 						err := rows.Scan(&id, &title, &displayIndex)
 						if err != nil {
-							panic(err.Error())
+							panic(err)
 						}
 					}
 					Expect(displayIndex).To(Equal(3))
@@ -206,7 +206,7 @@ var _ = Describe("Task", func() {
 					for rows.Next() {
 						err := rows.Scan(&id, &title, &displayIndex)
 						if err != nil {
-							panic(err.Error())
+							panic(err)
 						}
 					}
 					Expect(displayIndex).To(Equal(1))
@@ -223,7 +223,7 @@ var _ = Describe("Task", func() {
 					for rows.Next() {
 						err := rows.Scan(&id, &title, &displayIndex)
 						if err != nil {
-							panic(err.Error())
+							panic(err)
 						}
 					}
 					Expect(displayIndex).To(Equal(2))
@@ -238,7 +238,7 @@ var _ = Describe("Task", func() {
 					for rows.Next() {
 						err := rows.Scan(&id, &title, &displayIndex)
 						if err != nil {
-							panic(err.Error())
+							panic(err)
 						}
 					}
 					Expect(displayIndex).To(Equal(3))

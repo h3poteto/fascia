@@ -34,7 +34,7 @@ func ListOptionAll() []*ListOptionStruct {
 	for rows.Next() {
 		err := rows.Scan(&id, &action)
 		if err != nil {
-			panic(err.Error())
+			panic(err)
 		}
 		l := NewListOption(id, action)
 		slice = append(slice, l)

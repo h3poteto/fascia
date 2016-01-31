@@ -61,7 +61,7 @@ var _ = Describe("List", func() {
 			for rows.Next() {
 				err := rows.Scan(&id, &project_id, &title)
 				if err != nil {
-					panic(err.Error())
+					panic(err)
 				}
 			}
 			Expect(project_id).To(Equal(newProject.Id))
