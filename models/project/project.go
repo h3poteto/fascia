@@ -98,9 +98,9 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 
 	// 初期リストの準備
 	closeListOption := list_option.FindByAction("close")
-	todo := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["todo"].(string), "ff0000", sql.NullInt64{})
-	inprogress := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["inprogress"].(string), "0000ff", sql.NullInt64{})
-	done := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["done"].(string), "0a0a0a", sql.NullInt64{Int64: closeListOption.Id, Valid: true})
+	todo := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["todo"].(string), "f37b1d", sql.NullInt64{})
+	inprogress := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["inprogress"].(string), "5eb95e", sql.NullInt64{})
+	done := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["done"].(string), "333333", sql.NullInt64{Int64: closeListOption.Id, Valid: true})
 	none := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["none"].(string), "ffffff", sql.NullInt64{})
 	if !none.Save(nil, nil) {
 		tx.Rollback()
