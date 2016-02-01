@@ -31,9 +31,7 @@ func NewTask(id int64, listID int64, userID int64, issueNumber sql.NullInt64, ti
 	return task
 }
 
-// TODO: ここerrorを返すようにしなくていいのか要検証
-// いやエラー返せよ
-func FindTask(listID int64, taskID int64) *TaskStruct {
+func FindTask(listID int64, taskID int64) (*TaskStruct, error) {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
 	table := interfaceDB.Init()
@@ -44,15 +42,15 @@ func FindTask(listID int64, taskID int64) *TaskStruct {
 	var issueNumber sql.NullInt64
 	err := table.QueryRow("select id, list_id, user_id, issue_number, title, description from tasks where id = ? AND list_id = ?;", taskID, listID).Scan(&id, &listId, &userId, &issueNumber, &title, &description)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Task", "FindTask").Panic(err)
+		logging.SharedInstance().MethodInfo("task", "FindTask").Errorf("cannot find task: %v", err)
+		return nil, err
 	}
 	if id != taskID {
 		logging.SharedInstance().MethodInfo("task", "FindTask").Errorf("cannot find task or list did not contain task: %v", taskID)
-		return nil
-	} else {
-		task := NewTask(id, listId, userId, issueNumber, title, description)
-		return task
+		return nil, errors.New("cannot find task or list did not contain task")
 	}
+	task := NewTask(id, listId, userId, issueNumber, title, description)
+	return task, nil
 }
 
 func FindByIssueNumber(issueNumber int) (*TaskStruct, error) {

@@ -20,7 +20,7 @@ func (u *ListOptions) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	_, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Index").Errorf("login error: %v", err)
+		logging.SharedInstance().MethodInfo("ListOptionsController", "Index").Infof("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -31,4 +31,5 @@ func (u *ListOptions) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 		jsonOptions = append(jsonOptions, &ListOptionJsonFormat{Id: o.Id, Action: o.Action})
 	}
 	encoder.Encode(jsonOptions)
+	logging.SharedInstance().MethodInfo("ListOptionsController", "Index").Info("success to get list options")
 }

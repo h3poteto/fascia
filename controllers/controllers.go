@@ -34,14 +34,14 @@ var cookieStore = sessions.NewCookieStore([]byte("session-kesy"))
 
 // ここテストでstubするために関数ポインタをグローバル変数に代入しておきます．もしインスタンスメソッドではない関数をstubする方法があれば，書き換えて構わない．
 var CheckCSRFToken = checkCSRF
-var LoginRequired = checkLogin
+var LoginRequired = CheckLogin
 
 func CallController(controller interface{}, action string) interface{} {
 	method := reflect.ValueOf(controller).MethodByName(action)
 	return method.Interface()
 }
 
-func checkLogin(r *http.Request) (*userModel.UserStruct, error) {
+func CheckLogin(r *http.Request) (*userModel.UserStruct, error) {
 	session, err := cookieStore.Get(r, Key)
 	if err != nil {
 		return nil, errors.New("cookie error")

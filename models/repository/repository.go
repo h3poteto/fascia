@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"../../modules/logging"
 	"../db"
 	"database/sql"
 )
@@ -38,6 +39,7 @@ func (u *RepositoryStruct) Save() bool {
 
 	result, err := table.Exec("insert into repositories (repository_id, owner, name, created_at) values (?, ?, ?, now());", u.RepositoryId, u.Owner, u.Name)
 	if err != nil {
+		logging.SharedInstance().MethodInfo("Repository", "Save").Errorf("repository save failed: %v", err)
 		return false
 	}
 	u.Id, _ = result.LastInsertId()

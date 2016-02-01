@@ -76,7 +76,7 @@ func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	current_user, err := userModel.Login(template.HTMLEscapeString(signInForm.Email), template.HTMLEscapeString(signInForm.Password))
 	if err != nil {
-		logging.SharedInstance().MethodInfo("SessionsController", "NewSession").Errorf("login error: %v", err)
+		logging.SharedInstance().MethodInfo("SessionsController", "NewSession").Infof("login error: %v", err)
 		http.Redirect(w, r, "/sign_in", 302)
 		return
 	}

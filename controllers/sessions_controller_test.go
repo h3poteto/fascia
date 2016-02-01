@@ -34,6 +34,7 @@ var _ = Describe("SessionsController", func() {
 	})
 	Describe("SignIn", func() {
 		JustBeforeEach(func() {
+			LoginRequired = CheckLogin
 			values := url.Values{}
 			http.PostForm(ts.URL+"/sign_out", values)
 		})

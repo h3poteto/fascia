@@ -16,7 +16,7 @@ func (u *Github) Repositories(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("GithubController", "Repositories").Errorf("login error: %v", err)
+		logging.SharedInstance().MethodInfo("GithubController", "Repositories").Infof("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}

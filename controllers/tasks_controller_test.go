@@ -83,7 +83,7 @@ var _ = Describe("TasksController", func() {
 		It("should exist in database", func() {
 			contents, _ := ParseJson(res)
 			parseContents := contents.(map[string]interface{})
-			newTask := task.FindTask(listId, int64(parseContents["Id"].(float64)))
+			newTask, _ := task.FindTask(listId, int64(parseContents["Id"].(float64)))
 			Expect(newTask.Id).To(BeEquivalentTo(parseContents["Id"]))
 			Expect(newTask.Title).To(Equal("taskTitle"))
 		})
