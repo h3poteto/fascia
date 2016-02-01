@@ -86,6 +86,7 @@ func (u *Passwords) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	// ここでemail送信
 	go password_mailer.Reset(targetUser.Email, reset.Token)
 	http.Redirect(w, r, "/sign_in", 302)
+	logging.SharedInstance().MethodInfo("PasswordsController", "Create").Info("success to send password reset request")
 	return
 }
 
@@ -148,6 +149,7 @@ func (u *Passwords) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 
 	go password_mailer.Changed(targetUser.Email)
+	logging.SharedInstance().MethodInfo("PasswordsController", "Update").Info("success to change password")
 	http.Redirect(w, r, "/sign_in", 302)
 	return
 }

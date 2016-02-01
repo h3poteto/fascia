@@ -38,7 +38,7 @@ func (u *Projects) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Index").Errorf("login error: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Index").Infof("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -55,7 +55,7 @@ func (u *Projects) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Show").Errorf("login error: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Show").Infof("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -63,7 +63,7 @@ func (u *Projects) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	project := projectModel.FindProject(projectID)
 	if project == nil || project.UserId != current_user.Id {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Show").Error("project not found")
+		logging.SharedInstance().MethodInfo("ProjectsController", "Show").Warn("project not found")
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -81,7 +81,7 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Create").Errorf("login error: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Create").Infof("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -120,14 +120,14 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Update").Errorf("login error: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Update").Infof("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	project := projectModel.FindProject(projectID)
 	if project == nil || project.UserId != current_user.Id {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Update").Error("project not found")
+		logging.SharedInstance().MethodInfo("ProjectsController", "Update").Warn("project not found")
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -166,7 +166,7 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "application/json")
 	current_user, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Errorf("login error: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Infof("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -174,7 +174,7 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	project := projectModel.FindProject(projectID)
 	if project == nil || project.UserId != current_user.Id {
-		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Error("project not found")
+		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Warn("project not found")
 		http.Error(w, "project not found", 404)
 		return
 	}

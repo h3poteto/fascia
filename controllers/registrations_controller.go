@@ -70,13 +70,16 @@ func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Req
 			// TODO: 二重登録ができないことを通知したい
 			logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp").Errorf("registration error: %v", err)
 			http.Redirect(w, r, "/sign_up", 302)
+			return
 		} else {
 			logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp").Info("registration success")
 			http.Redirect(w, r, "/sign_in", 302)
+			return
 		}
 	} else {
 		// error
 		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp").Error("cannot confirm password")
 		http.Redirect(w, r, "/sign_up", 302)
+		return
 	}
 }
