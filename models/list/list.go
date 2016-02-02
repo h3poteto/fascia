@@ -55,7 +55,7 @@ func FindList(projectID int64, listID int64) *ListStruct {
 		}
 	}
 	if id != listID {
-		logging.SharedInstance().MethodInfo("list", "FindList").Errorf("cannot find list or project did not contain list: %v", listID)
+		logging.SharedInstance().MethodInfo("list", "FindList", true).Errorf("cannot find list or project did not contain list: %v", listID)
 		return nil
 	} else {
 		list := NewList(id, projectId, userId, title.String, color.String, optionId)
@@ -76,14 +76,14 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	tx, _ := table.Begin()
 	defer func() {
 		if err := recover(); err != nil {
-			logging.SharedInstance().MethodInfo("list", "Save").Error("unexpected error")
+			logging.SharedInstance().MethodInfo("list", "Save", true).Error("unexpected error")
 			tx.Rollback()
 		}
 	}()
 
 	result, err := tx.Exec("insert into lists (project_id, user_id, title, color, list_option_id, created_at) values (?, ?, ?, ?, ?, now());", u.ProjectId, u.UserId, u.Title, u.Color, u.ListOptionId)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("list", "Save").Errorf("list save error: %v", err)
+		logging.SharedInstance().MethodInfo("list", "Save", true).Errorf("list save error: %v", err)
 		tx.Rollback()
 		return false
 	}
@@ -93,12 +93,12 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		label, err := hub.CheckLabelPresent(token, repo, &u.Title.String)
 		if err != nil {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("list", "Save").Errorf("check label error: %v", err)
+			logging.SharedInstance().MethodInfo("list", "Save", true).Errorf("check label error: %v", err)
 			return false
 		} else if label == nil {
 			label, err = hub.CreateGithubLabel(token, repo, &u.Title.String, &u.Color.String)
 			if err != nil {
-				logging.SharedInstance().MethodInfo("list", "Save").Error("github label create failed")
+				logging.SharedInstance().MethodInfo("list", "Save", true).Error("github label create failed")
 				tx.Rollback()
 				return false
 			}
@@ -120,7 +120,7 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	// 色は変えられても良いが，titleとactionは変えられては困る
 	// 第一段階では色も含めてすべて固定とする
 	if u.IsInitList() {
-		logging.SharedInstance().MethodInfo("list", "Update").Error("cannot update initial list")
+		logging.SharedInstance().MethodInfo("list", "Update", true).Error("cannot update initial list")
 		return false
 	}
 
@@ -136,14 +136,14 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	tx, _ := table.Begin()
 	defer func() {
 		if err := recover(); err != nil {
-			logging.SharedInstance().MethodInfo("list", "Update").Error("unexpected error")
+			logging.SharedInstance().MethodInfo("list", "Update", true).Error("unexpected error")
 			tx.Rollback()
 		}
 	}()
 
 	_, err := tx.Exec("update lists set title = ?, color = ?, list_option_id = ? where id = ?;", *title, *color, listOptionId, u.Id)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("list", "Update").Errorf("list update error: %v", err)
+		logging.SharedInstance().MethodInfo("list", "Update", true).Errorf("list update error: %v", err)
 		tx.Rollback()
 		return false
 	}
@@ -154,7 +154,7 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 		existLabel, err := hub.CheckLabelPresent(token, repo, &u.Title.String)
 		if err != nil {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("list", "Update").Errorf("check label error: %v", err)
+			logging.SharedInstance().MethodInfo("list", "Update", true).Errorf("check label error: %v", err)
 			return false
 		} else if existLabel == nil {
 			// editの場合ここに入る可能性はほとんどない

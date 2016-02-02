@@ -43,7 +43,7 @@ func HashPassword(password string) ([]byte, error) {
 	hashPassword, _ := bcrypt.GenerateFromPassword(bytePassword, cost)
 	err := bcrypt.CompareHashAndPassword(hashPassword, bytePassword)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("user", "hashPassword").Error("hash password error")
+		logging.SharedInstance().MethodInfo("user", "hashPassword", true).Error("hash password error")
 		return nil, errors.New("hash password error")
 	}
 	return hashPassword, nil
@@ -99,7 +99,7 @@ func Registration(email string, password string) (int64, error) {
 	}
 	result, err := table.Exec("insert into users (email, password, created_at) values (?, ?, ?)", email, hashPassword, time.Now())
 	if err != nil {
-		logging.SharedInstance().MethodInfo("user", "Registration").Errorf("mysql error: %v", err)
+		logging.SharedInstance().MethodInfo("user", "Registration", true).Errorf("mysql error: %v", err)
 		return 0, err
 	}
 	id, _ := result.LastInsertId()
@@ -206,7 +206,7 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 	if id == 0 {
 		result := user.CreateGithubUser(token, githubUser, primaryEmail)
 		if !result {
-			logging.SharedInstance().MethodInfo("user", "FindOrCreateGithub").Error("cannot login to github")
+			logging.SharedInstance().MethodInfo("user", "FindOrCreateGithub", true).Error("cannot login to github")
 			return user, errors.New("cannot login to github")
 		}
 	}
@@ -214,7 +214,7 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 	if !user.OauthToken.Valid || user.OauthToken.String != token {
 		result := user.UpdateGithubUserInfo(token, githubUser)
 		if !result {
-			logging.SharedInstance().MethodInfo("user", "FindOrCreateGithub").Error("cannot update user")
+			logging.SharedInstance().MethodInfo("user", "FindOrCreateGithub", true).Error("cannot update user")
 			return user, errors.New("cannot update user")
 		}
 	}
@@ -252,7 +252,7 @@ func (u *UserStruct) Save() bool {
 
 	result, err := table.Exec("insert into users (email, password, provider, oauth_token, uuid, user_name, avatar_url, created_at) values (?, ?, ?, ?, ?, ?, ?, now());", u.Email, u.Password, u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("user", "Save").Errorf("failed to create user: %v", err)
+		logging.SharedInstance().MethodInfo("user", "Save", true).Errorf("failed to create user: %v", err)
 		return false
 	}
 	u.Id, _ = result.LastInsertId()

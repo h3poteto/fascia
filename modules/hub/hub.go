@@ -23,7 +23,7 @@ func CheckLabelPresent(token string, repo *repository.RepositoryStruct, title *s
 	client := github.NewClient(tc)
 
 	if title == nil {
-		logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent").Error("title is nil")
+		logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent", true).Error("title is nil")
 		return nil, errors.New("title is nil")
 	}
 	githubLabel, response, err := client.Issues.GetLabel(repo.Owner.String, repo.Name.String, *title)
@@ -44,7 +44,7 @@ func CreateGithubLabel(token string, repo *repository.RepositoryStruct, title *s
 	client := github.NewClient(tc)
 
 	if title == nil || color == nil {
-		logging.SharedInstance().MethodInfo("hub", "CreateGithubLabel").Error("title or color is nil")
+		logging.SharedInstance().MethodInfo("hub", "CreateGithubLabel", true).Error("title or color is nil")
 		return nil, errors.New("title or color is nil")
 	}
 
@@ -69,7 +69,7 @@ func UpdateGithubLabel(token string, repo *repository.RepositoryStruct, original
 	client := github.NewClient(tc)
 
 	if title == nil || color == nil {
-		logging.SharedInstance().MethodInfo("hub", "UpdateGithubLabel").Error("title or color is nil")
+		logging.SharedInstance().MethodInfo("hub", "UpdateGithubLabel", true).Error("title or color is nil")
 		return nil, errors.New("title or color is nil")
 	}
 
@@ -94,7 +94,7 @@ func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels [
 	client := github.NewClient(tc)
 
 	if title == nil {
-		logging.SharedInstance().MethodInfo("hub", "CreateGithubIssue").Error("title is nil")
+		logging.SharedInstance().MethodInfo("hub", "CreateGithubIssue", true).Error("title is nil")
 		return nil, errors.New("title is nil")
 	}
 
