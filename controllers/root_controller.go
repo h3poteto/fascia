@@ -20,7 +20,7 @@ func (u *Root) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	logging.SharedInstance().MethodInfo("RootController", "Index").Info("login success")
 	tpl, err := pongo2.DefaultSet.FromFile("home.html.tpl")
 	if err != nil {
-		logging.SharedInstance().MethodInfo("RootController", "Index").Errorf("template error: %v", err)
+		logging.SharedInstance().MethodInfo("RootController", "Index", true).Errorf("template error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

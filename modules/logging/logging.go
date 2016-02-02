@@ -4,6 +4,8 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/johntdyer/slackrus"
 	"os"
+	"runtime"
+	"time"
 )
 
 type LogStruct struct {
@@ -35,8 +37,19 @@ func SharedInstance() *LogStruct {
 	return sharedInstance
 }
 
-func (u *LogStruct) MethodInfo(model string, method string) *logrus.Entry {
+func (u *LogStruct) MethodInfo(model string, method string, stack ...bool) *logrus.Entry {
+	if len(stack) > 0 && stack[0] {
+		buf := make([]byte, 1<<16)
+		runtime.Stack(buf, false)
+		return u.log.WithFields(logrus.Fields{
+			"time":       time.Now(),
+			"model":      model,
+			"method":     method,
+			"stacktrace": string(buf),
+		})
+	}
 	return u.log.WithFields(logrus.Fields{
+		"time":   time.Now(),
 		"model":  model,
 		"method": method,
 	})

@@ -93,14 +93,14 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	err = r.ParseForm()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Create").Errorf("wrong form: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "Create", true).Errorf("wrong form: %v", err)
 		http.Error(w, "Wrong Form", 400)
 		return
 	}
 	var newTaskForm NewTaskForm
 	err = param.Parse(r.PostForm, &newTaskForm)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Create").Errorf("wrong parameter: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "Create", true).Errorf("wrong parameter: %v", err)
 		http.Error(w, "Wrong parameter", 500)
 		return
 	}
@@ -110,7 +110,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	repo := parentProject.Repository()
 	if !task.Save(repo, &current_user.OauthToken) {
-		logging.SharedInstance().MethodInfo("TasksController", "Create").Error("save failed")
+		logging.SharedInstance().MethodInfo("TasksController", "Create", true).Error("save failed")
 		http.Error(w, "save failed", 500)
 		return
 	}
@@ -147,21 +147,21 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 	taskID, _ := strconv.ParseInt(c.URLParams["task_id"], 10, 64)
 	task, err := taskModel.FindTask(parentList.Id, taskID)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Errorf("find task error: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", true).Errorf("find task error: %v", err)
 		http.Error(w, "task not find", 500)
 		return
 	}
 
 	err = r.ParseForm()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Errorf("wrong form: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", true).Errorf("wrong form: %v", err)
 		http.Error(w, "Wrong Form", 400)
 		return
 	}
 	var moveTaskFrom MoveTaskFrom
 	err = param.Parse(r.PostForm, &moveTaskFrom)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Errorf("wrong parameter: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", true).Errorf("wrong parameter: %v", err)
 		http.Error(w, "Wrong parameter", 500)
 		return
 	}
@@ -173,7 +173,7 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	repo := parentProject.Repository()
 	if !task.ChangeList(moveTaskFrom.ToListId, prevToTaskId, repo, &current_user.OauthToken) {
-		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Error("failed change list")
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", true).Error("failed change list")
 		http.Error(w, "failed change list", 500)
 		return
 	}

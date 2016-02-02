@@ -49,7 +49,7 @@ func FindProject(projectID int64) *ProjectStruct {
 	var description string
 	err := table.QueryRow("select id, user_id, repository_id, title, description from projects where id = ?;", projectID).Scan(&id, &userID, &repositoryID, &title, &description)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Project", "FindProject").Errorf("cannot find project: %v", err)
+		logging.SharedInstance().MethodInfo("Project", "FindProject", true).Errorf("cannot find project: %v", err)
 		return nil
 	}
 	project := NewProject(id, userID, title, description, repositoryID)
@@ -64,7 +64,7 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 	tx, _ := table.Begin()
 	defer func() {
 		if err := recover(); err != nil {
-			logging.SharedInstance().MethodInfo("Project", "Create").Error("unexpected error")
+			logging.SharedInstance().MethodInfo("Project", "Create", true).Error("unexpected error")
 			tx.Rollback()
 			e = errors.New("unexpected error")
 			p = nil
@@ -77,7 +77,7 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 		repo = repository.NewRepository(0, repositoryID, repositoryOwner, repositoryName)
 		if !repo.Save() {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save repository")
+			logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save repository")
 			return nil, errors.New("repository save error")
 		}
 		repoID = sql.NullInt64{Int64: repo.Id, Valid: true}
@@ -86,7 +86,7 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 	project := NewProject(0, userID, title, description, repoID)
 	if !project.Save() {
 		tx.Rollback()
-		logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save project")
+		logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save project")
 		return nil, errors.New("failed to save project")
 	}
 
@@ -94,7 +94,7 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 	closeListOption := list_option.FindByAction("close")
 	if closeListOption == nil {
 		tx.Rollback()
-		logging.SharedInstance().MethodInfo("Project", "Create").Error("cannot find close list option")
+		logging.SharedInstance().MethodInfo("Project", "Create", true).Error("cannot find close list option")
 		return nil, errors.New("failed to find close list option")
 	}
 	todo := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["todo"].(string), "f37b1d", sql.NullInt64{})
@@ -103,40 +103,40 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 	none := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["none"].(string), "ffffff", sql.NullInt64{})
 	if !none.Save(nil, nil) {
 		tx.Rollback()
-		logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save none list")
+		logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save none list")
 		return nil, errors.New("failed to save none list")
 	}
 
 	if project.RepositoryId.Valid {
 		if !todo.Save(repo, &oauthToken) {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save todo list")
+			logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save todo list")
 			return nil, errors.New("failed to save todo list")
 		}
 		if !inprogress.Save(repo, &oauthToken) {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save inprogress list")
+			logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save inprogress list")
 			return nil, errors.New("failed to save inprogress list")
 		}
 		if !done.Save(repo, &oauthToken) {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save done list")
+			logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save done list")
 			return nil, errors.New("failed to save done list")
 		}
 	} else {
 		if !todo.Save(nil, nil) {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save todo list")
+			logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save todo list")
 			return nil, errors.New("failed to save todo list")
 		}
 		if !inprogress.Save(nil, nil) {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save inprogress list")
+			logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save inprogress list")
 			return nil, errors.New("failed to save inprogress list")
 		}
 		if !done.Save(nil, nil) {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("Project", "Create").Error("failed to save done list")
+			logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save done list")
 			return nil, errors.New("failed to save done list")
 		}
 	}
@@ -156,7 +156,7 @@ func (u *ProjectStruct) Save() bool {
 
 	result, err := table.Exec("insert into projects (user_id, repository_id, title, description, created_at) values (?, ?, ?, ?, now());", u.UserId, u.RepositoryId, u.Title, u.Description)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Project", "Save").Errorf("failed to save project: %v", err)
+		logging.SharedInstance().MethodInfo("Project", "Save", true).Errorf("failed to save project: %v", err)
 		return false
 	}
 	u.Id, _ = result.LastInsertId()
@@ -171,7 +171,7 @@ func (u *ProjectStruct) Update(title string, description string) bool {
 	u.Description = description
 	_, err := table.Exec("update projects set title = ?, description = ? where id = ?;", u.Title, u.Description, u.Id)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Project", "Update").Errorf("failed to update project: %v", err)
+		logging.SharedInstance().MethodInfo("Project", "Update", true).Errorf("failed to update project: %v", err)
 		return false
 	}
 
@@ -190,7 +190,7 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 		var optionID sql.NullInt64
 		err := rows.Scan(&id, &projectID, &userID, &title, &color, &optionID)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("Project", "Lists").Panic(err)
+			logging.SharedInstance().MethodInfo("Project", "Lists", true).Panic(err)
 		}
 		if projectID == u.Id && title.Valid {
 			l := list.NewList(id, projectID, userID, title.String, color.String, optionID)
@@ -210,7 +210,7 @@ func (u *ProjectStruct) NoneList() *list.ListStruct {
 	err := table.QueryRow("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ? and title = ?;", u.Id, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID)
 	if err != nil {
 		// noneが存在しないということはProjectsController#Createがうまく行ってないので，そっちでエラーハンドリングしてほしい
-		logging.SharedInstance().MethodInfo("Project", "NoneList").Panic(err)
+		logging.SharedInstance().MethodInfo("Project", "NoneList", true).Panic(err)
 	}
 	if projectID == u.Id && title.Valid {
 		return list.NewList(id, projectID, userID, title.String, color.String, optionID)
@@ -233,7 +233,7 @@ func (u *ProjectStruct) Repository() *repository.RepositoryStruct {
 		r := repository.NewRepository(id, repositoryId, owner.String, name.String)
 		return r
 	} else {
-		logging.SharedInstance().MethodInfo("project", "Repository").Error("repository owner discord from project owner")
+		logging.SharedInstance().MethodInfo("project", "Repository", true).Error("repository owner discord from project owner")
 		return nil
 	}
 }
@@ -245,7 +245,7 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 	var oauthToken sql.NullString
 	err := table.QueryRow("select users.oauth_token from projects left join users on users.id = projects.user_id where projects.id = ?;", u.Id).Scan(&oauthToken)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("project", "FetchGithub").Errorf("oauth_token select error: %v", err)
+		logging.SharedInstance().MethodInfo("project", "FetchGithub", true).Errorf("oauth_token select error: %v", err)
 		return false, err
 	}
 	if !oauthToken.Valid {
@@ -271,12 +271,12 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		}
 	}
 	if closedList == nil {
-		logging.SharedInstance().MethodInfo("Project", "FetchGithub").Panic("cannot find close list")
+		logging.SharedInstance().MethodInfo("Project", "FetchGithub", true).Panic("cannot find close list")
 		return false, errors.New("cannot find close list")
 	}
 	noneList := u.NoneList()
 	if noneList == nil {
-		logging.SharedInstance().MethodInfo("Project", "FetchGithub").Panic("cannot find none list")
+		logging.SharedInstance().MethodInfo("Project", "FetchGithub", true).Panic("cannot find none list")
 		return false, errors.New("cannot find none list")
 	}
 
@@ -311,14 +311,14 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		// ここはgithub側への同期不要
 		if issueTask.Id == 0 {
 			if !issueTask.Save(nil, nil) {
-				logging.SharedInstance().MethodInfo("Project", "FetchGithub").Error("failed to save task")
+				logging.SharedInstance().MethodInfo("Project", "FetchGithub", true).Error("failed to save task")
 				return false, errors.New("failed to save task")
 			}
 		} else {
 			issueTask.Title = *issue.Title
 			issueTask.Description = *issue.Body
 			if !issueTask.Update(nil, nil) {
-				logging.SharedInstance().MethodInfo("Project", "FetchGithub").Error("failed to update task")
+				logging.SharedInstance().MethodInfo("Project", "FetchGithub", true).Error("failed to update task")
 				return false, errors.New("failed to update task")
 			}
 		}
@@ -326,7 +326,7 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 	// github側へ同期
 	rows, err := table.Query("select tasks.title, tasks.description, lists.title, lists.color from tasks left join lists on lists.id = tasks.list_id where tasks.user_id = ? and tasks.issue_number IS NULL;", u.UserId)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Project", "FetchGithub").Panic(err)
+		logging.SharedInstance().MethodInfo("Project", "FetchGithub", true).Panic(err)
 		return false, err
 	}
 	for rows.Next() {

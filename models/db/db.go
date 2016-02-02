@@ -23,12 +23,12 @@ func (u *Database) Init() *sql.DB {
 	path := filepath.Join(root, "db/dbconf.yml")
 	buf, err := ioutil.ReadFile(path)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("DB", "Init").Panic(err)
+		logging.SharedInstance().MethodInfo("DB", "Init", true).Panic(err)
 	}
 	m := make(map[interface{}]interface{})
 	err = yaml.Unmarshal(buf, &m)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("DB", "Init").Panic(err)
+		logging.SharedInstance().MethodInfo("DB", "Init", true).Panic(err)
 	}
 	username := m[env].(map[interface{}]interface{})["user"].(string)
 	password := m[env].(map[interface{}]interface{})["password"].(string)
@@ -38,7 +38,7 @@ func (u *Database) Init() *sql.DB {
 	database = os.ExpandEnv(database)
 	db, err := sql.Open("mysql", username+":"+password+"@/"+database+"?charset=utf8")
 	if err != nil {
-		logging.SharedInstance().MethodInfo("DB", "Init").Panic(err)
+		logging.SharedInstance().MethodInfo("DB", "Init", true).Panic(err)
 	}
 	return db
 }

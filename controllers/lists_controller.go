@@ -89,14 +89,14 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	err = r.ParseForm()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Create").Errorf("wrong form: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Create", true).Errorf("wrong form: %v", err)
 		http.Error(w, "Wrong Form", 400)
 		return
 	}
 	var newListForm NewListForm
 	err = param.Parse(r.PostForm, &newListForm)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Create").Errorf("wrong parameter: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Create", true).Errorf("wrong parameter: %v", err)
 		http.Error(w, "Wrong parameter", 500)
 		return
 	}
@@ -105,7 +105,7 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	repo := parentProject.Repository()
 	if !list.Save(repo, &current_user.OauthToken) {
-		logging.SharedInstance().MethodInfo("ListsController", "Create").Error("failed save")
+		logging.SharedInstance().MethodInfo("ListsController", "Create", true).Error("failed save")
 		http.Error(w, "failed save", 500)
 		return
 	}
@@ -134,21 +134,21 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	listID, _ := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
 	targetList := listModel.FindList(projectID, listID)
 	if targetList == nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Update").Error("list not found")
+		logging.SharedInstance().MethodInfo("ListsController", "Update", true).Error("list not found")
 		http.Error(w, "list not found", 404)
 		return
 	}
 
 	err = r.ParseForm()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Update").Errorf("wrong form: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Update", true).Errorf("wrong form: %v", err)
 		http.Error(w, "Wrong Form", 400)
 		return
 	}
 	var editListForm EditListForm
 	err = param.Parse(r.PostForm, &editListForm)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Update").Errorf("wrong parameter: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Update", true).Errorf("wrong parameter: %v", err)
 		http.Error(w, "Wrong parameter", 500)
 		return
 	}
@@ -156,7 +156,7 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	repo := parentProject.Repository()
 	if !targetList.Update(repo, &current_user.OauthToken, &editListForm.Title, &editListForm.Color, &editListForm.Action) {
-		logging.SharedInstance().MethodInfo("ListsController", "Update").Error("save failed")
+		logging.SharedInstance().MethodInfo("ListsController", "Update", true).Error("save failed")
 		http.Error(w, "save failed", 500)
 		return
 	}

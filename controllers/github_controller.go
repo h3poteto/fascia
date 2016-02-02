@@ -50,7 +50,7 @@ func (u *Github) Repositories(c web.C, w http.ResponseWriter, r *http.Request) {
 		repos, res, err := client.Repositories.List("", repositoryOption)
 		nextPage = res.NextPage
 		if err != nil {
-			logging.SharedInstance().MethodInfo("GithubController", "Repositories").Errorf("repository error: %v", err)
+			logging.SharedInstance().MethodInfo("GithubController", "Repositories", true).Errorf("repository error: %v", err)
 			http.Error(w, err.Error(), 500)
 			return
 		}

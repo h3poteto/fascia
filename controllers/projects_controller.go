@@ -89,7 +89,7 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	err = r.ParseForm()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Create").Errorf("wrong form: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Create", true).Errorf("wrong form: %v", err)
 		http.Error(w, "Wrong Form", 400)
 		return
 	}
@@ -97,7 +97,7 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	err = param.Parse(r.PostForm, &newProjectForm)
 
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Create").Errorf("wrong paramter: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Create", true).Errorf("wrong paramter: %v", err)
 		http.Error(w, "Wrong parameter", 500)
 		return
 	}
@@ -105,7 +105,7 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	project, err := projectModel.Create(current_user.Id, newProjectForm.Title, newProjectForm.Description, newProjectForm.RepositoryID, newProjectForm.RepositoryOwner, newProjectForm.RepositoryName, current_user.OauthToken)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Create").Error("save failed")
+		logging.SharedInstance().MethodInfo("ProjectsController", "Create", true).Error("save failed")
 		http.Error(w, "save failed", 500)
 		return
 	}
@@ -136,19 +136,19 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	err = r.ParseForm()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Update").Errorf("wrong form: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Update", true).Errorf("wrong form: %v", err)
 		http.Error(w, "Wrong Form", 400)
 	}
 	var editProjectForm EditProjectForm
 	err = param.Parse(r.PostForm, &editProjectForm)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Update").Errorf("wrong parameter: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Update", true).Errorf("wrong parameter: %v", err)
 		http.Error(w, "Wrong parameter", 500)
 		return
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Update").Debug("post edit project parameter: %+v", editProjectForm)
 	if !project.Update(editProjectForm.Title, editProjectForm.Description) {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Update").Error("update failed")
+		logging.SharedInstance().MethodInfo("ProjectsController", "Update", true).Error("update failed")
 		http.Error(w, "update failed", 500)
 		return
 	}
@@ -180,7 +180,7 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 	}
 	_, err = project.FetchGithub()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Errorf("github fetch error: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub", true).Errorf("github fetch error: %v", err)
 		http.Error(w, err.Error(), 500)
 		return
 	} else {

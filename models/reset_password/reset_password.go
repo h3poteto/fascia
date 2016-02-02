@@ -86,21 +86,21 @@ func ChangeUserPassword(id int64, token string, password string) (u *user.UserSt
 	}
 	_, err = tx.Exec("update users set password = ? where id = ?;", hashPassword, userId)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ResetPassword", "ChangeUserPassword").Errorf("cannot update user password: %v", err)
+		logging.SharedInstance().MethodInfo("ResetPassword", "ChangeUserPassword", true).Errorf("cannot update user password: %v", err)
 		tx.Rollback()
 		return nil, err
 	}
 
 	_, err = tx.Exec("update reset_passwords set expires_at = now() where id = ?;", id)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ResetPassword", "ChangeUserPassword").Errorf("cannot change expires_at: %v", err)
+		logging.SharedInstance().MethodInfo("ResetPassword", "ChangeUserPassword", true).Errorf("cannot change expires_at: %v", err)
 		tx.Rollback()
 		return nil, err
 	}
 
 	u, err = user.FindUser(userId)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ResetPassword", "ChangeUserPassword").Errorf("cannot find user: %v", err)
+		logging.SharedInstance().MethodInfo("ResetPassword", "ChangeUserPassword", true).Errorf("cannot find user: %v", err)
 		tx.Rollback()
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func (u *ResetPasswordStruct) Save() bool {
 
 	result, err := table.Exec("insert into reset_passwords (user_id, token, expires_at, created_at) values (?, ?, ?, now());", u.UserId, u.Token, u.ExpiresAt)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ResetPassword", "Save").Errorf("reset_password save error: %v", err)
+		logging.SharedInstance().MethodInfo("ResetPassword", "Save", true).Errorf("reset_password save error: %v", err)
 		return false
 	}
 	u.Id, _ = result.LastInsertId()
