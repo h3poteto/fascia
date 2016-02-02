@@ -51,7 +51,7 @@ func FindList(projectID int64, listID int64) *ListStruct {
 	for rows.Next() {
 		err := rows.Scan(&id, &projectId, &userId, &title, &color, &optionId)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("List", "FindList").Panic(err)
+			logging.SharedInstance().MethodInfo("List", "FindList", true).Panic(err)
 		}
 	}
 	if id != listID {
@@ -195,7 +195,7 @@ func (u *ListStruct) Tasks() []*task.TaskStruct {
 		var issueNumber sql.NullInt64
 		err := rows.Scan(&id, &listID, &userID, &issueNumber, &title, &description)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("List", "Tasks").Panic(err)
+			logging.SharedInstance().MethodInfo("List", "Tasks", true).Panic(err)
 		}
 		if listID == u.Id {
 			l := task.NewTask(id, listID, userID, issueNumber, title, description)

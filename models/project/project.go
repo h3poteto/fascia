@@ -190,7 +190,7 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 		var optionID sql.NullInt64
 		err := rows.Scan(&id, &projectID, &userID, &title, &color, &optionID)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("Project", "Lists").Panic(err)
+			logging.SharedInstance().MethodInfo("Project", "Lists", true).Panic(err)
 		}
 		if projectID == u.Id && title.Valid {
 			l := list.NewList(id, projectID, userID, title.String, color.String, optionID)
@@ -210,7 +210,7 @@ func (u *ProjectStruct) NoneList() *list.ListStruct {
 	err := table.QueryRow("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ? and title = ?;", u.Id, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID)
 	if err != nil {
 		// noneが存在しないということはProjectsController#Createがうまく行ってないので，そっちでエラーハンドリングしてほしい
-		logging.SharedInstance().MethodInfo("Project", "NoneList").Panic(err)
+		logging.SharedInstance().MethodInfo("Project", "NoneList", true).Panic(err)
 	}
 	if projectID == u.Id && title.Valid {
 		return list.NewList(id, projectID, userID, title.String, color.String, optionID)
@@ -271,12 +271,12 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		}
 	}
 	if closedList == nil {
-		logging.SharedInstance().MethodInfo("Project", "FetchGithub").Panic("cannot find close list")
+		logging.SharedInstance().MethodInfo("Project", "FetchGithub", true).Panic("cannot find close list")
 		return false, errors.New("cannot find close list")
 	}
 	noneList := u.NoneList()
 	if noneList == nil {
-		logging.SharedInstance().MethodInfo("Project", "FetchGithub").Panic("cannot find none list")
+		logging.SharedInstance().MethodInfo("Project", "FetchGithub", true).Panic("cannot find none list")
 		return false, errors.New("cannot find none list")
 	}
 
@@ -326,7 +326,7 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 	// github側へ同期
 	rows, err := table.Query("select tasks.title, tasks.description, lists.title, lists.color from tasks left join lists on lists.id = tasks.list_id where tasks.user_id = ? and tasks.issue_number IS NULL;", u.UserId)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Project", "FetchGithub").Panic(err)
+		logging.SharedInstance().MethodInfo("Project", "FetchGithub", true).Panic(err)
 		return false, err
 	}
 	for rows.Next() {

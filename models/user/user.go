@@ -198,7 +198,7 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 	for rows.Next() {
 		err := rows.Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("User", "FindOrCreateGithub").Panic(err)
+			logging.SharedInstance().MethodInfo("User", "FindOrCreateGithub", true).Panic(err)
 		}
 	}
 	user := NewUser(id, email, provider, oauthToken, uuid, userName, avatarURL)
@@ -236,7 +236,7 @@ func (u *UserStruct) Projects() []*project.ProjectStruct {
 		var description string
 		err := rows.Scan(&id, &userID, &repositoryID, &title, &description)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("User", "Projects").Panic(err)
+			logging.SharedInstance().MethodInfo("User", "Projects", true).Panic(err)
 		}
 		if id != 0 {
 			p := project.NewProject(id, userID, title, description, repositoryID)
@@ -266,7 +266,7 @@ func (u *UserStruct) Update() bool {
 
 	_, err := table.Exec("update users set provider = ?, oauth_token = ?, uuid = ?, user_name = ?, avatar_url = ? where email = ?;", u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar, u.Email)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("User", "Update").Panic(err)
+		logging.SharedInstance().MethodInfo("User", "Update", true).Panic(err)
 		return false
 	}
 	return true

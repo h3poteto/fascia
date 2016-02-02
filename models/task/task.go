@@ -279,7 +279,7 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 
 	err = transaction.Commit()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Task", "ChangeList").Panic(err)
+		logging.SharedInstance().MethodInfo("Task", "ChangeList", true).Panic(err)
 	}
 	u.ListId = listId
 	return true
