@@ -15,11 +15,13 @@
     color: rgb(255, 255, 255);
   }
 
+  article {
+    margin-top: 100px;
+    width: 360px;
+  }
   .sign-in-board, .sign-up-board {
     display: inline-block;
     text-align: center;
-    margin: 100px auto 0;
-    background: rgb(255, 255, 255);
     width: auto;
     box-sizing: border-box;
     padding: 20px;
