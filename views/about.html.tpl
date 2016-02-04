@@ -47,6 +47,17 @@
       <div class="content">
         <p>Fascia can sync your GitHub repositories, no matter if private repository.</p>
         <p>Fascia's tasks are reflected in GitHub issues, and get Fascia's tasks from Github issues.</p>
+        <table class="github-images">
+          <tr>
+            <td>
+              <img src="/images/fascia-ss-2.png" class="fascia-ss-2">
+            </td>
+            <td>
+              <img src="/images/github-ss-1.png" class="github-ss-1">
+            </td>
+          </tr>
+        </table>
+
         <p>In addition, you can create tasks which is not related to GitHub labels.</p>
         <p>At first, you create tasks which are not belong to any GitHub labels, and then you can move task(GitHub issue) to a GitHub label.</p>
       </div>
@@ -56,6 +67,7 @@
       <div class="content">
         <p>Fascia can manage projects are not related GitHub repositories.</p>
         <p>Therefore, please manage your private tasks like shopping list and domestic work.</p>
+        <img src="/images/fascia-ss-3.png" class="fascia-ss-3">
       </div>
     </div>
   </div>

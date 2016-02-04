@@ -42,6 +42,21 @@
       padding: 40px 0;
       background-color: rgb(220, 220, 220);
     }
+    img {
+      border-radius: 8px;
+    }
+    .github-images {
+      margin: 0 auto;
+      .fascia-ss-2 {
+        width: 450px;
+      }
+      .github-ss-1 {
+        width: 400px;
+      }
+    }
+    .fascia-ss-3 {
+      width: 700px;
+    }
   }
   .footer {
     text-align: center;
