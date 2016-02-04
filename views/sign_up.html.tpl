@@ -8,7 +8,7 @@
   <div class="main">
     <article>
       <div class="title">
-        <h4>Create Acount</h4>
+        <h3>Create Acount</h3>
       </div>
       <div class="content">
         <div class="sign-up-board">
