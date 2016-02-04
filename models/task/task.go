@@ -18,6 +18,7 @@ type Task interface {
 type TaskStruct struct {
 	Id          int64
 	ListId      int64
+	ProjectId   int64
 	UserId      int64
 	IssueNumber sql.NullInt64
 	Title       string
@@ -25,8 +26,8 @@ type TaskStruct struct {
 	database    db.DB
 }
 
-func NewTask(id int64, listID int64, userID int64, issueNumber sql.NullInt64, title string, description string) *TaskStruct {
-	task := &TaskStruct{Id: id, ListId: listID, UserId: userID, IssueNumber: issueNumber, Title: title, Description: description}
+func NewTask(id int64, listID int64, projectID int64, userID int64, issueNumber sql.NullInt64, title string, description string) *TaskStruct {
+	task := &TaskStruct{Id: id, ListId: listID, ProjectId: projectID, UserId: userID, IssueNumber: issueNumber, Title: title, Description: description}
 	task.Initialize()
 	return task
 }
@@ -37,10 +38,10 @@ func FindTask(listID int64, taskID int64) (*TaskStruct, error) {
 	table := interfaceDB.Init()
 	defer table.Close()
 
-	var id, listId, userId int64
+	var id, listId, userId, projectId int64
 	var title, description string
 	var issueNumber sql.NullInt64
-	err := table.QueryRow("select id, list_id, user_id, issue_number, title, description from tasks where id = ? AND list_id = ?;", taskID, listID).Scan(&id, &listId, &userId, &issueNumber, &title, &description)
+	err := table.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description from tasks where id = ? AND list_id = ?;", taskID, listID).Scan(&id, &listId, &projectId, &userId, &issueNumber, &title, &description)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("task", "FindTask", true).Errorf("cannot find task: %v", err)
 		return nil, err
@@ -49,20 +50,20 @@ func FindTask(listID int64, taskID int64) (*TaskStruct, error) {
 		logging.SharedInstance().MethodInfo("task", "FindTask", true).Errorf("cannot find task or list did not contain task: %v", taskID)
 		return nil, errors.New("cannot find task or list did not contain task")
 	}
-	task := NewTask(id, listId, userId, issueNumber, title, description)
+	task := NewTask(id, listId, projectId, userId, issueNumber, title, description)
 	return task, nil
 }
 
-func FindByIssueNumber(issueNumber int) (*TaskStruct, error) {
+func FindByIssueNumber(projectID int64, issueNumber int) (*TaskStruct, error) {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
 	table := interfaceDB.Init()
 	defer table.Close()
 
-	var id, listId, userId int64
+	var id, listId, userId, projectId int64
 	var title, description string
 	var number sql.NullInt64
-	err := table.QueryRow("select id, list_id, user_id, issue_number, title, description from tasks where issue_number = ?;", issueNumber).Scan(&id, &listId, &userId, &number, &title, &description)
+	err := table.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description from tasks where issue_number = ? and project_id = ?;", issueNumber, projectID).Scan(&id, &listId, &projectId, &userId, &number, &title, &description)
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
@@ -70,7 +71,7 @@ func FindByIssueNumber(issueNumber int) (*TaskStruct, error) {
 		logging.SharedInstance().MethodInfo("task", "FindByIssueNumber", true).Errorf("cannot find task issue number: %v", issueNumber)
 		return nil, errors.New("task not found")
 	} else {
-		task := NewTask(id, listId, userId, number, title, description)
+		task := NewTask(id, listId, projectId, userId, number, title, description)
 		return task, nil
 	}
 }
@@ -95,7 +96,7 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	// display_indexを自動挿入する
 	count := 0
 	err := transaction.QueryRow("SELECT COUNT(id) FROM tasks WHERE list_id = ?;", u.ListId).Scan(&count)
-	result, err := transaction.Exec("insert into tasks (list_id, user_id, issue_number, title, description, display_index, created_at) values (?, ?, ?, ?, ?, ?, now());", u.ListId, u.UserId, u.IssueNumber, u.Title, u.Description, count+1)
+	result, err := transaction.Exec("insert into tasks (list_id, project_id, user_id, issue_number, title, description, display_index, created_at) values (?, ?, ?, ?, ?, ?, ?, now());", u.ListId, u.ProjectId, u.UserId, u.IssueNumber, u.Title, u.Description, count+1)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("task", "Save", true).Errorf("insert task error: %v", err)
 		transaction.Rollback()
@@ -153,6 +154,7 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		return false
 	}
 	u.Id, _ = result.LastInsertId()
+	logging.SharedInstance().MethodInfo("task", "Save").Debugf("new task saved: %+v", u)
 	return true
 }
 
@@ -165,6 +167,7 @@ func (u *TaskStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 		logging.SharedInstance().MethodInfo("task", "Update", true).Errorf("update error: %v", err)
 		return false
 	}
+	logging.SharedInstance().MethodInfo("task", "Update").Debugf("task updated: %+v", u)
 	return true
 }
 

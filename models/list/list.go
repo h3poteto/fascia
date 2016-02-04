@@ -187,18 +187,18 @@ func (u *ListStruct) Tasks() []*task.TaskStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	rows, _ := table.Query("select id, list_id, user_id, issue_number, title, description from tasks where list_id = ? order by display_index;", u.Id)
+	rows, _ := table.Query("select id, list_id, project_id, user_id, issue_number, title, description from tasks where list_id = ? order by display_index;", u.Id)
 	var slice []*task.TaskStruct
 	for rows.Next() {
-		var id, listID, userID int64
+		var id, listID, userID, projectID int64
 		var title, description string
 		var issueNumber sql.NullInt64
-		err := rows.Scan(&id, &listID, &userID, &issueNumber, &title, &description)
+		err := rows.Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description)
 		if err != nil {
 			logging.SharedInstance().MethodInfo("List", "Tasks", true).Panic(err)
 		}
 		if listID == u.Id {
-			l := task.NewTask(id, listID, userID, issueNumber, title, description)
+			l := task.NewTask(id, listID, projectID, userID, issueNumber, title, description)
 			slice = append(slice, l)
 		}
 	}

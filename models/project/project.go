@@ -290,9 +290,9 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 				}
 			}
 		}
-		issueTask, err := task.FindByIssueNumber(*issue.Number)
+		issueTask, err := task.FindByIssueNumber(u.Id, *issue.Number)
 		if err != nil && issueTask == nil {
-			issueTask = task.NewTask(0, 0, u.UserId, sql.NullInt64{Int64: int64(*issue.Number), Valid: true}, *issue.Title, *issue.Body)
+			issueTask = task.NewTask(0, 0, u.Id, u.UserId, sql.NullInt64{Int64: int64(*issue.Number), Valid: true}, *issue.Title, *issue.Body)
 		}
 		if len(githubLabels) == 1 {
 			// 一つのlistだけが該当するとき

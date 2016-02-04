@@ -106,7 +106,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	logging.SharedInstance().MethodInfo("TasksController", "Create").Debugf("post new task parameter: %+v", newTaskForm)
 
-	task := taskModel.NewTask(0, parentList.Id, parentList.UserId, sql.NullInt64{}, newTaskForm.Title, newTaskForm.Description)
+	task := taskModel.NewTask(0, parentList.Id, parentProject.Id, parentList.UserId, sql.NullInt64{}, newTaskForm.Title, newTaskForm.Description)
 
 	repo := parentProject.Repository()
 	if !task.Save(repo, &current_user.OauthToken) {
