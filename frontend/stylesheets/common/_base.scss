@@ -65,6 +65,9 @@ $green-color: #d3eda3;
 .flash-secondary {
   background: $secondary-color;
 }
+html, body {
+  height: 100%;
+}
 
 body {
   font-family: 'Raleway', sans-serif;
@@ -128,4 +131,34 @@ body {
   content: "";
   clear: both;
   display: block;
+}
+
+
+article {
+  width: auto;
+  margin: 0 auto;
+  background: inherit;
+  border-radius: 6px;
+  -webkit-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  overflow: hidden
+}
+article:before {
+  content: '';
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: inherit;
+  -webkit-filter: blur(10px) saturate(2);
+}
+article .title {
+  padding: 8px;
+  background: rgba(225, 225, 225, 0.5);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+article .content {
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.5);
 }
