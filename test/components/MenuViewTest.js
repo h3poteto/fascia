@@ -31,7 +31,7 @@ describe('MenuView', () => {
     let menuHorizontal = header.props.children
     let [ heading, menuList, controlList ] = menuHorizontal.props.children
     let [ settings, settingsList ] = controlList.props.children.props.children
-    let [ profile, account, logout ] = settingsList.props.children
+    let logout = settingsList.props.children
     let logoutLink = logout.props.children.props.children
 
     expect(logout.props.children.props.action).toBe("/sign_out")

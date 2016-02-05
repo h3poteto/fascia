@@ -17,8 +17,6 @@ class MenuView extends React.Component {
               <li className="pure-menu-item fascia-menu-item pure-menu-has-children pure-menu-allow-hover">
                 <a href="#" className="pure-menu-link">settings</a>
                 <ul className="pure-menu-children">
-                  <li className="pure-menu-item fascia-menu-item"><a href="#" className="pure-menu-link">profile</a></li>
-                  <li className="pure-menu-item fascia-menu-item"><a href="#" className="pure-menu-link">account</a></li>
                   <li className="pure-menu-item fascia-menu-item">
                     <form id="logout" action="/sign_out" method="post">
                       <a href="#" className="pure-menu-link" onClick={() => this.props.logout(document.getElementById("logout"))}>logout</a>
