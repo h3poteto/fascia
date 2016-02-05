@@ -28,7 +28,8 @@ describe('ProjectView', () => {
           Id: 1,
           Title: "project title",
           Description: "project description"
-        }]
+        }],
+        isLoading: false
       },
       fetchProjects: expect.createSpy(),
       fetchRepositories: expect.createSpy(),
@@ -41,7 +42,7 @@ describe('ProjectView', () => {
       expect(output.type).toBe('div')
       expect(output.props.id).toBe('projects')
 
-      let [ flash, modal, items ] = output.props.children
+      let [ wholeLoading, flash, modal, items ] = output.props.children
       expect(items.props.className).toBe('items')
 
       let [ link, button ] = items.props.children
@@ -63,7 +64,8 @@ describe('ProjectView', () => {
           Id: 1,
           Title: "project title",
           Description: "project description"
-        }]
+        }],
+        isLoading: false
       },
       fetchProjects: expect.createSpy(),
       fetchRepositories: expect.createSpy(),
@@ -79,7 +81,7 @@ describe('ProjectView', () => {
       expect(output.type).toBe('div')
       expect(output.props.id).toBe('projects')
 
-      let [ flash, modal, items ] = output.props.children
+      let [ wholeLoading, flash, modal, items ] = output.props.children
       expect(modal.props.isOpen).toBe(true)
       let formWrapper = modal.props.children
       let form = formWrapper.props.children
@@ -114,7 +116,8 @@ describe('ProjectView', () => {
           }, {
             id: 2,
             full_name: "repo2"
-          }]
+          }],
+          isLoading: false
         },
         fetchProjects: expect.createSpy(),
         fetchRepositories: expect.createSpy(),
@@ -130,7 +133,7 @@ describe('ProjectView', () => {
         expect(output.type).toBe('div')
         expect(output.props.id).toBe('projects')
 
-        let [ flash, modal, items ] = output.props.children
+        let [ wholeLoading, flash, modal, items ] = output.props.children
         expect(modal.props.isOpen).toBe(true)
         let formWrapper = modal.props.children
         let form = formWrapper.props.children
@@ -164,7 +167,8 @@ describe('ProjectView', () => {
           }, {
             id: 2,
             full_name: "repo2"
-          }]
+          }],
+          isLoading: false
         },
         fetchProjects: expect.createSpy(),
         fetchRepositories: expect.createSpy(),
@@ -180,7 +184,7 @@ describe('ProjectView', () => {
         expect(output.type).toBe('div')
         expect(output.props.id).toBe('projects')
 
-        let [ flash, modal, items ] = output.props.children
+        let [ wholeLoading, flash, modal, items ] = output.props.children
         expect(modal.props.isOpen).toBe(true)
         let formWrapper = modal.props.children
         let form = formWrapper.props.children
