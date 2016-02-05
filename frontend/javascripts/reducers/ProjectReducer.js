@@ -6,6 +6,7 @@ const initState = {
   projects: [],
   repositories: [],
   selectedRepository: null,
+  isLoading: false,
   error: null
 };
 
@@ -13,14 +14,13 @@ export default function ProjectReducer(state = initState, action) {
   switch(action.type) {
   case projectActions.SERVER_ERROR:
     return Object.assign({}, state, {
+      isLoading: false,
       error: "Server Error"
     });
   case projectActions.CLOSE_FLASH:
     return Object.assign({}, state, {
       error: null
     });
-  case projectActions.REQUEST_POSTS:
-    return state;
   case projectActions.RECEIVE_POSTS:
     var prj;
     if (action.projects == null) {
@@ -59,12 +59,17 @@ export default function ProjectReducer(state = initState, action) {
       selectedRepository: repository,
       newProject: newProject
     });
+  case projectActions.REQUEST_CREATE_PROJECT:
+    return Object.assign({}, state, {
+      isModalOpen: false,
+      isLoading: true
+    })
   case projectActions.RECEIVE_CREATE_PROJECT:
     const projects = state.projects.concat([action.project]);
     return Object.assign({}, state, {
       newProject: {title: "", description: ""},
       projects: projects,
-      isModalOpen: false
+      isLoading: false
     });
   case projectActions.UPDATE_NEW_PROJECT_TITLE:
     var newProject = state.newProject;
