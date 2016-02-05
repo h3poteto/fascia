@@ -67,7 +67,7 @@
       <h2>Projects are not synced GitHub</h2>
       <div class="content">
         <p>Fascia can manage projects are not related GitHub repositories.</p>
-        <p>Therefore, please manage your private tasks like shopping list and domestic work.</p>
+        <p>Therefore, please manage your private tasks, for example shopping list and domestic work.</p>
         <img src="/images/fascia-ss-3.png" class="fascia-ss-3">
       </div>
     </div>
