@@ -13,6 +13,7 @@ function sharedExampleInitState(action) {
     projects: [],
     repositories: [],
     selectedRepository: null,
+    isLoading: false,
     error: null
   })
 }
@@ -30,7 +31,8 @@ describe('ProjectReducer', () => {
           type: projectActions.SERVER_ERROR
         })
       ).toEqual({
-        error: "Server Error"
+        error: "Server Error",
+        isLoading: false
       })
     })
   })
@@ -169,13 +171,34 @@ describe('ProjectReducer', () => {
     })
   })
 
+  describe('REQUEST_CREATE_PROJECT', () => {
+    it('should close modal and open whole loading', () => {
+      expect(
+        ProjectReducer({
+          projects: ["project1", "project2"],
+          newProject: { title: "project3", description: "" },
+          isModalOpen: true,
+          isLoading: false
+        }, {
+          type:projectActions.REQUEST_CREATE_PROJECT,
+          project: "project3"
+        })
+      ).toEqual({
+        projects: ["project1", "project2"],
+        newProject: { title: "project3", description: "" },
+        isModalOpen: false,
+        isLoading: true
+      })
+    })
+  })
+
   describe('RECEIVE_CREATE_PROJECT', () => {
     it('should return projects', () => {
       expect(
         ProjectReducer({
           projects: ["project1", "project2"],
           newProject: { title: "project3", description: "" },
-          isModalOpen: true
+          isLoading: true
         },{
           type: projectActions.RECEIVE_CREATE_PROJECT,
           project: "project3"
@@ -183,7 +206,7 @@ describe('ProjectReducer', () => {
       ).toEqual({
         projects: ["project1", "project2", "project3"],
         newProject: {title: "", description: ""},
-        isModalOpen: false
+        isLoading: false
       })
     })
   })

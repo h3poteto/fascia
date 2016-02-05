@@ -44,8 +44,23 @@ class ProjectView extends React.Component {
     }
   }
 
+
+  wholeLoading(isLoading) {
+    if (isLoading) {
+      return (
+        <div className="whole-loading">
+          <div className="whole-circle-wrapper">
+            <div className="whole-circle-body">
+              <div className="whole-spinner"></div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+  }
+
   render() {
-    const { isModalOpen, newProject, projects, selectedRepository, error } = this.props.ProjectReducer
+    const { isModalOpen, newProject, projects, selectedRepository, isLoading, error } = this.props.ProjectReducer
     var { repositories } = this.props.ProjectReducer
 
     if (repositories == null ) {
@@ -58,6 +73,7 @@ class ProjectView extends React.Component {
     }
     return (
       <div id="projects">
+        {this.wholeLoading(isLoading)}
         {flash}
         <Modal
           isOpen={isModalOpen}
