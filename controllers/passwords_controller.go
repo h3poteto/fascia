@@ -52,7 +52,7 @@ func (u *Passwords) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Create", true).Errorf("wrong form: %v", err)
-		http.Error(w, "Wrong Form", 500)
+		http.Error(w, "Wrong Form", 400)
 		return
 	}
 	var newPasswordForm NewPasswordForm
@@ -117,7 +117,7 @@ func (u *Passwords) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Update", true).Errorf("wrong form: %v", err)
-		http.Error(w, "Wrong Form", http.StatusInternalServerError)
+		http.Error(w, "Wrong Form", 400)
 		return
 	}
 	var editPasswordForm EditPasswordForm
