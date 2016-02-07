@@ -323,10 +323,17 @@ export function taskDragStart(ev) {
 }
 
 export const TASK_DRAG_LEAVE = "TASK_DRAG_LEAVE";
-export function taskDragLeave() {
-  return {
-    type: TASK_DRAG_LEAVE
-  };
+export const TASK_DRAG_LEAVE_IGNORE = "TASK_DRAG_LEAVE_IGNORE"
+export function taskDragLeave(ev) {
+  if (ev.target.className == "new-task" || ev.target.className == "fa-plus") {
+    return {
+      type: TASK_DRAG_LEAVE_IGNORE
+    }
+  } else {
+    return {
+      type: TASK_DRAG_LEAVE
+    }
+  }
 }
 
 export const REQUEST_MOVE_TASK = 'REQUEST_MOVE_TASK';
