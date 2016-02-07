@@ -353,7 +353,12 @@ describe('taskDragLeave', () => {
     const expectedAction = {
       type: listActions.TASK_DRAG_LEAVE,
     }
-    expect(listActions.taskDragLeave()).toEqual(expectedAction)
+    const event = {
+      target: {
+        className: "task"
+      }
+    }
+    expect(listActions.taskDragLeave(event)).toEqual(expectedAction)
   })
 })
 
