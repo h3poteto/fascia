@@ -323,10 +323,19 @@ export function taskDragStart(ev) {
 }
 
 export const TASK_DRAG_LEAVE = "TASK_DRAG_LEAVE";
-export function taskDragLeave() {
-  return {
-    type: TASK_DRAG_LEAVE
-  };
+export const TASK_DRAG_LEAVE_IGNORE = "TASK_DRAG_LEAVE_IGNORE"
+export function taskDragLeave(ev) {
+  // li.new-taskだけはdragleaveイベントが頻繁に発生するため，抑制する
+  // こうしておいても，他の要素に移動した際には問題なくleave処理が為される
+  if (ev.target.className == "new-task" || ev.target.className == "fa-plus") {
+    return {
+      type: TASK_DRAG_LEAVE_IGNORE
+    }
+  } else {
+    return {
+      type: TASK_DRAG_LEAVE
+    }
+  }
 }
 
 export const REQUEST_MOVE_TASK = 'REQUEST_MOVE_TASK';
