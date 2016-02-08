@@ -8,7 +8,6 @@ import (
 	"github.com/flosch/pongo2"
 	"github.com/goji/param"
 	"github.com/zenazn/goji/web"
-	//"html/template"
 	"net/http"
 	"strconv"
 )

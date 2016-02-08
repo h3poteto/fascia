@@ -18,6 +18,7 @@ func (u *Root) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("RootController", "Index").Info("login success")
+	// TODO: project_idが存在するときは，404確認をする
 	tpl, err := pongo2.DefaultSet.FromFile("home.html.tpl")
 	if err != nil {
 		logging.SharedInstance().MethodInfo("RootController", "Index", true).Errorf("template error: %v", err)

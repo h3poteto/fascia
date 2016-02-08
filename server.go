@@ -50,6 +50,10 @@ func Routes(m *web.Mux) {
 
 	m.Get("/list_options", controllers.CallController(&controllers.ListOptions{}, "Index"))
 
+	// errors
+	m.Get("/400", controllers.BadRequest)
+	m.Get("/404", controllers.NotFound)
+	m.Get("/500", controllers.InternalServerError)
 }
 
 func main() {
