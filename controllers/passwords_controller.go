@@ -35,13 +35,13 @@ func (u *Passwords) New(c web.C, w http.ResponseWriter, r *http.Request) {
 	token, err := GenerateCSRFToken(c, w, r)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("PasswordsController", "New", true).Errorf("CSRF error: %v", err)
-		http.Error(w, "CSRF error", 500)
+		InternalServerError(w, r)
 		return
 	}
 	tpl, err := pongo2.DefaultSet.FromFile("new_password.html.tpl")
 	if err != nil {
 		logging.SharedInstance().MethodInfo("PasswordsController", "New", true).Errorf("template error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		InternalServerError(w, r)
 		return
 	}
 	tpl.ExecuteWriter(pongo2.Context{"title": "PasswordReset", "token": token}, w)
@@ -51,20 +51,20 @@ func (u *Passwords) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Create", true).Errorf("wrong form: %v", err)
-		http.Error(w, "Wrong Form", 400)
+		BadRequest(w, r)
 		return
 	}
 	var newPasswordForm NewPasswordForm
 	err = param.Parse(r.PostForm, &newPasswordForm)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Create", true).Errorf("wrong parameter: %v", err)
-		http.Error(w, "Wrong Parameter", 500)
+		InternalServerError(w, r)
 		return
 	}
 
 	if !CheckCSRFToken(r, newPasswordForm.Token) {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Create", true).Error("cannot verify CSRF token")
-		http.Error(w, "Cannot verify CSRF token", 500)
+		InternalServerError(w, r)
 		return
 	}
 
@@ -79,7 +79,7 @@ func (u *Passwords) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	reset := reset_password.GenerateResetPassword(targetUser.Id, targetUser.Email)
 	if !reset.Save() {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Create", true).Error("password_reset save error")
-		http.Error(w, "save error", 500)
+		InternalServerError(w, r)
 		return
 	}
 	// ここでemail送信
@@ -93,20 +93,20 @@ func (u *Passwords) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
 	token, err := GenerateCSRFToken(c, w, r)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Edit", true).Errorf("CSRF error: %v", err)
-		http.Error(w, "CSRF error", 500)
+		InternalServerError(w, r)
 		return
 	}
 	resetToken := r.URL.Query().Get("token")
 	id, _ := strconv.ParseInt(c.URLParams["id"], 10, 64)
 	if !reset_password.Authenticate(id, resetToken) {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Edit").Info("cannot authenticate reset password")
-		http.Error(w, "token error", 500)
+		InternalServerError(w, r)
 		return
 	}
 	tpl, err := pongo2.DefaultSet.FromFile("edit_password.html.tpl")
 	if err != nil {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Edit", true).Errorf("template error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		InternalServerError(w, r)
 		return
 	}
 	tpl.ExecuteWriter(pongo2.Context{"title": "PasswordReset", "token": token, "id": id, "resetToken": resetToken}, w)
@@ -116,26 +116,26 @@ func (u *Passwords) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Update", true).Errorf("wrong form: %v", err)
-		http.Error(w, "Wrong Form", 400)
+		BadRequest(w, r)
 		return
 	}
 	var editPasswordForm EditPasswordForm
 	err = param.Parse(r.PostForm, &editPasswordForm)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Update", true).Errorf("wrong parameters: %v", err)
-		http.Error(w, "Wrong Parameter", http.StatusInternalServerError)
+		InternalServerError(w, r)
 		return
 	}
 
 	if !CheckCSRFToken(r, editPasswordForm.Token) {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Update", true).Errorf("cannot verify CSRF token")
-		http.Error(w, "Cannot verify CSRF token", http.StatusInternalServerError)
+		InternalServerError(w, r)
 		return
 	}
 
 	if editPasswordForm.Password != editPasswordForm.PasswordConfirm {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Update", true).Error("cannot confirm password")
-		http.Error(w, "Password is invalid", http.StatusInternalServerError)
+		InternalServerError(w, r)
 		return
 	}
 
@@ -143,7 +143,7 @@ func (u *Passwords) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	targetUser, err := reset_password.ChangeUserPassword(id, editPasswordForm.ResetToken, editPasswordForm.Password)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Update").Info("cannot authenticate reset password")
-		http.Error(w, "token error", http.StatusInternalServerError)
+		InternalServerError(w, r)
 		return
 	}
 

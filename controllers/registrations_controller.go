@@ -27,14 +27,14 @@ func (u *Registrations) SignUp(c web.C, w http.ResponseWriter, r *http.Request) 
 	token, err := GenerateCSRFToken(c, w, r)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", true).Errorf("CSRF error: %v", err)
-		http.Error(w, "CSRF error", 500)
+		InternalServerError(w, r)
 		return
 	}
 
 	tpl, err := pongo2.DefaultSet.FromFile("sign_up.html.tpl")
 	if err != nil {
 		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", true).Errorf("template error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		InternalServerError(w, r)
 		return
 	}
 	tpl.ExecuteWriter(pongo2.Context{"title": "SignUp", "oauthURL": url, "token": token}, w)
@@ -44,7 +44,7 @@ func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Req
 	err := r.ParseForm()
 	if err != nil {
 		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", true).Errorf("wrong form: %v", err)
-		http.Error(w, "Wrong Form", 400)
+		BadRequest(w, r)
 		return
 	}
 
@@ -52,14 +52,14 @@ func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Req
 	err = param.Parse(r.PostForm, &signUpForm)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", true).Errorf("wrong parameter: %v", err)
-		http.Error(w, "Wrong Parameter", 500)
+		InternalServerError(w, r)
 		return
 	}
 	logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp").Debugf("post registration form: %+v", signUpForm)
 
 	if !CheckCSRFToken(r, signUpForm.Token) {
 		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", true).Error("cannot verify CSRF token")
-		http.Error(w, "Cannot verify CSRF token", 500)
+		InternalServerError(w, r)
 		return
 	}
 
