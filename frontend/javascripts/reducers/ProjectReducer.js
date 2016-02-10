@@ -15,7 +15,11 @@ export default function ProjectReducer(state = initState, action) {
   case projectActions.SERVER_ERROR:
     return Object.assign({}, state, {
       isLoading: false,
-      error: "Server Error"
+      error: "Error Not Found"
+    })
+    return Object.assign({}, state, {
+      isLoading: false,
+      error: "Internal Server Error"
     });
   case projectActions.CLOSE_FLASH:
     return Object.assign({}, state, {

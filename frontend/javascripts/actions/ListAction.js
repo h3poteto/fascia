@@ -10,7 +10,6 @@ function unauthorized() {
 
 export const NOT_FOUND = 'NOT_FOUND';
 function notFound() {
-  window.location.pathname = "/404";
   return {
     type: NOT_FOUND
   }

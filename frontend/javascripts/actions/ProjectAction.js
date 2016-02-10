@@ -8,6 +8,13 @@ function unauthorized() {
   };
 }
 
+export const NOT_FOUND = 'NOT_FOUND'
+function notFound() {
+  return {
+    type: NOT_FOUND
+  }
+}
+
 export const SERVER_ERROR = 'SERVER_ERROR';
 function serverError() {
   return {
@@ -47,6 +54,8 @@ export function fetchProjects() {
           dispatch(receivePosts(res.body));
         } else if (res.unauthorized) {
           dispatch(unauthorized());
+        } else if (res.notFound) {
+          dispatch(notFound())
         } else {
           dispatch(serverError());
         }
@@ -95,6 +104,8 @@ export function fetchRepositories() {
           dispatch(receiveRepositories(res.body));
         } else if (res.unauthorized) {
           dispatch(unauthorized());
+        } else if (res.notFound) {
+          dispatch(notFound())
         } else {
           dispatch(serverError());
         }
@@ -144,6 +155,8 @@ export function fetchCreateProject(title, description, repository) {
           dispatch(receiveCreateProject(res.body.Id, res.body.UserId, res.body.Title, res.body.Description));
         } else if (res.unauthorized) {
           dispatch(unauthorized());
+        } else if (res.notFound) {
+          dispatch(notFound())
         } else {
           dispatch(serverError());
         }

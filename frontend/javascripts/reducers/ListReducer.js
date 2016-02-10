@@ -23,11 +23,16 @@ const initState = {
 
 export default function ListReducer(state = initState, action) {
   switch(action.type) {
+  case listActions.NOT_FOUND:
+    return Object.assign({}, state, {
+      error: "Error Not Found",
+      isLoading: false
+    })
   case listActions.SERVER_ERROR:
     return Object.assign({}, state, {
-      error: "Server Error",
+      error: "Internal Server Error",
       isLoading: false
-    });
+    })
   case listActions.CLOSE_FLASH:
     return Object.assign({}, state, {
       error: null
