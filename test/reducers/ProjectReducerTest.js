@@ -31,7 +31,7 @@ describe('ProjectReducer', () => {
           type: projectActions.SERVER_ERROR
         })
       ).toEqual({
-        error: "Server Error",
+        error: "Internal Server Error",
         isLoading: false
       })
     })
@@ -40,7 +40,7 @@ describe('ProjectReducer', () => {
     it('should close flash', () => {
       expect(
         ProjectReducer({
-          error: "Server Error"
+          error: "Internal Server Error"
         }, {
           type: projectActions.CLOSE_FLASH
         })
