@@ -18,7 +18,7 @@ func Routes(m *web.Mux) {
 	m.Get("/images/*", http.FileServer(http.Dir("./frontend/")))
 	m.Get("/fonts/*", http.FileServer(http.Dir("./public/assets/")))
 	// routing
-	m.Get("/about", controllers.CallController(&controllers.Contents{}, "About"))
+	m.Get("/about", controllers.CallController(&controllers.Root{}, "About"))
 	m.Get("/", controllers.CallController(&controllers.Root{}, "Index"))
 	m.Get("/projects/:project_id", controllers.CallController(&controllers.Root{}, "Index"))
 	m.Get("/sign_in", controllers.CallController(&controllers.Sessions{}, "SignIn"))
