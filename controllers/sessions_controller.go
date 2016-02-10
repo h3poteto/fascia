@@ -27,13 +27,13 @@ func (u *Sessions) SignIn(c web.C, w http.ResponseWriter, r *http.Request) {
 	token, err := GenerateCSRFToken(c, w, r)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("SessionsController", "SignIn", true).Errorf("CSRF error: %v", err)
-		http.Error(w, "CSRF error", 500)
+		InternalServerError(w, r)
 		return
 	}
 	tpl, err := pongo2.DefaultSet.FromFile("sign_in.html.tpl")
 	if err != nil {
 		logging.SharedInstance().MethodInfo("SessionsController", "SignIn", true).Errorf("template error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		InternalServerError(w, r)
 		return
 	}
 	tpl.ExecuteWriter(pongo2.Context{"title": "SignIn", "oauthURL": url, "token": token}, w)
@@ -44,33 +44,33 @@ func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	session, err := cookieStore.Get(r, "fascia")
 	if err != nil {
 		logging.SharedInstance().MethodInfo("SessionsController", "NewSession", true).Errorf("get session error: %v", err)
-		http.Error(w, "session error", 500)
+		InternalServerError(w, r)
 		return
 	}
 	session.Options = &sessions.Options{MaxAge: -1}
 	err = session.Save(r, w)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("SessionsController", "NewSession", true).Errorf("save session error: %v", err)
-		http.Error(w, "session error", 500)
+		InternalServerError(w, r)
 		return
 	}
 	err = r.ParseForm()
 	if err != nil {
 		logging.SharedInstance().MethodInfo("SessionsController", "NewSession", true).Errorf("wrong form: %v", err)
-		http.Error(w, "Wrong Form", 500)
+		BadRequest(w, r)
 		return
 	}
 	var signInForm SignInForm
 	err = param.Parse(r.PostForm, &signInForm)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("SessionsController", "NewSession", true).Errorf("wrong parameter: %v", err)
-		http.Error(w, "Wrong Parameter", 500)
+		InternalServerError(w, r)
 		return
 	}
 
 	if !CheckCSRFToken(r, signInForm.Token) {
 		logging.SharedInstance().MethodInfo("SessionsController", "NewSession", true).Error("cannot verify CSRF token")
-		http.Error(w, "Cannot verify CSRF token", 500)
+		InternalServerError(w, r)
 		return
 	}
 
@@ -87,7 +87,7 @@ func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	err = session.Save(r, w)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("SessionsController", "NewSessions", true).Errorf("session error: %v", err)
-		http.Error(w, "session error", 500)
+		InternalServerError(w, r)
 		return
 	}
 	logging.SharedInstance().MethodInfo("SessionsController", "NewSession").Info("login success")
@@ -99,14 +99,14 @@ func (u *Sessions) SignOut(c web.C, w http.ResponseWriter, r *http.Request) {
 	session, err := cookieStore.Get(r, "fascia")
 	if err != nil {
 		logging.SharedInstance().MethodInfo("SessionsController", "SignOut", true).Errorf("get session error: %v", err)
-		http.Error(w, "session error", 500)
+		InternalServerError(w, r)
 		return
 	}
 	session.Options = &sessions.Options{MaxAge: -1}
 	err = session.Save(r, w)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("SessionsController", "SignOut", true).Errorf("session error: %v", err)
-		http.Error(w, "session error", 500)
+		InternalServerError(w, r)
 		return
 	}
 	logging.SharedInstance().MethodInfo("SessionsController", "SignOut").Info("logout success")

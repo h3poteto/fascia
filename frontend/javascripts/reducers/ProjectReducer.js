@@ -12,10 +12,15 @@ const initState = {
 
 export default function ProjectReducer(state = initState, action) {
   switch(action.type) {
+  case projectActions.NOT_FOUND:
+    return Object.assign({}, state, {
+      isLoading: false,
+      error: "Error Not Found"
+    })
   case projectActions.SERVER_ERROR:
     return Object.assign({}, state, {
       isLoading: false,
-      error: "Server Error"
+      error: "Internal Server Error"
     });
   case projectActions.CLOSE_FLASH:
     return Object.assign({}, state, {

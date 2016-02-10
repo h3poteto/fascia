@@ -43,7 +43,7 @@ describe('ListReducer', () => {
           type: listActions.SERVER_ERROR
         })
       ).toEqual({
-        error: "Server Error",
+        error: "Internal Server Error",
         isLoading: false,
       })
     })
@@ -52,7 +52,7 @@ describe('ListReducer', () => {
     it('should close flash', () => {
       expect(
         ListReducer({
-          error: "Server Error"
+          error: "Internal Server Error"
         }, {
           type: listActions.CLOSE_FLASH
         })

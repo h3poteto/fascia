@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/PuerkitoBio/goquery"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/zenazn/goji/web"
@@ -76,8 +77,10 @@ var _ = Describe("PasswordsController", func() {
 			It("should internal server error", func() {
 				res, err := http.Get(ts.URL + "/passwords/" + strconv.FormatInt(uid, 10) + "/edit?token=sample")
 				Expect(err).To(BeNil())
-				_, status := ParseResponse(res)
-				Expect(status).To(Equal(http.StatusInternalServerError))
+				doc, _ := goquery.NewDocumentFromResponse(res)
+				doc.Find("h2").Each(func(_ int, s *goquery.Selection) {
+					Expect(s.Text()).To(Equal("Internal Server Error."))
+				})
 			})
 		})
 		Context("token is correct", func() {
@@ -105,8 +108,10 @@ var _ = Describe("PasswordsController", func() {
 				values.Add("reset-token", "sample")
 				res, err := http.PostForm(ts.URL+"/passwords/"+strconv.FormatInt(resetPassword.Id, 10)+"/update", values)
 				Expect(err).To(BeNil())
-				_, status := ParseResponse(res)
-				Expect(status).To(Equal(http.StatusInternalServerError))
+				doc, _ := goquery.NewDocumentFromResponse(res)
+				doc.Find("h2").Each(func(_ int, s *goquery.Selection) {
+					Expect(s.Text()).To(Equal("Internal Server Error."))
+				})
 			})
 		})
 		Context("token is correct", func() {
