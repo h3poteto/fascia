@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 
+	"github.com/PuerkitoBio/goquery"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/zenazn/goji/web"
@@ -48,11 +49,18 @@ var _ = Describe("SessionsController", func() {
 			})
 		})
 		Context("/", func() {
-			It("should redirect to sign in", func() {
+			It("should redirect to top page", func() {
 				res, err := http.Get(ts.URL + "/")
 				Expect(err).To(BeNil())
 				Expect(res.StatusCode).To(Equal(200))
-				Expect(res.Request.URL.Path).To(Equal("/sign_in"))
+				Expect(res.Request.URL.Path).To(Equal("/"))
+				topDoc, _ := goquery.NewDocumentFromResponse(res)
+				aboutDoc, _ := goquery.NewDocument(ts.URL + "/about")
+				topDoc.Find("h1").Each(func(_ int, s *goquery.Selection) {
+					aboutDoc.Find("h1").Each(func(_ int, as *goquery.Selection) {
+						Expect(as.Text()).To(Equal(s.Text()))
+					})
+				})
 			})
 		})
 	})
