@@ -205,11 +205,20 @@ func (d *deploy) migration() {
 
 	log.Println("db migration")
 	command := fmt.Sprintf("source $HOME/.bash_profile; cd %v/src/%v && gom exec goose -env production up", d.DeployTo, d.Name)
+	log.Println(command)
 	if err := session.Run(command); err != nil {
 		panic(err)
 	}
 }
 
 func (d *deploy) restart() {
-	// todo supervisord
+	session := d.getSession()
+	defer session.Close()
+
+	log.Println("restart application")
+	command := fmt.Sprint("sudo service supervisor restart")
+	log.Println(command)
+	if err := session.Run(command); err != nil {
+		panic(err)
+	}
 }
