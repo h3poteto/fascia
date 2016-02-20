@@ -17,7 +17,7 @@ production:
     name: $DB_NAME
     user: $DB_USER
     password: $DB_PASSWORD
-    open: $DB_NAME/$DB_USER/$DB_PASSWORD
+    open: tcp:$DATABASE_URL:3306*$DB_NAME/$DB_USER/$DB_PASSWORD
 
 environment_variable_config:
     driver: $DB_DRIVER

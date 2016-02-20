@@ -9,14 +9,17 @@ import (
 	"github.com/zenazn/goji"
 	"github.com/zenazn/goji/web"
 	"net/http"
+	"os"
+	"path/filepath"
 )
 
 func Routes(m *web.Mux) {
+	root := os.Getenv("GOJIROOT")
 	// assets
-	m.Get("/stylesheets/*", http.FileServer(http.Dir("./public/assets/")))
-	m.Get("/javascripts/*", http.FileServer(http.Dir("./public/assets/")))
-	m.Get("/images/*", http.FileServer(http.Dir("./frontend/")))
-	m.Get("/fonts/*", http.FileServer(http.Dir("./public/assets/")))
+	m.Get("/stylesheets/*", http.FileServer(http.Dir(filepath.Join(root, "public/assets/"))))
+	m.Get("/javascripts/*", http.FileServer(http.Dir(filepath.Join(root, "public/assets/"))))
+	m.Get("/images/*", http.FileServer(http.Dir(filepath.Join(root, "frontend/"))))
+	m.Get("/fonts/*", http.FileServer(http.Dir(filepath.Join(root, "public/assets/"))))
 	// routing
 	m.Get("/about", controllers.CallController(&controllers.Root{}, "About"))
 	m.Get("/", controllers.CallController(&controllers.Root{}, "Index"))
