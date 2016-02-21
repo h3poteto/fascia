@@ -1,0 +1,8 @@
+user: # remote server user
+host: # remote server address
+port: ":9999" # remote server port
+repository: "https://github.com/h3poteto/fascia.git"
+branch: "master"
+name: "fascia" # directory name = repository name
+sourcefile: "server.go"
+deployto: "/srv/www/fascia"
