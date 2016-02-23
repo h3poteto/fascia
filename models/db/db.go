@@ -33,10 +33,12 @@ func (u *Database) Init() *sql.DB {
 	username := m[env].(map[interface{}]interface{})["user"].(string)
 	password := m[env].(map[interface{}]interface{})["password"].(string)
 	database := m[env].(map[interface{}]interface{})["name"].(string)
+	host := m[env].(map[interface{}]interface{})["host"].(string)
 	username = os.ExpandEnv(username)
 	password = os.ExpandEnv(password)
 	database = os.ExpandEnv(database)
-	db, err := sql.Open("mysql", username+":"+password+"@/"+database+"?charset=utf8")
+	host = os.ExpandEnv(host)
+	db, err := sql.Open("mysql", username+":"+password+"@tcp("+host+":3306)/"+database+"?charset=utf8")
 	if err != nil {
 		logging.SharedInstance().MethodInfo("DB", "Init", true).Panic(err)
 	}
