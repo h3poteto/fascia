@@ -292,7 +292,7 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		}
 		issueTask, err := task.FindByIssueNumber(u.Id, *issue.Number)
 		if err != nil && issueTask == nil {
-			issueTask = task.NewTask(0, 0, u.Id, u.UserId, sql.NullInt64{Int64: int64(*issue.Number), Valid: true}, *issue.Title, *issue.Body)
+			issueTask = task.NewTask(0, 0, u.Id, u.UserId, sql.NullInt64{Int64: int64(*issue.Number), Valid: true}, *issue.Title, *issue.Body, hub.IsPullRequest(&issue), sql.NullString{String: *issue.HTMLURL, Valid: true})
 		}
 		if len(githubLabels) == 1 {
 			// 一つのlistだけが該当するとき
@@ -317,6 +317,8 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		} else {
 			issueTask.Title = *issue.Title
 			issueTask.Description = *issue.Body
+			issueTask.PullRequest = hub.IsPullRequest(&issue)
+			issueTask.HtmlURL = sql.NullString{String: *issue.HTMLURL, Valid: true}
 			if !issueTask.Update(nil, nil) {
 				logging.SharedInstance().MethodInfo("Project", "FetchGithub", true).Error("failed to update task")
 				return false, errors.New("failed to update task")

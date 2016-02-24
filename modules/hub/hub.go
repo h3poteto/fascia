@@ -157,3 +157,10 @@ func GetGithubIssues(token string, repo *repository.RepositoryStruct) ([]github.
 
 	return opneIssues, closedIssues, nil
 }
+
+func IsPullRequest(issue *github.Issue) bool {
+	if issue.PullRequestLinks == nil {
+		return false
+	}
+	return true
+}
