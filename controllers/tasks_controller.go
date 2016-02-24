@@ -32,6 +32,7 @@ type TaskJsonFormat struct {
 	UserId      int64
 	IssueNumber int64
 	Title       string
+	PullRequest bool
 }
 
 func (u *Tasks) Index(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -60,7 +61,7 @@ func (u *Tasks) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	tasks := parentList.Tasks()
 	jsonTasks := make([]*TaskJsonFormat, 0)
 	for _, t := range tasks {
-		jsonTasks = append(jsonTasks, &TaskJsonFormat{Id: t.Id, ListId: t.ListId, UserId: t.UserId, IssueNumber: t.IssueNumber.Int64, Title: t.Title})
+		jsonTasks = append(jsonTasks, &TaskJsonFormat{Id: t.Id, ListId: t.ListId, UserId: t.UserId, IssueNumber: t.IssueNumber.Int64, Title: t.Title, PullRequest: t.PullRequest})
 	}
 	encoder.Encode(jsonTasks)
 	logging.SharedInstance().MethodInfo("TasksController", "Index").Info("success to get tasks")
@@ -114,7 +115,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "save failed", 500)
 		return
 	}
-	jsonTask := TaskJsonFormat{Id: task.Id, ListId: task.ListId, UserId: task.UserId, IssueNumber: task.IssueNumber.Int64, Title: task.Title}
+	jsonTask := TaskJsonFormat{Id: task.Id, ListId: task.ListId, UserId: task.UserId, IssueNumber: task.IssueNumber.Int64, Title: task.Title, PullRequest: task.PullRequest}
 	logging.SharedInstance().MethodInfo("TasksController", "Create").Info("success to create task")
 	encoder.Encode(jsonTask)
 }
@@ -194,7 +195,7 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 func TaskFormatToJson(tasks []*taskModel.TaskStruct) []*TaskJsonFormat {
 	jsonTasks := make([]*TaskJsonFormat, 0)
 	for _, t := range tasks {
-		jsonTasks = append(jsonTasks, &TaskJsonFormat{Id: t.Id, ListId: t.ListId, UserId: t.UserId, IssueNumber: t.IssueNumber.Int64, Title: t.Title})
+		jsonTasks = append(jsonTasks, &TaskJsonFormat{Id: t.Id, ListId: t.ListId, UserId: t.UserId, IssueNumber: t.IssueNumber.Int64, Title: t.Title, PullRequest: t.PullRequest})
 	}
 	return jsonTasks
 }
