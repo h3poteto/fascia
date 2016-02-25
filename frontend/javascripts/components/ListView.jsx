@@ -178,7 +178,11 @@ export default class ListView extends React.Component {
           </div>
         </Modal>
         <div className="title-wrapper">
-          <div className="project-operation"><i className="fa fa-repeat" onClick={e => this.props.fetchProjectGithub(this.props.params.projectId)}></i></div>
+          <div className="project-operation">
+            <span className="pull-request-select select"><i className="octicon octicon-git-pull-request"></i></span>
+            <span className="pull-request-select select"><i className="octicon octicon-issue-opened"></i></span>
+            <i className="fa fa-repeat" onClick={e => this.props.fetchProjectGithub(this.props.params.projectId)}></i>
+          </div>
           <h3 className="project-title">{project != null ? project.Title : ''}<span className="fascia-project-menu" onClick={e => this.props.openEditProjectModal(project)}><i className="fa fa-pencil"></i></span></h3>
         </div>
         <div className="items">

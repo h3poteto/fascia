@@ -3,7 +3,7 @@
     box-sizing: border-box;
     border-bottom: 1px solid #ccc;
     .project-title {
-      margin: 5px;
+      margin: 12px;
       color: rgb(0, 120, 230);
       .fascia-project-menu {
         font-size: 80%;
@@ -17,6 +17,22 @@
       margin-right: 30px;
       color: rgb(0, 120, 213);
       cursor: pointer;
+      .pull-request-select {
+        color: rgb(72, 79, 89);
+        margin: 4px;
+        padding: 2px;
+        font-size: 18px;
+        border-radius: 4px;
+        border: 1px solid rgb(193, 201, 208);
+      }
+      .select {
+        background: linear-gradient(
+          rgb(249, 252, 255),
+          rgb(222, 229, 243));
+      }
+      i {
+        margin: 4px 8px;
+      }
     }
   }
   .items {
