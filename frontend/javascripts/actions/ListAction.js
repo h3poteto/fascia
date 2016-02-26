@@ -564,3 +564,17 @@ export function fetchUpdateProject(projectID, project) {
       })
   }
 }
+
+export const SHOW_ISSUES = 'SHOW_ISSUES'
+export function showIssues() {
+  return {
+    type: SHOW_ISSUES
+  }
+}
+
+export const SHOW_PULL_REQUESTS = 'SHOW_PULL_REQUESTS'
+export function showPullRequests() {
+  return {
+    type: SHOW_PULL_REQUESTS
+  }
+}

@@ -18,6 +18,8 @@ const initState = {
   taskDraggingFrom: null,
   taskDraggingTo: null,
   isLoading: false,
+  isShowIssues: true,
+  isShowPullRequests: true,
   error: null
 };
 
@@ -427,6 +429,16 @@ export default function ListReducer(state = initState, action) {
     return Object.assign({}, state, {
       project: action.project,
       isProjectEditModalOpen: false
+    })
+  case listActions.SHOW_ISSUES:
+    var isShowIssues = !state.isShowIssues
+    return Object.assign({}, state, {
+      isShowIssues: isShowIssues
+    })
+  case listActions.SHOW_PULL_REQUESTS:
+    var isShowPullRequests = !state.isShowPullRequests
+    return Object.assign({}, state, {
+      isShowPullRequests: isShowPullRequests
     })
   default:
     return state
