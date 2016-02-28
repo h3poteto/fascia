@@ -57,9 +57,13 @@ describe('ListView', () => {
         selectedListOption: null,
         selectedList: null,
         project: {
-          Title: "testProject"
+          Title: "testProject",
+          Description: "description",
+          RepositoryID: 0,
+          ShowIssues: true,
+          ShowPullRequests: true
         },
-        selectedProject: {Title: "", Description: "", RepositoryID: 0},
+        selectedProject: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
         isTaskDraggingOver: false,
         taskDraggingFrom: null,
         taskDraggingTo: null,
@@ -101,7 +105,7 @@ describe('ListView', () => {
       expect(props.openNewListModal.calls.length).toBe(1)
 
       // list which have tasks
-      let [ firstListMenu, firstList1Title, firstTasks ] = list[0].props.children
+      let [ firstListMenu, firstListTitle, firstTasks ] = list[0].props.children
       let [ firstListTasks, firstNewTask ] = firstTasks.props.children
       let [ task1, task2 ] = firstListTasks
       expect(task1.props['data-id']).toBe(1)
@@ -121,7 +125,6 @@ describe('ListView', () => {
       expect(props.openNewTaskModal.calls.length).toBe(1)
 
       let [ tasks, newTask ] = noneList.props.children.props.children
-      console.log(tasks[0])
       expect(tasks[0].props['data-id']).toBe(3)
       expect(newTask.props.className).toBe('new-task pure-button button-blue')
 
@@ -163,9 +166,13 @@ describe('ListView', () => {
         selectedListOption: null,
         selectedList: null,
         project: {
-          Title: "testProject"
+          Title: "testProject",
+          Description: "description",
+          RepositoryID: 0,
+          ShowIssues: true,
+          ShowPullRequests: true
         },
-        selectedProject: {Title: "", Description: "", RepositoryID: 0},
+        selectedProject: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
         isTaskDraggingOver: false,
         taskDraggingFrom: null,
         taskDraggingTo: null,
@@ -223,9 +230,13 @@ describe('ListView', () => {
         selectedListOption: null,
         selectedList: null,
         project: {
-          Title: "testProject"
+          Title: "testProject",
+          Description: "description",
+          RepositoryID: 0,
+          ShowIssues: true,
+          ShowPullRequests: true
         },
-        selectedProject: {Title: "", Description: "", RepositoryID: 0},
+        selectedProject: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
         isTaskDraggingOver: false,
         taskDraggingFrom: null,
         taskDraggingTo: null,
@@ -284,9 +295,13 @@ describe('ListView', () => {
         selectedListOption: null,
         selectedList: null,
         project: {
-          Title: "testProject"
+          Title: "testProject",
+          Description: "description",
+          RepositoryID: 0,
+          ShowIssues: true,
+          ShowPullRequests: true
         },
-        selectedProject: {Title: "", Description: "", RepositoryID: 0},
+        selectedProject: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
         isTaskDraggingOver: false,
         taskDraggingFrom: null,
         taskDraggingTo: null,
@@ -494,9 +509,12 @@ describe('ListView', () => {
           selectedList: null,
           project: {
             Title: "testProject",
-            RepositoryID: 1
+            Description: "description",
+            RepositoryID: 1,
+            ShowIssues: true,
+            ShowPullRequests: true
           },
-          selectedProject: {Title: "", Description: "", RepositoryID: 0},
+          selectedProject: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
           isTaskDraggingOver: false,
           taskDraggingFrom: null,
           taskDraggingTo: null,
@@ -527,6 +545,176 @@ describe('ListView', () => {
         let [ actionLabel, actionSelect ] = actionWrapper.props.children
         expect(actionSelect.props.value).toBe(state.ListReducer.selectedListOption.Id)
       })
+    })
+  })
+
+  context('when showIssue is false', () => {
+    let state = {
+      ListReducer: {
+        isListModalOpen: false,
+        isTaskModalOpen: false,
+        isListEditModalOpen: false,
+        isProjectEditModalOpen: false,
+        newList: {title: "", color: "0effff"},
+        newTask: {title: ""},
+        lists: [
+          {
+            Id: 1,
+            Title: "list1",
+            ListTasks: [
+              {
+                Id: 1,
+                Title: "task1",
+                PullRequest: true
+              }, {
+                Id: 2,
+                Title: "task2",
+                PullRequest: false
+              }
+            ]
+          }, {
+            Id: 2,
+            Title: "list2",
+            ListTasks: []
+          }
+        ],
+        noneList: {
+          Id: 3,
+          ListTasks: [
+            {
+              Id: 3,
+              Title: "task3",
+              PullRequest: false
+            }
+          ]
+        },
+        listOptions: [],
+        selectedListOption: null,
+        selectedList: null,
+        project: {
+          Title: "testProject",
+          Description: "description",
+          RepositoryID: 0,
+          ShowIssues: false,
+          ShowPullRequests: true
+        },
+        selectedProject: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
+        isTaskDraggingOver: false,
+        taskDraggingFrom: null,
+        taskDraggingTo: null,
+        error: null
+      },
+      params: {
+        projectId: 1
+      },
+      fetchLists: expect.createSpy(),
+      fetchProject: expect.createSpy(),
+      fetchListOptions: expect.createSpy(),
+      closeFlash: expect.createSpy(),
+      taskDrop: expect.createSpy(),
+      openNewListModal: expect.createSpy(),
+      taskDragStart: expect.createSpy(),
+      openNewTaskModal: expect.createSpy()
+    }
+    it('should not render issues', () => {
+      const { output, props } = setup(state)
+
+      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
+      let [list, button ] = items.props.children
+      let [ firstListMenu, firstListTitle, firstTasks ] = list[0].props.children
+      let [ firstListTasks, firstNewTask ] = firstTasks.props.children
+      let [ task1, task2 ] = firstListTasks
+      expect(task1.props['data-id']).toBe(1)
+      expect(task2).toBe(undefined)
+      let [ secondListMenu, secondListTitle, secondTasks ] = list[1].props.children
+      let [ secondListTasks, secondNewTask ] = secondTasks.props.children
+      let [ tasks, newTask ] = noneList.props.children.props.children
+      expect(tasks[0]).toBe(undefined)
+    })
+  })
+
+  context('when showPullRequest is false', () => {
+    let state = {
+      ListReducer: {
+        isListModalOpen: false,
+        isTaskModalOpen: false,
+        isListEditModalOpen: false,
+        isProjectEditModalOpen: false,
+        newList: {title: "", color: "0effff"},
+        newTask: {title: ""},
+        lists: [
+          {
+            Id: 1,
+            Title: "list1",
+            ListTasks: [
+              {
+                Id: 1,
+                Title: "task1",
+                PullRequest: true
+              }, {
+                Id: 2,
+                Title: "task2",
+                PullRequest: false
+              }
+            ]
+          }, {
+            Id: 2,
+            Title: "list2",
+            ListTasks: []
+          }
+        ],
+        noneList: {
+          Id: 3,
+          ListTasks: [
+            {
+              Id: 3,
+              Title: "task3",
+              PullRequest: false
+            }
+          ]
+        },
+        listOptions: [],
+        selectedListOption: null,
+        selectedList: null,
+        project: {
+          Title: "testProject",
+          Description: "description",
+          RepositoryID: 0,
+          ShowIssues: true,
+          ShowPullRequests: false
+        },
+        selectedProject: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
+        isTaskDraggingOver: false,
+        taskDraggingFrom: null,
+        taskDraggingTo: null,
+        error: null
+      },
+      params: {
+        projectId: 1
+      },
+      fetchLists: expect.createSpy(),
+      fetchProject: expect.createSpy(),
+      fetchListOptions: expect.createSpy(),
+      closeFlash: expect.createSpy(),
+      taskDrop: expect.createSpy(),
+      openNewListModal: expect.createSpy(),
+      taskDragStart: expect.createSpy(),
+      openNewTaskModal: expect.createSpy()
+    }
+    it('should not render pull requests', () => {
+      const { output, props } = setup(state)
+
+      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
+      let [list, button ] = items.props.children
+      let [ firstListMenu, firstListTitle, firstTasks ] = list[0].props.children
+      let [ firstListTasks, firstNewTask ] = firstTasks.props.children
+      let [ task1, task2 ] = firstListTasks
+      expect(task1).toBe(undefined)
+      expect(task2.props['data-id']).toBe(2)
+      let [ secondListMenu, secondListTitle, secondTasks ] = list[1].props.children
+      let [ secondListTasks, secondNewTask ] = secondTasks.props.children
+      let [ tasks, newTask ] = noneList.props.children.props.children
+      expect(tasks[0].props['data-id']).toBe(3)
     })
   })
 })
