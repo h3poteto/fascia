@@ -323,7 +323,7 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 			issueTask.Title = *issue.Title
 			issueTask.Description = *issue.Body
 			issueTask.PullRequest = hub.IsPullRequest(&issue)
-			issueTask.HtmlURL = sql.NullString{String: *issue.HTMLURL, Valid: true}
+			issueTask.HTMLURL = sql.NullString{String: *issue.HTMLURL, Valid: true}
 			if !issueTask.Update(nil, nil) {
 				logging.SharedInstance().MethodInfo("Project", "FetchGithub", true).Error("failed to update task")
 				return false, errors.New("failed to update task")

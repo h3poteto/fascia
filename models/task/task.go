@@ -24,12 +24,12 @@ type TaskStruct struct {
 	Title       string
 	Description string
 	PullRequest bool
-	HtmlURL     sql.NullString
+	HTMLURL     sql.NullString
 	database    db.DB
 }
 
 func NewTask(id int64, listID int64, projectID int64, userID int64, issueNumber sql.NullInt64, title string, description string, pullRequest bool, htmlURL sql.NullString) *TaskStruct {
-	task := &TaskStruct{Id: id, ListId: listID, ProjectId: projectID, UserId: userID, IssueNumber: issueNumber, Title: title, Description: description, PullRequest: pullRequest, HtmlURL: htmlURL}
+	task := &TaskStruct{Id: id, ListId: listID, ProjectId: projectID, UserId: userID, IssueNumber: issueNumber, Title: title, Description: description, PullRequest: pullRequest, HTMLURL: htmlURL}
 	task.Initialize()
 	return task
 }
@@ -102,7 +102,7 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	// display_indexを自動挿入する
 	count := 0
 	err := transaction.QueryRow("SELECT COUNT(id) FROM tasks WHERE list_id = ?;", u.ListId).Scan(&count)
-	result, err := transaction.Exec("insert into tasks (list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index, created_at) values (?,?,?, ?, ?, ?, ?, ?, ?, now());", u.ListId, u.ProjectId, u.UserId, u.IssueNumber, u.Title, u.Description, u.PullRequest, u.HtmlURL, count+1)
+	result, err := transaction.Exec("insert into tasks (list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index, created_at) values (?,?,?, ?, ?, ?, ?, ?, ?, now());", u.ListId, u.ProjectId, u.UserId, u.IssueNumber, u.Title, u.Description, u.PullRequest, u.HTMLURL, count+1)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("task", "Save", true).Errorf("insert task error: %v", err)
 		transaction.Rollback()
@@ -151,7 +151,7 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		}
 		logging.SharedInstance().MethodInfo("task", "Save").Info("issue number is updated")
 		u.IssueNumber = sql.NullInt64{Int64: int64(*issue.Number), Valid: true}
-		u.HtmlURL = sql.NullString{String: *issue.HTMLURL, Valid: true}
+		u.HTMLURL = sql.NullString{String: *issue.HTMLURL, Valid: true}
 	}
 
 	err = transaction.Commit()
@@ -169,7 +169,7 @@ func (u *TaskStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	table := u.database.Init()
 	defer table.Close()
 
-	_, err := table.Exec("update tasks set list_id = ?, issue_number = ?, title = ?, description = ?, pull_request = ?, html_url = ? where id = ?;", u.ListId, u.IssueNumber, u.Title, u.Description, u.PullRequest, u.HtmlURL, u.Id)
+	_, err := table.Exec("update tasks set list_id = ?, issue_number = ?, title = ?, description = ?, pull_request = ?, html_url = ? where id = ?;", u.ListId, u.IssueNumber, u.Title, u.Description, u.PullRequest, u.HTMLURL, u.Id)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("task", "Update", true).Errorf("update error: %v", err)
 		return false
