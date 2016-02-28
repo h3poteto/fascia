@@ -26,12 +26,19 @@ type EditProjectForm struct {
 	Description string `param:"description"`
 }
 
+type SettingsProjectForm struct {
+	ShowIssues       bool `param:"show_issues"`
+	ShowPullRequests bool `param:"show_pull_requests"`
+}
+
 type ProjectJsonFormat struct {
-	Id           int64
-	UserId       int64
-	Title        string
-	Description  string
-	RepositoryID int64
+	Id               int64
+	UserId           int64
+	Title            string
+	Description      string
+	ShowIssues       bool
+	ShowPullRequests bool
+	RepositoryID     int64
 }
 
 func (u *Projects) Index(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -46,7 +53,12 @@ func (u *Projects) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	projects := current_user.Projects()
 	jsonProjects := make([]*ProjectJsonFormat, 0)
 	for _, p := range projects {
-		jsonProjects = append(jsonProjects, &ProjectJsonFormat{Id: p.Id, UserId: p.UserId, Title: p.Title, Description: p.Description})
+		var repositoryId int64
+		repo := p.Repository()
+		if repo != nil {
+			repositoryId = repo.Id
+		}
+		jsonProjects = append(jsonProjects, &ProjectJsonFormat{Id: p.Id, UserId: p.UserId, Title: p.Title, Description: p.Description, ShowIssues: p.ShowIssues, ShowPullRequests: p.ShowPullRequests, RepositoryID: repositoryId})
 	}
 	encoder.Encode(jsonProjects)
 }
@@ -72,7 +84,7 @@ func (u *Projects) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 	if repo != nil {
 		repoId = repo.Id
 	}
-	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId, Title: project.Title, Description: project.Description, RepositoryID: repoId}
+	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repoId}
 	encoder.Encode(jsonProject)
 	return
 }
@@ -109,7 +121,12 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "save failed", 500)
 		return
 	}
-	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId, Title: project.Title, Description: project.Description}
+	var repositoryId int64
+	repo := project.Repository()
+	if repo != nil {
+		repositoryId = repo.Id
+	}
+	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repositoryId}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Create").Info("success to create project")
 	encoder.Encode(jsonProject)
 }
@@ -147,7 +164,7 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Update").Debug("post edit project parameter: %+v", editProjectForm)
-	if !project.Update(editProjectForm.Title, editProjectForm.Description) {
+	if !project.Update(editProjectForm.Title, editProjectForm.Description, project.ShowIssues, project.ShowPullRequests) {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Update", true).Error("update failed")
 		http.Error(w, "update failed", 500)
 		return
@@ -158,7 +175,53 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	if repo != nil {
 		repositoryId = repo.Id
 	}
-	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId, Title: project.Title, Description: project.Description, RepositoryID: repositoryId}
+	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repositoryId}
+	encoder.Encode(jsonProject)
+}
+
+func (u *Projects) Settings(c web.C, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	current_user, err := LoginRequired(r)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Settings").Infof("login error: %v", err)
+		http.Error(w, "not logined", 401)
+		return
+	}
+	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	project := projectModel.FindProject(projectID)
+	if project == nil || project.UserId != current_user.Id {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Settings").Warn("project not found")
+		http.Error(w, "project not found", 404)
+		return
+	}
+
+	encoder := json.NewEncoder(w)
+
+	err = r.ParseForm()
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Settings", true).Errorf("wrong form: %v", err)
+		http.Error(w, "Wrong Form", 400)
+	}
+	var settingsProjectForm SettingsProjectForm
+	err = param.Parse(r.PostForm, &settingsProjectForm)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Settings", true).Errorf("wrong parameter: %v", err)
+		http.Error(w, "Wrong parameter", 500)
+		return
+	}
+	logging.SharedInstance().MethodInfo("ProjectsController", "Settings").Debug("post edit project parameter: %+v", settingsProjectForm)
+	if !project.Update(project.Title, project.Description, settingsProjectForm.ShowIssues, settingsProjectForm.ShowPullRequests) {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Settings", true).Error("update failed")
+		http.Error(w, "update failed", 500)
+		return
+	}
+	logging.SharedInstance().MethodInfo("ProjectsController", "Settings").Info("success to update project")
+	var repositoryId int64
+	repo := project.Repository()
+	if repo != nil {
+		repositoryId = repo.Id
+	}
+	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repositoryId}
 	encoder.Encode(jsonProject)
 }
 

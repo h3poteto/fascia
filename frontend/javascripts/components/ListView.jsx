@@ -178,7 +178,11 @@ export default class ListView extends React.Component {
           </div>
         </Modal>
         <div className="title-wrapper">
-          <div className="project-operation"><i className="fa fa-repeat" onClick={e => this.props.fetchProjectGithub(this.props.params.projectId)}></i></div>
+          <div className="project-operation">
+            <span className={project != null && project.ShowPullRequests ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.showPullRequests(this.props.params.projectId, selectedProject.ShowIssues, selectedProject.ShowPullRequests)}><i className="octicon octicon-git-pull-request"></i></span>
+            <span className={project !=null && project.ShowIssues ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.showIssues(this.props.params.projectId, selectedProject.ShowIssues, selectedProject.ShowPullRequests)}><i className="octicon octicon-issue-opened"></i></span>
+            <i className="fa fa-repeat" onClick={e => this.props.fetchProjectGithub(this.props.params.projectId)}></i>
+          </div>
           <h3 className="project-title">{project != null ? project.Title : ''}<span className="fascia-project-menu" onClick={e => this.props.openEditProjectModal(project)}><i className="fa fa-pencil"></i></span></h3>
         </div>
         <div className="items">
@@ -191,7 +195,7 @@ export default class ListView extends React.Component {
                   {list.ListTasks.map(function(task, index) {
                     if (task.draggedOn) {
                       return <li key={index} className="arrow"></li>
-                    } else {
+                    } else if(project != null && project.ShowIssues && !task.PullRequest || project != null && project.ShowPullRequests && task.PullRequest) {
                       return <li key={index} style={{"borderLeft": `solid 6px #${list.Color}`}} className="task" draggable="true" data-dropped-depth="2" data-id={task.Id} onDragStart={this.props.taskDragStart}>{task.Title}</li>
                     }
                   }, this)}
@@ -211,7 +215,7 @@ export default class ListView extends React.Component {
             {noneList.ListTasks.map(function(task, index) {
                if (task.draggedOn) {
                  return <li key={index} className="arrow"></li>
-               } else {
+               } else if( project != null && project.ShowIssues && !task.PullRequest || project != null && project.ShowPullRequests && task.PullRequest) {
                  return <li key={index} className="button-green task" draggable="true" data-dropped-depth="2" data-id={task.Id} onDragStart={this.props.taskDragStart}>{task.Title}</li>
                }
              }, this)}

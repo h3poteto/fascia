@@ -21,7 +21,7 @@ function sharedExampleInitState(action) {
     selectedListOption: null,
     selectedList: null,
     project: null,
-    selectedProject: {Title: "", Description: "", RepositoryID: 0},
+    selectedProject: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
     isTaskDraggingOver: false,
     taskDraggingFrom: null,
     taskDraggingTo: null,

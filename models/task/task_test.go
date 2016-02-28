@@ -36,11 +36,11 @@ var _ = Describe("Task", func() {
 		mydb := &db.Database{}
 		var database db.DB = mydb
 		table = database.Init()
-		newProject = project.NewProject(0, uid, "title", "desc", sql.NullInt64{})
+		newProject = project.NewProject(0, uid, "title", "desc", sql.NullInt64{}, true, true)
 		newProject.Save()
 		newList = list.NewList(0, newProject.Id, newProject.UserId, "list title", "", sql.NullInt64{})
 		newList.Save(nil, nil)
-		newTask = NewTask(0, newList.Id, newProject.Id, newList.UserId, sql.NullInt64{}, "task title", "task description")
+		newTask = NewTask(0, newList.Id, newProject.Id, newList.UserId, sql.NullInt64{}, "task title", "task description", false, sql.NullString{})
 	})
 
 	Describe("Save", func() {
@@ -81,7 +81,7 @@ var _ = Describe("Task", func() {
 		})
 		Context("when list have tasks", func() {
 			JustBeforeEach(func() {
-				existTask := NewTask(0, newList.Id, newProject.Id, newList.UserId, sql.NullInt64{}, "exist task title", "exist task description")
+				existTask := NewTask(0, newList.Id, newProject.Id, newList.UserId, sql.NullInt64{}, "exist task title", "exist task description", false, sql.NullString{})
 				existTask.Save(nil, nil)
 			})
 			It("should set last display_index to task", func() {
@@ -132,7 +132,7 @@ var _ = Describe("Task", func() {
 				existTask *TaskStruct
 			)
 			JustBeforeEach(func() {
-				existTask = NewTask(0, list2.Id, newProject.Id, list2.UserId, sql.NullInt64{}, "exist task title", "exist task description")
+				existTask = NewTask(0, list2.Id, newProject.Id, list2.UserId, sql.NullInt64{}, "exist task title", "exist task description", false, sql.NullString{})
 				existTask.Save(nil, nil)
 			})
 			Context("when send nil", func() {
@@ -173,9 +173,9 @@ var _ = Describe("Task", func() {
 		Context("when destination list have tasks", func() {
 			var existTask1, existTask2 *TaskStruct
 			JustBeforeEach(func() {
-				existTask1 = NewTask(0, list2.Id, newProject.Id, list2.UserId, sql.NullInt64{}, "exist task title1", "exist task description1")
+				existTask1 = NewTask(0, list2.Id, newProject.Id, list2.UserId, sql.NullInt64{}, "exist task title1", "exist task description1", false, sql.NullString{})
 				existTask1.Save(nil, nil)
-				existTask2 = NewTask(0, list2.Id, newProject.Id, list2.UserId, sql.NullInt64{}, "exist task title2", "exist task description2")
+				existTask2 = NewTask(0, list2.Id, newProject.Id, list2.UserId, sql.NullInt64{}, "exist task title2", "exist task description2", false, sql.NullString{})
 				existTask2.Save(nil, nil)
 			})
 			Context("when send nil", func() {

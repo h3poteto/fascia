@@ -42,7 +42,7 @@ var _ = Describe("Project", func() {
 		mydb := &db.Database{}
 		var database db.DB = mydb
 		table = database.Init()
-		newProject = NewProject(0, uid, "title", "desc", sql.NullInt64{})
+		newProject = NewProject(0, uid, "title", "desc", sql.NullInt64{}, true, true)
 	})
 
 	Describe("Create", func() {
@@ -52,17 +52,19 @@ var _ = Describe("Project", func() {
 				Expect(err).To(BeNil())
 				Expect(len(newProject.Lists())).To(Equal(3))
 				Expect(newProject.NoneList()).NotTo(BeNil())
+				Expect(newProject.ShowIssues).To(BeTrue())
+				Expect(newProject.ShowPullRequests).To(BeTrue())
 			})
 		})
 	})
 
 	Describe("Save", func() {
-		It("プロジェクトが登録できること", func() {
+		It("should create project", func() {
 			result := newProject.Save()
 			Expect(result).To(BeTrue())
 			Expect(newProject.Id).NotTo(Equal(0))
 		})
-		It("ユーザとプロジェクトが関連付くこと", func() {
+		It("should relate user and project", func() {
 			_ = newProject.Save()
 			rows, _ := table.Query("select id, user_id, title, description from projects where id = ?;", newProject.Id)
 
@@ -87,11 +89,13 @@ var _ = Describe("Project", func() {
 			newProject.Save()
 		})
 		It("should set new value", func() {
-			result := newProject.Update("newTitle", "newDescription")
+			result := newProject.Update("newTitle", "newDescription", true, false)
 			Expect(result).To(BeTrue())
 			Expect(newProject.Title).To(Equal("newTitle"))
 			Expect(newProject.Description).To(Equal("newDescription"))
 			Expect(newProject.RepositoryId.Valid).To(BeFalse())
+			Expect(newProject.ShowIssues).To(BeTrue())
+			Expect(newProject.ShowPullRequests).To(BeFalse())
 		})
 	})
 
@@ -123,7 +127,7 @@ var _ = Describe("Project", func() {
 			password := "hogehoge"
 			user_id, _ := user.Registration(email, password)
 
-			newProject = NewProject(0, user_id, "project title", "project desc", sql.NullInt64{})
+			newProject = NewProject(0, user_id, "project title", "project desc", sql.NullInt64{}, true, true)
 			_ = newProject.Save()
 			newList = list.NewList(0, newProject.Id, newProject.UserId, "list title", "", sql.NullInt64{})
 			_ = newList.Save(nil, nil)

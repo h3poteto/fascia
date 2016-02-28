@@ -40,7 +40,7 @@ var _ = Describe("List", func() {
 		mydb := &db.Database{}
 		var database db.DB = mydb
 		table = database.Init()
-		newProject = project.NewProject(0, uid, "title", "desc", sql.NullInt64{})
+		newProject = project.NewProject(0, uid, "title", "desc", sql.NullInt64{}, true, true)
 		newProject.Save()
 		newList = NewList(0, newProject.Id, newProject.UserId, "list title", "", sql.NullInt64{})
 	})
@@ -80,7 +80,7 @@ var _ = Describe("List", func() {
 		var newTask *task.TaskStruct
 		JustBeforeEach(func() {
 			newList.Save(nil, nil)
-			newTask = task.NewTask(0, newList.Id, newProject.Id, newList.UserId, sql.NullInt64{}, "task", "description")
+			newTask = task.NewTask(0, newList.Id, newProject.Id, newList.UserId, sql.NullInt64{}, "task", "description", false, sql.NullString{})
 			newTask.Save(nil, nil)
 		})
 		It("should related task to list", func() {

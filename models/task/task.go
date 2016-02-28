@@ -23,11 +23,13 @@ type TaskStruct struct {
 	IssueNumber sql.NullInt64
 	Title       string
 	Description string
+	PullRequest bool
+	HTMLURL     sql.NullString
 	database    db.DB
 }
 
-func NewTask(id int64, listID int64, projectID int64, userID int64, issueNumber sql.NullInt64, title string, description string) *TaskStruct {
-	task := &TaskStruct{Id: id, ListId: listID, ProjectId: projectID, UserId: userID, IssueNumber: issueNumber, Title: title, Description: description}
+func NewTask(id int64, listID int64, projectID int64, userID int64, issueNumber sql.NullInt64, title string, description string, pullRequest bool, htmlURL sql.NullString) *TaskStruct {
+	task := &TaskStruct{Id: id, ListId: listID, ProjectId: projectID, UserId: userID, IssueNumber: issueNumber, Title: title, Description: description, PullRequest: pullRequest, HTMLURL: htmlURL}
 	task.Initialize()
 	return task
 }
@@ -41,7 +43,9 @@ func FindTask(listID int64, taskID int64) (*TaskStruct, error) {
 	var id, listId, userId, projectId int64
 	var title, description string
 	var issueNumber sql.NullInt64
-	err := table.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description from tasks where id = ? AND list_id = ?;", taskID, listID).Scan(&id, &listId, &projectId, &userId, &issueNumber, &title, &description)
+	var pullRequest bool
+	var htmlURL sql.NullString
+	err := table.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where id = ? AND list_id = ?;", taskID, listID).Scan(&id, &listId, &projectId, &userId, &issueNumber, &title, &description, &pullRequest, &htmlURL)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("task", "FindTask", true).Errorf("cannot find task: %v", err)
 		return nil, err
@@ -50,7 +54,7 @@ func FindTask(listID int64, taskID int64) (*TaskStruct, error) {
 		logging.SharedInstance().MethodInfo("task", "FindTask", true).Errorf("cannot find task or list did not contain task: %v", taskID)
 		return nil, errors.New("cannot find task or list did not contain task")
 	}
-	task := NewTask(id, listId, projectId, userId, issueNumber, title, description)
+	task := NewTask(id, listId, projectId, userId, issueNumber, title, description, pullRequest, htmlURL)
 	return task, nil
 }
 
@@ -63,7 +67,9 @@ func FindByIssueNumber(projectID int64, issueNumber int) (*TaskStruct, error) {
 	var id, listId, userId, projectId int64
 	var title, description string
 	var number sql.NullInt64
-	err := table.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description from tasks where issue_number = ? and project_id = ?;", issueNumber, projectID).Scan(&id, &listId, &projectId, &userId, &number, &title, &description)
+	var pullRequest bool
+	var htmlURL sql.NullString
+	err := table.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where issue_number = ? and project_id = ?;", issueNumber, projectID).Scan(&id, &listId, &projectId, &userId, &number, &title, &description, &pullRequest, &htmlURL)
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
@@ -71,7 +77,7 @@ func FindByIssueNumber(projectID int64, issueNumber int) (*TaskStruct, error) {
 		logging.SharedInstance().MethodInfo("task", "FindByIssueNumber", true).Errorf("cannot find task issue number: %v", issueNumber)
 		return nil, errors.New("task not found")
 	} else {
-		task := NewTask(id, listId, projectId, userId, number, title, description)
+		task := NewTask(id, listId, projectId, userId, number, title, description, pullRequest, htmlURL)
 		return task, nil
 	}
 }
@@ -96,7 +102,7 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	// display_indexを自動挿入する
 	count := 0
 	err := transaction.QueryRow("SELECT COUNT(id) FROM tasks WHERE list_id = ?;", u.ListId).Scan(&count)
-	result, err := transaction.Exec("insert into tasks (list_id, project_id, user_id, issue_number, title, description, display_index, created_at) values (?, ?, ?, ?, ?, ?, ?, now());", u.ListId, u.ProjectId, u.UserId, u.IssueNumber, u.Title, u.Description, count+1)
+	result, err := transaction.Exec("insert into tasks (list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index, created_at) values (?,?,?, ?, ?, ?, ?, ?, ?, now());", u.ListId, u.ProjectId, u.UserId, u.IssueNumber, u.Title, u.Description, u.PullRequest, u.HTMLURL, count+1)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("task", "Save", true).Errorf("insert task error: %v", err)
 		transaction.Rollback()
@@ -136,7 +142,7 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 			return false
 		}
 		currentId, _ := result.LastInsertId()
-		_, err = transaction.Exec("update tasks set issue_number = ? where id = ?;", *issue.Number, currentId)
+		_, err = transaction.Exec("update tasks set issue_number = ?, pull_request = false, html_url = ? where id = ?;", *issue.Number, *issue.HTMLURL, currentId)
 		if err != nil {
 			// TODO: そもそもこのときはissueを削除しなければいけないのでは？
 			logging.SharedInstance().MethodInfo("task", "Save", true).Errorf("issue_number update error: %v", err)
@@ -145,6 +151,7 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		}
 		logging.SharedInstance().MethodInfo("task", "Save").Info("issue number is updated")
 		u.IssueNumber = sql.NullInt64{Int64: int64(*issue.Number), Valid: true}
+		u.HTMLURL = sql.NullString{String: *issue.HTMLURL, Valid: true}
 	}
 
 	err = transaction.Commit()
@@ -162,7 +169,7 @@ func (u *TaskStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	table := u.database.Init()
 	defer table.Close()
 
-	_, err := table.Exec("update tasks set list_id = ?, issue_number = ?, title = ?, description = ? where id = ?;", u.ListId, u.IssueNumber, u.Title, u.Description, u.Id)
+	_, err := table.Exec("update tasks set list_id = ?, issue_number = ?, title = ?, description = ?, pull_request = ?, html_url = ? where id = ?;", u.ListId, u.IssueNumber, u.Title, u.Description, u.PullRequest, u.HTMLURL, u.Id)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("task", "Update", true).Errorf("update error: %v", err)
 		return false
