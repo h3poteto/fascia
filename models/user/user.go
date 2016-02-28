@@ -227,19 +227,20 @@ func (u *UserStruct) Projects() []*project.ProjectStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	rows, _ := table.Query("select id, user_id, repository_id, title, description from projects where user_id = ?;", u.Id)
+	rows, _ := table.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where user_id = ?;", u.Id)
 	var slice []*project.ProjectStruct
 	for rows.Next() {
 		var id, userID int64
 		var repositoryID sql.NullInt64
 		var title string
 		var description string
-		err := rows.Scan(&id, &userID, &repositoryID, &title, &description)
+		var showIssues, showPullRequests bool
+		err := rows.Scan(&id, &userID, &repositoryID, &title, &description, &showIssues, &showPullRequests)
 		if err != nil {
 			logging.SharedInstance().MethodInfo("User", "Projects", true).Panic(err)
 		}
 		if id != 0 {
-			p := project.NewProject(id, userID, title, description, repositoryID)
+			p := project.NewProject(id, userID, title, description, repositoryID, showIssues, showPullRequests)
 			slice = append(slice, p)
 		}
 	}

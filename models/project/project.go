@@ -19,20 +19,22 @@ type Project interface {
 }
 
 type ProjectStruct struct {
-	Id           int64
-	UserId       int64
-	Title        string
-	Description  string
-	RepositoryId sql.NullInt64
-	database     db.DB
+	Id               int64
+	UserId           int64
+	Title            string
+	Description      string
+	RepositoryId     sql.NullInt64
+	ShowIssues       bool
+	ShowPullRequests bool
+	database         db.DB
 }
 
-func NewProject(id int64, userID int64, title string, description string, repositoryId sql.NullInt64) *ProjectStruct {
+func NewProject(id int64, userID int64, title string, description string, repositoryId sql.NullInt64, showIssues bool, showPullRequests bool) *ProjectStruct {
 	if userID == 0 {
 		return nil
 	}
 
-	project := &ProjectStruct{Id: id, UserId: userID, Title: title, Description: description, RepositoryId: repositoryId}
+	project := &ProjectStruct{Id: id, UserId: userID, Title: title, Description: description, RepositoryId: repositoryId, ShowIssues: showIssues, ShowPullRequests: showPullRequests}
 	project.Initialize()
 	return project
 }
@@ -47,12 +49,13 @@ func FindProject(projectID int64) *ProjectStruct {
 	var repositoryID sql.NullInt64
 	var title string
 	var description string
-	err := table.QueryRow("select id, user_id, repository_id, title, description from projects where id = ?;", projectID).Scan(&id, &userID, &repositoryID, &title, &description)
+	var showIssues, showPullRequests bool
+	err := table.QueryRow("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where id = ?;", projectID).Scan(&id, &userID, &repositoryID, &title, &description, &showIssues, &showPullRequests)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("Project", "FindProject", true).Errorf("cannot find project: %v", err)
 		return nil
 	}
-	project := NewProject(id, userID, title, description, repositoryID)
+	project := NewProject(id, userID, title, description, repositoryID, showIssues, showPullRequests)
 	return project
 }
 
@@ -83,7 +86,7 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 		repoID = sql.NullInt64{Int64: repo.Id, Valid: true}
 	}
 
-	project := NewProject(0, userID, title, description, repoID)
+	project := NewProject(0, userID, title, description, repoID, true, true)
 	if !project.Save() {
 		tx.Rollback()
 		logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save project")
@@ -154,7 +157,7 @@ func (u *ProjectStruct) Save() bool {
 	table := u.database.Init()
 	defer table.Close()
 
-	result, err := table.Exec("insert into projects (user_id, repository_id, title, description, created_at) values (?, ?, ?, ?, now());", u.UserId, u.RepositoryId, u.Title, u.Description)
+	result, err := table.Exec("insert into projects (user_id, repository_id, title, description, show_issues, show_pull_requests, created_at) values (?, ?, ?, ?, ?, ?, now());", u.UserId, u.RepositoryId, u.Title, u.Description, u.ShowIssues, u.ShowPullRequests)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("Project", "Save", true).Errorf("failed to save project: %v", err)
 		return false
@@ -163,13 +166,15 @@ func (u *ProjectStruct) Save() bool {
 	return true
 }
 
-func (u *ProjectStruct) Update(title string, description string) bool {
+func (u *ProjectStruct) Update(title string, description string, showIssues bool, showPullRequests bool) bool {
 	table := u.database.Init()
 	defer table.Close()
 
 	u.Title = title
 	u.Description = description
-	_, err := table.Exec("update projects set title = ?, description = ? where id = ?;", u.Title, u.Description, u.Id)
+	u.ShowIssues = showIssues
+	u.ShowPullRequests = showPullRequests
+	_, err := table.Exec("update projects set title = ?, description = ?, show_issues = ?, show_pull_requests = ? where id = ?;", u.Title, u.Description, u.ShowIssues, u.ShowPullRequests, u.Id)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("Project", "Update", true).Errorf("failed to update project: %v", err)
 		return false

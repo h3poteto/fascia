@@ -9,6 +9,7 @@ import (
 	"../models/project"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -106,7 +107,7 @@ var _ = Describe("ProjectsController", func() {
 	Describe("Show", func() {
 		var newProject *project.ProjectStruct
 		JustBeforeEach(func() {
-			newProject = project.NewProject(0, userId, "title", "desc", sql.NullInt64{})
+			newProject = project.NewProject(0, userId, "title", "desc", sql.NullInt64{}, true, true)
 			newProject.Save()
 		})
 		It("should receive project title", func() {
@@ -123,7 +124,7 @@ var _ = Describe("ProjectsController", func() {
 	Describe("Update", func() {
 		var newProject *project.ProjectStruct
 		JustBeforeEach(func() {
-			newProject = project.NewProject(0, userId, "title", "desc", sql.NullInt64{})
+			newProject = project.NewProject(0, userId, "title", "desc", sql.NullInt64{}, true, true)
 			newProject.Save()
 		})
 		It("should receive new project", func() {
@@ -136,6 +137,41 @@ var _ = Describe("ProjectsController", func() {
 			json.Unmarshal(con, &resp)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
 			Expect(resp.Title).To(Equal("newTitle"))
+		})
+	})
+
+	Describe("Settings", func() {
+		var newProject *project.ProjectStruct
+		JustBeforeEach(func() {
+			newProject = project.NewProject(0, userId, "title", "description", sql.NullInt64{}, true, true)
+			newProject.Save()
+		})
+		It("should update show issues", func() {
+			values := url.Values{}
+			values.Add("show_issues", "false")
+			values.Add("show_pull_requests", "true")
+			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(newProject.Id, 10)+"/settings", values)
+			Expect(err).To(BeNil())
+			var resp controllers.ProjectJsonFormat
+			con, _ := ioutil.ReadAll(res.Body)
+			json.Unmarshal(con, &resp)
+			Expect(res.StatusCode).To(Equal(http.StatusOK))
+			fmt.Printf("response: %+v\n", resp)
+			Expect(resp.ShowIssues).To(BeFalse())
+			Expect(resp.ShowPullRequests).To(BeTrue())
+		})
+		It("should update show pull requests", func() {
+			values := url.Values{}
+			values.Add("show_issues", "true")
+			values.Add("show_pull_requests", "false")
+			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(newProject.Id, 10)+"/settings", values)
+			Expect(err).To(BeNil())
+			var resp controllers.ProjectJsonFormat
+			con, _ := ioutil.ReadAll(res.Body)
+			json.Unmarshal(con, &resp)
+			Expect(res.StatusCode).To(Equal(http.StatusOK))
+			Expect(resp.ShowIssues).To(BeTrue())
+			Expect(resp.ShowPullRequests).To(BeFalse())
 		})
 	})
 })
