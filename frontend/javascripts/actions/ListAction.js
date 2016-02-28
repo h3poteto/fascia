@@ -565,16 +565,54 @@ export function fetchUpdateProject(projectID, project) {
   }
 }
 
-export const SHOW_ISSUES = 'SHOW_ISSUES'
-export function showIssues() {
+
+export const REQUEST_SETTINGS_PROJECT = 'REQUEST_SETTINGS_PROJECT'
+export function requestSettingsProject() {
   return {
-    type: SHOW_ISSUES
+    type: REQUEST_SETTINGS_PROJECT
+  }
+}
+
+export const SHOW_ISSUES = 'SHOW_ISSUES'
+export function showIssues(projectID, showIssues, showPullRequests) {
+  return dispatch => {
+    dispatch(requestSettingsProject())
+    return Request
+      .post(`/projects/${projectID}/settings`)
+      .type('form')
+      .send({show_issues: !showIssues, show_pull_requests: showPullRequests})
+      .end((err, res) => {
+        if (res.ok) {
+          dispatch(receiveProject(res.body))
+        } else if (res.unauthorized) {
+          dispatch(unauthorized())
+        } else if (res.notFound) {
+          dispatch(notFound())
+        } else {
+          dispatch(serverError())
+        }
+      })
   }
 }
 
 export const SHOW_PULL_REQUESTS = 'SHOW_PULL_REQUESTS'
-export function showPullRequests() {
-  return {
-    type: SHOW_PULL_REQUESTS
+export function showPullRequests(projectID, showIssues, showPullRequests) {
+  return dispatch => {
+    dispatch(requestSettingsProject())
+    return Request
+      .post(`/projects/${projectID}/settings`)
+      .type('form')
+      .send({show_issues: showIssues, show_pull_requests: !showPullRequests})
+      .end((err, res) => {
+        if (res.ok) {
+          dispatch(receiveProject(res.body))
+        } else if (res.unauthorized) {
+          dispatch(unauthorized())
+        } else if (res.notFound) {
+          dispatch(notFound())
+        } else {
+          dispatch(serverError())
+        }
+      })
   }
 }
