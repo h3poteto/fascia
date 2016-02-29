@@ -14,7 +14,7 @@ type Root struct {
 }
 
 func (u *Root) Index(c web.C, w http.ResponseWriter, r *http.Request) {
-	current_user, err := LoginRequired(r)
+	currentUser, err := LoginRequired(r)
 	// ログインしていない場合はaboutページを見せる
 	if err != nil {
 		logging.SharedInstance().MethodInfo("RootController", "Index").Infof("login error: %v", err)
@@ -27,7 +27,7 @@ func (u *Root) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if projectID != 0 {
 		parentProject := project.FindProject(projectID)
-		if parentProject == nil || parentProject.UserID != current_user.ID {
+		if parentProject == nil || parentProject.UserID != currentUser.ID {
 			logging.SharedInstance().MethodInfo("RootController", "Index").Warn("project not found")
 			NotFound(w, r)
 			return

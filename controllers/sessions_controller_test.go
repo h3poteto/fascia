@@ -83,8 +83,8 @@ var _ = Describe("SessionsController", func() {
 			JustBeforeEach(func() {
 				id, _ := user.Registration("registration@example.com", "hogehoge")
 				LoginRequired = func(r *http.Request) (*user.UserStruct, error) {
-					current_user, _ := user.CurrentUser(id)
-					return current_user, nil
+					currentUser, _ := user.CurrentUser(id)
+					return currentUser, nil
 				}
 			})
 			Context("when use correctly password", func() {

@@ -70,30 +70,30 @@ var _ = Describe("User", func() {
 
 		Context("when send correctly login information", func() {
 			It("can login", func() {
-				current_user, err := Login(email, password)
+				currentUser, err := Login(email, password)
 				Expect(err).To(BeNil())
-				Expect(current_user.Email).To(Equal(email))
+				Expect(currentUser.Email).To(Equal(email))
 			})
 		})
 		Context("when send wrong login information", func() {
 			It("cannot login", func() {
-				current_user, err := Login(email, "fugafuga")
+				currentUser, err := Login(email, "fugafuga")
 				Expect(err).NotTo(BeNil())
-				Expect(current_user).To(BeNil())
+				Expect(currentUser).To(BeNil())
 			})
 		})
 		Context("when send wrong email address", func() {
 			It("cannot login", func() {
-				current_user, err := Login("hogehoge@example.com", password)
+				currentUser, err := Login("hogehoge@example.com", password)
 				Expect(err).NotTo(BeNil())
-				Expect(current_user).To(BeNil())
+				Expect(currentUser).To(BeNil())
 			})
 		})
 		Context("when send wrong email address and password", func() {
 			It("cannot login", func() {
-				current_user, err := Login("hogehoge@example.com", "fugafuga")
+				currentUser, err := Login("hogehoge@example.com", "fugafuga")
 				Expect(err).NotTo(BeNil())
-				Expect(current_user).To(BeNil())
+				Expect(currentUser).To(BeNil())
 			})
 		})
 	})
@@ -105,22 +105,22 @@ var _ = Describe("User", func() {
 			Expect(err).To(BeNil())
 		})
 		It("after regist through github, can search this user", func() {
-			current_user, _ := FindOrCreateGithub(token)
+			currentUser, _ := FindOrCreateGithub(token)
 			find_user, _ := FindOrCreateGithub(token)
-			Expect(find_user.ID).To(Equal(current_user.ID))
+			Expect(find_user.ID).To(Equal(currentUser.ID))
 			Expect(find_user.ID).NotTo(BeZero())
 		})
 		Context("after regist with email address", func() {
 			email := "already_regist@example.com"
-			var current_user *UserStruct
+			var currentUser *UserStruct
 			BeforeEach(func() {
 				Registration(email, "hogehoge")
-				current_user, _ = FindOrCreateGithub(token)
+				currentUser, _ = FindOrCreateGithub(token)
 			})
 			It("should update github information", func() {
-				Expect(current_user.OauthToken.Valid).To(BeTrue())
-				Expect(current_user.OauthToken.String).To(Equal(token))
-				Expect(current_user.Uuid.Valid).To(BeTrue())
+				Expect(currentUser.OauthToken.Valid).To(BeTrue())
+				Expect(currentUser.OauthToken.String).To(Equal(token))
+				Expect(currentUser.Uuid.Valid).To(BeTrue())
 			})
 		})
 
@@ -128,8 +128,8 @@ var _ = Describe("User", func() {
 
 	Describe("Projects", func() {
 		var (
-			newProject   *project.ProjectStruct
-			current_user *UserStruct
+			newProject  *project.ProjectStruct
+			currentUser *UserStruct
 		)
 
 		BeforeEach(func() {
@@ -151,10 +151,10 @@ var _ = Describe("User", func() {
 			}
 			newProject = project.NewProject(0, userid, "project title", "project desc", sql.NullInt64{}, true, true)
 			_ = newProject.Save()
-			current_user = NewUser(userid, dbemail, sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
+			currentUser = NewUser(userid, dbemail, sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
 		})
 		It("ユーザとプロジェクトが関連づいていること", func() {
-			projects := current_user.Projects()
+			projects := currentUser.Projects()
 			Expect(projects).NotTo(BeEmpty())
 			Expect(projects[0].ID).To(Equal(newProject.ID))
 		})
@@ -198,18 +198,18 @@ var _ = Describe("User", func() {
 	Describe("UpdateGithubUserInfo", func() {
 		email := "update_github_user_info@example.com"
 		token := os.Getenv("TEST_TOKEN")
-		var current_user *UserStruct
+		var currentUser *UserStruct
 		var result bool
 		BeforeEach(func() {
 			id, _ := Registration(email, "hogehoge")
-			current_user, _ = CurrentUser(id)
+			currentUser, _ = CurrentUser(id)
 			ts := oauth2.StaticTokenSource(
 				&oauth2.Token{AccessToken: token},
 			)
 			tc := oauth2.NewClient(oauth2.NoContext, ts)
 			client := github.NewClient(tc)
 			githubUser, _, _ := client.Users.Get("")
-			result = current_user.UpdateGithubUserInfo(token, githubUser)
+			result = currentUser.UpdateGithubUserInfo(token, githubUser)
 		})
 		It("ユーザ情報がアップデートされること", func() {
 			mydb := &db.Database{}

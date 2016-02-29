@@ -52,11 +52,11 @@ func CheckLogin(r *http.Request) (*userModel.UserStruct, error) {
 	if id == nil {
 		return nil, errors.New("not logined")
 	}
-	current_user, err := userModel.CurrentUser(id.(int64))
+	currentUser, err := userModel.CurrentUser(id.(int64))
 	if err != nil {
 		return nil, errors.New("cannot find login user")
 	}
-	return current_user, nil
+	return currentUser, nil
 }
 
 func GenerateCSRFToken(c web.C, w http.ResponseWriter, r *http.Request) (string, error) {

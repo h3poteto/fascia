@@ -37,7 +37,7 @@ type TaskJsonFormat struct {
 
 func (u *Tasks) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	current_user, err := LoginRequired(r)
+	currentUser, err := LoginRequired(r)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("TasksController", "Index").Infof("login error: %v", err)
 		http.Error(w, "not logined", 401)
@@ -46,7 +46,7 @@ func (u *Tasks) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil || parentProject.UserID != current_user.ID {
+	if parentProject == nil || parentProject.UserID != currentUser.ID {
 		logging.SharedInstance().MethodInfo("TasksController", "Index").Warn("project not found")
 		http.Error(w, "project not found", 404)
 		return
@@ -70,7 +70,7 @@ func (u *Tasks) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 
 func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	current_user, err := LoginRequired(r)
+	currentUser, err := LoginRequired(r)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("TasksController", "Create").Infof("login error: %v", err)
 		http.Error(w, "not logined", 401)
@@ -79,7 +79,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil || parentProject.UserID != current_user.ID {
+	if parentProject == nil || parentProject.UserID != currentUser.ID {
 		logging.SharedInstance().MethodInfo("TasksController", "Create").Warn("project not found")
 		http.Error(w, "project not found", 404)
 		return
@@ -110,7 +110,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	task := taskModel.NewTask(0, parentList.ID, parentProject.ID, parentList.UserID, sql.NullInt64{}, newTaskForm.Title, newTaskForm.Description, false, sql.NullString{})
 
 	repo := parentProject.Repository()
-	if !task.Save(repo, &current_user.OauthToken) {
+	if !task.Save(repo, &currentUser.OauthToken) {
 		logging.SharedInstance().MethodInfo("TasksController", "Create", true).Error("save failed")
 		http.Error(w, "save failed", 500)
 		return
@@ -122,7 +122,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 
 func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	current_user, err := LoginRequired(r)
+	currentUser, err := LoginRequired(r)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Infof("login error: %v", err)
 		http.Error(w, "not logined", 401)
@@ -131,7 +131,7 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil || parentProject.UserID != current_user.ID {
+	if parentProject == nil || parentProject.UserID != currentUser.ID {
 		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Warn("project not found")
 		http.Error(w, "project not found", 404)
 		return
@@ -173,7 +173,7 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 
 	repo := parentProject.Repository()
-	if !task.ChangeList(moveTaskFrom.ToListID, prevToTaskID, repo, &current_user.OauthToken) {
+	if !task.ChangeList(moveTaskFrom.ToListID, prevToTaskID, repo, &currentUser.OauthToken) {
 		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", true).Error("failed change list")
 		http.Error(w, "failed change list", 500)
 		return
