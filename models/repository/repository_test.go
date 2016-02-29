@@ -28,9 +28,9 @@ var _ = Describe("Repository", func() {
 	})
 
 	Describe("Save", func() {
-		repositoryId := int64(123456)
+		repositoryID := int64(123456)
 		It("should create repository", func() {
-			newRepository := NewRepository(0, repositoryId, "owner", "repository_name")
+			newRepository := NewRepository(0, repositoryID, "owner", "repository_name")
 			result := newRepository.Save()
 			Expect(result).To(BeTrue())
 		})

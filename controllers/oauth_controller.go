@@ -37,7 +37,7 @@ func (u *Oauth) Github(c web.C, w http.ResponseWriter, r *http.Request) {
 	logging.SharedInstance().MethodInfo("OauthController", "Github").Debugf("login success: %+v", current_user)
 	session, err = cookieStore.Get(r, "fascia")
 	session.Options = &sessions.Options{Path: "/", MaxAge: 3600}
-	session.Values["current_user_id"] = current_user.Id
+	session.Values["current_user_id"] = current_user.ID
 	err = session.Save(r, w)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("OauthController", "Github", true).Errorf("session error: %v", err)

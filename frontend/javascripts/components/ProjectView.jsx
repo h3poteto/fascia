@@ -109,8 +109,8 @@ class ProjectView extends React.Component {
         <div className="items">
           {projects.map(function(item, index) {
             return (
-              <Link key={index} to={`/projects/${item.Id}`}>
-                <div className="fascia-project pure-button button-secondary" data-id={item.Id}>
+              <Link key={index} to={`/projects/${item.ID}`}>
+                <div className="fascia-project pure-button button-secondary" data-id={item.ID}>
                   <div className="project-title">{item.Title}</div>
                   <div className="project-description">{truncate(item.Description, 52)}</div>
                 </div>

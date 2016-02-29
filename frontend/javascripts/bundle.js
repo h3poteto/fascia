@@ -17,7 +17,7 @@ ReactDOM.render(
   <Provider store={store}>
     <Router history={history}>
       <Route path="/" component={menuContainer}>
-        <Route path="/projects/:projectId" component={listContainer} />
+        <Route path="/projects/:projectID" component={listContainer} />
         <IndexRoute component={projectContainer} />
       </Route>
     </Router>

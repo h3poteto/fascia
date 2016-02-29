@@ -24,7 +24,7 @@ import (
 var _ = Describe("ProjectsController", func() {
 	var (
 		ts     *httptest.Server
-		userId int64
+		userID int64
 	)
 	BeforeEach(func() {
 		m := web.New()
@@ -44,7 +44,7 @@ var _ = Describe("ProjectsController", func() {
 	})
 	JustBeforeEach(func() {
 		seed.ListOptions()
-		userId = LoginFaker(ts, "projects@example.com", "hogehoge")
+		userID = LoginFaker(ts, "projects@example.com", "hogehoge")
 	})
 
 	Describe("Create", func() {
@@ -62,25 +62,25 @@ var _ = Describe("ProjectsController", func() {
 			contents, status := ParseJson(res)
 			Expect(status).To(Equal(http.StatusOK))
 			Expect(contents).NotTo(BeNil())
-			Expect(contents).To(HaveKey("Id"))
-			Expect(contents).To(HaveKey("UserId"))
+			Expect(contents).To(HaveKey("ID"))
+			Expect(contents).To(HaveKey("UserID"))
 			Expect(contents).To(HaveKeyWithValue("Title", "projectTitle"))
 		})
 		It("should exist in database", func() {
 			contents, _ := ParseJson(res)
 			parseContents := contents.(map[string]interface{})
-			newProject := project.FindProject(int64(parseContents["Id"].(float64)))
-			Expect(newProject.Id).To(BeEquivalentTo(parseContents["Id"]))
+			newProject := project.FindProject(int64(parseContents["ID"].(float64)))
+			Expect(newProject.ID).To(BeEquivalentTo(parseContents["ID"]))
 			Expect(newProject.Title).To(Equal("projectTitle"))
 		})
 		It("should have list which have list_option", func() {
 			contents, _ := ParseJson(res)
 			parseContents := contents.(map[string]interface{})
-			newProject := project.FindProject(int64(parseContents["Id"].(float64)))
+			newProject := project.FindProject(int64(parseContents["ID"].(float64)))
 			lists := newProject.Lists()
 			Expect(len(lists)).To(Equal(3))
 			closeListOption := list_option.FindByAction("close")
-			Expect(lists[2].ListOptionId.Int64).To(Equal(closeListOption.Id))
+			Expect(lists[2].ListOptionID.Int64).To(Equal(closeListOption.ID))
 		})
 	})
 
@@ -107,11 +107,11 @@ var _ = Describe("ProjectsController", func() {
 	Describe("Show", func() {
 		var newProject *project.ProjectStruct
 		JustBeforeEach(func() {
-			newProject = project.NewProject(0, userId, "title", "desc", sql.NullInt64{}, true, true)
+			newProject = project.NewProject(0, userID, "title", "desc", sql.NullInt64{}, true, true)
 			newProject.Save()
 		})
 		It("should receive project title", func() {
-			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(newProject.Id, 10) + "/show")
+			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(newProject.ID, 10) + "/show")
 			Expect(err).To(BeNil())
 			var resp controllers.ProjectJsonFormat
 			con, _ := ioutil.ReadAll(res.Body)
@@ -124,13 +124,13 @@ var _ = Describe("ProjectsController", func() {
 	Describe("Update", func() {
 		var newProject *project.ProjectStruct
 		JustBeforeEach(func() {
-			newProject = project.NewProject(0, userId, "title", "desc", sql.NullInt64{}, true, true)
+			newProject = project.NewProject(0, userID, "title", "desc", sql.NullInt64{}, true, true)
 			newProject.Save()
 		})
 		It("should receive new project", func() {
 			values := url.Values{}
 			values.Add("title", "newTitle")
-			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(newProject.Id, 10), values)
+			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(newProject.ID, 10), values)
 			Expect(err).To(BeNil())
 			var resp controllers.ProjectJsonFormat
 			con, _ := ioutil.ReadAll(res.Body)
@@ -143,14 +143,14 @@ var _ = Describe("ProjectsController", func() {
 	Describe("Settings", func() {
 		var newProject *project.ProjectStruct
 		JustBeforeEach(func() {
-			newProject = project.NewProject(0, userId, "title", "description", sql.NullInt64{}, true, true)
+			newProject = project.NewProject(0, userID, "title", "description", sql.NullInt64{}, true, true)
 			newProject.Save()
 		})
 		It("should update show issues", func() {
 			values := url.Values{}
 			values.Add("show_issues", "false")
 			values.Add("show_pull_requests", "true")
-			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(newProject.Id, 10)+"/settings", values)
+			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(newProject.ID, 10)+"/settings", values)
 			Expect(err).To(BeNil())
 			var resp controllers.ProjectJsonFormat
 			con, _ := ioutil.ReadAll(res.Body)
@@ -164,7 +164,7 @@ var _ = Describe("ProjectsController", func() {
 			values := url.Values{}
 			values.Add("show_issues", "true")
 			values.Add("show_pull_requests", "false")
-			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(newProject.Id, 10)+"/settings", values)
+			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(newProject.ID, 10)+"/settings", values)
 			Expect(err).To(BeNil())
 			var resp controllers.ProjectJsonFormat
 			con, _ := ioutil.ReadAll(res.Body)

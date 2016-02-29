@@ -23,9 +23,9 @@ import (
 var _ = Describe("TasksController", func() {
 	var (
 		ts        *httptest.Server
-		projectId int64
-		userId    int64
-		listId    int64
+		projectID int64
+		userID    int64
+		listID    int64
 	)
 	BeforeEach(func() {
 		m := web.New()
@@ -46,21 +46,21 @@ var _ = Describe("TasksController", func() {
 	})
 	JustBeforeEach(func() {
 		seed.ListOptions()
-		userId = LoginFaker(ts, "tasks@example.com", "hogehoge")
+		userID = LoginFaker(ts, "tasks@example.com", "hogehoge")
 		// projectを作っておく
 		values := url.Values{}
 		values.Add("title", "projectTitle")
 		res, _ := http.PostForm(ts.URL+"/projects", values)
 		contents, _ := ParseJson(res)
 		parseContents := contents.(map[string]interface{})
-		projectId = int64(parseContents["Id"].(float64))
+		projectID = int64(parseContents["ID"].(float64))
 
 		// listも作っておく
 		values.Set("title", "listTitle")
-		res, _ = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists", values)
+		res, _ = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists", values)
 		contents, _ = ParseJson(res)
 		parseContents = contents.(map[string]interface{})
-		listId = int64(parseContents["Id"].(float64))
+		listID = int64(parseContents["ID"].(float64))
 	})
 
 	Describe("Create", func() {
@@ -71,20 +71,20 @@ var _ = Describe("TasksController", func() {
 		JustBeforeEach(func() {
 			values := url.Values{}
 			values.Add("title", "taskTitle")
-			res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists/"+strconv.FormatInt(listId, 10)+"/tasks", values)
+			res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(listID, 10)+"/tasks", values)
 		})
 		It("can registration", func() {
 			Expect(err).To(BeNil())
 			contents, status := ParseJson(res)
 			Expect(status).To(Equal(http.StatusOK))
 			Expect(contents).NotTo(BeNil())
-			Expect(contents).To(HaveKey("Id"))
+			Expect(contents).To(HaveKey("ID"))
 		})
 		It("should exist in database", func() {
 			contents, _ := ParseJson(res)
 			parseContents := contents.(map[string]interface{})
-			newTask, _ := task.FindTask(listId, int64(parseContents["Id"].(float64)))
-			Expect(newTask.Id).To(BeEquivalentTo(parseContents["Id"]))
+			newTask, _ := task.FindTask(listID, int64(parseContents["ID"].(float64)))
+			Expect(newTask.ID).To(BeEquivalentTo(parseContents["ID"]))
 			Expect(newTask.Title).To(Equal("taskTitle"))
 		})
 	})
@@ -93,13 +93,13 @@ var _ = Describe("TasksController", func() {
 		JustBeforeEach(func() {
 			values := url.Values{}
 			values.Add("title", "task1")
-			http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists/"+strconv.FormatInt(listId, 10)+"/tasks", values)
+			http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(listID, 10)+"/tasks", values)
 			values = url.Values{}
 			values.Add("title", "task2")
-			http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists/"+strconv.FormatInt(listId, 10)+"/tasks", values)
+			http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(listID, 10)+"/tasks", values)
 		})
 		It("should receive tasks", func() {
-			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(projectId, 10) + "/lists/" + strconv.FormatInt(listId, 10) + "/tasks")
+			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(projectID, 10) + "/lists/" + strconv.FormatInt(listID, 10) + "/tasks")
 			Expect(err).To(BeNil())
 			var contents []controllers.TaskJsonFormat
 			con, _ := ioutil.ReadAll(res.Body)
@@ -116,15 +116,15 @@ var _ = Describe("TasksController", func() {
 			newList *list.ListStruct
 		)
 		JustBeforeEach(func() {
-			newList = list.NewList(0, projectId, userId, "list2", "", sql.NullInt64{})
+			newList = list.NewList(0, projectID, userID, "list2", "", sql.NullInt64{})
 			newList.Save(nil, nil)
-			newTask = task.NewTask(0, listId, projectId, userId, sql.NullInt64{}, "taskTitle", "taskDescription", false, sql.NullString{})
+			newTask = task.NewTask(0, listID, projectID, userID, sql.NullInt64{}, "taskTitle", "taskDescription", false, sql.NullString{})
 			newTask.Save(nil, nil)
 		})
 		It("should change list the task belongs", func() {
 			values := url.Values{}
-			values.Add("to_list_id", strconv.FormatInt(newList.Id, 10))
-			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectId, 10)+"/lists/"+strconv.FormatInt(listId, 10)+"/tasks/"+strconv.FormatInt(newTask.Id, 10)+"/move_task", values)
+			values.Add("to_list_id", strconv.FormatInt(newList.ID, 10))
+			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(listID, 10)+"/tasks/"+strconv.FormatInt(newTask.ID, 10)+"/move_task", values)
 			Expect(err).To(BeNil())
 			var contents controllers.AllListJSONFormat
 			con, _ := ioutil.ReadAll(res.Body)
@@ -132,7 +132,7 @@ var _ = Describe("TasksController", func() {
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
 			// 初期リストが入るようになったのでそれ以降
 			Expect(contents.Lists[3].ListTasks).To(BeEmpty())
-			Expect(contents.Lists[4].ListTasks[0].Id).To(Equal(newTask.Id))
+			Expect(contents.Lists[4].ListTasks[0].ID).To(Equal(newTask.ID))
 		})
 	})
 })

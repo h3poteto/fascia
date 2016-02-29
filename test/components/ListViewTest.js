@@ -27,28 +27,28 @@ describe('ListView', () => {
         newTask: {title: ""},
         lists: [
           {
-            Id: 1,
+            ID: 1,
             Title: "list1",
             ListTasks: [
               {
-                Id: 1,
+                ID: 1,
                 Title: "task1"
               }, {
-                Id: 2,
+                ID: 2,
                 Title: "task2"
               }
             ]
           }, {
-            Id: 2,
+            ID: 2,
             Title: "list2",
             ListTasks: []
           }
         ],
         noneList: {
-          Id: 3,
+          ID: 3,
           ListTasks: [
             {
-              Id: 3,
+              ID: 3,
               Title: "task3"
             }
           ]
@@ -70,7 +70,7 @@ describe('ListView', () => {
         error: null
       },
       params: {
-        projectId: 1
+        projectID: 1
       },
       fetchLists: expect.createSpy(),
       fetchProject: expect.createSpy(),
@@ -144,24 +144,24 @@ describe('ListView', () => {
         newTask: {title: ""},
         lists: [
           {
-            Id: 1,
+            ID: 1,
             Title: "list1",
             ListTasks: [
               {
-                Id: 1,
+                ID: 1,
                 Title: "task1"
               }, {
-                Id: 2,
+                ID: 2,
                 Title: "task2"
               }
             ]
           }, {
-            Id: 2,
+            ID: 2,
             Title: "list2",
             ListTasks: []
           }
         ],
-        noneList: {Id: 0, ListTasks: [] },
+        noneList: {ID: 0, ListTasks: [] },
         listOptions: [],
         selectedListOption: null,
         selectedList: null,
@@ -179,7 +179,7 @@ describe('ListView', () => {
         error: "Server Error"
       },
       params: {
-        projectId: 1
+        projectID: 1
       },
       fetchLists: expect.createSpy(),
       fetchProject: expect.createSpy(),
@@ -208,24 +208,24 @@ describe('ListView', () => {
         newTask: {title: ""},
         lists: [
           {
-            Id: 1,
+            ID: 1,
             Title: "list1",
             ListTasks: [
               {
-                Id: 1,
+                ID: 1,
                 Title: "task1"
               }, {
-                Id: 2,
+                ID: 2,
                 Title: "task2"
               }
             ]
           }, {
-            Id: 2,
+            ID: 2,
             Title: "list2",
             ListTasks: []
           }
         ],
-        noneList: {Id: 0, ListTasks: [] },
+        noneList: {ID: 0, ListTasks: [] },
         listOptions: [],
         selectedListOption: null,
         selectedList: null,
@@ -243,7 +243,7 @@ describe('ListView', () => {
         error: null
       },
       params: {
-        projectId: 1
+        projectID: 1
       },
       fetchLists: expect.createSpy(),
       fetchProject: expect.createSpy(),
@@ -273,24 +273,24 @@ describe('ListView', () => {
         newTask: {title: ""},
         lists: [
           {
-            Id: 1,
+            ID: 1,
             Title: "list1",
             ListTasks: [
               {
-                Id: 1,
+                ID: 1,
                 Title: "task1"
               }, {
-                Id: 2,
+                ID: 2,
                 Title: "task2"
               }
             ]
           }, {
-            Id: 2,
+            ID: 2,
             Title: "list2",
             ListTasks: []
           }
         ],
-        noneList: {Id: 0, ListTasks: [] },
+        noneList: {ID: 0, ListTasks: [] },
         listOptions: [],
         selectedListOption: null,
         selectedList: null,
@@ -308,7 +308,7 @@ describe('ListView', () => {
         error: null
       },
       params: {
-        projectId: 1
+        projectID: 1
       },
       fetchLists: expect.createSpy(),
       fetchProject: expect.createSpy(),
@@ -336,24 +336,24 @@ describe('ListView', () => {
         newTask: {title: ""},
         lists: [
           {
-            Id: 1,
+            ID: 1,
             Title: "list1",
             ListTasks: [
               {
-                Id: 1,
+                ID: 1,
                 Title: "task1"
               }, {
-                Id: 2,
+                ID: 2,
                 Title: "task2"
               }
             ]
           }, {
-            Id: 2,
+            ID: 2,
             Title: "list2",
             ListTasks: []
           }
         ],
-        noneList: {Id: 0, ListTasks: [] },
+        noneList: {ID: 0, ListTasks: [] },
         listOptions: [],
         selectedListOption: null,
         selectedList: null,
@@ -367,7 +367,7 @@ describe('ListView', () => {
         error: null
       },
       params: {
-        projectId: 1
+        projectID: 1
       },
       fetchLists: expect.createSpy(),
       fetchProject: expect.createSpy(),
@@ -396,35 +396,35 @@ describe('ListView', () => {
           newTask: {title: ""},
           lists: [
             {
-              Id: 1,
+              ID: 1,
               Title: "list1",
               ListTasks: [
                 {
-                  Id: 1,
+                  ID: 1,
                   Title: "task1"
                 }, {
-                  Id: 2,
+                  ID: 2,
                   Title: "task2"
                 }
               ]
             }, {
-              Id: 2,
+              ID: 2,
               Title: "list2",
               ListTasks: []
             }
           ],
-          noneList: {Id: 0, ListTasks: [] },
+          noneList: {ID: 0, ListTasks: [] },
           listOptions: [
             {
-              Id: 1,
+              ID: 1,
               Action: "close"
             }, {
-              Id: 2,
+              ID: 2,
               Action: "open"
             }
           ],
           selectedListOption: {
-            Id: 1,
+            ID: 1,
             Action: "close"
           },
           selectedList: null,
@@ -439,7 +439,7 @@ describe('ListView', () => {
           error: null
         },
         params: {
-          projectId: 1
+          projectID: 1
         },
         fetchLists: expect.createSpy(),
         fetchProject: expect.createSpy(),
@@ -475,35 +475,35 @@ describe('ListView', () => {
           newTask: {title: ""},
           lists: [
             {
-              Id: 1,
+              ID: 1,
               Title: "list1",
               ListTasks: [
                 {
-                  Id: 1,
+                  ID: 1,
                   Title: "task1"
                 }, {
-                  Id: 2,
+                  ID: 2,
                   Title: "task2"
                 }
               ]
             }, {
-              Id: 2,
+              ID: 2,
               Title: "list2",
               ListTasks: []
             }
           ],
-          noneList: {Id: 0, ListTasks: [] },
+          noneList: {ID: 0, ListTasks: [] },
           listOptions: [
             {
-              Id: 1,
+              ID: 1,
               Action: "close"
             }, {
-              Id: 2,
+              ID: 2,
               Action: "open"
             }
           ],
           selectedListOption: {
-            Id: 1,
+            ID: 1,
             Action: "close"
           },
           selectedList: null,
@@ -521,7 +521,7 @@ describe('ListView', () => {
           error: null
         },
         params: {
-          projectId: 1
+          projectID: 1
         },
         fetchLists: expect.createSpy(),
         fetchProject: expect.createSpy(),
@@ -543,7 +543,7 @@ describe('ListView', () => {
         let fieldset = form.props.children
         let [ legend, titleLabel, titleInput, colorLabel, colorInput, actionWrapper, formAction ] = fieldset.props.children
         let [ actionLabel, actionSelect ] = actionWrapper.props.children
-        expect(actionSelect.props.value).toBe(state.ListReducer.selectedListOption.Id)
+        expect(actionSelect.props.value).toBe(state.ListReducer.selectedListOption.ID)
       })
     })
   })
@@ -559,30 +559,30 @@ describe('ListView', () => {
         newTask: {title: ""},
         lists: [
           {
-            Id: 1,
+            ID: 1,
             Title: "list1",
             ListTasks: [
               {
-                Id: 1,
+                ID: 1,
                 Title: "task1",
                 PullRequest: true
               }, {
-                Id: 2,
+                ID: 2,
                 Title: "task2",
                 PullRequest: false
               }
             ]
           }, {
-            Id: 2,
+            ID: 2,
             Title: "list2",
             ListTasks: []
           }
         ],
         noneList: {
-          Id: 3,
+          ID: 3,
           ListTasks: [
             {
-              Id: 3,
+              ID: 3,
               Title: "task3",
               PullRequest: false
             }
@@ -605,7 +605,7 @@ describe('ListView', () => {
         error: null
       },
       params: {
-        projectId: 1
+        projectID: 1
       },
       fetchLists: expect.createSpy(),
       fetchProject: expect.createSpy(),
@@ -644,30 +644,30 @@ describe('ListView', () => {
         newTask: {title: ""},
         lists: [
           {
-            Id: 1,
+            ID: 1,
             Title: "list1",
             ListTasks: [
               {
-                Id: 1,
+                ID: 1,
                 Title: "task1",
                 PullRequest: true
               }, {
-                Id: 2,
+                ID: 2,
                 Title: "task2",
                 PullRequest: false
               }
             ]
           }, {
-            Id: 2,
+            ID: 2,
             Title: "list2",
             ListTasks: []
           }
         ],
         noneList: {
-          Id: 3,
+          ID: 3,
           ListTasks: [
             {
-              Id: 3,
+              ID: 3,
               Title: "task3",
               PullRequest: false
             }
@@ -690,7 +690,7 @@ describe('ListView', () => {
         error: null
       },
       params: {
-        projectId: 1
+        projectID: 1
       },
       fetchLists: expect.createSpy(),
       fetchProject: expect.createSpy(),

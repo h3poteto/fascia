@@ -16,7 +16,7 @@ type Projects struct {
 type NewProjectForm struct {
 	Title           string `param:"title"`
 	Description     string `param:"description"`
-	RepositoryID    int64  `param:"repositoryId"`
+	RepositoryID    int64  `param:"repositoryID"`
 	RepositoryOwner string `param:"repositoryOwner"`
 	RepositoryName  string `param:"repositoryName"`
 }
@@ -32,8 +32,8 @@ type SettingsProjectForm struct {
 }
 
 type ProjectJsonFormat struct {
-	Id               int64
-	UserId           int64
+	ID               int64
+	UserID           int64
 	Title            string
 	Description      string
 	ShowIssues       bool
@@ -53,12 +53,12 @@ func (u *Projects) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	projects := current_user.Projects()
 	jsonProjects := make([]*ProjectJsonFormat, 0)
 	for _, p := range projects {
-		var repositoryId int64
+		var repositoryID int64
 		repo := p.Repository()
 		if repo != nil {
-			repositoryId = repo.Id
+			repositoryID = repo.ID
 		}
-		jsonProjects = append(jsonProjects, &ProjectJsonFormat{Id: p.Id, UserId: p.UserId, Title: p.Title, Description: p.Description, ShowIssues: p.ShowIssues, ShowPullRequests: p.ShowPullRequests, RepositoryID: repositoryId})
+		jsonProjects = append(jsonProjects, &ProjectJsonFormat{ID: p.ID, UserID: p.UserID, Title: p.Title, Description: p.Description, ShowIssues: p.ShowIssues, ShowPullRequests: p.ShowPullRequests, RepositoryID: repositoryID})
 	}
 	encoder.Encode(jsonProjects)
 }
@@ -74,17 +74,17 @@ func (u *Projects) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	project := projectModel.FindProject(projectID)
-	if project == nil || project.UserId != current_user.Id {
+	if project == nil || project.UserID != current_user.ID {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Show").Warn("project not found")
 		http.Error(w, "project not found", 404)
 		return
 	}
-	var repoId int64
+	var repoID int64
 	repo := project.Repository()
 	if repo != nil {
-		repoId = repo.Id
+		repoID = repo.ID
 	}
-	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repoId}
+	jsonProject := ProjectJsonFormat{ID: project.ID, UserID: project.UserID, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repoID}
 	encoder.Encode(jsonProject)
 	return
 }
@@ -115,18 +115,18 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Create").Debugf("post new project parameter: %+v", newProjectForm)
 
-	project, err := projectModel.Create(current_user.Id, newProjectForm.Title, newProjectForm.Description, newProjectForm.RepositoryID, newProjectForm.RepositoryOwner, newProjectForm.RepositoryName, current_user.OauthToken)
+	project, err := projectModel.Create(current_user.ID, newProjectForm.Title, newProjectForm.Description, newProjectForm.RepositoryID, newProjectForm.RepositoryOwner, newProjectForm.RepositoryName, current_user.OauthToken)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Create", true).Error("save failed")
 		http.Error(w, "save failed", 500)
 		return
 	}
-	var repositoryId int64
+	var repositoryID int64
 	repo := project.Repository()
 	if repo != nil {
-		repositoryId = repo.Id
+		repositoryID = repo.ID
 	}
-	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repositoryId}
+	jsonProject := ProjectJsonFormat{ID: project.ID, UserID: project.UserID, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repositoryID}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Create").Info("success to create project")
 	encoder.Encode(jsonProject)
 }
@@ -143,7 +143,7 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	project := projectModel.FindProject(projectID)
-	if project == nil || project.UserId != current_user.Id {
+	if project == nil || project.UserID != current_user.ID {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Update").Warn("project not found")
 		http.Error(w, "project not found", 404)
 		return
@@ -170,12 +170,12 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Update").Info("success to update project")
-	var repositoryId int64
+	var repositoryID int64
 	repo := project.Repository()
 	if repo != nil {
-		repositoryId = repo.Id
+		repositoryID = repo.ID
 	}
-	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repositoryId}
+	jsonProject := ProjectJsonFormat{ID: project.ID, UserID: project.UserID, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repositoryID}
 	encoder.Encode(jsonProject)
 }
 
@@ -189,7 +189,7 @@ func (u *Projects) Settings(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	project := projectModel.FindProject(projectID)
-	if project == nil || project.UserId != current_user.Id {
+	if project == nil || project.UserID != current_user.ID {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Settings").Warn("project not found")
 		http.Error(w, "project not found", 404)
 		return
@@ -216,12 +216,12 @@ func (u *Projects) Settings(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Settings").Info("success to update project")
-	var repositoryId int64
+	var repositoryID int64
 	repo := project.Repository()
 	if repo != nil {
-		repositoryId = repo.Id
+		repositoryID = repo.ID
 	}
-	jsonProject := ProjectJsonFormat{Id: project.Id, UserId: project.UserId, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repositoryId}
+	jsonProject := ProjectJsonFormat{ID: project.ID, UserID: project.UserID, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repositoryID}
 	encoder.Encode(jsonProject)
 }
 
@@ -236,7 +236,7 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 	encoder := json.NewEncoder(w)
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	project := projectModel.FindProject(projectID)
-	if project == nil || project.UserId != current_user.Id {
+	if project == nil || project.UserID != current_user.ID {
 		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Warn("project not found")
 		http.Error(w, "project not found", 404)
 		return
@@ -250,10 +250,10 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 		lists := project.Lists()
 		var jsonLists []*ListJSONFormat
 		for _, l := range lists {
-			jsonLists = append(jsonLists, &ListJSONFormat{Id: l.Id, ProjectId: l.ProjectId, UserId: l.UserId, Title: l.Title.String, ListTasks: TaskFormatToJson(l.Tasks()), Color: l.Color.String, ListOptionId: l.ListOptionId.Int64})
+			jsonLists = append(jsonLists, &ListJSONFormat{ID: l.ID, ProjectID: l.ProjectID, UserID: l.UserID, Title: l.Title.String, ListTasks: TaskFormatToJson(l.Tasks()), Color: l.Color.String, ListOptionID: l.ListOptionID.Int64})
 		}
 		noneList := project.NoneList()
-		jsonNoneList := &ListJSONFormat{Id: noneList.Id, ProjectId: noneList.ProjectId, UserId: noneList.UserId, Title: noneList.Title.String, ListTasks: TaskFormatToJson(noneList.Tasks()), Color: noneList.Color.String, ListOptionId: noneList.ListOptionId.Int64}
+		jsonNoneList := &ListJSONFormat{ID: noneList.ID, ProjectID: noneList.ProjectID, UserID: noneList.UserID, Title: noneList.Title.String, ListTasks: TaskFormatToJson(noneList.Tasks()), Color: noneList.Color.String, ListOptionID: noneList.ListOptionID.Int64}
 		jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Info("success to fetch github")
 		encoder.Encode(jsonAllLists)

@@ -18,7 +18,7 @@ import (
 var _ = Describe("ListOptionsController", func() {
 	var (
 		ts     *httptest.Server
-		userId int64
+		userID int64
 	)
 	BeforeEach(func() {
 		m := web.New()
@@ -35,7 +35,7 @@ var _ = Describe("ListOptionsController", func() {
 		table.Close()
 	})
 	JustBeforeEach(func() {
-		userId = LoginFaker(ts, "list_options@example.com", "hogehoge")
+		userID = LoginFaker(ts, "list_options@example.com", "hogehoge")
 		seed.ListOptions()
 	})
 

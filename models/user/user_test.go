@@ -107,8 +107,8 @@ var _ = Describe("User", func() {
 		It("after regist through github, can search this user", func() {
 			current_user, _ := FindOrCreateGithub(token)
 			find_user, _ := FindOrCreateGithub(token)
-			Expect(find_user.Id).To(Equal(current_user.Id))
-			Expect(find_user.Id).NotTo(BeZero())
+			Expect(find_user.ID).To(Equal(current_user.ID))
+			Expect(find_user.ID).NotTo(BeZero())
 		})
 		Context("after regist with email address", func() {
 			email := "already_regist@example.com"
@@ -156,7 +156,7 @@ var _ = Describe("User", func() {
 		It("ユーザとプロジェクトが関連づいていること", func() {
 			projects := current_user.Projects()
 			Expect(projects).NotTo(BeEmpty())
-			Expect(projects[0].Id).To(Equal(newProject.Id))
+			Expect(projects[0].ID).To(Equal(newProject.ID))
 		})
 	})
 

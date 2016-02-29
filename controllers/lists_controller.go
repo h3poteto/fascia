@@ -27,13 +27,13 @@ type EditListForm struct {
 }
 
 type ListJSONFormat struct {
-	Id           int64
-	ProjectId    int64
-	UserId       int64
+	ID           int64
+	ProjectID    int64
+	UserID       int64
 	Title        string
 	ListTasks    []*TaskJsonFormat
 	Color        string
-	ListOptionId int64
+	ListOptionID int64
 }
 
 type AllListJSONFormat struct {
@@ -52,7 +52,7 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil || parentProject.UserId != current_user.Id {
+	if parentProject == nil || parentProject.UserID != current_user.ID {
 		logging.SharedInstance().MethodInfo("ListsController", "Index").Warn("project not found")
 		http.Error(w, "project not found", 404)
 		return
@@ -60,10 +60,10 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	lists := parentProject.Lists()
 	var jsonLists []*ListJSONFormat
 	for _, l := range lists {
-		jsonLists = append(jsonLists, &ListJSONFormat{Id: l.Id, ProjectId: l.ProjectId, UserId: l.UserId, Title: l.Title.String, ListTasks: TaskFormatToJson(l.Tasks()), Color: l.Color.String, ListOptionId: l.ListOptionId.Int64})
+		jsonLists = append(jsonLists, &ListJSONFormat{ID: l.ID, ProjectID: l.ProjectID, UserID: l.UserID, Title: l.Title.String, ListTasks: TaskFormatToJson(l.Tasks()), Color: l.Color.String, ListOptionID: l.ListOptionID.Int64})
 	}
 	noneList := parentProject.NoneList()
-	jsonNoneList := &ListJSONFormat{Id: noneList.Id, ProjectId: noneList.ProjectId, UserId: noneList.UserId, Title: noneList.Title.String, ListTasks: TaskFormatToJson(noneList.Tasks()), Color: noneList.Color.String, ListOptionId: noneList.ListOptionId.Int64}
+	jsonNoneList := &ListJSONFormat{ID: noneList.ID, ProjectID: noneList.ProjectID, UserID: noneList.UserID, Title: noneList.Title.String, ListTasks: TaskFormatToJson(noneList.Tasks()), Color: noneList.Color.String, ListOptionID: noneList.ListOptionID.Int64}
 	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 	encoder.Encode(jsonAllLists)
 	logging.SharedInstance().MethodInfo("ListsController", "Index").Info("success to get lists")
@@ -81,7 +81,7 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil || parentProject.UserId != current_user.Id {
+	if parentProject == nil || parentProject.UserID != current_user.ID {
 		logging.SharedInstance().MethodInfo("ListsController", "Create").Warn("project not found")
 		http.Error(w, "project not found", 404)
 		return
@@ -101,7 +101,7 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ListsController", "Create").Debugf("post new list parameter: %+v", newListForm)
-	list := listModel.NewList(0, projectID, current_user.Id, newListForm.Title, newListForm.Color, sql.NullInt64{})
+	list := listModel.NewList(0, projectID, current_user.ID, newListForm.Title, newListForm.Color, sql.NullInt64{})
 
 	repo := parentProject.Repository()
 	if !list.Save(repo, &current_user.OauthToken) {
@@ -109,7 +109,7 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed save", 500)
 		return
 	}
-	jsonList := ListJSONFormat{Id: list.Id, ProjectId: list.ProjectId, UserId: list.UserId, Title: list.Title.String, Color: list.Color.String, ListOptionId: list.ListOptionId.Int64}
+	jsonList := ListJSONFormat{ID: list.ID, ProjectID: list.ProjectID, UserID: list.UserID, Title: list.Title.String, Color: list.Color.String, ListOptionID: list.ListOptionID.Int64}
 	encoder.Encode(jsonList)
 	logging.SharedInstance().MethodInfo("ListsController", "Create").Info("success to create list")
 	return
@@ -126,7 +126,7 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil || parentProject.UserId != current_user.Id {
+	if parentProject == nil || parentProject.UserID != current_user.ID {
 		logging.SharedInstance().MethodInfo("ListsController", "Update").Warn("project not found")
 		http.Error(w, "project not found", 404)
 		return
@@ -160,7 +160,7 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "save failed", 500)
 		return
 	}
-	jsonList := ListJSONFormat{Id: targetList.Id, ProjectId: targetList.ProjectId, UserId: targetList.UserId, Title: targetList.Title.String, ListTasks: TaskFormatToJson(targetList.Tasks()), Color: targetList.Color.String, ListOptionId: targetList.ListOptionId.Int64}
+	jsonList := ListJSONFormat{ID: targetList.ID, ProjectID: targetList.ProjectID, UserID: targetList.UserID, Title: targetList.Title.String, ListTasks: TaskFormatToJson(targetList.Tasks()), Color: targetList.Color.String, ListOptionID: targetList.ListOptionID.Int64}
 	encoder.Encode(jsonList)
 	logging.SharedInstance().MethodInfo("ListsController", "Update").Info("success to update list")
 	return

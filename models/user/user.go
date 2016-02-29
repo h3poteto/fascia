@@ -20,7 +20,7 @@ type User interface {
 }
 
 type UserStruct struct {
-	Id         int64
+	ID         int64
 	Email      string
 	Password   string
 	Provider   sql.NullString
@@ -50,7 +50,7 @@ func HashPassword(password string) ([]byte, error) {
 }
 
 func NewUser(id int64, email string, provider sql.NullString, oauthToken sql.NullString, uuid sql.NullInt64, userName sql.NullString, avatar sql.NullString) *UserStruct {
-	user := &UserStruct{Id: id, Email: email, Provider: provider, OauthToken: oauthToken, Uuid: uuid, UserName: userName, Avatar: avatar}
+	user := &UserStruct{ID: id, Email: email, Provider: provider, OauthToken: oauthToken, Uuid: uuid, UserName: userName, Avatar: avatar}
 	user.Initialize()
 	return user
 }
@@ -77,7 +77,7 @@ func CurrentUser(userID int64) (*UserStruct, error) {
 		logging.SharedInstance().MethodInfo("User", "CurrentUser").Infof("cannot find user: %v", err)
 		return nil, err
 	}
-	user.Id = id
+	user.ID = id
 	user.Email = email
 	user.Provider = provider
 	user.OauthToken = oauthToken
@@ -227,7 +227,7 @@ func (u *UserStruct) Projects() []*project.ProjectStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	rows, _ := table.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where user_id = ?;", u.Id)
+	rows, _ := table.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where user_id = ?;", u.ID)
 	var slice []*project.ProjectStruct
 	for rows.Next() {
 		var id, userID int64
@@ -256,8 +256,8 @@ func (u *UserStruct) Save() bool {
 		logging.SharedInstance().MethodInfo("user", "Save", true).Errorf("failed to create user: %v", err)
 		return false
 	}
-	u.Id, _ = result.LastInsertId()
-	logging.SharedInstance().MethodInfo("user", "Save").Infof("user saved: %v", u.Id)
+	u.ID, _ = result.LastInsertId()
+	logging.SharedInstance().MethodInfo("user", "Save").Infof("user saved: %v", u.ID)
 	return true
 }
 

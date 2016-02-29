@@ -42,18 +42,18 @@ var _ = Describe("List", func() {
 		table = database.Init()
 		newProject = project.NewProject(0, uid, "title", "desc", sql.NullInt64{}, true, true)
 		newProject.Save()
-		newList = NewList(0, newProject.Id, newProject.UserId, "list title", "", sql.NullInt64{})
+		newList = NewList(0, newProject.ID, newProject.UserID, "list title", "", sql.NullInt64{})
 	})
 
 	Describe("Save", func() {
 		It("can registrate list", func() {
 			result := newList.Save(nil, nil)
 			Expect(result).To(BeTrue())
-			Expect(newList.Id).NotTo(Equal(0))
+			Expect(newList.ID).NotTo(Equal(0))
 		})
 		It("should relate list to project", func() {
 			_ = newList.Save(nil, nil)
-			rows, _ := table.Query("select id, project_id, title from lists where id = ?;", newList.Id)
+			rows, _ := table.Query("select id, project_id, title from lists where id = ?;", newList.ID)
 			var id int64
 			var project_id int64
 			var title sql.NullString
@@ -64,14 +64,14 @@ var _ = Describe("List", func() {
 					panic(err)
 				}
 			}
-			Expect(project_id).To(Equal(newProject.Id))
+			Expect(project_id).To(Equal(newProject.ID))
 		})
 	})
 
 	Describe("FindList", func() {
 		It("should find list which related project", func() {
 			newList.Save(nil, nil)
-			findList := FindList(newProject.Id, newList.Id)
+			findList := FindList(newProject.ID, newList.ID)
 			Expect(findList).To(Equal(newList))
 		})
 	})
@@ -80,13 +80,13 @@ var _ = Describe("List", func() {
 		var newTask *task.TaskStruct
 		JustBeforeEach(func() {
 			newList.Save(nil, nil)
-			newTask = task.NewTask(0, newList.Id, newProject.Id, newList.UserId, sql.NullInt64{}, "task", "description", false, sql.NullString{})
+			newTask = task.NewTask(0, newList.ID, newProject.ID, newList.UserID, sql.NullInt64{}, "task", "description", false, sql.NullString{})
 			newTask.Save(nil, nil)
 		})
 		It("should related task to list", func() {
 			tasks := newList.Tasks()
 			Expect(tasks).NotTo(BeEmpty())
-			Expect(tasks[0].Id).To(Equal(newTask.Id))
+			Expect(tasks[0].ID).To(Equal(newTask.ID))
 		})
 
 	})
@@ -101,7 +101,7 @@ var _ = Describe("List", func() {
 				newColor := "newColor"
 				action := "nothing"
 				newList.Update(nil, nil, &newTitle, &newColor, &action)
-				findList := FindList(newList.ProjectId, newList.Id)
+				findList := FindList(newList.ProjectID, newList.ID)
 				Expect(findList.Title.String).To(Equal(newTitle))
 				Expect(findList.Color.String).To(Equal(newColor))
 			})
@@ -112,11 +112,11 @@ var _ = Describe("List", func() {
 				newColor := "newColor"
 				action := "close"
 				newList.Update(nil, nil, &newTitle, &newColor, &action)
-				findList := FindList(newList.ProjectId, newList.Id)
+				findList := FindList(newList.ProjectID, newList.ID)
 				Expect(findList.Title.String).To(Equal(newTitle))
 				Expect(findList.Color.String).To(Equal(newColor))
 				listOption := list_option.FindByAction(action)
-				Expect(findList.ListOptionId.Int64).To(Equal(listOption.Id))
+				Expect(findList.ListOptionID.Int64).To(Equal(listOption.ID))
 			})
 		})
 	})

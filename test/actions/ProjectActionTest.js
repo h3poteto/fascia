@@ -154,14 +154,14 @@ describe('fetchCreateProject', () => {
       }
     }
     // TODO: できれば文字列じゃなくてハッシュでやりたいけど，とりあえずこれで通しておく
-    const postForm = `title=${title}&description=${description}&repositoryId=${repository.id}&repositoryOwner=${repository.owner.login}&repositoryName=${repository.name}`
+    const postForm = `title=${title}&description=${description}&repositoryID=${repository.id}&repositoryOwner=${repository.owner.login}&repositoryName=${repository.name}`
     beforeEach(() => {
       nock('http://localhost')
         .post('/projects', postForm)
         .reply(201, {
           ok: true,
-          Id: 1,
-          UserId: 12,
+          ID: 1,
+          UserID: 12,
           Title: title,
           Description: description
         })
@@ -170,7 +170,7 @@ describe('fetchCreateProject', () => {
     it('call RECEIVE_CREATE_PROJECT and get project', (done) => {
       const expectedActions = [
         { type: projectActions.REQUEST_CREATE_PROJECT },
-        { type: projectActions.RECEIVE_CREATE_PROJECT, project: {Id: 1, UserId: 12, Title: title, Description: description } }
+        { type: projectActions.RECEIVE_CREATE_PROJECT, project: {ID: 1, UserID: 12, Title: title, Description: description } }
       ]
       const store = mockStore({ project: null }, expectedActions, done)
       store.dispatch(projectActions.fetchCreateProject(title, description, repository))

@@ -25,7 +25,7 @@ describe('ProjectView', () => {
           description: ""
         },
         projects: [{
-          Id: 1,
+          ID: 1,
           Title: "project title",
           Description: "project description"
         }],
@@ -46,7 +46,7 @@ describe('ProjectView', () => {
       expect(items.props.className).toBe('items')
 
       let [ link, button ] = items.props.children
-      expect(link[0].props.to).toBe(`/projects/${state.ProjectReducer.projects[0].Id}`)
+      expect(link[0].props.to).toBe(`/projects/${state.ProjectReducer.projects[0].ID}`)
       expect(button.type).toBe('button')
       button.props.onClick()
       expect(props.openNewProjectModal.calls.length).toBe(1)
@@ -61,7 +61,7 @@ describe('ProjectView', () => {
           description: ""
         },
         projects: [{
-          Id: 1,
+          ID: 1,
           Title: "project title",
           Description: "project description"
         }],
@@ -105,7 +105,7 @@ describe('ProjectView', () => {
             description: ""
           },
           projects: [{
-            Id: 1,
+            ID: 1,
             Title: "project title",
             Description: "project description"
           }],
@@ -154,7 +154,7 @@ describe('ProjectView', () => {
             description: ""
           },
           projects: [{
-            Id: 1,
+            ID: 1,
             Title: "project title",
             Description: "project description"
           }],

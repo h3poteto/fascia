@@ -38,7 +38,7 @@ var _ = Describe("ResetPassword", func() {
 
 	Describe("Authenticate", func() {
 		It("should authenticate", func() {
-			Expect(Authenticate(resetPassword.Id, resetPassword.Token)).To(BeTrue())
+			Expect(Authenticate(resetPassword.ID, resetPassword.Token)).To(BeTrue())
 		})
 	})
 
@@ -50,14 +50,14 @@ var _ = Describe("ResetPassword", func() {
 			newPassword = "fugafuga"
 		})
 		It("can not login with old password", func() {
-			u, err := ChangeUserPassword(resetPassword.Id, resetPassword.Token, newPassword)
+			u, err := ChangeUserPassword(resetPassword.ID, resetPassword.Token, newPassword)
 			Expect(err).To(BeNil())
 			u, err = user.Login(email, password)
 			Expect(err).NotTo(BeNil())
 			Expect(u).To(BeNil())
 		})
 		It("can login with new password", func() {
-			u, err := ChangeUserPassword(resetPassword.Id, resetPassword.Token, newPassword)
+			u, err := ChangeUserPassword(resetPassword.ID, resetPassword.Token, newPassword)
 			Expect(err).To(BeNil())
 			u, err = user.Login(email, newPassword)
 			Expect(err).To(BeNil())

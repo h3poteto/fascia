@@ -62,11 +62,11 @@ var _ = Describe("Project", func() {
 		It("should create project", func() {
 			result := newProject.Save()
 			Expect(result).To(BeTrue())
-			Expect(newProject.Id).NotTo(Equal(0))
+			Expect(newProject.ID).NotTo(Equal(0))
 		})
 		It("should relate user and project", func() {
 			_ = newProject.Save()
-			rows, _ := table.Query("select id, user_id, title, description from projects where id = ?;", newProject.Id)
+			rows, _ := table.Query("select id, user_id, title, description from projects where id = ?;", newProject.ID)
 
 			var id int64
 			var user_id sql.NullInt64
@@ -93,7 +93,7 @@ var _ = Describe("Project", func() {
 			Expect(result).To(BeTrue())
 			Expect(newProject.Title).To(Equal("newTitle"))
 			Expect(newProject.Description).To(Equal("newDescription"))
-			Expect(newProject.RepositoryId.Valid).To(BeFalse())
+			Expect(newProject.RepositoryID.Valid).To(BeFalse())
 			Expect(newProject.ShowIssues).To(BeTrue())
 			Expect(newProject.ShowPullRequests).To(BeFalse())
 		})
@@ -102,16 +102,16 @@ var _ = Describe("Project", func() {
 	Describe("Repository", func() {
 		Context("when repository exist", func() {
 			It("should relate project to repository", func() {
-				repositoryId := int64(12345)
-				newRepository := repository.NewRepository(0, repositoryId, "owner", "name")
+				repositoryID := int64(12345)
+				newRepository := repository.NewRepository(0, repositoryID, "owner", "name")
 				result := newRepository.Save()
 				Expect(result).To(BeTrue())
-				newProject.RepositoryId = sql.NullInt64{Int64: newRepository.Id, Valid: true}
+				newProject.RepositoryID = sql.NullInt64{Int64: newRepository.ID, Valid: true}
 				result = newProject.Save()
 
 				Expect(result).To(BeTrue())
 				Expect(newProject.Repository()).NotTo(BeNil())
-				Expect(newProject.Repository().Id).To(Equal(newRepository.Id))
+				Expect(newProject.Repository().ID).To(Equal(newRepository.ID))
 			})
 		})
 	})
@@ -129,15 +129,15 @@ var _ = Describe("Project", func() {
 
 			newProject = NewProject(0, user_id, "project title", "project desc", sql.NullInt64{}, true, true)
 			_ = newProject.Save()
-			newList = list.NewList(0, newProject.Id, newProject.UserId, "list title", "", sql.NullInt64{})
+			newList = list.NewList(0, newProject.ID, newProject.UserID, "list title", "", sql.NullInt64{})
 			_ = newList.Save(nil, nil)
-			noneList = list.NewList(0, newProject.Id, newProject.UserId, config.Element("init_list").(map[interface{}]interface{})["none"].(string), "", sql.NullInt64{})
+			noneList = list.NewList(0, newProject.ID, newProject.UserID, config.Element("init_list").(map[interface{}]interface{})["none"].(string), "", sql.NullInt64{})
 			_ = noneList.Save(nil, nil)
 		})
 		It("should relate project and list", func() {
 			lists := newProject.Lists()
 			Expect(lists).NotTo(BeEmpty())
-			Expect(lists[0].Id).To(Equal(newList.Id))
+			Expect(lists[0].ID).To(Equal(newList.ID))
 		})
 		It("should not take none list", func() {
 			lists := newProject.Lists()

@@ -143,11 +143,11 @@ function receiveLists(lists) {
   }
 }
 
-export function fetchLists(projectId) {
+export function fetchLists(projectID) {
   return dispatch => {
     dispatch(requestLists())
     return Request
-      .get(`/projects/${projectId}/lists`)
+      .get(`/projects/${projectID}/lists`)
       .end((err, res)=> {
         if (res.ok) {
           dispatch(receiveLists(res.body))
@@ -177,11 +177,11 @@ function receiveProject(project) {
   };
 }
 
-export function fetchProject(projectId) {
+export function fetchProject(projectID) {
   return dispatch => {
     dispatch(requestProject());
     return Request
-      .get(`/projects/${projectId}/show`)
+      .get(`/projects/${projectID}/show`)
       .end((err, res)=> {
         if (res.ok) {
           dispatch(receiveProject(res.body));
@@ -208,15 +208,15 @@ export const RECEIVE_CREATE_LIST = 'RECEIVE_CREATE_LIST';
 function receiveCreateList(list) {
   return {
     type: RECEIVE_CREATE_LIST,
-    list: {Id: list.Id, ProjectId: list.ProjectId, Title: list.Title, Color: list.Color, ListTasks: list.ListTasks}
+    list: {ID: list.ID, ProjectID: list.ProjectID, Title: list.Title, Color: list.Color, ListTasks: list.ListTasks}
   }
 }
 
-export function fetchCreateList(projectId, title, color) {
+export function fetchCreateList(projectID, title, color) {
   return dispatch => {
     dispatch(requestCreateList());
     return Request
-      .post(`/projects/${projectId}/lists`)
+      .post(`/projects/${projectID}/lists`)
       .type('form')
       .send({title: title, color: color})
       .end((err, res)=> {
@@ -248,11 +248,11 @@ function receiveCreateTask(task) {
   };
 }
 
-export function fetchCreateTask(projectId, listId, title, description) {
+export function fetchCreateTask(projectID, listID, title, description) {
   return dispatch => {
     dispatch(requestCreateTask());
     return Request
-      .post(`/projects/${projectId}/lists/${listId}/tasks`)
+      .post(`/projects/${projectID}/lists/${listID}/tasks`)
       .type('form')
       .send({title: title, description: description})
       .end((err, res)=> {
@@ -280,11 +280,11 @@ export const RECEIVE_UPDATE_LIST = 'RECEIVE_UPDATE_LIST';
 function receiveUpdateList(list) {
   return {
     type: RECEIVE_UPDATE_LIST,
-    list: {Id: list.Id, ProjectId: list.ProjectId, Title: list.Title, Color: list.Color, ListTasks: list.ListTasks, ListOptionId: list.ListOptionId}
+    list: {ID: list.ID, ProjectID: list.ProjectID, Title: list.Title, Color: list.Color, ListTasks: list.ListTasks, ListOptionID: list.ListOptionID}
   };
 }
 
-export function fetchUpdateList(projectId, list, option) {
+export function fetchUpdateList(projectID, list, option) {
   var action
   if (option != undefined && option != null) {
     action = option.Action
@@ -292,7 +292,7 @@ export function fetchUpdateList(projectId, list, option) {
   return dispatch => {
     dispatch(requestUpdateList());
     return Request
-      .post(`/projects/${projectId}/lists/${list.Id}`)
+      .post(`/projects/${projectID}/lists/${list.ID}`)
       .type('form')
       .send({title: list.Title, color: list.Color, action: action})
       .end((err, res)=> {
@@ -354,20 +354,20 @@ function receiveMoveTask(lists) {
 }
 
 export const TASK_DROP = 'TASK_DROP';
-export function taskDrop(projectId, taskDraggingFrom, taskDraggingTo) {
+export function taskDrop(projectID, taskDraggingFrom, taskDraggingTo) {
   if (taskDraggingTo != undefined && taskDraggingTo != null) {
-    var prevToTaskId;
+    var prevToTaskID;
     if (taskDraggingTo.prevToTask == null) {
-      prevToTaskId = null;
+      prevToTaskID = null;
     } else {
-      prevToTaskId = taskDraggingTo.prevToTask.Id;
+      prevToTaskID = taskDraggingTo.prevToTask.ID;
     }
     return dispatch => {
       dispatch(requestMoveTask());
       return Request
-        .post(`/projects/${projectId}/lists/${taskDraggingFrom.fromList.Id}/tasks/${taskDraggingFrom.fromTask.Id}/move_task`)
+        .post(`/projects/${projectID}/lists/${taskDraggingFrom.fromList.ID}/tasks/${taskDraggingFrom.fromTask.ID}/move_task`)
         .type('form')
-        .send({to_list_id: taskDraggingTo.toList.Id, prev_to_task_id: prevToTaskId})
+        .send({to_list_id: taskDraggingTo.toList.ID, prev_to_task_id: prevToTaskID})
         .end((err, res) => {
           if(res.ok) {
             dispatch(receiveMoveTask(res.body));
@@ -433,11 +433,11 @@ function receiveFetchGithub(lists) {
 }
 
 export const FETCH_PROJECT_GITHUB = "FETCH_PROJECT_GITHUB";
-export function fetchProjectGithub(projectId) {
+export function fetchProjectGithub(projectID) {
   return dispatch => {
     dispatch(requestFetchGithub());
     return Request
-      .post(`/projects/${projectId}/fetch_github`)
+      .post(`/projects/${projectID}/fetch_github`)
       .end((err, res) => {
         if (res.ok) {
           dispatch(receiveFetchGithub(res.body));
