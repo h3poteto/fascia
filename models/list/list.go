@@ -16,13 +16,13 @@ type List interface {
 }
 
 type ListStruct struct {
-	Id           int64
-	ProjectId    int64
-	UserId       int64
+	ID           int64
+	ProjectID    int64
+	UserID       int64
 	Title        sql.NullString
 	ListTasks    []*task.TaskStruct
 	Color        sql.NullString
-	ListOptionId sql.NullInt64
+	ListOptionID sql.NullInt64
 	database     db.DB
 }
 
@@ -33,7 +33,7 @@ func NewList(id int64, projectID int64, userID int64, title string, color string
 	nullTitle := sql.NullString{String: title, Valid: true}
 	nullColor := sql.NullString{String: color, Valid: true}
 
-	list := &ListStruct{Id: id, ProjectId: projectID, UserId: userID, Title: nullTitle, Color: nullColor, ListOptionId: optionID}
+	list := &ListStruct{ID: id, ProjectID: projectID, UserID: userID, Title: nullTitle, Color: nullColor, ListOptionID: optionID}
 	list.Initialize()
 	return list
 }
@@ -44,12 +44,12 @@ func FindList(projectID int64, listID int64) *ListStruct {
 	table := interfaceDB.Init()
 	defer table.Close()
 
-	var id, projectId, userId int64
+	var id, userID int64
 	var title, color sql.NullString
-	var optionId sql.NullInt64
+	var optionID sql.NullInt64
 	rows, _ := table.Query("select id, project_id, user_id, title, color, list_option_id from lists where id = ? AND project_id = ?;", listID, projectID)
 	for rows.Next() {
-		err := rows.Scan(&id, &projectId, &userId, &title, &color, &optionId)
+		err := rows.Scan(&id, &projectID, &userID, &title, &color, &optionID)
 		if err != nil {
 			logging.SharedInstance().MethodInfo("List", "FindList", true).Panic(err)
 		}
@@ -58,7 +58,7 @@ func FindList(projectID int64, listID int64) *ListStruct {
 		logging.SharedInstance().MethodInfo("list", "FindList", true).Errorf("cannot find list or project did not contain list: %v", listID)
 		return nil
 	} else {
-		list := NewList(id, projectId, userId, title.String, color.String, optionId)
+		list := NewList(id, projectID, userID, title.String, color.String, optionID)
 		return list
 	}
 
@@ -81,7 +81,7 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		}
 	}()
 
-	result, err := tx.Exec("insert into lists (project_id, user_id, title, color, list_option_id, created_at) values (?, ?, ?, ?, ?, now());", u.ProjectId, u.UserId, u.Title, u.Color, u.ListOptionId)
+	result, err := tx.Exec("insert into lists (project_id, user_id, title, color, list_option_id, created_at) values (?, ?, ?, ?, ?, now());", u.ProjectID, u.UserID, u.Title, u.Color, u.ListOptionID)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("list", "Save", true).Errorf("list save error: %v", err)
 		tx.Rollback()
@@ -108,7 +108,7 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		}
 	}
 	tx.Commit()
-	u.Id, _ = result.LastInsertId()
+	u.ID, _ = result.LastInsertId()
 	return true
 }
 
@@ -124,13 +124,13 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 		return false
 	}
 
-	var listOptionId sql.NullInt64
+	var listOptionID sql.NullInt64
 	listOption := list_option.FindByAction(*action)
 	if listOption == nil {
 		logging.SharedInstance().MethodInfo("list", "Update").Debug("cannot find list_options, set null to list_option_id")
 	} else {
-		listOptionId.Int64 = listOption.Id
-		listOptionId.Valid = true
+		listOptionID.Int64 = listOption.ID
+		listOptionID.Valid = true
 	}
 
 	tx, _ := table.Begin()
@@ -141,7 +141,7 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 		}
 	}()
 
-	_, err := tx.Exec("update lists set title = ?, color = ?, list_option_id = ? where id = ?;", *title, *color, listOptionId, u.Id)
+	_, err := tx.Exec("update lists set title = ?, color = ?, list_option_id = ? where id = ?;", *title, *color, listOptionID, u.ID)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("list", "Update", true).Errorf("list update error: %v", err)
 		tx.Rollback()
@@ -179,7 +179,7 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	tx.Commit()
 	u.Title = sql.NullString{String: *title, Valid: true}
 	u.Color = sql.NullString{String: *color, Valid: true}
-	u.ListOptionId = listOptionId
+	u.ListOptionID = listOptionID
 	return true
 }
 
@@ -187,7 +187,7 @@ func (u *ListStruct) Tasks() []*task.TaskStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	rows, _ := table.Query("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where list_id = ? order by display_index;", u.Id)
+	rows, _ := table.Query("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where list_id = ? order by display_index;", u.ID)
 	var slice []*task.TaskStruct
 	for rows.Next() {
 		var id, listID, userID, projectID int64
@@ -199,7 +199,7 @@ func (u *ListStruct) Tasks() []*task.TaskStruct {
 		if err != nil {
 			logging.SharedInstance().MethodInfo("List", "Tasks", true).Panic(err)
 		}
-		if listID == u.Id {
+		if listID == u.ID {
 			l := task.NewTask(id, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL)
 			slice = append(slice, l)
 		}

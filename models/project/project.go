@@ -19,22 +19,22 @@ type Project interface {
 }
 
 type ProjectStruct struct {
-	Id               int64
-	UserId           int64
+	ID               int64
+	UserID           int64
 	Title            string
 	Description      string
-	RepositoryId     sql.NullInt64
+	RepositoryID     sql.NullInt64
 	ShowIssues       bool
 	ShowPullRequests bool
 	database         db.DB
 }
 
-func NewProject(id int64, userID int64, title string, description string, repositoryId sql.NullInt64, showIssues bool, showPullRequests bool) *ProjectStruct {
+func NewProject(id int64, userID int64, title string, description string, repositoryID sql.NullInt64, showIssues bool, showPullRequests bool) *ProjectStruct {
 	if userID == 0 {
 		return nil
 	}
 
-	project := &ProjectStruct{Id: id, UserId: userID, Title: title, Description: description, RepositoryId: repositoryId, ShowIssues: showIssues, ShowPullRequests: showPullRequests}
+	project := &ProjectStruct{ID: id, UserID: userID, Title: title, Description: description, RepositoryID: repositoryID, ShowIssues: showIssues, ShowPullRequests: showPullRequests}
 	project.Initialize()
 	return project
 }
@@ -83,7 +83,7 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 			logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save repository")
 			return nil, errors.New("repository save error")
 		}
-		repoID = sql.NullInt64{Int64: repo.Id, Valid: true}
+		repoID = sql.NullInt64{Int64: repo.ID, Valid: true}
 	}
 
 	project := NewProject(0, userID, title, description, repoID, true, true)
@@ -100,17 +100,17 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 		logging.SharedInstance().MethodInfo("Project", "Create", true).Error("cannot find close list option")
 		return nil, errors.New("failed to find close list option")
 	}
-	todo := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["todo"].(string), "f37b1d", sql.NullInt64{})
-	inprogress := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["inprogress"].(string), "5eb95e", sql.NullInt64{})
-	done := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["done"].(string), "333333", sql.NullInt64{Int64: closeListOption.Id, Valid: true})
-	none := list.NewList(0, project.Id, userID, config.Element("init_list").(map[interface{}]interface{})["none"].(string), "ffffff", sql.NullInt64{})
+	todo := list.NewList(0, project.ID, userID, config.Element("init_list").(map[interface{}]interface{})["todo"].(string), "f37b1d", sql.NullInt64{})
+	inprogress := list.NewList(0, project.ID, userID, config.Element("init_list").(map[interface{}]interface{})["inprogress"].(string), "5eb95e", sql.NullInt64{})
+	done := list.NewList(0, project.ID, userID, config.Element("init_list").(map[interface{}]interface{})["done"].(string), "333333", sql.NullInt64{Int64: closeListOption.ID, Valid: true})
+	none := list.NewList(0, project.ID, userID, config.Element("init_list").(map[interface{}]interface{})["none"].(string), "ffffff", sql.NullInt64{})
 	if !none.Save(nil, nil) {
 		tx.Rollback()
 		logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save none list")
 		return nil, errors.New("failed to save none list")
 	}
 
-	if project.RepositoryId.Valid {
+	if project.RepositoryID.Valid {
 		if !todo.Save(repo, &oauthToken) {
 			tx.Rollback()
 			logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save todo list")
@@ -157,12 +157,12 @@ func (u *ProjectStruct) Save() bool {
 	table := u.database.Init()
 	defer table.Close()
 
-	result, err := table.Exec("insert into projects (user_id, repository_id, title, description, show_issues, show_pull_requests, created_at) values (?, ?, ?, ?, ?, ?, now());", u.UserId, u.RepositoryId, u.Title, u.Description, u.ShowIssues, u.ShowPullRequests)
+	result, err := table.Exec("insert into projects (user_id, repository_id, title, description, show_issues, show_pull_requests, created_at) values (?, ?, ?, ?, ?, ?, now());", u.UserID, u.RepositoryID, u.Title, u.Description, u.ShowIssues, u.ShowPullRequests)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("Project", "Save", true).Errorf("failed to save project: %v", err)
 		return false
 	}
-	u.Id, _ = result.LastInsertId()
+	u.ID, _ = result.LastInsertId()
 	return true
 }
 
@@ -174,7 +174,7 @@ func (u *ProjectStruct) Update(title string, description string, showIssues bool
 	u.Description = description
 	u.ShowIssues = showIssues
 	u.ShowPullRequests = showPullRequests
-	_, err := table.Exec("update projects set title = ?, description = ?, show_issues = ?, show_pull_requests = ? where id = ?;", u.Title, u.Description, u.ShowIssues, u.ShowPullRequests, u.Id)
+	_, err := table.Exec("update projects set title = ?, description = ?, show_issues = ?, show_pull_requests = ? where id = ?;", u.Title, u.Description, u.ShowIssues, u.ShowPullRequests, u.ID)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("Project", "Update", true).Errorf("failed to update project: %v", err)
 		return false
@@ -187,7 +187,7 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	rows, _ := table.Query("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ? and title != ?;", u.Id, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
+	rows, _ := table.Query("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ? and title != ?;", u.ID, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
 	var slice []*list.ListStruct
 	for rows.Next() {
 		var id, projectID, userID int64
@@ -197,7 +197,7 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 		if err != nil {
 			logging.SharedInstance().MethodInfo("Project", "Lists", true).Panic(err)
 		}
-		if projectID == u.Id && title.Valid {
+		if projectID == u.ID && title.Valid {
 			l := list.NewList(id, projectID, userID, title.String, color.String, optionID)
 			slice = append(slice, l)
 		}
@@ -212,12 +212,12 @@ func (u *ProjectStruct) NoneList() *list.ListStruct {
 	var id, projectID, userID int64
 	var title, color sql.NullString
 	var optionID sql.NullInt64
-	err := table.QueryRow("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ? and title = ?;", u.Id, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID)
+	err := table.QueryRow("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ? and title = ?;", u.ID, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID)
 	if err != nil {
 		// noneが存在しないということはProjectsController#Createがうまく行ってないので，そっちでエラーハンドリングしてほしい
 		logging.SharedInstance().MethodInfo("Project", "NoneList", true).Panic(err)
 	}
-	if projectID == u.Id && title.Valid {
+	if projectID == u.ID && title.Valid {
 		return list.NewList(id, projectID, userID, title.String, color.String, optionID)
 	}
 	return nil
@@ -227,15 +227,15 @@ func (u *ProjectStruct) Repository() *repository.RepositoryStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	var id, repositoryId int64
+	var id, repositoryID int64
 	var owner, name sql.NullString
-	err := table.QueryRow("select repositories.id, repositories.repository_id, repositories.owner, repositories.name from projects inner join repositories on repositories.id = projects.repository_id where projects.id = ?;", u.Id).Scan(&id, &repositoryId, &owner, &name)
+	err := table.QueryRow("select repositories.id, repositories.repository_id, repositories.owner, repositories.name from projects inner join repositories on repositories.id = projects.repository_id where projects.id = ?;", u.ID).Scan(&id, &repositoryID, &owner, &name)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("project", "Repository").Infof("cannot find repository: %v", err)
 		return nil
 	}
-	if id == u.RepositoryId.Int64 && owner.Valid {
-		r := repository.NewRepository(id, repositoryId, owner.String, name.String)
+	if id == u.RepositoryID.Int64 && owner.Valid {
+		r := repository.NewRepository(id, repositoryID, owner.String, name.String)
 		return r
 	} else {
 		logging.SharedInstance().MethodInfo("project", "Repository", true).Error("repository owner discord from project owner")
@@ -248,7 +248,7 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 	defer table.Close()
 
 	var oauthToken sql.NullString
-	err := table.QueryRow("select users.oauth_token from projects left join users on users.id = projects.user_id where projects.id = ?;", u.Id).Scan(&oauthToken)
+	err := table.QueryRow("select users.oauth_token from projects left join users on users.id = projects.user_id where projects.id = ?;", u.ID).Scan(&oauthToken)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("project", "FetchGithub", true).Errorf("oauth_token select error: %v", err)
 		return false, err
@@ -295,26 +295,26 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 				}
 			}
 		}
-		issueTask, err := task.FindByIssueNumber(u.Id, *issue.Number)
+		issueTask, err := task.FindByIssueNumber(u.ID, *issue.Number)
 		if err != nil && issueTask == nil {
-			issueTask = task.NewTask(0, 0, u.Id, u.UserId, sql.NullInt64{Int64: int64(*issue.Number), Valid: true}, *issue.Title, *issue.Body, hub.IsPullRequest(&issue), sql.NullString{String: *issue.HTMLURL, Valid: true})
+			issueTask = task.NewTask(0, 0, u.ID, u.UserID, sql.NullInt64{Int64: int64(*issue.Number), Valid: true}, *issue.Title, *issue.Body, hub.IsPullRequest(&issue), sql.NullString{String: *issue.HTMLURL, Valid: true})
 		}
 		if len(githubLabels) == 1 {
 			// 一つのlistだけが該当するとき
-			issueTask.ListId = githubLabels[0].Id
+			issueTask.ListID = githubLabels[0].ID
 		} else if len(githubLabels) > 1 {
 			// 複数のlistが該当するとき
-			issueTask.ListId = githubLabels[0].Id
+			issueTask.ListID = githubLabels[0].ID
 		} else {
 			// ついているlabelのlistを持ってない時
 			if *issue.State == "open" {
-				issueTask.ListId = noneList.Id
+				issueTask.ListID = noneList.ID
 			} else {
-				issueTask.ListId = closedList.Id
+				issueTask.ListID = closedList.ID
 			}
 		}
 		// ここはgithub側への同期不要
-		if issueTask.Id == 0 {
+		if issueTask.ID == 0 {
 			if !issueTask.Save(nil, nil) {
 				logging.SharedInstance().MethodInfo("Project", "FetchGithub", true).Error("failed to save task")
 				return false, errors.New("failed to save task")
@@ -331,7 +331,7 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		}
 	}
 	// github側へ同期
-	rows, err := table.Query("select tasks.title, tasks.description, lists.title, lists.color from tasks left join lists on lists.id = tasks.list_id where tasks.user_id = ? and tasks.issue_number IS NULL;", u.UserId)
+	rows, err := table.Query("select tasks.title, tasks.description, lists.title, lists.color from tasks left join lists on lists.id = tasks.list_id where tasks.user_id = ? and tasks.issue_number IS NULL;", u.UserID)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("Project", "FetchGithub", true).Panic(err)
 		return false, err

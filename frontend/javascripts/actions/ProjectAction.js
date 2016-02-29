@@ -129,10 +129,10 @@ function requestCreateProject() {
 }
 
 export const RECEIVE_CREATE_PROJECT = 'RECEIVE_CREATE_PROJECT';
-function receiveCreateProject(id, userId, title, description) {
+function receiveCreateProject(id, userID, title, description) {
   return {
     type: RECEIVE_CREATE_PROJECT,
-    project: {Id: id, UserId: userId, Title: title, Description: description}
+    project: {ID: id, UserID: userID, Title: title, Description: description}
   };
 }
 
@@ -140,19 +140,19 @@ function receiveCreateProject(id, userId, title, description) {
 export function fetchCreateProject(title, description, repository) {
   return dispatch => {
     dispatch(requestCreateProject());
-    var repositoryId, repositoryOwner, repositoryName;
+    var repositoryID, repositoryOwner, repositoryName;
     if (repository != null) {
-      repositoryId = repository.id;
+      repositoryID = repository.id;
       repositoryOwner = repository.owner.login;
       repositoryName = repository.name;
     }
     return Request
       .post('/projects')
       .type('form')
-      .send({title: title, description: description, repositoryId: repositoryId, repositoryOwner: repositoryOwner, repositoryName: repositoryName})
+      .send({title: title, description: description, repositoryID: repositoryID, repositoryOwner: repositoryOwner, repositoryName: repositoryName})
       .end((err, res)=> {
         if (res.ok) {
-          dispatch(receiveCreateProject(res.body.Id, res.body.UserId, res.body.Title, res.body.Description));
+          dispatch(receiveCreateProject(res.body.ID, res.body.UserID, res.body.Title, res.body.Description));
         } else if (res.unauthorized) {
           dispatch(unauthorized());
         } else if (res.notFound) {

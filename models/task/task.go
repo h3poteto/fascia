@@ -16,10 +16,10 @@ type Task interface {
 }
 
 type TaskStruct struct {
-	Id          int64
-	ListId      int64
-	ProjectId   int64
-	UserId      int64
+	ID          int64
+	ListID      int64
+	ProjectID   int64
+	UserID      int64
 	IssueNumber sql.NullInt64
 	Title       string
 	Description string
@@ -29,7 +29,7 @@ type TaskStruct struct {
 }
 
 func NewTask(id int64, listID int64, projectID int64, userID int64, issueNumber sql.NullInt64, title string, description string, pullRequest bool, htmlURL sql.NullString) *TaskStruct {
-	task := &TaskStruct{Id: id, ListId: listID, ProjectId: projectID, UserId: userID, IssueNumber: issueNumber, Title: title, Description: description, PullRequest: pullRequest, HTMLURL: htmlURL}
+	task := &TaskStruct{ID: id, ListID: listID, ProjectID: projectID, UserID: userID, IssueNumber: issueNumber, Title: title, Description: description, PullRequest: pullRequest, HTMLURL: htmlURL}
 	task.Initialize()
 	return task
 }
@@ -40,12 +40,12 @@ func FindTask(listID int64, taskID int64) (*TaskStruct, error) {
 	table := interfaceDB.Init()
 	defer table.Close()
 
-	var id, listId, userId, projectId int64
+	var id, userID, projectID int64
 	var title, description string
 	var issueNumber sql.NullInt64
 	var pullRequest bool
 	var htmlURL sql.NullString
-	err := table.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where id = ? AND list_id = ?;", taskID, listID).Scan(&id, &listId, &projectId, &userId, &issueNumber, &title, &description, &pullRequest, &htmlURL)
+	err := table.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where id = ? AND list_id = ?;", taskID, listID).Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("task", "FindTask", true).Errorf("cannot find task: %v", err)
 		return nil, err
@@ -54,7 +54,7 @@ func FindTask(listID int64, taskID int64) (*TaskStruct, error) {
 		logging.SharedInstance().MethodInfo("task", "FindTask", true).Errorf("cannot find task or list did not contain task: %v", taskID)
 		return nil, errors.New("cannot find task or list did not contain task")
 	}
-	task := NewTask(id, listId, projectId, userId, issueNumber, title, description, pullRequest, htmlURL)
+	task := NewTask(id, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL)
 	return task, nil
 }
 
@@ -64,12 +64,12 @@ func FindByIssueNumber(projectID int64, issueNumber int) (*TaskStruct, error) {
 	table := interfaceDB.Init()
 	defer table.Close()
 
-	var id, listId, userId, projectId int64
+	var id, listID, userID int64
 	var title, description string
 	var number sql.NullInt64
 	var pullRequest bool
 	var htmlURL sql.NullString
-	err := table.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where issue_number = ? and project_id = ?;", issueNumber, projectID).Scan(&id, &listId, &projectId, &userId, &number, &title, &description, &pullRequest, &htmlURL)
+	err := table.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where issue_number = ? and project_id = ?;", issueNumber, projectID).Scan(&id, &listID, &projectID, &userID, &number, &title, &description, &pullRequest, &htmlURL)
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
@@ -77,7 +77,7 @@ func FindByIssueNumber(projectID int64, issueNumber int) (*TaskStruct, error) {
 		logging.SharedInstance().MethodInfo("task", "FindByIssueNumber", true).Errorf("cannot find task issue number: %v", issueNumber)
 		return nil, errors.New("task not found")
 	} else {
-		task := NewTask(id, listId, projectId, userId, number, title, description, pullRequest, htmlURL)
+		task := NewTask(id, listID, projectID, userID, number, title, description, pullRequest, htmlURL)
 		return task, nil
 	}
 }
@@ -101,8 +101,8 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 
 	// display_indexを自動挿入する
 	count := 0
-	err := transaction.QueryRow("SELECT COUNT(id) FROM tasks WHERE list_id = ?;", u.ListId).Scan(&count)
-	result, err := transaction.Exec("insert into tasks (list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index, created_at) values (?,?,?, ?, ?, ?, ?, ?, ?, now());", u.ListId, u.ProjectId, u.UserId, u.IssueNumber, u.Title, u.Description, u.PullRequest, u.HTMLURL, count+1)
+	err := transaction.QueryRow("SELECT COUNT(id) FROM tasks WHERE list_id = ?;", u.ListID).Scan(&count)
+	result, err := transaction.Exec("insert into tasks (list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index, created_at) values (?,?,?, ?, ?, ?, ?, ?, ?, now());", u.ListID, u.ProjectID, u.UserID, u.IssueNumber, u.Title, u.Description, u.PullRequest, u.HTMLURL, count+1)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("task", "Save", true).Errorf("insert task error: %v", err)
 		transaction.Rollback()
@@ -110,8 +110,8 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	}
 	if OauthToken != nil && OauthToken.Valid && repo != nil {
 		var listTitle, listColor sql.NullString
-		var listOptionId sql.NullInt64
-		err = transaction.QueryRow("select title, color, list_option_id from lists where id = ?;", u.ListId).Scan(&listTitle, &listColor, &listOptionId)
+		var listOptionID sql.NullInt64
+		err = transaction.QueryRow("select title, color, list_option_id from lists where id = ?;", u.ListID).Scan(&listTitle, &listColor, &listOptionID)
 		if err != nil {
 			logging.SharedInstance().MethodInfo("task", "Save", true).Errorf("select list error: %v", err)
 			transaction.Rollback()
@@ -141,8 +141,8 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 			transaction.Rollback()
 			return false
 		}
-		currentId, _ := result.LastInsertId()
-		_, err = transaction.Exec("update tasks set issue_number = ?, pull_request = false, html_url = ? where id = ?;", *issue.Number, *issue.HTMLURL, currentId)
+		currentID, _ := result.LastInsertId()
+		_, err = transaction.Exec("update tasks set issue_number = ?, pull_request = false, html_url = ? where id = ?;", *issue.Number, *issue.HTMLURL, currentID)
 		if err != nil {
 			// TODO: そもそもこのときはissueを削除しなければいけないのでは？
 			logging.SharedInstance().MethodInfo("task", "Save", true).Errorf("issue_number update error: %v", err)
@@ -160,7 +160,7 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		transaction.Rollback()
 		return false
 	}
-	u.Id, _ = result.LastInsertId()
+	u.ID, _ = result.LastInsertId()
 	logging.SharedInstance().MethodInfo("task", "Save").Debugf("new task saved: %+v", u)
 	return true
 }
@@ -169,7 +169,7 @@ func (u *TaskStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	table := u.database.Init()
 	defer table.Close()
 
-	_, err := table.Exec("update tasks set list_id = ?, issue_number = ?, title = ?, description = ?, pull_request = ?, html_url = ? where id = ?;", u.ListId, u.IssueNumber, u.Title, u.Description, u.PullRequest, u.HTMLURL, u.Id)
+	_, err := table.Exec("update tasks set list_id = ?, issue_number = ?, title = ?, description = ?, pull_request = ?, html_url = ? where id = ?;", u.ListID, u.IssueNumber, u.Title, u.Description, u.PullRequest, u.HTMLURL, u.ID)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("task", "Update", true).Errorf("update error: %v", err)
 		return false
@@ -178,8 +178,8 @@ func (u *TaskStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	return true
 }
 
-// lastに追加する場合にはprevToTaskIdをnullで渡す
-func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *repository.RepositoryStruct, OauthToken *sql.NullString) bool {
+// lastに追加する場合にはprevToTaskIDをnullで渡す
+func (u *TaskStruct) ChangeList(listID int64, prevToTaskID *int64, repo *repository.RepositoryStruct, OauthToken *sql.NullString) bool {
 	table := u.database.Init()
 	defer table.Close()
 	transaction, _ := table.Begin()
@@ -192,16 +192,16 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 
 	// リストを移動させるのか同リスト内の並び替えなのかどうかを見て，並び替えならgithub同期したくない
 	var isReorder bool
-	if listId == u.ListId {
+	if listID == u.ListID {
 		isReorder = true
 	} else {
 		isReorder = false
 	}
 
 	var prevToTaskIndex int
-	if prevToTaskId != nil {
+	if prevToTaskID != nil {
 		// 途中に入れるパターン
-		err := transaction.QueryRow("select display_index from tasks where id = ?;", *prevToTaskId).Scan(&prevToTaskIndex)
+		err := transaction.QueryRow("select display_index from tasks where id = ?;", *prevToTaskID).Scan(&prevToTaskIndex)
 		if err != nil {
 			logging.SharedInstance().MethodInfo("task", "ChangeList", true).Errorf("select display index error: %v", err)
 			transaction.Rollback()
@@ -209,7 +209,7 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 		}
 		// 先に後ろにいる奴らを押し出しておかないとprevToTaskIndexのg位置が開かない
 		// prevToTaskIndex = nilのときは，末尾挿入なので払い出しは不要
-		_, err = transaction.Exec("update tasks set display_index = display_index + 1 where id in (select id from (select id from tasks where list_id = ? and display_index >= ?) as tmp);", listId, prevToTaskIndex)
+		_, err = transaction.Exec("update tasks set display_index = display_index + 1 where id in (select id from (select id from tasks where list_id = ? and display_index >= ?) as tmp);", listID, prevToTaskIndex)
 		if err != nil {
 			logging.SharedInstance().MethodInfo("task", "ChangeList", true).Errorf("update display index error: %v", err)
 			transaction.Rollback()
@@ -220,7 +220,7 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 		// 本当は連番のはずだからカウントすればいいんだけど，念の為ラストのindex+1を取る
 		// list内のタスクが空だった場合のためにnilが帰ってくることを許容する
 		var index interface{}
-		err := transaction.QueryRow("select max(display_index) from tasks where list_id = ?;", listId).Scan(&index)
+		err := transaction.QueryRow("select max(display_index) from tasks where list_id = ?;", listID).Scan(&index)
 		if err != nil {
 			// 該当するtaskが存在しないとき，indexにはnillが入るが，エラーにはならないので，ここのハンドリングには入らない
 			logging.SharedInstance().MethodInfo("task", "ChangeList", true).Errorf("select max display index error:%v", err)
@@ -234,7 +234,7 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 		}
 	}
 
-	_, err := transaction.Exec("update tasks set list_id = ?, display_index = ? where id = ?;", listId, prevToTaskIndex, u.Id)
+	_, err := transaction.Exec("update tasks set list_id = ?, display_index = ? where id = ?;", listID, prevToTaskIndex, u.ID)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("task", "ChangeList", true).Errorf("update task error:%v", err)
 		transaction.Rollback()
@@ -245,8 +245,8 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 	if !isReorder && OauthToken != nil && OauthToken.Valid && repo != nil && u.IssueNumber.Valid {
 		token := OauthToken.String
 		var listTitle, listColor sql.NullString
-		var listOptionId sql.NullInt64
-		err = transaction.QueryRow("select title, color, list_option_id from lists where id = ?;", listId).Scan(&listTitle, &listColor, &listOptionId)
+		var listOptionID sql.NullInt64
+		err = transaction.QueryRow("select title, color, list_option_id from lists where id = ?;", listID).Scan(&listTitle, &listColor, &listOptionID)
 		if err != nil {
 			logging.SharedInstance().MethodInfo("task", "ChangeList", true).Errorf("select list error:%v", err)
 			transaction.Rollback()
@@ -275,7 +275,7 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 		}
 		// list_option
 		var issueAction *string
-		listOption := list_option.FindById(listOptionId)
+		listOption := list_option.FindByID(listOptionID)
 		if listOption != nil {
 			issueAction = &listOption.Action
 		}
@@ -291,6 +291,6 @@ func (u *TaskStruct) ChangeList(listId int64, prevToTaskId *int64, repo *reposit
 	if err != nil {
 		logging.SharedInstance().MethodInfo("Task", "ChangeList", true).Panic(err)
 	}
-	u.ListId = listId
+	u.ListID = listID
 	return true
 }

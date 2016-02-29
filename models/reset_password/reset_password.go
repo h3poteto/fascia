@@ -16,27 +16,27 @@ type ResetPassword interface {
 }
 
 type ResetPasswordStruct struct {
-	Id        int64
-	UserId    int64
+	ID        int64
+	UserID    int64
 	Token     string
 	ExpiresAt time.Time
 	database  db.DB
 }
 
-func NewResetPassword(id int64, userId int64, token string, expiresAt time.Time) *ResetPasswordStruct {
-	resetPassword := &ResetPasswordStruct{Id: id, UserId: userId, Token: token, ExpiresAt: expiresAt}
+func NewResetPassword(id int64, userID int64, token string, expiresAt time.Time) *ResetPasswordStruct {
+	resetPassword := &ResetPasswordStruct{ID: id, UserID: userID, Token: token, ExpiresAt: expiresAt}
 	resetPassword.Initialize()
 	return resetPassword
 }
 
-func GenerateResetPassword(userId int64, email string) *ResetPasswordStruct {
+func GenerateResetPassword(userID int64, email string) *ResetPasswordStruct {
 	// tokenを生成
 	h := md5.New()
 	io.WriteString(h, strconv.FormatInt(time.Now().Unix(), 10))
 	io.WriteString(h, email)
 	token := fmt.Sprintf("%x", h.Sum(nil))
 
-	return NewResetPassword(0, userId, token, time.Now().AddDate(0, 0, 1))
+	return NewResetPassword(0, userID, token, time.Now().AddDate(0, 0, 1))
 }
 
 func Authenticate(id int64, token string) bool {
@@ -45,8 +45,8 @@ func Authenticate(id int64, token string) bool {
 	table := interfaceDB.Init()
 	defer table.Close()
 
-	var targetId int64
-	err := table.QueryRow("select id from reset_passwords where id = ? and token = ? and expires_at > now();", id, token).Scan(&targetId)
+	var targetID int64
+	err := table.QueryRow("select id from reset_passwords where id = ? and token = ? and expires_at > now();", id, token).Scan(&targetID)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ResetPassword", "Authenticate").Infof("cannot authenticate to reset password: %v", err)
 		return false
@@ -70,8 +70,8 @@ func ChangeUserPassword(id int64, token string, password string) (u *user.UserSt
 		}
 	}()
 
-	var userId int64
-	err := tx.QueryRow("select user_id from reset_passwords where id = ? and token = ? and expires_at > now();", id, token).Scan(&userId)
+	var userID int64
+	err := tx.QueryRow("select user_id from reset_passwords where id = ? and token = ? and expires_at > now();", id, token).Scan(&userID)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ResetPassword", "ChangeUserPassword").Infof("cannot authenticate reset password: %v", err)
 		tx.Rollback()
@@ -84,7 +84,7 @@ func ChangeUserPassword(id int64, token string, password string) (u *user.UserSt
 		tx.Rollback()
 		return nil, err
 	}
-	_, err = tx.Exec("update users set password = ? where id = ?;", hashPassword, userId)
+	_, err = tx.Exec("update users set password = ? where id = ?;", hashPassword, userID)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ResetPassword", "ChangeUserPassword", true).Errorf("cannot update user password: %v", err)
 		tx.Rollback()
@@ -98,7 +98,7 @@ func ChangeUserPassword(id int64, token string, password string) (u *user.UserSt
 		return nil, err
 	}
 
-	u, err = user.FindUser(userId)
+	u, err = user.FindUser(userID)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ResetPassword", "ChangeUserPassword", true).Errorf("cannot find user: %v", err)
 		tx.Rollback()
@@ -118,11 +118,11 @@ func (u *ResetPasswordStruct) Save() bool {
 	table := u.database.Init()
 	defer table.Close()
 
-	result, err := table.Exec("insert into reset_passwords (user_id, token, expires_at, created_at) values (?, ?, ?, now());", u.UserId, u.Token, u.ExpiresAt)
+	result, err := table.Exec("insert into reset_passwords (user_id, token, expires_at, created_at) values (?, ?, ?, now());", u.UserID, u.Token, u.ExpiresAt)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ResetPassword", "Save", true).Errorf("reset_password save error: %v", err)
 		return false
 	}
-	u.Id, _ = result.LastInsertId()
+	u.ID, _ = result.LastInsertId()
 	return true
 }

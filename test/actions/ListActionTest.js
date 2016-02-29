@@ -39,7 +39,7 @@ describe('closeNewListModal', () => {
 describe('openNewTaskModal', () => {
   it('should open new task modal', () => {
     const list = {
-      Id: 1,
+      ID: 1,
       Title: "listTitle"
     }
     const expectedAction = {
@@ -64,7 +64,7 @@ describe('closeNewTaskModal', () => {
 describe('openEditListModal', () => {
   it('should open edit list modal', () => {
     const list = {
-      Id: 1,
+      ID: 1,
       Title: "listTitle"
     }
     const expectedAction = {
@@ -125,10 +125,10 @@ describe('fetchLists', () => {
     nock.cleanAll()
   })
   context('when response is right', () => {
-    const projectId = 1
+    const projectID = 1
     beforeEach(() => {
       nock('http://localhost')
-        .get(`/projects/${projectId}/lists`)
+        .get(`/projects/${projectID}/lists`)
         .reply(200, { Lists: ['list1', 'list2'], NoneList: "noneList" })
     })
 
@@ -138,7 +138,7 @@ describe('fetchLists', () => {
         { type: listActions.RECEIVE_LISTS, lists: ['list1', 'list2'], noneList: "noneList" }
       ]
       const store = mockStore({ lists: [] }, expectedActions, done)
-      store.dispatch(listActions.fetchLists(projectId))
+      store.dispatch(listActions.fetchLists(projectID))
     })
   })
 })
@@ -148,20 +148,20 @@ describe('fetchProject', () => {
     nock.cleanAll()
   })
   context('when response is right', () => {
-    const projectId = 1
+    const projectID = 1
     beforeEach(() => {
       nock('http://localhost')
-        .get(`/projects/${projectId}/show`)
-        .reply(200, { Id: 1, Title: "projectTitle" } )
+        .get(`/projects/${projectID}/show`)
+        .reply(200, { ID: 1, Title: "projectTitle" } )
     })
 
     it('call RECEIVE_PROJECT and get project', (done) => {
       const expectedActions = [
         { type: listActions.REQUEST_PROJECT },
-        { type: listActions.RECEIVE_PROJECT, project: { Id: 1, Title: "projectTitle" } }
+        { type: listActions.RECEIVE_PROJECT, project: { ID: 1, Title: "projectTitle" } }
       ]
       const store = mockStore({ project: [] }, expectedActions, done)
-      store.dispatch(listActions.fetchProject(projectId))
+      store.dispatch(listActions.fetchProject(projectID))
     })
   })
 })
@@ -171,16 +171,16 @@ describe('fetchCreateList', () => {
     nock.cleanAll()
   })
   context('when response is right', () => {
-    const projectId = 1
+    const projectID = 1
     const title = "listTitle"
     const color = "ffffff"
     const postForm = `title=${title}&color=${color}`
     beforeEach(() => {
       nock('http://localhost')
-        .post(`/projects/${projectId}/lists`, postForm)
+        .post(`/projects/${projectID}/lists`, postForm)
         .reply(200, {
-          Id: 1,
-          ProjectId: projectId,
+          ID: 1,
+          ProjectID: projectID,
           Title: title,
           Color: color,
           ListTasks: ["task1"]
@@ -190,10 +190,10 @@ describe('fetchCreateList', () => {
     it('call RECEIVE_CREATE_LIST and get list', (done) => {
       const expectedActions = [
         { type: listActions.REQUEST_CREATE_LIST },
-        { type: listActions.RECEIVE_CREATE_LIST, list: { Id: 1, ProjectId: projectId, Title: title, Color: color, ListTasks: ["task1"] } }
+        { type: listActions.RECEIVE_CREATE_LIST, list: { ID: 1, ProjectID: projectID, Title: title, Color: color, ListTasks: ["task1"] } }
       ]
       const store = mockStore({ list: null }, expectedActions, done)
-      store.dispatch(listActions.fetchCreateList(projectId, title, color))
+      store.dispatch(listActions.fetchCreateList(projectID, title, color))
     })
   })
 })
@@ -203,17 +203,17 @@ describe('fetchCreateTask', () => {
     nock.cleanAll()
   })
   context('when response is right', () => {
-    const projectId = 1
-    const listId = 2
+    const projectID = 1
+    const listID = 2
     const title = "taskTitle"
     const description = "taskDescription"
     const postForm = `title=${title}&description=${description}`
     beforeEach(() => {
       nock('http://localhost')
-        .post(`/projects/${projectId}/lists/${listId}/tasks`, postForm)
+        .post(`/projects/${projectID}/lists/${listID}/tasks`, postForm)
         .reply(200, {
-          Id: 1,
-          ListId: listId,
+          ID: 1,
+          ListID: listID,
           Title: title,
           Description: description
         })
@@ -222,10 +222,10 @@ describe('fetchCreateTask', () => {
     it('call RECEIVE_CREATE_TASK and get task', (done) => {
       const expectedActions = [
         { type: listActions.REQUEST_CREATE_TASK },
-        { type: listActions.RECEIVE_CREATE_TASK, task: { Id: 1, ListId: listId, Title: title, Description: description } }
+        { type: listActions.RECEIVE_CREATE_TASK, task: { ID: 1, ListID: listID, Title: title, Description: description } }
       ]
       const store = mockStore({ task: null }, expectedActions, done)
-      store.dispatch(listActions.fetchCreateTask(projectId, listId, title, description))
+      store.dispatch(listActions.fetchCreateTask(projectID, listID, title, description))
     })
   })
 })
@@ -235,38 +235,38 @@ describe('fetchUpdateList', () => {
     nock.cleanAll()
   })
   context('when response is right', () => {
-    const projectId = 1
+    const projectID = 1
     const option = {
-      Id: 1,
+      ID: 1,
       Action: "close"
     }
     const list = {
-      Id: 2,
+      ID: 2,
       Title: "listTitle",
       Color: "ffffff",
-      ProjectId: projectId,
-      ListOptionId: option.Id
+      ProjectID: projectID,
+      ListOptionID: option.ID
     }
     const postForm = `title=${list.Title}&color=${list.Color}&action=${option.Action}`
     beforeEach(() => {
       nock('http://localhost')
-        .post(`/projects/${projectId}/lists/${list.Id}`, postForm)
+        .post(`/projects/${projectID}/lists/${list.ID}`, postForm)
         .reply(200, {
-          Id: list.Id,
-          ProjectId: list.ProjectId,
+          ID: list.ID,
+          ProjectID: list.ProjectID,
           Title: list.Title,
           Color: list.Color,
           ListTasks: [],
-          ListOptionId: option.Id
+          ListOptionID: option.ID
         })
     })
     it('call RECEIVE_UPDATE_LIST and get list', (done) => {
       const expectedActions = [
         { type: listActions.REQUEST_UPDATE_LIST },
-        { type: listActions.RECEIVE_UPDATE_LIST, list: { Id: list.Id, ProjectId: list.ProjectId, Title: list.Title, Color: list.Color, ListTasks: [], ListOptionId: option.Id } }
+        { type: listActions.RECEIVE_UPDATE_LIST, list: { ID: list.ID, ProjectID: list.ProjectID, Title: list.Title, Color: list.Color, ListTasks: [], ListOptionID: option.ID } }
       ]
       const store = mockStore({ list: null }, expectedActions, done)
-      store.dispatch(listActions.fetchUpdateList(projectId, list, option))
+      store.dispatch(listActions.fetchUpdateList(projectID, list, option))
     })
   })
 })
@@ -276,10 +276,10 @@ describe('fetchPorjectGithub', () => {
     nock.cleanAll()
   })
   context('when response is right', () => {
-    const projectId = 1
+    const projectID = 1
     beforeEach(() => {
       nock('http://localhost')
-        .post(`/projects/${projectId}/fetch_github`)
+        .post(`/projects/${projectID}/fetch_github`)
         .reply(200, {
           Lists: ["list1", "list2"],
           NoneList: "noneList"
@@ -291,7 +291,7 @@ describe('fetchPorjectGithub', () => {
         { type: listActions.RECEIVE_FETCH_GITHUB, lists: ["list1", "list2"], noneList: "noneList" }
       ]
       const store = mockStore({ lists: [] }, expectedActions, done)
-      store.dispatch(listActions.fetchProjectGithub(projectId))
+      store.dispatch(listActions.fetchProjectGithub(projectID))
     })
   })
 })
@@ -367,24 +367,24 @@ describe('taskDrop', () => {
     nock.cleanAll()
   })
   context('when add task to list at the last', () => {
-    const projectId = 1
+    const projectID = 1
     const taskDraggingFrom = {
       fromList: {
-        Id: 1
+        ID: 1
       },
       fromTask: {
-        Id: 5
+        ID: 5
       }
     }
     const taskDraggingTo = {
       toList: {
-        Id: 2
+        ID: 2
       },
       prevToTask: null
     }
     beforeEach(() => {
       nock('http://localhost')
-        .post(`/projects/${projectId}/lists/${taskDraggingFrom.fromList.Id}/tasks/${taskDraggingFrom.fromTask.Id}/move_task`)
+        .post(`/projects/${projectID}/lists/${taskDraggingFrom.fromList.ID}/tasks/${taskDraggingFrom.fromTask.ID}/move_task`)
         .reply(200, {
           Lists: ["list1", "list2"],
           NoneList: "noneList"
@@ -397,30 +397,30 @@ describe('taskDrop', () => {
         { type: listActions.RECEIVE_MOVE_TASK, lists: ["list1", "list2"], noneList: "noneList" }
       ]
       const store = mockStore({ lists: [] }, expectedActions, done)
-      store.dispatch(listActions.taskDrop(projectId, taskDraggingFrom, taskDraggingTo))
+      store.dispatch(listActions.taskDrop(projectID, taskDraggingFrom, taskDraggingTo))
     })
   })
   context('when add task to list at halfway', () => {
-    const projectId = 1
+    const projectID = 1
     const taskDraggingFrom = {
       fromList: {
-        Id: 1
+        ID: 1
       },
       fromTask: {
-        Id: 5
+        ID: 5
       }
     }
     const taskDraggingTo = {
       toList: {
-        Id: 2
+        ID: 2
       },
       prevToTask: {
-        Id: 6
+        ID: 6
       }
     }
     beforeEach(() => {
       nock('http://localhost')
-        .post(`/projects/${projectId}/lists/${taskDraggingFrom.fromList.Id}/tasks/${taskDraggingFrom.fromTask.Id}/move_task`)
+        .post(`/projects/${projectID}/lists/${taskDraggingFrom.fromList.ID}/tasks/${taskDraggingFrom.fromTask.ID}/move_task`)
         .reply(200, {
           Lists: ["list1", "list2"],
           NoneList: "noneList"
@@ -433,25 +433,25 @@ describe('taskDrop', () => {
         { type: listActions.RECEIVE_MOVE_TASK, lists: ["list1", "list2"], noneList: "noneList" }
       ]
       const store = mockStore({ lists: [] }, expectedActions, done)
-      store.dispatch(listActions.taskDrop(projectId, taskDraggingFrom, taskDraggingTo))
+      store.dispatch(listActions.taskDrop(projectID, taskDraggingFrom, taskDraggingTo))
     })
   })
   context('when dragg target is undefined', () => {
     it('call TASK_DROP and do nothing', () => {
-      const projectId = 1
+      const projectID = 1
       const taskDraggingFrom = {
         fromList: {
-          Id: 1
+          ID: 1
         },
         fromTask: {
-          Id: 5
+          ID: 5
         }
       }
       const taskDraggingTo = null
       const expectedAction = {
         type: listActions.TASK_DROP
       }
-      expect(listActions.taskDrop(projectId, taskDraggingFrom, taskDraggingTo)).toEqual(expectedAction)
+      expect(listActions.taskDrop(projectID, taskDraggingFrom, taskDraggingTo)).toEqual(expectedAction)
     })
   })
 })
@@ -488,7 +488,7 @@ describe('taskDragOver', () => {
             droppedDepth: "1"
           },
           parentNode: {
-            Id: 1
+            ID: 1
           }
         }
       }
@@ -512,7 +512,7 @@ describe('taskDragOver', () => {
           },
           parentNode: {
             parentNode: {
-              Id: 1
+              ID: 1
             }
           }
         }
@@ -538,7 +538,7 @@ describe('taskDragOver', () => {
           parentNode: {
             parentNode: {
               parentNode: {
-                Id: 2
+                ID: 2
               }
             }
           }

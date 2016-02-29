@@ -83,7 +83,7 @@ func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	logging.SharedInstance().MethodInfo("SessionsController", "NewSession").Debugf("login success: %+v", current_user)
 	session, err = cookieStore.Get(r, "fascia")
 	session.Options = &sessions.Options{Path: "/", MaxAge: 3600}
-	session.Values["current_user_id"] = current_user.Id
+	session.Values["current_user_id"] = current_user.ID
 	err = session.Save(r, w)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("SessionsController", "NewSessions", true).Errorf("session error: %v", err)

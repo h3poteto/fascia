@@ -27,8 +27,8 @@ export default class ListView extends React.Component {
   }
 
   componentWillMount() {
-    this.props.fetchLists(this.props.params.projectId)
-    this.props.fetchProject(this.props.params.projectId)
+    this.props.fetchLists(this.props.params.projectID)
+    this.props.fetchProject(this.props.params.projectID)
     this.props.fetchListOptions()
   }
 
@@ -73,10 +73,10 @@ export default class ListView extends React.Component {
       return (
         <div>
           <label htmlFor="action">action</label>
-          <select id="action" name="action" type="text" onChange={this.props.changeSelectedListOption} className="form-control" value={selectedListOption ? selectedListOption.Id : (selectedList ? selectedList.ListOptionId : 0)}>
+          <select id="action" name="action" type="text" onChange={this.props.changeSelectedListOption} className="form-control" value={selectedListOption ? selectedListOption.ID : (selectedList ? selectedList.ListOptionID : 0)}>
             <option value="0">nothing</option>
             {listOptions.map(function(option, index) {
-               return <option key={index} value={option.Id}>{option.Action}</option>
+               return <option key={index} value={option.ID}>{option.Action}</option>
              }, this)}
           </select>
         </div>
@@ -110,7 +110,7 @@ export default class ListView extends React.Component {
                 <label htmlFor="color">Color</label>
                 <input id="color" name="color" type="text" value={newList.color} onChange={this.props.updateNewListColor} className="form-control" />
                 <div className="form-action">
-                  <button onClick={e => this.props.fetchCreateList(this.props.params.projectId, newList.title, newList.color)} className="pure-button pure-button-primary" type="button">Create List</button>
+                  <button onClick={e => this.props.fetchCreateList(this.props.params.projectID, newList.title, newList.color)} className="pure-button pure-button-primary" type="button">Create List</button>
                 </div>
               </fieldset>
             </form>
@@ -130,7 +130,7 @@ export default class ListView extends React.Component {
                 <label htmlFor="description">Description</label>
                 <textarea id="description" name="description" value={newTask.description} onChange={this.props.updateNewTaskDescription} placeholder="Task description" className="form-control" />
                 <div className="form-action">
-                  <button onClick={e => this.props.fetchCreateTask(this.props.params.projectId, selectedList.Id,  newTask.title, newTask.description)} className="pure-button pure-button-primary" type="button">Create Task</button>
+                  <button onClick={e => this.props.fetchCreateTask(this.props.params.projectID, selectedList.ID,  newTask.title, newTask.description)} className="pure-button pure-button-primary" type="button">Create Task</button>
                 </div>
               </fieldset>
             </form>
@@ -151,7 +151,7 @@ export default class ListView extends React.Component {
                 <input id="color" name="color" type="text" value={selectedList !=null ? selectedList.Color : ''} onChange={this.props.updateSelectedListColor} className="form-control" />
                 {this.listAction(project, listOptions, selectedList, selectedListOption)}
                 <div className="form-action">
-                  <button onClick={e => this.props.fetchUpdateList(this.props.params.projectId, selectedList, selectedListOption)} className="pure-button pure-button-primary" type="button">Update List</button>
+                  <button onClick={e => this.props.fetchUpdateList(this.props.params.projectID, selectedList, selectedListOption)} className="pure-button pure-button-primary" type="button">Update List</button>
                 </div>
               </fieldset>
             </form>
@@ -171,7 +171,7 @@ export default class ListView extends React.Component {
                 <label htmlFor="description">Description</label>
                 <textarea id="description" name="description" value={selectedProject.Description} onChange={this.props.updateEditProjectDescription} className="form-control" />
                 <div className="form-action">
-                  <button onClick={e => this.props.fetchUpdateProject(this.props.params.projectId, selectedProject)} className="pure-button pure-button-primary" type="button">Update Project</button>
+                  <button onClick={e => this.props.fetchUpdateProject(this.props.params.projectID, selectedProject)} className="pure-button pure-button-primary" type="button">Update Project</button>
                 </div>
               </fieldset>
             </form>
@@ -179,16 +179,16 @@ export default class ListView extends React.Component {
         </Modal>
         <div className="title-wrapper">
           <div className="project-operation">
-            <span className={project != null && project.ShowPullRequests ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.showPullRequests(this.props.params.projectId, selectedProject.ShowIssues, selectedProject.ShowPullRequests)}><i className="octicon octicon-git-pull-request"></i></span>
-            <span className={project !=null && project.ShowIssues ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.showIssues(this.props.params.projectId, selectedProject.ShowIssues, selectedProject.ShowPullRequests)}><i className="octicon octicon-issue-opened"></i></span>
-            <i className="fa fa-repeat" onClick={e => this.props.fetchProjectGithub(this.props.params.projectId)}></i>
+            <span className={project != null && project.ShowPullRequests ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.showPullRequests(this.props.params.projectID, selectedProject.ShowIssues, selectedProject.ShowPullRequests)}><i className="octicon octicon-git-pull-request"></i></span>
+            <span className={project !=null && project.ShowIssues ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.showIssues(this.props.params.projectID, selectedProject.ShowIssues, selectedProject.ShowPullRequests)}><i className="octicon octicon-issue-opened"></i></span>
+            <i className="fa fa-repeat" onClick={e => this.props.fetchProjectGithub(this.props.params.projectID)}></i>
           </div>
           <h3 className="project-title">{project != null ? project.Title : ''}<span className="fascia-project-menu" onClick={e => this.props.openEditProjectModal(project)}><i className="fa fa-pencil"></i></span></h3>
         </div>
         <div className="items">
           {lists.map(function(list, index) {
             return (
-              <div key={index} className="fascia-list" data-dropped-depth="0" data-id={list.Id} onDragOver={this.props.taskDragOver} onDrop={e=> this.props.taskDrop(project.Id, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.taskDragLeave}>
+              <div key={index} className="fascia-list" data-dropped-depth="0" data-id={list.ID} onDragOver={this.props.taskDragOver} onDrop={e=> this.props.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.taskDragLeave}>
                 <div className="fascia-list-menu" data-dropped-depth="1"><i className="fa fa-pencil" onClick={e => this.props.openEditListModal(list)} data-dropped-depth="2"></i></div>
                 <span className="list-title" data-dropped-depth="1">{list.Title}</span>
                 <ul className="fascia-task" data-dropped-depth="1">
@@ -196,7 +196,7 @@ export default class ListView extends React.Component {
                     if (task.draggedOn) {
                       return <li key={index} className="arrow"></li>
                     } else if(project != null && project.ShowIssues && !task.PullRequest || project != null && project.ShowPullRequests && task.PullRequest) {
-                      return <li key={index} style={{"borderLeft": `solid 6px #${list.Color}`}} className="task" draggable="true" data-dropped-depth="2" data-id={task.Id} onDragStart={this.props.taskDragStart}>{task.Title}</li>
+                      return <li key={index} style={{"borderLeft": `solid 6px #${list.Color}`}} className="task" draggable="true" data-dropped-depth="2" data-id={task.ID} onDragStart={this.props.taskDragStart}>{task.Title}</li>
                     }
                   }, this)}
                   <li className="new-task" data-dropped-depth="2" style={{"borderLeft": `solid 6px #${list.Color}`}} onClick={e => this.props.openNewTaskModal(list)}>
@@ -210,13 +210,13 @@ export default class ListView extends React.Component {
            <button onClick={this.props.openNewListModal} className="pure-button button-large fascia-new-list pure-button-primary" type="button">New</button>
            <div className="clearfix"></div>
         </div>
-        <div className="none-list-tasks" data-dropped-depth="0" data-id={noneList.Id} onDragOver={this.props.taskDragOver} onDrop={e => this.props.taskDrop(project.Id, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.taskDragLeave}>
+        <div className="none-list-tasks" data-dropped-depth="0" data-id={noneList.ID} onDragOver={this.props.taskDragOver} onDrop={e => this.props.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.taskDragLeave}>
           <ul className="fascia-none-list-tasks" data-dropped-depth="1">
             {noneList.ListTasks.map(function(task, index) {
                if (task.draggedOn) {
                  return <li key={index} className="arrow"></li>
                } else if( project != null && project.ShowIssues && !task.PullRequest || project != null && project.ShowPullRequests && task.PullRequest) {
-                 return <li key={index} className="button-green task" draggable="true" data-dropped-depth="2" data-id={task.Id} onDragStart={this.props.taskDragStart}>{task.Title}</li>
+                 return <li key={index} className="button-green task" draggable="true" data-dropped-depth="2" data-id={task.ID} onDragStart={this.props.taskDragStart}>{task.Title}</li>
                }
              }, this)}
             <li onClick={e => this.props.openNewTaskModal(noneList)} className="new-task pure-button button-blue" data-dropped-depth="2">

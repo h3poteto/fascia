@@ -76,7 +76,7 @@ func (u *Passwords) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	reset := reset_password.GenerateResetPassword(targetUser.Id, targetUser.Email)
+	reset := reset_password.GenerateResetPassword(targetUser.ID, targetUser.Email)
 	if !reset.Save() {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Create", true).Error("password_reset save error")
 		InternalServerError(w, r)

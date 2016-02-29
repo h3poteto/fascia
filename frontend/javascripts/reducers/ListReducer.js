@@ -9,7 +9,7 @@ const initState = {
   newTask: {title: "", description: ""},
   lists: [],
   listOptions: [],
-  noneList: {Id: 0, ListTasks: []},
+  noneList: {ID: 0, ListTasks: []},
   selectedList: null,
   selectedListOption: null,
   project: null,
@@ -58,9 +58,9 @@ export default function ListReducer(state = initState, action) {
     });
   case listActions.OPEN_EDIT_LIST:
     var selectedListOption = null
-    if (action.list.ListOptionId != 0) {
+    if (action.list.ListOptionID != 0) {
       selectedListOption = {
-        Id: action.list.ListOptionId
+        ID: action.list.ListOptionID
       }
     }
     return Object.assign({}, state, {
@@ -162,7 +162,7 @@ export default function ListReducer(state = initState, action) {
     })
   case listActions.RECEIVE_CREATE_TASK:
     var lists = state.lists.map(function(l, index) {
-      if (l.Id == action.task.ListId) {
+      if (l.ID == action.task.ListID) {
         l.ListTasks = l.ListTasks.concat([action.task]);
         return l;
       } else {
@@ -170,7 +170,7 @@ export default function ListReducer(state = initState, action) {
       }
     });
     var noneList = state.noneList
-    if (action.task.ListId == noneList.Id) {
+    if (action.task.ListID == noneList.ID) {
       noneList.ListTasks = noneList.ListTasks.concat([action.task])
     }
     return Object.assign({}, state, {
@@ -190,7 +190,7 @@ export default function ListReducer(state = initState, action) {
       updatedList.ListTasks = [];
     }
     var lists = state.lists.map(function(list, index) {
-      if (list.Id == updatedList.Id) {
+      if (list.ID == updatedList.ID) {
         return updatedList;
       } else {
         return list;
@@ -205,9 +205,9 @@ export default function ListReducer(state = initState, action) {
     var lists = state.lists;
     var taskDraggingFrom;
     state.lists.map(function(list, i) {
-      if (list.Id == action.taskDragFromList.dataset.id) {
+      if (list.ID == action.taskDragFromList.dataset.id) {
         list.ListTasks.map(function(task, j) {
-          if (task.Id == action.taskDragTarget.dataset.id) {
+          if (task.ID == action.taskDragTarget.dataset.id) {
             taskDraggingFrom = {fromList: list, fromTask: task}
           }
         })
@@ -215,7 +215,7 @@ export default function ListReducer(state = initState, action) {
     })
 
     state.noneList.ListTasks.map(function(task, j) {
-      if (task.Id == action.taskDragTarget.dataset.id) {
+      if (task.ID == action.taskDragTarget.dataset.id) {
         taskDraggingFrom = {fromList: state.noneList, fromTask: task}
       }
     })
@@ -297,7 +297,7 @@ export default function ListReducer(state = initState, action) {
         list.ListTasks.splice(taskIndex, 1)
       }
       // loadingを表示する
-      if (list.Id == state.taskDraggingFrom.fromList.Id || list.Id == state.taskDraggingTo.toList.Id) {
+      if (list.ID == state.taskDraggingFrom.fromList.ID || list.ID == state.taskDraggingTo.toList.ID) {
         list.isLoading = true
       }
       return list
@@ -327,11 +327,11 @@ export default function ListReducer(state = initState, action) {
     var taskDraggingTo = state.taskDraggingTo
     if (!state.isTaskDraggingOver) {
       state.lists.map(function(list, i) {
-        if (list.Id == action.taskDragToList.dataset.id) {
+        if (list.ID == action.taskDragToList.dataset.id) {
           toList = list;
         }
       });
-      if (state.noneList.Id == action.taskDragToList.dataset.id) {
+      if (state.noneList.ID == action.taskDragToList.dataset.id) {
         toList = state.noneList
       }
       if (toList == null) {
@@ -339,10 +339,10 @@ export default function ListReducer(state = initState, action) {
       } else if(action.taskDragToTask.className == "task") {
         // taskの直前に入れる
         lists = state.lists.map(function(list, i) {
-          if (list.Id == toList.Id) {
+          if (list.ID == toList.ID) {
             var taskIndex
             list.ListTasks.map(function(task, j) {
-              if (task.Id == action.taskDragToTask.dataset.id) {
+              if (task.ID == action.taskDragToTask.dataset.id) {
                 taskIndex = j
                 taskDraggingTo = {toList: list, prevToTask: task}
               }
@@ -354,9 +354,9 @@ export default function ListReducer(state = initState, action) {
           }
         })
         var taskIndex
-        if (noneList.Id == toList.Id) {
+        if (noneList.ID == toList.ID) {
           state.noneList.ListTasks.map(function(task, j) {
-            if (task.Id == action.taskDragToTask.dataset.id) {
+            if (task.ID == action.taskDragToTask.dataset.id) {
               taskIndex = j
               taskDraggingTo = {toList: noneList, prevToTask: task}
             }
@@ -367,7 +367,7 @@ export default function ListReducer(state = initState, action) {
       } else {
         // taskの末尾に入れる
         lists = state.lists.map(function(list, i) {
-          if (list.Id == toList.Id) {
+          if (list.ID == toList.ID) {
             list.ListTasks.push({draggedOn: true})
             taskDraggingTo = {toList: list, prevToTask: null}
             return list
@@ -375,7 +375,7 @@ export default function ListReducer(state = initState, action) {
             return list
           }
         })
-        if (noneList.Id == toList.Id) {
+        if (noneList.ID == toList.ID) {
           noneList.ListTasks.push({draggedOn: true})
           taskDraggingTo = {toList: noneList, prevToTask: null}
         }
@@ -393,10 +393,10 @@ export default function ListReducer(state = initState, action) {
     })
   case listActions.CHANGE_SELECTED_LIST_OPTION:
     var listOption = {
-      Id: action.selectEvent.value
+      ID: action.selectEvent.value
     }
     state.listOptions.map(function(option, index) {
-      if (option.Id == action.selectEvent.value) {
+      if (option.ID == action.selectEvent.value) {
         listOption = option
       }
     })

@@ -10,13 +10,13 @@ type ListOiption interface {
 }
 
 type ListOptionStruct struct {
-	Id       int64
+	ID       int64
 	Action   string
 	database db.DB
 }
 
 func NewListOption(id int64, action string) *ListOptionStruct {
-	listOption := &ListOptionStruct{Id: id, Action: action}
+	listOption := &ListOptionStruct{ID: id, Action: action}
 	listOption.Initialize()
 	return listOption
 }
@@ -48,16 +48,16 @@ func FindByAction(action string) *ListOptionStruct {
 	table := interfaceDB.Init()
 	defer table.Close()
 
-	var listOptionId int64
-	err := table.QueryRow("select id from list_options where action = ?;", action).Scan(&listOptionId)
+	var listOptionID int64
+	err := table.QueryRow("select id from list_options where action = ?;", action).Scan(&listOptionID)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ListOption", "FindByAction").Info("cannot find list_option")
 		return nil
 	}
-	return NewListOption(listOptionId, action)
+	return NewListOption(listOptionID, action)
 }
 
-func FindById(id sql.NullInt64) *ListOptionStruct {
+func FindByID(id sql.NullInt64) *ListOptionStruct {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
 	table := interfaceDB.Init()
@@ -68,7 +68,7 @@ func FindById(id sql.NullInt64) *ListOptionStruct {
 		err := table.QueryRow("select action from list_options where id = ?;", id).Scan(&action)
 
 		if err != nil {
-			logging.SharedInstance().MethodInfo("ListOption", "FindById").Infof("cannot find list_option: %v", id)
+			logging.SharedInstance().MethodInfo("ListOption", "FindByID").Infof("cannot find list_option: %v", id)
 			return nil
 		}
 		return NewListOption(id.Int64, action)

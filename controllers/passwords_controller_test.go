@@ -85,7 +85,7 @@ var _ = Describe("PasswordsController", func() {
 		})
 		Context("token is correct", func() {
 			It("should response is ok", func() {
-				res, err := http.Get(ts.URL + "/passwords/" + strconv.FormatInt(resetPassword.Id, 10) + "/edit?token=" + resetPassword.Token)
+				res, err := http.Get(ts.URL + "/passwords/" + strconv.FormatInt(resetPassword.ID, 10) + "/edit?token=" + resetPassword.Token)
 				Expect(err).To(BeNil())
 				_, status := ParseResponse(res)
 				Expect(status).To(Equal(http.StatusOK))
@@ -106,7 +106,7 @@ var _ = Describe("PasswordsController", func() {
 				values.Add("password", "fugafuga")
 				values.Add("password-confirm", "fugafuga")
 				values.Add("reset-token", "sample")
-				res, err := http.PostForm(ts.URL+"/passwords/"+strconv.FormatInt(resetPassword.Id, 10)+"/update", values)
+				res, err := http.PostForm(ts.URL+"/passwords/"+strconv.FormatInt(resetPassword.ID, 10)+"/update", values)
 				Expect(err).To(BeNil())
 				doc, _ := goquery.NewDocumentFromResponse(res)
 				doc.Find("h2").Each(func(_ int, s *goquery.Selection) {
@@ -120,7 +120,7 @@ var _ = Describe("PasswordsController", func() {
 				values.Add("password", "fugafuga")
 				values.Add("password-confirm", "fugafuga")
 				values.Add("reset-token", resetPassword.Token)
-				res, err := http.PostForm(ts.URL+"/passwords/"+strconv.FormatInt(resetPassword.Id, 10)+"/update", values)
+				res, err := http.PostForm(ts.URL+"/passwords/"+strconv.FormatInt(resetPassword.ID, 10)+"/update", values)
 				Expect(err).To(BeNil())
 				_, status := ParseResponse(res)
 				Expect(status).To(Equal(http.StatusOK))

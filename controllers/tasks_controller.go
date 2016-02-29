@@ -22,14 +22,14 @@ type NewTaskForm struct {
 }
 
 type MoveTaskFrom struct {
-	ToListId     int64 `param:"to_list_id"`
-	PrevToTaskId int64 `param:"prev_to_task_id"`
+	ToListID     int64 `param:"to_list_id"`
+	PrevToTaskID int64 `param:"prev_to_task_id"`
 }
 
 type TaskJsonFormat struct {
-	Id          int64
-	ListId      int64
-	UserId      int64
+	ID          int64
+	ListID      int64
+	UserID      int64
 	IssueNumber int64
 	Title       string
 	PullRequest bool
@@ -46,7 +46,7 @@ func (u *Tasks) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil || parentProject.UserId != current_user.Id {
+	if parentProject == nil || parentProject.UserID != current_user.ID {
 		logging.SharedInstance().MethodInfo("TasksController", "Index").Warn("project not found")
 		http.Error(w, "project not found", 404)
 		return
@@ -61,7 +61,7 @@ func (u *Tasks) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	tasks := parentList.Tasks()
 	jsonTasks := make([]*TaskJsonFormat, 0)
 	for _, t := range tasks {
-		jsonTasks = append(jsonTasks, &TaskJsonFormat{Id: t.Id, ListId: t.ListId, UserId: t.UserId, IssueNumber: t.IssueNumber.Int64, Title: t.Title, PullRequest: t.PullRequest})
+		jsonTasks = append(jsonTasks, &TaskJsonFormat{ID: t.ID, ListID: t.ListID, UserID: t.UserID, IssueNumber: t.IssueNumber.Int64, Title: t.Title, PullRequest: t.PullRequest})
 	}
 	encoder.Encode(jsonTasks)
 	logging.SharedInstance().MethodInfo("TasksController", "Index").Info("success to get tasks")
@@ -79,7 +79,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil || parentProject.UserId != current_user.Id {
+	if parentProject == nil || parentProject.UserID != current_user.ID {
 		logging.SharedInstance().MethodInfo("TasksController", "Create").Warn("project not found")
 		http.Error(w, "project not found", 404)
 		return
@@ -107,7 +107,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	logging.SharedInstance().MethodInfo("TasksController", "Create").Debugf("post new task parameter: %+v", newTaskForm)
 
-	task := taskModel.NewTask(0, parentList.Id, parentProject.Id, parentList.UserId, sql.NullInt64{}, newTaskForm.Title, newTaskForm.Description, false, sql.NullString{})
+	task := taskModel.NewTask(0, parentList.ID, parentProject.ID, parentList.UserID, sql.NullInt64{}, newTaskForm.Title, newTaskForm.Description, false, sql.NullString{})
 
 	repo := parentProject.Repository()
 	if !task.Save(repo, &current_user.OauthToken) {
@@ -115,7 +115,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "save failed", 500)
 		return
 	}
-	jsonTask := TaskJsonFormat{Id: task.Id, ListId: task.ListId, UserId: task.UserId, IssueNumber: task.IssueNumber.Int64, Title: task.Title, PullRequest: task.PullRequest}
+	jsonTask := TaskJsonFormat{ID: task.ID, ListID: task.ListID, UserID: task.UserID, IssueNumber: task.IssueNumber.Int64, Title: task.Title, PullRequest: task.PullRequest}
 	logging.SharedInstance().MethodInfo("TasksController", "Create").Info("success to create task")
 	encoder.Encode(jsonTask)
 }
@@ -131,14 +131,14 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil || parentProject.UserId != current_user.Id {
+	if parentProject == nil || parentProject.UserID != current_user.ID {
 		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Warn("project not found")
 		http.Error(w, "project not found", 404)
 		return
 	}
 
 	listID, _ := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
-	parentList := listModel.FindList(parentProject.Id, listID)
+	parentList := listModel.FindList(parentProject.ID, listID)
 	if parentList == nil {
 		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Warn("list not found")
 		http.Error(w, "list not found", 404)
@@ -146,7 +146,7 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 
 	taskID, _ := strconv.ParseInt(c.URLParams["task_id"], 10, 64)
-	task, err := taskModel.FindTask(parentList.Id, taskID)
+	task, err := taskModel.FindTask(parentList.ID, taskID)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", true).Errorf("find task error: %v", err)
 		http.Error(w, "task not find", 500)
@@ -167,13 +167,13 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Debugf("post move taks parameter: %+v", moveTaskFrom)
-	var prevToTaskId *int64
-	if moveTaskFrom.PrevToTaskId != 0 {
-		prevToTaskId = &moveTaskFrom.PrevToTaskId
+	var prevToTaskID *int64
+	if moveTaskFrom.PrevToTaskID != 0 {
+		prevToTaskID = &moveTaskFrom.PrevToTaskID
 	}
 
 	repo := parentProject.Repository()
-	if !task.ChangeList(moveTaskFrom.ToListId, prevToTaskId, repo, &current_user.OauthToken) {
+	if !task.ChangeList(moveTaskFrom.ToListID, prevToTaskID, repo, &current_user.OauthToken) {
 		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", true).Error("failed change list")
 		http.Error(w, "failed change list", 500)
 		return
@@ -181,10 +181,10 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 	allLists := parentProject.Lists()
 	var jsonLists []*ListJSONFormat
 	for _, l := range allLists {
-		jsonLists = append(jsonLists, &ListJSONFormat{Id: l.Id, ProjectId: l.ProjectId, UserId: l.UserId, Title: l.Title.String, ListTasks: TaskFormatToJson(l.Tasks()), Color: l.Color.String, ListOptionId: l.ListOptionId.Int64})
+		jsonLists = append(jsonLists, &ListJSONFormat{ID: l.ID, ProjectID: l.ProjectID, UserID: l.UserID, Title: l.Title.String, ListTasks: TaskFormatToJson(l.Tasks()), Color: l.Color.String, ListOptionID: l.ListOptionID.Int64})
 	}
 	noneList := parentProject.NoneList()
-	jsonNoneList := &ListJSONFormat{Id: noneList.Id, ProjectId: noneList.ProjectId, UserId: noneList.UserId, Title: noneList.Title.String, ListTasks: TaskFormatToJson(noneList.Tasks()), Color: noneList.Color.String, ListOptionId: noneList.ListOptionId.Int64}
+	jsonNoneList := &ListJSONFormat{ID: noneList.ID, ProjectID: noneList.ProjectID, UserID: noneList.UserID, Title: noneList.Title.String, ListTasks: TaskFormatToJson(noneList.Tasks()), Color: noneList.Color.String, ListOptionID: noneList.ListOptionID.Int64}
 	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 	logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Debugf("move task: %+v", allLists)
 	logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Info("success to move task")
@@ -195,7 +195,7 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 func TaskFormatToJson(tasks []*taskModel.TaskStruct) []*TaskJsonFormat {
 	jsonTasks := make([]*TaskJsonFormat, 0)
 	for _, t := range tasks {
-		jsonTasks = append(jsonTasks, &TaskJsonFormat{Id: t.Id, ListId: t.ListId, UserId: t.UserId, IssueNumber: t.IssueNumber.Int64, Title: t.Title, PullRequest: t.PullRequest})
+		jsonTasks = append(jsonTasks, &TaskJsonFormat{ID: t.ID, ListID: t.ListID, UserID: t.UserID, IssueNumber: t.IssueNumber.Int64, Title: t.Title, PullRequest: t.PullRequest})
 	}
 	return jsonTasks
 }
