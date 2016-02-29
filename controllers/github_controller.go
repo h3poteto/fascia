@@ -14,20 +14,20 @@ type Github struct {
 
 func (u *Github) Repositories(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	current_user, err := LoginRequired(r)
+	currentUser, err := LoginRequired(r)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("GithubController", "Repositories").Infof("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
 	encoder := json.NewEncoder(w)
-	if !current_user.OauthToken.Valid {
+	if !currentUser.OauthToken.Valid {
 		logging.SharedInstance().MethodInfo("GithubController", "Repositories").Info("user did not have oauth")
 		encoder.Encode(nil)
 		return
 	}
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: current_user.OauthToken.String},
+		&oauth2.Token{AccessToken: currentUser.OauthToken.String},
 	)
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 	client := github.NewClient(tc)

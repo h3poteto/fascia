@@ -74,16 +74,16 @@ func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	current_user, err := userModel.Login(template.HTMLEscapeString(signInForm.Email), template.HTMLEscapeString(signInForm.Password))
+	currentUser, err := userModel.Login(template.HTMLEscapeString(signInForm.Email), template.HTMLEscapeString(signInForm.Password))
 	if err != nil {
 		logging.SharedInstance().MethodInfo("SessionsController", "NewSession").Infof("login error: %v", err)
 		http.Redirect(w, r, "/sign_in", 302)
 		return
 	}
-	logging.SharedInstance().MethodInfo("SessionsController", "NewSession").Debugf("login success: %+v", current_user)
+	logging.SharedInstance().MethodInfo("SessionsController", "NewSession").Debugf("login success: %+v", currentUser)
 	session, err = cookieStore.Get(r, "fascia")
 	session.Options = &sessions.Options{Path: "/", MaxAge: 3600}
-	session.Values["current_user_id"] = current_user.ID
+	session.Values["current_user_id"] = currentUser.ID
 	err = session.Save(r, w)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("SessionsController", "NewSessions", true).Errorf("session error: %v", err)

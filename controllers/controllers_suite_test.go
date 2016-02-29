@@ -51,8 +51,8 @@ func LoginFaker(ts *httptest.Server, email string, password string) int64 {
 	CheckCSRFToken = func(r *http.Request, token string) bool { return true }
 	id, _ := user.Registration(email, password)
 	LoginRequired = func(r *http.Request) (*user.UserStruct, error) {
-		current_user, _ := user.CurrentUser(id)
-		return current_user, nil
+		currentUser, _ := user.CurrentUser(id)
+		return currentUser, nil
 	}
 	values := url.Values{}
 	values.Add("email", email)
