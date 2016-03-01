@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"../config"
 	userModel "../models/user"
 	"../modules/logging"
+
 	"github.com/gorilla/sessions"
 	"github.com/zenazn/goji/web"
 	"golang.org/x/oauth2"
@@ -36,7 +38,7 @@ func (u *Oauth) Github(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	logging.SharedInstance().MethodInfo("OauthController", "Github").Debugf("login success: %+v", currentUser)
 	session, err = cookieStore.Get(r, "fascia")
-	session.Options = &sessions.Options{Path: "/", MaxAge: 3600}
+	session.Options = &sessions.Options{Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int)}
 	session.Values["current_user_id"] = currentUser.ID
 	err = session.Save(r, w)
 	if err != nil {

@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"../config"
 	userModel "../models/user"
 	"../modules/logging"
+
 	"github.com/flosch/pongo2"
 	"github.com/goji/param"
 	"github.com/gorilla/sessions"
@@ -82,7 +84,7 @@ func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	logging.SharedInstance().MethodInfo("SessionsController", "NewSession").Debugf("login success: %+v", currentUser)
 	session, err = cookieStore.Get(r, "fascia")
-	session.Options = &sessions.Options{Path: "/", MaxAge: 3600}
+	session.Options = &sessions.Options{Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int)}
 	session.Values["current_user_id"] = currentUser.ID
 	err = session.Save(r, w)
 	if err != nil {
