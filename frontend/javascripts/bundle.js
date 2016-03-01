@@ -1,17 +1,15 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { Router, Route, Link, IndexRoute } from 'react-router'
+import { Router, Route, Link, IndexRoute, browserHistory } from 'react-router'
 import { Provider } from 'react-redux'
 import configureStore from './store/configStore'
-import { createHistory } from 'history'
-import { syncReduxAndRouter } from 'redux-simple-router'
+import { syncHistoryWithStore } from 'react-router-redux'
 import projectContainer from './containers/ProjectContainer'
 import listContainer from './containers/ListContainer'
 import menuContainer from './containers/MenuContainer'
 
 const store = configureStore()
-const history = createHistory()
-syncReduxAndRouter(history, store)
+const history = syncHistoryWithStore(browserHistory, store)
 
 ReactDOM.render(
   <Provider store={store}>
