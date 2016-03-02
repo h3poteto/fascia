@@ -102,6 +102,11 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	// display_indexを自動挿入する
 	count := 0
 	err := transaction.QueryRow("SELECT COUNT(id) FROM tasks WHERE list_id = ?;", u.ListID).Scan(&count)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("task", "Save", true).Panic(err)
+		transaction.Rollback()
+		return false
+	}
 	result, err := transaction.Exec("insert into tasks (list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index, created_at) values (?,?,?, ?, ?, ?, ?, ?, ?, now());", u.ListID, u.ProjectID, u.UserID, u.IssueNumber, u.Title, u.Description, u.PullRequest, u.HTMLURL, count+1)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("task", "Save", true).Errorf("insert task error: %v", err)
