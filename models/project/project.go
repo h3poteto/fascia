@@ -187,13 +187,17 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	rows, _ := table.Query("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ? and title != ?;", u.ID, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
 	var slice []*list.ListStruct
+	rows, err := table.Query("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ? and title != ?;", u.ID, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
+	if err != nil {
+		logging.SharedInstance().MethodInfo("Project", "Lists").Panic(err)
+		return slice
+	}
 	for rows.Next() {
 		var id, projectID, userID int64
 		var title, color sql.NullString
 		var optionID sql.NullInt64
-		err := rows.Scan(&id, &projectID, &userID, &title, &color, &optionID)
+		err = rows.Scan(&id, &projectID, &userID, &title, &color, &optionID)
 		if err != nil {
 			logging.SharedInstance().MethodInfo("Project", "Lists", true).Panic(err)
 		}
