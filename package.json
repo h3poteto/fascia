@@ -35,7 +35,6 @@
     "browserify": "~13.0.0",
     "event-stream": "~3.3.2",
     "expect": "~1.14.0",
-    "fs-extra": "~0.26.5",
     "gulp": "~3.9.1",
     "gulp-duration": "0.0.0",
     "gulp-if": "~2.0.0",
