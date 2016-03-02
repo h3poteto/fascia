@@ -190,7 +190,7 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 	var slice []*list.ListStruct
 	rows, err := table.Query("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ? and title != ?;", u.ID, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Project", "Lists").Panic(err)
+		logging.SharedInstance().MethodInfo("Project", "Lists", true).Panic(err)
 		return slice
 	}
 	for rows.Next() {

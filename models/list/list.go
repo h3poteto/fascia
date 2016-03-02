@@ -49,7 +49,7 @@ func FindList(projectID int64, listID int64) *ListStruct {
 	var optionID sql.NullInt64
 	rows, err := table.Query("select id, project_id, user_id, title, color, list_option_id from lists where id = ? AND project_id = ?;", listID, projectID)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("List", "FindList").Panic(err)
+		logging.SharedInstance().MethodInfo("List", "FindList", true).Panic(err)
 		return nil
 	}
 	for rows.Next() {
@@ -194,7 +194,7 @@ func (u *ListStruct) Tasks() []*task.TaskStruct {
 	var slice []*task.TaskStruct
 	rows, err := table.Query("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where list_id = ? order by display_index;", u.ID)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("List", "Tasks").Panic(err)
+		logging.SharedInstance().MethodInfo("List", "Tasks", true).Panic(err)
 		return slice
 	}
 
