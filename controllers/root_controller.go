@@ -24,12 +24,7 @@ func (u *Root) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	// ログインしている場合はダッシュボードへ
 	logging.SharedInstance().MethodInfo("RootController", "Index").Info("login success")
 
-	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
-	if err != nil {
-		logging.SharedInstance().MethodInfo("RootController", "Index").Errorf("parse error: %v", err)
-		http.Error(w, "project not found", 404)
-		return
-	}
+	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if projectID != 0 {
 		parentProject := project.FindProject(projectID)
 		if parentProject == nil || parentProject.UserID != currentUser.ID {
