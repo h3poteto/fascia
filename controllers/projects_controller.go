@@ -72,7 +72,12 @@ func (u *Projects) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	encoder := json.NewEncoder(w)
-	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Show").Errorf("parse error: %v", err)
+		http.Error(w, "project not found", 404)
+		return
+	}
 	project := projectModel.FindProject(projectID)
 	if project == nil || project.UserID != currentUser.ID {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Show").Warn("project not found")
@@ -141,7 +146,12 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "not logined", 401)
 		return
 	}
-	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Update").Errorf("parse error: %v", err)
+		http.Error(w, "project not found", 404)
+		return
+	}
 	project := projectModel.FindProject(projectID)
 	if project == nil || project.UserID != currentUser.ID {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Update").Warn("project not found")
@@ -187,7 +197,12 @@ func (u *Projects) Settings(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "not logined", 401)
 		return
 	}
-	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Settings").Errorf("parse error: %v", err)
+		http.Error(w, "project not found", 404)
+		return
+	}
 	project := projectModel.FindProject(projectID)
 	if project == nil || project.UserID != currentUser.ID {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Settings").Warn("project not found")
@@ -234,7 +249,12 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	encoder := json.NewEncoder(w)
-	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Errorf("parse error: %v", err)
+		http.Error(w, "project not found", 404)
+		return
+	}
 	project := projectModel.FindProject(projectID)
 	if project == nil || project.UserID != currentUser.ID {
 		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Warn("project not found")
