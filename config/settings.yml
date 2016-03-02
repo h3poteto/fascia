@@ -4,15 +4,21 @@ development:
     inprogress: "InProgress"
     done: "Done"
     none: "None"
+  session:
+    timeout: 3600
 test:
   init_list:
     todo: "ToDo"
     inprogress: "InProgress"
     done: "Done"
     none: "None"
+  session:
+    timeout: 3600
 production:
   init_list:
     todo: "ToDo"
     inprogress: "InProgress"
     done: "Done"
     none: "None"
+  session:
+    timeout: 604800 # 1week
