@@ -50,7 +50,12 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	encoder := json.NewEncoder(w)
-	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Index").Errorf("parse error: %v", err)
+		http.Error(w, "project not found", 404)
+		return
+	}
 	parentProject := projectModel.FindProject(projectID)
 	if parentProject == nil || parentProject.UserID != currentUser.ID {
 		logging.SharedInstance().MethodInfo("ListsController", "Index").Warn("project not found")
@@ -79,7 +84,12 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	encoder := json.NewEncoder(w)
-	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Create").Errorf("parse error: %v", err)
+		http.Error(w, "project not found", 404)
+		return
+	}
 	parentProject := projectModel.FindProject(projectID)
 	if parentProject == nil || parentProject.UserID != currentUser.ID {
 		logging.SharedInstance().MethodInfo("ListsController", "Create").Warn("project not found")
@@ -124,14 +134,24 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	encoder := json.NewEncoder(w)
-	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Update").Errorf("parse error: %v", err)
+		http.Error(w, "project not found", 404)
+		return
+	}
 	parentProject := projectModel.FindProject(projectID)
 	if parentProject == nil || parentProject.UserID != currentUser.ID {
 		logging.SharedInstance().MethodInfo("ListsController", "Update").Warn("project not found")
 		http.Error(w, "project not found", 404)
 		return
 	}
-	listID, _ := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
+	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Update").Errorf("parse error: %v", err)
+		http.Error(w, "list not found", 404)
+		return
+	}
 	targetList := listModel.FindList(projectID, listID)
 	if targetList == nil {
 		logging.SharedInstance().MethodInfo("ListsController", "Update", true).Error("list not found")
