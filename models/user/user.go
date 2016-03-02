@@ -40,10 +40,14 @@ func randomString() string {
 func HashPassword(password string) ([]byte, error) {
 	bytePassword := []byte(password)
 	cost := 10
-	hashPassword, _ := bcrypt.GenerateFromPassword(bytePassword, cost)
-	err := bcrypt.CompareHashAndPassword(hashPassword, bytePassword)
+	hashPassword, err := bcrypt.GenerateFromPassword(bytePassword, cost)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("user", "hashPassword", true).Error("hash password error")
+		logging.SharedInstance().MethodInfo("user", "hashPassword", true).Errorf("generate password error: %v", err)
+		return nil, errors.New("generate password error")
+	}
+	err = bcrypt.CompareHashAndPassword(hashPassword, bytePassword)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("user", "hashPassword", true).Errorf("hash password error: %v", err)
 		return nil, errors.New("hash password error")
 	}
 	return hashPassword, nil
@@ -179,7 +183,11 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 	)
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 	client := github.NewClient(tc)
-	githubUser, _, _ := client.Users.Get("")
+	githubUser, _, err := client.Users.Get("")
+	if err != nil {
+		logging.SharedInstance().MethodInfo("User", "FindOrCreateGithub", true).Errorf("github user find error: %v", err)
+		return nil, errors.New("github user find error")
+	}
 
 	// TODO: primaryじゃないEmailも保存しておいてログインブロックに使いたい
 	emails, _, _ := client.Users.ListEmails(nil)
@@ -194,7 +202,10 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 	var uuid sql.NullInt64
 	var email string
 	var provider, oauthToken, userName, avatarURL sql.NullString
-	rows, _ := table.Query("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where uuid = ? or email = ?;", *githubUser.ID, primaryEmail)
+	rows, err := table.Query("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where uuid = ? or email = ?;", *githubUser.ID, primaryEmail)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("User", "FindOrCreateGithub", true).Panic(err)
+	}
 	for rows.Next() {
 		err := rows.Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 		if err != nil {
@@ -227,8 +238,11 @@ func (u *UserStruct) Projects() []*project.ProjectStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	rows, _ := table.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where user_id = ?;", u.ID)
 	var slice []*project.ProjectStruct
+	rows, err := table.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where user_id = ?;", u.ID)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("User", "Projects", true).Panic(err)
+	}
 	for rows.Next() {
 		var id, userID int64
 		var repositoryID sql.NullInt64
@@ -275,7 +289,11 @@ func (u *UserStruct) Update() bool {
 
 func (u *UserStruct) CreateGithubUser(token string, githubUser *github.User, primaryEmail string) bool {
 	u.Email = primaryEmail
-	bytePassword, _ := HashPassword(randomString())
+	bytePassword, err := HashPassword(randomString())
+	if err != nil {
+		logging.SharedInstance().MethodInfo("User", "CreateGithubUser").Error(err)
+		return false
+	}
 	u.Password = string(bytePassword)
 	u.Provider = sql.NullString{String: "github", Valid: true}
 	u.OauthToken = sql.NullString{String: token, Valid: true}
