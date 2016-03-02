@@ -47,9 +47,13 @@ func FindList(projectID int64, listID int64) *ListStruct {
 	var id, userID int64
 	var title, color sql.NullString
 	var optionID sql.NullInt64
-	rows, _ := table.Query("select id, project_id, user_id, title, color, list_option_id from lists where id = ? AND project_id = ?;", listID, projectID)
+	rows, err := table.Query("select id, project_id, user_id, title, color, list_option_id from lists where id = ? AND project_id = ?;", listID, projectID)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("List", "FindList", true).Panic(err)
+		return nil
+	}
 	for rows.Next() {
-		err := rows.Scan(&id, &projectID, &userID, &title, &color, &optionID)
+		err = rows.Scan(&id, &projectID, &userID, &title, &color, &optionID)
 		if err != nil {
 			logging.SharedInstance().MethodInfo("List", "FindList", true).Panic(err)
 		}
@@ -187,8 +191,13 @@ func (u *ListStruct) Tasks() []*task.TaskStruct {
 	table := u.database.Init()
 	defer table.Close()
 
-	rows, _ := table.Query("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where list_id = ? order by display_index;", u.ID)
 	var slice []*task.TaskStruct
+	rows, err := table.Query("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where list_id = ? order by display_index;", u.ID)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("List", "Tasks", true).Panic(err)
+		return slice
+	}
+
 	for rows.Next() {
 		var id, listID, userID, projectID int64
 		var title, description string
@@ -198,6 +207,7 @@ func (u *ListStruct) Tasks() []*task.TaskStruct {
 		err := rows.Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
 		if err != nil {
 			logging.SharedInstance().MethodInfo("List", "Tasks", true).Panic(err)
+			return slice
 		}
 		if listID == u.ID {
 			l := task.NewTask(id, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL)

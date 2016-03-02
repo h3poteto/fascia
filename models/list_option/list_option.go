@@ -30,9 +30,13 @@ func ListOptionAll() []*ListOptionStruct {
 	var slice []*ListOptionStruct
 	var id int64
 	var action string
-	rows, _ := table.Query("select id, action from list_options;")
+	rows, err := table.Query("select id, action from list_options;")
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListOption", "ListOptionAll", true).Panic(err)
+		return slice
+	}
 	for rows.Next() {
-		err := rows.Scan(&id, &action)
+		err = rows.Scan(&id, &action)
 		if err != nil {
 			panic(err)
 		}
