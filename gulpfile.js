@@ -8,7 +8,6 @@ var babelify = require('babelify');
 var pkg = require(__dirname + '/package.json');
 var path = require('path');
 var es = require('event-stream');
-var fs = require('fs-extra');
 var sass = require('gulp-sass');
 
 

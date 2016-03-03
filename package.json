@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "watch": "gulp watch",
-    "js-release": "gulp build-release",
+    "js-release": "NODE_ENV=production gulp build-release",
     "sass-release": "gulp sass-release",
     "test": "mocha --compilers js:babel-core/register --recursive --require ./test/support/domSetup.js",
     "test:watch": "npm test -- --watch"
@@ -35,7 +35,6 @@
     "browserify": "~13.0.0",
     "event-stream": "~3.3.2",
     "expect": "~1.14.0",
-    "fs-extra": "~0.26.5",
     "gulp": "~3.9.1",
     "gulp-duration": "0.0.0",
     "gulp-if": "~2.0.0",
