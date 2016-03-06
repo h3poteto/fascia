@@ -303,20 +303,24 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		if err != nil && issueTask == nil {
 			issueTask = task.NewTask(0, 0, u.ID, u.UserID, sql.NullInt64{Int64: int64(*issue.Number), Valid: true}, *issue.Title, *issue.Body, hub.IsPullRequest(&issue), sql.NullString{String: *issue.HTMLURL, Valid: true})
 		}
-		if len(githubLabels) == 1 {
-			// 一つのlistだけが該当するとき
-			issueTask.ListID = githubLabels[0].ID
-		} else if len(githubLabels) > 1 {
-			// 複数のlistが該当するとき
-			issueTask.ListID = githubLabels[0].ID
-		} else {
-			// ついているlabelのlistを持ってない時
-			if *issue.State == "open" {
-				issueTask.ListID = noneList.ID
+		// label所属よりcloseかどうかを優先して判定したい
+		// closeのものはどんなlabelがついていようと，doneに放り込む
+		if *issue.State == "open" {
+			if len(githubLabels) == 1 {
+				// 一つのlistだけが該当するとき
+				issueTask.ListID = githubLabels[0].ID
+			} else if len(githubLabels) > 1 {
+				// 複数のlistが該当するとき
+				issueTask.ListID = githubLabels[0].ID
 			} else {
-				issueTask.ListID = closedList.ID
+				// listに該当しないlabelしか持っていない
+				// そもそもlabelがひとつもついていない
+				issueTask.ListID = noneList.ID
 			}
+		} else {
+			issueTask.ListID = closedList.ID
 		}
+
 		// ここはgithub側への同期不要
 		if issueTask.ID == 0 {
 			if !issueTask.Save(nil, nil) {
