@@ -6,6 +6,9 @@ development:
     none: "None"
   session:
     timeout: 3600
+  mail:
+    from: "fascia.server+dev@gmail.com"
+    to: "fascia.server+dev@gmail.com"
 test:
   init_list:
     todo: "ToDo"
@@ -14,6 +17,9 @@ test:
     none: "None"
   session:
     timeout: 3600
+  mail:
+    from: "fascia.server+test@gmail.com"
+    to: "fascia.server+test@gmail.com"
 production:
   init_list:
     todo: "ToDo"
@@ -22,3 +28,6 @@ production:
     none: "None"
   session:
     timeout: 604800 # 1week
+  mail:
+    from: "no-reply@fascia.io"
+    to: "info@fascia.io"
