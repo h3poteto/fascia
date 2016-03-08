@@ -9,6 +9,7 @@ development:
   mail:
     from: "fascia.server+dev@gmail.com"
     to: "fascia.server+dev@gmail.com"
+  fqdn: "fascia.localdomain"
 test:
   init_list:
     todo: "ToDo"
@@ -20,6 +21,7 @@ test:
   mail:
     from: "fascia.server+test@gmail.com"
     to: "fascia.server+test@gmail.com"
+  fqdn: "localhost"
 production:
   init_list:
     todo: "ToDo"
@@ -31,3 +33,4 @@ production:
   mail:
     from: "no-reply@fascia.io"
     to: "info@fascia.io"
+  fqdn: "fascia.io"
