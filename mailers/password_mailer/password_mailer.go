@@ -45,20 +45,18 @@ func Changed(address string) {
 
 func production() bool {
 	env := os.Getenv("GOJIENV")
-	if env != "production" {
-		return false
-	} else {
+	if env == "production" {
 		return true
 	}
+	return false
 }
 
 func test() bool {
 	env := os.Getenv("GOJIENV")
-	if env != "test" {
-		return false
-	} else {
+	if env == "test" {
 		return true
 	}
+	return false
 }
 
 func sendMail(address string, title string, htmlBody string, rawBody string) (r *ses.SendEmailOutput, e error) {
