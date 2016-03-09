@@ -15,8 +15,8 @@ func Reset(id int64, address string, token string) {
 	domain := config.Element("fqdn").(string)
 	resetURL := fmt.Sprintf("http://%s/passwords/%d/edit?token=%s", domain, id, token)
 	title := "Password reseted"
-	rawBody := "Your password is reseted. Please access to following URL, and set new password. \n " + resetURL + " \n This URL is valid for 24 hours."
-	htmlBody := "<p>Your password is reseted.</p><p>Please access to following URL, and set new password. </p><p><a href='" + resetURL + "'>" + resetURL + "</a></p><p>This URL is valid for 24 hours.</p>"
+	rawBody := "Your Fascia's password was reseted. Please access to following URL, and set new password. \n " + resetURL + " \n This URL is valid for 24 hours."
+	htmlBody := "<p>Your Fascia's password was reseted.</p><p>Please access to following URL, and set new password. </p><p><a href='" + resetURL + "'>" + resetURL + "</a></p><p>This URL is valid for 24 hours.</p>"
 	resp, err := sendMail(address, title, htmlBody, rawBody)
 
 	if err != nil {
@@ -28,7 +28,19 @@ func Reset(id int64, address string, token string) {
 
 }
 
-func Changed(email string) {
+func Changed(address string) {
+	title := "Password changed"
+	rawBody := "Hi " + address + " \n The password for your Fascia account was recently changed.\n Please access your dashboard using new password."
+	htmlBody := "<h3>Hi " + address + "</h3><p>The password for your Fascia account was recently changed.</p><p>Please access your dashboard using new password."
+
+	resp, err := sendMail(address, title, htmlBody, rawBody)
+
+	if err != nil {
+		logging.SharedInstance().MethodInfo("PasswordMailer", "Changed", true).Errorf("send mail error: %v", err)
+		return
+	}
+	logging.SharedInstance().MethodInfo("PasswordMailer", "Changed").Debug("send mail response: %v", resp)
+	logging.SharedInstance().MethodInfo("PasswordMailer", "Changed").Info("success to send mail")
 }
 
 func production() bool {
