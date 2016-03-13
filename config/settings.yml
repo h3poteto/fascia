@@ -31,6 +31,6 @@ production:
   session:
     timeout: 604800 # 1week
   mail:
-    from: "no-reply@fascia.io"
-    to: "info@fascia.io"
+    from: "support@fascia.io"
+    to: "support@fascia.io"
   fqdn: "fascia.io"
