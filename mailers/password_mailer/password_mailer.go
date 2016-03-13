@@ -69,9 +69,6 @@ func sendMail(address string, title string, htmlBody string, rawBody string) (r 
 
 	svc := ses.New(session.New())
 
-	from := config.Element("mail").(map[interface{}]interface{})["from"].(string)
-	logging.SharedInstance().MethodInfo("PasswordMailer", "sendMail").Infof("mail from: %v", from)
-
 	params := &ses.SendEmailInput{
 		Destination: &ses.Destination{
 			BccAddresses: []*string{},
@@ -96,9 +93,9 @@ func sendMail(address string, title string, htmlBody string, rawBody string) (r 
 				Charset: aws.String("UTF-8"),
 			},
 		},
-		Source: aws.String(from),
+		Source: aws.String(config.Element("mail").(map[interface{}]interface{})["from"].(string)),
 		ReplyToAddresses: []*string{
-			aws.String(from),
+			aws.String(config.Element("mail").(map[interface{}]interface{})["from"].(string)),
 		},
 	}
 	resp, err := svc.SendEmail(params)
