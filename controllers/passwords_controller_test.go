@@ -75,7 +75,7 @@ var _ = Describe("PasswordsController", func() {
 		})
 		Context("token is invalid", func() {
 			It("should internal server error", func() {
-				res, err := http.Get(ts.URL + "/passwords/" + strconv.FormatInt(uid, 10) + "/edit?token=sample")
+				res, err := http.Get(ts.URL + "/passwords/" + strconv.FormatInt(resetPassword.ID, 10) + "/edit?token=sample")
 				Expect(err).To(BeNil())
 				doc, _ := goquery.NewDocumentFromResponse(res)
 				doc.Find("h2").Each(func(_ int, s *goquery.Selection) {

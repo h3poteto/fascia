@@ -6,6 +6,10 @@ development:
     none: "None"
   session:
     timeout: 3600
+  mail:
+    from: "fascia.server+dev@gmail.com"
+    to: "fascia.server+dev@gmail.com"
+  fqdn: "fascia.localdomain"
 test:
   init_list:
     todo: "ToDo"
@@ -14,6 +18,10 @@ test:
     none: "None"
   session:
     timeout: 3600
+  mail:
+    from: "fascia.server+test@gmail.com"
+    to: "fascia.server+test@gmail.com"
+  fqdn: "localhost"
 production:
   init_list:
     todo: "ToDo"
@@ -22,3 +30,7 @@ production:
     none: "None"
   session:
     timeout: 604800 # 1week
+  mail:
+    from: "support@fascia.io"
+    to: "support@fascia.io"
+  fqdn: "fascia.io"
