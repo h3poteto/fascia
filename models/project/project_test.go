@@ -103,7 +103,7 @@ var _ = Describe("Project", func() {
 		Context("when repository exist", func() {
 			It("should relate project to repository", func() {
 				repositoryID := int64(12345)
-				newRepository := repository.NewRepository(0, repositoryID, "owner", "name")
+				newRepository := repository.NewRepository(0, repositoryID, "owner", "name", repository.GenerateWebhookKey("name"))
 				result := newRepository.Save()
 				Expect(result).To(BeTrue())
 				newProject.RepositoryID = sql.NullInt64{Int64: newRepository.ID, Valid: true}

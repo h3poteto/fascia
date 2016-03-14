@@ -77,7 +77,8 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 	var repoID sql.NullInt64
 	var repo *repository.RepositoryStruct
 	if repositoryID != 0 {
-		repo = repository.NewRepository(0, repositoryID, repositoryOwner, repositoryName)
+		key := repository.GenerateWebhookKey(repositoryName)
+		repo = repository.NewRepository(0, repositoryID, repositoryOwner, repositoryName, key)
 		if !repo.Save() {
 			tx.Rollback()
 			logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save repository")
@@ -233,13 +234,14 @@ func (u *ProjectStruct) Repository() *repository.RepositoryStruct {
 
 	var id, repositoryID int64
 	var owner, name sql.NullString
-	err := table.QueryRow("select repositories.id, repositories.repository_id, repositories.owner, repositories.name from projects inner join repositories on repositories.id = projects.repository_id where projects.id = ?;", u.ID).Scan(&id, &repositoryID, &owner, &name)
+	var webhookKey string
+	err := table.QueryRow("select repositories.id, repositories.repository_id, repositories.owner, repositories.name, repositories.webhook_key from projects inner join repositories on repositories.id = projects.repository_id where projects.id = ?;", u.ID).Scan(&id, &repositoryID, &owner, &name, &webhookKey)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("project", "Repository").Infof("cannot find repository: %v", err)
 		return nil
 	}
 	if id == u.RepositoryID.Int64 && owner.Valid {
-		r := repository.NewRepository(id, repositoryID, owner.String, name.String)
+		r := repository.NewRepository(id, repositoryID, owner.String, name.String, webhookKey)
 		return r
 	} else {
 		logging.SharedInstance().MethodInfo("project", "Repository", true).Error("repository owner discord from project owner")
