@@ -54,6 +54,8 @@ func Routes(m *web.Mux) {
 
 	m.Get("/list_options", controllers.CallController(&controllers.ListOptions{}, "Index"))
 
+	m.Post("/repositories/hooks/github", controllers.CallController(&controllers.Repositories{}, "Hook"))
+
 	// errors
 	m.Get("/400", controllers.BadRequest)
 	m.Get("/404", controllers.NotFound)
