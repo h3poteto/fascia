@@ -3,7 +3,10 @@ package repository_test
 import (
 	"../db"
 	. "../repository"
+	"crypto/hmac"
+	"crypto/sha1"
 	"database/sql"
+	"encoding/hex"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -41,7 +44,10 @@ var _ = Describe("Repository", func() {
 			webhookKey := GenerateWebhookKey("repository_name")
 			newRepository := NewRepository(0, int64(12345), "owner", "repository_name", webhookKey)
 			newRepository.Save()
-			Expect(newRepository.Authenticate()).To(BeTrue())
+			mac := hmac.New(sha1.New, []byte(webhookKey))
+			mac.Write([]byte(""))
+			hashedWebhookKey := hex.EncodeToString(mac.Sum(nil))
+			Expect(newRepository.Authenticate("sha1="+hashedWebhookKey, []byte(""))).To(BeTrue())
 		})
 	})
 })
