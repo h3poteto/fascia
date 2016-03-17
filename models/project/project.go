@@ -8,7 +8,6 @@ import (
 	"../list"
 	"../list_option"
 	"../repository"
-	"../task"
 	"database/sql"
 	"errors"
 )
@@ -274,72 +273,12 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	var closedList *list.ListStruct
-	for _, list := range u.Lists() {
-		// closeのリストは用意しておく
-		if list.Title.Valid && list.Title.String == config.Element("init_list").(map[interface{}]interface{})["done"].(string) {
-			closedList = list
-		}
-	}
-	if closedList == nil {
-		logging.SharedInstance().MethodInfo("Project", "FetchGithub", true).Panic("cannot find close list")
-		return false, errors.New("cannot find close list")
-	}
-	noneList := u.NoneList()
-	if noneList == nil {
-		logging.SharedInstance().MethodInfo("Project", "FetchGithub", true).Panic("cannot find none list")
-		return false, errors.New("cannot find none list")
+
+	err = u.LoadFromGithub(append(openIssues, closedIssues...))
+	if err != nil {
+		return false, err
 	}
 
-	for _, issue := range append(openIssues, closedIssues...) {
-		var githubLabels []list.ListStruct
-		for _, label := range issue.Labels {
-			for _, list := range u.Lists() {
-				// 紐付いているlabelのlistを持っている時
-				if list.Title.Valid && list.Title.String == *label.Name {
-					githubLabels = append(githubLabels, *list)
-				}
-			}
-		}
-		issueTask, err := task.FindByIssueNumber(u.ID, *issue.Number)
-		if err != nil && issueTask == nil {
-			issueTask = task.NewTask(0, 0, u.ID, u.UserID, sql.NullInt64{Int64: int64(*issue.Number), Valid: true}, *issue.Title, *issue.Body, hub.IsPullRequest(&issue), sql.NullString{String: *issue.HTMLURL, Valid: true})
-		}
-		// label所属よりcloseかどうかを優先して判定したい
-		// closeのものはどんなlabelがついていようと，doneに放り込む
-		if *issue.State == "open" {
-			if len(githubLabels) == 1 {
-				// 一つのlistだけが該当するとき
-				issueTask.ListID = githubLabels[0].ID
-			} else if len(githubLabels) > 1 {
-				// 複数のlistが該当するとき
-				issueTask.ListID = githubLabels[0].ID
-			} else {
-				// listに該当しないlabelしか持っていない
-				// そもそもlabelがひとつもついていない
-				issueTask.ListID = noneList.ID
-			}
-		} else {
-			issueTask.ListID = closedList.ID
-		}
-
-		// ここはgithub側への同期不要
-		if issueTask.ID == 0 {
-			if !issueTask.Save(nil, nil) {
-				logging.SharedInstance().MethodInfo("Project", "FetchGithub", true).Error("failed to save task")
-				return false, errors.New("failed to save task")
-			}
-		} else {
-			issueTask.Title = *issue.Title
-			issueTask.Description = *issue.Body
-			issueTask.PullRequest = hub.IsPullRequest(&issue)
-			issueTask.HTMLURL = sql.NullString{String: *issue.HTMLURL, Valid: true}
-			if !issueTask.Update(nil, nil) {
-				logging.SharedInstance().MethodInfo("Project", "FetchGithub", true).Error("failed to update task")
-				return false, errors.New("failed to update task")
-			}
-		}
-	}
 	// github側へ同期
 	rows, err := table.Query("select tasks.title, tasks.description, lists.title, lists.color from tasks left join lists on lists.id = tasks.list_id where tasks.user_id = ? and tasks.issue_number IS NULL;", u.UserID)
 	if err != nil {

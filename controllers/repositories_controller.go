@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"../models/hook"
+	"../models/project"
 	"../models/repository"
 	"../modules/logging"
 	"encoding/json"
@@ -45,6 +45,6 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	switch eventType {
 	case "issues":
-		hook.IssuesEvent(repo.ID, githubBody)
+		project.IssuesEvent(repo.ID, githubBody)
 	}
 }
