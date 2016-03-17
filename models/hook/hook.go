@@ -10,7 +10,6 @@ import (
 	"../task"
 	"database/sql"
 	"errors"
-	"fmt"
 
 	"github.com/google/go-github/github"
 )
@@ -29,8 +28,6 @@ func IssuesEvent(repositoryID int64, body github.IssuesEvent) error {
 	parentProject := project.FindProject(projectID)
 	targetTask, _ := task.FindByIssueNumber(projectID, *body.Issue.Number)
 
-	fmt.Printf("task: %v\n", targetTask)
-
 	switch *body.Action {
 	case "opened", "reopened":
 		if targetTask == nil {
@@ -48,15 +45,18 @@ func taskApplyLabel(parentProject *project.ProjectStruct, targetTask *task.TaskS
 	if targetTask == nil {
 		err := createNewTask(parentProject, issue)
 		if err != nil {
+			logging.SharedInstance().MethodInfo("Hook", "taskApplyLabel", true).Errorf("create new task failed: %v", err)
 			return err
 		}
 		return nil
 	}
 	issueTask, err := applyListToTask(parentProject, targetTask, issue)
 	if err != nil {
+		logging.SharedInstance().MethodInfo("Hook", "taskApplyLabel", true).Errorf("apply list to task failed: %v", err)
 		return err
 	}
 	if !issueTask.Update(nil, nil) {
+		logging.SharedInstance().MethodInfo("Hook", "taskApplyLabel", true).Error("task update failed")
 		return errors.New("update failed")
 	}
 	return nil
@@ -65,9 +65,11 @@ func taskApplyLabel(parentProject *project.ProjectStruct, targetTask *task.TaskS
 func reopenTask(parentProject *project.ProjectStruct, targetTask *task.TaskStruct, issue *github.Issue) error {
 	issueTask, err := applyListToTask(parentProject, targetTask, issue)
 	if err != nil {
+		logging.SharedInstance().MethodInfo("Hook", "reopenTask", true).Errorf("apply list to task failed: %v", err)
 		return err
 	}
 	if !issueTask.Update(nil, nil) {
+		logging.SharedInstance().MethodInfo("Hook", "reopenTask", true).Error("task update failed")
 		return errors.New("update failed")
 	}
 	return nil
@@ -89,9 +91,12 @@ func createNewTask(parentProject *project.ProjectStruct, issue *github.Issue) er
 
 	issueTask, err := applyListToTask(parentProject, issueTask, issue)
 	if err != nil {
+		logging.SharedInstance().MethodInfo("Hook", "createNewTask", true).Errorf("apply list to task failed: %v", err)
 		return err
 	}
-	issueTask.Save(nil, nil)
+	if !issueTask.Save(nil, nil) {
+		logging.SharedInstance().MethodInfo("Hook", "createNewTask", true).Error("task save failed")
+	}
 	return nil
 
 }
