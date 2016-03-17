@@ -38,15 +38,13 @@ func IssuesEvent(repositoryID int64, body github.IssuesEvent) error {
 		} else {
 			reopenTask(parentProject, targetTask, body.Issue)
 		}
-	case "closed":
-		closeTask(parentProject, targetTask, body.Issue)
-	case "labeled":
-	case "unlabeled":
+	case "closed", "labeled", "unlabeled":
+		taskApplyLabel(parentProject, targetTask, body.Issue)
 	}
 	return nil
 }
 
-func closeTask(parentProject *project.ProjectStruct, targetTask *task.TaskStruct, issue *github.Issue) error {
+func taskApplyLabel(parentProject *project.ProjectStruct, targetTask *task.TaskStruct, issue *github.Issue) error {
 	if targetTask == nil {
 		err := createNewTask(parentProject, issue)
 		if err != nil {
