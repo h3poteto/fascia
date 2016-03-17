@@ -31,14 +31,14 @@ func IssuesEvent(repositoryID int64, body github.IssuesEvent) error {
 	switch *body.Action {
 	case "opened", "reopened":
 		if targetTask == nil {
-			createNewTask(parentProject, body.Issue)
+			err = createNewTask(parentProject, body.Issue)
 		} else {
-			reopenTask(parentProject, targetTask, body.Issue)
+			err = reopenTask(parentProject, targetTask, body.Issue)
 		}
 	case "closed", "labeled", "unlabeled":
-		taskApplyLabel(parentProject, targetTask, body.Issue)
+		err = taskApplyLabel(parentProject, targetTask, body.Issue)
 	}
-	return nil
+	return err
 }
 
 func taskApplyLabel(parentProject *project.ProjectStruct, targetTask *task.TaskStruct, issue *github.Issue) error {
