@@ -31,12 +31,13 @@ func IssuesEvent(repositoryID int64, body github.IssuesEvent) error {
 
 	fmt.Printf("task: %v\n", targetTask)
 
-	noneList := parentProject.NoneList()
-
 	switch *body.Action {
-	case "opened":
-		createNewTask(parentProject, noneList, body.Issue)
-	case "reopened":
+	case "opened", "reopened":
+		if targetTask == nil {
+			createNewTask(parentProject, body.Issue)
+		} else {
+			reopenTask(parentProject, targetTask, body.Issue)
+		}
 	case "close":
 	case "labeled":
 	case "unlabeled":
@@ -44,13 +45,30 @@ func IssuesEvent(repositoryID int64, body github.IssuesEvent) error {
 	return nil
 }
 
-func createNewTask(parentProject *project.ProjectStruct, noneList *list.ListStruct, issue *github.Issue) error {
-	if noneList == nil {
-		logging.SharedInstance().MethodInfo("Hook", "createNewTask", true).Panic("cannot find none list")
-		return errors.New("cannot find none list")
+func reopenTask(parentProject *project.ProjectStruct, targetTask *task.TaskStruct, issue *github.Issue) error {
+	issueTask, err := applyListToTask(parentProject, targetTask, issue)
+	if err != nil {
+		return err
 	}
+	if !issueTask.Update(nil, nil) {
+		return errors.New("update failed")
+	}
+	return nil
+}
 
-	issueTask := task.NewTask(0, 0, parentProject.ID, parentProject.UserID, sql.NullInt64{Int64: int64(*issue.Number), Valid: true}, *issue.Title, *issue.Body, hub.IsPullRequest(issue), sql.NullString{String: *issue.HTMLURL, Valid: true})
+func createNewTask(parentProject *project.ProjectStruct, issue *github.Issue) error {
+
+	issueTask := task.NewTask(
+		0,
+		0,
+		parentProject.ID,
+		parentProject.UserID,
+		sql.NullInt64{Int64: int64(*issue.Number), Valid: true},
+		*issue.Title,
+		*issue.Body,
+		hub.IsPullRequest(issue),
+		sql.NullString{String: *issue.HTMLURL, Valid: true},
+	)
 
 	issueTask, err := applyListToTask(parentProject, issueTask, issue)
 	if err != nil {
