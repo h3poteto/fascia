@@ -52,6 +52,42 @@ func IssuesEvent(repositoryID int64, body github.IssuesEvent) error {
 	return err
 }
 
+func PullRequestEvent(repositoryID int64, body github.PullRequestEvent) error {
+	objectDB := &db.Database{}
+	var interfaceDB db.DB = objectDB
+	table := interfaceDB.Init()
+	defer table.Close()
+
+	var projectID int64
+	err := table.QueryRow("select id from projects where repository_id = ?;", repositoryID).Scan(&projectID)
+	if err != nil {
+		return err
+	}
+	parentProject := FindProject(projectID)
+	targetTask, _ := task.FindByIssueNumber(projectID, *body.Number)
+
+	// TODO: もしgithubへのアクセスが増大するようであれば，PullRequestオブジェクトからラベルの付替えを行うように改修する
+
+	oauthToken, err := parentProject.OauthToken()
+	if err != nil {
+		return err
+	}
+
+	issue, err := hub.GetGithubIssue(oauthToken, parentProject.Repository(), *body.Number)
+
+	switch *body.Action {
+	case "opened", "reopened":
+		if targetTask == nil {
+			err = parentProject.createNewTask(issue)
+		} else {
+			err = parentProject.reopenTask(targetTask, issue)
+		}
+	case "closed", "labeled", "unlabeled":
+		err = parentProject.taskApplyLabel(targetTask, issue)
+	}
+	return err
+}
+
 func GithubLabels(issue *github.Issue, projectLists []*list.ListStruct) []list.ListStruct {
 	var githubLabels []list.ListStruct
 	for _, label := range issue.Labels {

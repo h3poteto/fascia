@@ -28,23 +28,39 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var githubBody github.IssuesEvent
-	data, _ := ioutil.ReadAll(r.Body)
-	json.Unmarshal(data, &githubBody)
-	id := int64(*githubBody.Repo.ID)
-
-	repo := repository.FindRepositoryByRepositoryID(id)
-	if repo == nil {
-		logging.SharedInstance().MethodInfo("Repositories", "Hook").Error("could not find repository")
-		return
-	}
-	if !repo.Authenticate(signature, data) {
-		logging.SharedInstance().MethodInfo("Repositories", "Hook").Info("cannot authenticate to repository")
-		return
-	}
-
 	switch eventType {
 	case "issues":
+		var githubBody github.IssuesEvent
+		data, _ := ioutil.ReadAll(r.Body)
+		json.Unmarshal(data, &githubBody)
+		id := int64(*githubBody.Repo.ID)
+
+		repo := repository.FindRepositoryByRepositoryID(id)
+		if repo == nil {
+			logging.SharedInstance().MethodInfo("Repositories", "Hook").Error("could not find repository")
+			return
+		}
+		if !repo.Authenticate(signature, data) {
+			logging.SharedInstance().MethodInfo("Repositories", "Hook").Info("cannot authenticate to repository")
+			return
+		}
 		project.IssuesEvent(repo.ID, githubBody)
+
+	case "pull_request":
+		var githubBody github.PullRequestEvent
+		data, _ := ioutil.ReadAll(r.Body)
+		json.Unmarshal(data, &githubBody)
+		id := int64(*githubBody.Repo.ID)
+
+		repo := repository.FindRepositoryByRepositoryID(id)
+		if repo == nil {
+			logging.SharedInstance().MethodInfo("Repositories", "Hook").Error("could not find repository")
+			return
+		}
+		if !repo.Authenticate(signature, data) {
+			logging.SharedInstance().MethodInfo("Repositories", "Hook").Info("cannot authenticate to repository")
+			return
+		}
+		project.PullRequestEvent(repo.ID, githubBody)
 	}
 }

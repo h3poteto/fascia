@@ -136,6 +136,16 @@ func EditGithubIssue(token string, repo *repository.RepositoryStruct, number int
 	return true, nil
 }
 
+func GetGithubIssue(token string, repo *repository.RepositoryStruct, number int) (*github.Issue, error) {
+	client := prepareClient(token)
+
+	issue, _, err := client.Issues.Get(repo.Owner.String, repo.Name.String, number)
+	if err != nil {
+		return nil, err
+	}
+	return issue, nil
+}
+
 func GetGithubIssues(token string, repo *repository.RepositoryStruct) ([]github.Issue, []github.Issue, error) {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
@@ -163,4 +173,13 @@ func IsPullRequest(issue *github.Issue) bool {
 		return false
 	}
 	return true
+}
+
+func prepareClient(token string) *github.Client {
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(oauth2.NoContext, ts)
+	client := github.NewClient(tc)
+	return client
 }

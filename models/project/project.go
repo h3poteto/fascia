@@ -252,16 +252,6 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 	table := u.database.Init()
 	defer table.Close()
 
-	var oauthToken sql.NullString
-	err := table.QueryRow("select users.oauth_token from projects left join users on users.id = projects.user_id where projects.id = ?;", u.ID).Scan(&oauthToken)
-	if err != nil {
-		logging.SharedInstance().MethodInfo("project", "FetchGithub", true).Errorf("oauth_token select error: %v", err)
-		return false, err
-	}
-	if !oauthToken.Valid {
-		logging.SharedInstance().MethodInfo("project", "FetchGithub").Info("oauth token is not valid")
-		return false, errors.New("oauth token is required")
-	}
 	repo := u.Repository()
 	// user自体はgithub連携していても，projectが連携していない可能性もあるのでチェック
 	if repo == nil {
@@ -269,7 +259,13 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		return false, errors.New("project did not related to repository")
 	}
 
-	openIssues, closedIssues, err := hub.GetGithubIssues(oauthToken.String, repo)
+	oauthToken, err := u.OauthToken()
+	if err != nil {
+		logging.SharedInstance().MethodInfo("project", "FetchGithub").Infof("oauth token is required: %v", err)
+		return false, err
+	}
+
+	openIssues, closedIssues, err := hub.GetGithubIssues(oauthToken, repo)
 	if err != nil {
 		return false, err
 	}
@@ -292,23 +288,41 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		label, err := hub.CheckLabelPresent(oauthToken.String, repo, &listTitle.String)
+		label, err := hub.CheckLabelPresent(oauthToken, repo, &listTitle.String)
 		if err != nil {
 			return false, err
 		}
 		if label == nil {
-			label, err = hub.CreateGithubLabel(oauthToken.String, repo, &listTitle.String, &listColor.String)
+			label, err = hub.CreateGithubLabel(oauthToken, repo, &listTitle.String, &listColor.String)
 			if err != nil {
 				return false, errors.New("cannot create github label")
 			}
 		}
 		// ここcreateだけでなくupdateも考慮したほうが良いのではと思ったが，そもそも現状fasciaにはtaskのupdateアクションがないので，updateされることはありえない．そのため，未実装でも問題はない．
 		// todo: task#update実装時にはここも実装すること
-		_, err = hub.CreateGithubIssue(oauthToken.String, repo, []string{*label.Name}, &title, &description)
+		_, err = hub.CreateGithubIssue(oauthToken, repo, []string{*label.Name}, &title, &description)
 		if err != nil {
 			return false, errors.New("cannot create github issue")
 		}
 	}
 
 	return true, nil
+}
+
+func (u *ProjectStruct) OauthToken() (string, error) {
+	table := u.database.Init()
+	defer table.Close()
+
+	var oauthToken sql.NullString
+	err := table.QueryRow("select users.oauth_token from projects left join users on users.id = projects.user_id where projects.id = ?;", u.ID).Scan(&oauthToken)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("project", "OauthToken", true).Errorf("oauth_token select error: %v", err)
+		return "", err
+	}
+	if !oauthToken.Valid {
+		logging.SharedInstance().MethodInfo("project", "OauthToken").Info("oauth token is not valid")
+		return "", errors.New("oauth token isn't exist")
+	}
+
+	return oauthToken.String, nil
 }
