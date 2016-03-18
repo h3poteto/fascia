@@ -16,11 +16,7 @@ type HubStruct struct {
 }
 
 func CheckLabelPresent(token string, repo *repository.RepositoryStruct, title *string) (*github.Label, error) {
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(oauth2.NoContext, ts)
-	client := github.NewClient(tc)
+	client := prepareClient(token)
 
 	if title == nil {
 		logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent", true).Error("title is nil")
@@ -37,11 +33,7 @@ func CheckLabelPresent(token string, repo *repository.RepositoryStruct, title *s
 }
 
 func CreateGithubLabel(token string, repo *repository.RepositoryStruct, title *string, color *string) (*github.Label, error) {
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(oauth2.NoContext, ts)
-	client := github.NewClient(tc)
+	client := prepareClient(token)
 
 	if title == nil || color == nil {
 		logging.SharedInstance().MethodInfo("hub", "CreateGithubLabel", true).Error("title or color is nil")
@@ -62,11 +54,7 @@ func CreateGithubLabel(token string, repo *repository.RepositoryStruct, title *s
 }
 
 func UpdateGithubLabel(token string, repo *repository.RepositoryStruct, originalTitle *string, title *string, color *string) (*github.Label, error) {
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(oauth2.NoContext, ts)
-	client := github.NewClient(tc)
+	client := prepareClient(token)
 
 	if title == nil || color == nil {
 		logging.SharedInstance().MethodInfo("hub", "UpdateGithubLabel", true).Error("title or color is nil")
@@ -78,7 +66,7 @@ func UpdateGithubLabel(token string, repo *repository.RepositoryStruct, original
 		Color: color,
 	}
 	githubLabel, response, err := client.Issues.EditLabel(repo.Owner.String, repo.Name.String, *originalTitle, label)
-	logging.SharedInstance().MethodInfo("hub", "UpddateGithubLabel").Debugf("response of updating github label: %+v\n", response)
+	logging.SharedInstance().MethodInfo("hub", "UpddateGithubLabel").Debugf("response of updating github label: %+v", response)
 	if err != nil {
 		return nil, err
 	}
@@ -87,11 +75,7 @@ func UpdateGithubLabel(token string, repo *repository.RepositoryStruct, original
 }
 
 func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels []string, title *string, description *string) (*github.Issue, error) {
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(oauth2.NoContext, ts)
-	client := github.NewClient(tc)
+	client := prepareClient(token)
 
 	if title == nil {
 		logging.SharedInstance().MethodInfo("hub", "CreateGithubIssue", true).Error("title is nil")
@@ -113,11 +97,7 @@ func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels [
 }
 
 func EditGithubIssue(token string, repo *repository.RepositoryStruct, number int64, labels []string, title *string, description *string, state *string) (bool, error) {
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(oauth2.NoContext, ts)
-	client := github.NewClient(tc)
+	client := prepareClient(token)
 
 	issueRequest := &github.IssueRequest{
 		Title:  title,
@@ -128,7 +108,7 @@ func EditGithubIssue(token string, repo *repository.RepositoryStruct, number int
 
 	issueNumber := int(number)
 	issue, response, err := client.Issues.Edit(repo.Owner.String, repo.Name.String, issueNumber, issueRequest)
-	logging.SharedInstance().MethodInfo("hub", "EditGithubIssue").Debugf("response of edit github issue: %+v\n", response)
+	logging.SharedInstance().MethodInfo("hub", "EditGithubIssue").Debugf("response of edit github issue: %+v", response)
 	if err != nil {
 		return false, err
 	}
@@ -136,12 +116,19 @@ func EditGithubIssue(token string, repo *repository.RepositoryStruct, number int
 	return true, nil
 }
 
+// GetGithubIssue get a issue from github
+func GetGithubIssue(token string, repo *repository.RepositoryStruct, number int) (*github.Issue, error) {
+	client := prepareClient(token)
+
+	issue, _, err := client.Issues.Get(repo.Owner.String, repo.Name.String, number)
+	if err != nil {
+		return nil, err
+	}
+	return issue, nil
+}
+
 func GetGithubIssues(token string, repo *repository.RepositoryStruct) ([]github.Issue, []github.Issue, error) {
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(oauth2.NoContext, ts)
-	client := github.NewClient(tc)
+	client := prepareClient(token)
 
 	openIssueOption := github.IssueListByRepoOptions{
 		State: "open",
@@ -163,4 +150,13 @@ func IsPullRequest(issue *github.Issue) bool {
 		return false
 	}
 	return true
+}
+
+func prepareClient(token string) *github.Client {
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(oauth2.NoContext, ts)
+	client := github.NewClient(tc)
+	return client
 }

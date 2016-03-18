@@ -8,7 +8,6 @@ import (
 	"../list"
 	"../list_option"
 	"../repository"
-	"../task"
 	"database/sql"
 	"errors"
 )
@@ -77,7 +76,8 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 	var repoID sql.NullInt64
 	var repo *repository.RepositoryStruct
 	if repositoryID != 0 {
-		repo = repository.NewRepository(0, repositoryID, repositoryOwner, repositoryName)
+		key := repository.GenerateWebhookKey(repositoryName)
+		repo = repository.NewRepository(0, repositoryID, repositoryOwner, repositoryName, key)
 		if !repo.Save() {
 			tx.Rollback()
 			logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save repository")
@@ -233,13 +233,14 @@ func (u *ProjectStruct) Repository() *repository.RepositoryStruct {
 
 	var id, repositoryID int64
 	var owner, name sql.NullString
-	err := table.QueryRow("select repositories.id, repositories.repository_id, repositories.owner, repositories.name from projects inner join repositories on repositories.id = projects.repository_id where projects.id = ?;", u.ID).Scan(&id, &repositoryID, &owner, &name)
+	var webhookKey string
+	err := table.QueryRow("select repositories.id, repositories.repository_id, repositories.owner, repositories.name, repositories.webhook_key from projects inner join repositories on repositories.id = projects.repository_id where projects.id = ?;", u.ID).Scan(&id, &repositoryID, &owner, &name, &webhookKey)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("project", "Repository").Infof("cannot find repository: %v", err)
 		return nil
 	}
 	if id == u.RepositoryID.Int64 && owner.Valid {
-		r := repository.NewRepository(id, repositoryID, owner.String, name.String)
+		r := repository.NewRepository(id, repositoryID, owner.String, name.String, webhookKey)
 		return r
 	} else {
 		logging.SharedInstance().MethodInfo("project", "Repository", true).Error("repository owner discord from project owner")
@@ -251,16 +252,6 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 	table := u.database.Init()
 	defer table.Close()
 
-	var oauthToken sql.NullString
-	err := table.QueryRow("select users.oauth_token from projects left join users on users.id = projects.user_id where projects.id = ?;", u.ID).Scan(&oauthToken)
-	if err != nil {
-		logging.SharedInstance().MethodInfo("project", "FetchGithub", true).Errorf("oauth_token select error: %v", err)
-		return false, err
-	}
-	if !oauthToken.Valid {
-		logging.SharedInstance().MethodInfo("project", "FetchGithub").Info("oauth token is not valid")
-		return false, errors.New("oauth token is required")
-	}
 	repo := u.Repository()
 	// user自体はgithub連携していても，projectが連携していない可能性もあるのでチェック
 	if repo == nil {
@@ -268,76 +259,22 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		return false, errors.New("project did not related to repository")
 	}
 
-	openIssues, closedIssues, err := hub.GetGithubIssues(oauthToken.String, repo)
+	oauthToken, err := u.OauthToken()
+	if err != nil {
+		logging.SharedInstance().MethodInfo("project", "FetchGithub").Infof("oauth token is required: %v", err)
+		return false, err
+	}
+
+	openIssues, closedIssues, err := hub.GetGithubIssues(oauthToken, repo)
 	if err != nil {
 		return false, err
 	}
-	var closedList *list.ListStruct
-	for _, list := range u.Lists() {
-		// closeのリストは用意しておく
-		if list.Title.Valid && list.Title.String == config.Element("init_list").(map[interface{}]interface{})["done"].(string) {
-			closedList = list
-		}
-	}
-	if closedList == nil {
-		logging.SharedInstance().MethodInfo("Project", "FetchGithub", true).Panic("cannot find close list")
-		return false, errors.New("cannot find close list")
-	}
-	noneList := u.NoneList()
-	if noneList == nil {
-		logging.SharedInstance().MethodInfo("Project", "FetchGithub", true).Panic("cannot find none list")
-		return false, errors.New("cannot find none list")
+
+	err = u.LoadFromGithub(append(openIssues, closedIssues...))
+	if err != nil {
+		return false, err
 	}
 
-	for _, issue := range append(openIssues, closedIssues...) {
-		var githubLabels []list.ListStruct
-		for _, label := range issue.Labels {
-			for _, list := range u.Lists() {
-				// 紐付いているlabelのlistを持っている時
-				if list.Title.Valid && list.Title.String == *label.Name {
-					githubLabels = append(githubLabels, *list)
-				}
-			}
-		}
-		issueTask, err := task.FindByIssueNumber(u.ID, *issue.Number)
-		if err != nil && issueTask == nil {
-			issueTask = task.NewTask(0, 0, u.ID, u.UserID, sql.NullInt64{Int64: int64(*issue.Number), Valid: true}, *issue.Title, *issue.Body, hub.IsPullRequest(&issue), sql.NullString{String: *issue.HTMLURL, Valid: true})
-		}
-		// label所属よりcloseかどうかを優先して判定したい
-		// closeのものはどんなlabelがついていようと，doneに放り込む
-		if *issue.State == "open" {
-			if len(githubLabels) == 1 {
-				// 一つのlistだけが該当するとき
-				issueTask.ListID = githubLabels[0].ID
-			} else if len(githubLabels) > 1 {
-				// 複数のlistが該当するとき
-				issueTask.ListID = githubLabels[0].ID
-			} else {
-				// listに該当しないlabelしか持っていない
-				// そもそもlabelがひとつもついていない
-				issueTask.ListID = noneList.ID
-			}
-		} else {
-			issueTask.ListID = closedList.ID
-		}
-
-		// ここはgithub側への同期不要
-		if issueTask.ID == 0 {
-			if !issueTask.Save(nil, nil) {
-				logging.SharedInstance().MethodInfo("Project", "FetchGithub", true).Error("failed to save task")
-				return false, errors.New("failed to save task")
-			}
-		} else {
-			issueTask.Title = *issue.Title
-			issueTask.Description = *issue.Body
-			issueTask.PullRequest = hub.IsPullRequest(&issue)
-			issueTask.HTMLURL = sql.NullString{String: *issue.HTMLURL, Valid: true}
-			if !issueTask.Update(nil, nil) {
-				logging.SharedInstance().MethodInfo("Project", "FetchGithub", true).Error("failed to update task")
-				return false, errors.New("failed to update task")
-			}
-		}
-	}
 	// github側へ同期
 	rows, err := table.Query("select tasks.title, tasks.description, lists.title, lists.color from tasks left join lists on lists.id = tasks.list_id where tasks.user_id = ? and tasks.issue_number IS NULL;", u.UserID)
 	if err != nil {
@@ -351,23 +288,42 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		label, err := hub.CheckLabelPresent(oauthToken.String, repo, &listTitle.String)
+		label, err := hub.CheckLabelPresent(oauthToken, repo, &listTitle.String)
 		if err != nil {
 			return false, err
 		}
 		if label == nil {
-			label, err = hub.CreateGithubLabel(oauthToken.String, repo, &listTitle.String, &listColor.String)
+			label, err = hub.CreateGithubLabel(oauthToken, repo, &listTitle.String, &listColor.String)
 			if err != nil {
 				return false, errors.New("cannot create github label")
 			}
 		}
 		// ここcreateだけでなくupdateも考慮したほうが良いのではと思ったが，そもそも現状fasciaにはtaskのupdateアクションがないので，updateされることはありえない．そのため，未実装でも問題はない．
 		// todo: task#update実装時にはここも実装すること
-		_, err = hub.CreateGithubIssue(oauthToken.String, repo, []string{*label.Name}, &title, &description)
+		_, err = hub.CreateGithubIssue(oauthToken, repo, []string{*label.Name}, &title, &description)
 		if err != nil {
 			return false, errors.New("cannot create github issue")
 		}
 	}
 
 	return true, nil
+}
+
+// OauthToken get oauth token in users
+func (u *ProjectStruct) OauthToken() (string, error) {
+	table := u.database.Init()
+	defer table.Close()
+
+	var oauthToken sql.NullString
+	err := table.QueryRow("select users.oauth_token from projects left join users on users.id = projects.user_id where projects.id = ?;", u.ID).Scan(&oauthToken)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("project", "OauthToken", true).Errorf("oauth_token select error: %v", err)
+		return "", err
+	}
+	if !oauthToken.Valid {
+		logging.SharedInstance().MethodInfo("project", "OauthToken").Info("oauth token is not valid")
+		return "", errors.New("oauth token isn't exist")
+	}
+
+	return oauthToken.String, nil
 }
