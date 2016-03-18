@@ -12,10 +12,11 @@ import (
 	"github.com/zenazn/goji/web"
 )
 
+// Repositories defines repositories_controller methods
 type Repositories struct {
 }
 
-// webhook event from github
+// Hook catche events from github
 func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 

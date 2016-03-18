@@ -27,6 +27,7 @@ type RepositoryStruct struct {
 	database     db.DB
 }
 
+// GenerateWebhookKey is create new md5 hash
 func GenerateWebhookKey(seed string) string {
 	h := md5.New()
 	io.WriteString(h, strconv.FormatInt(time.Now().Unix(), 10))
@@ -36,6 +37,7 @@ func GenerateWebhookKey(seed string) string {
 	return token
 }
 
+// NewRepository is build new Repository struct
 func NewRepository(id int64, repositoryID int64, owner string, name string, webhookKey string) *RepositoryStruct {
 	if repositoryID <= 0 {
 		return nil
@@ -45,6 +47,7 @@ func NewRepository(id int64, repositoryID int64, owner string, name string, webh
 	return repository
 }
 
+// FindRepositoryByRepositoryID is return a Repository struct from repository_id
 func FindRepositoryByRepositoryID(repositoryID int64) *RepositoryStruct {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
@@ -80,6 +83,7 @@ func (u *RepositoryStruct) Save() bool {
 	return true
 }
 
+// Authenticate is check token and webhookKey with response
 func (u *RepositoryStruct) Authenticate(token string, response []byte) bool {
 	table := u.database.Init()
 	defer table.Close()

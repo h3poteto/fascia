@@ -309,6 +309,7 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 	return true, nil
 }
 
+// OauthToken get oauth token in users
 func (u *ProjectStruct) OauthToken() (string, error) {
 	table := u.database.Init()
 	defer table.Close()

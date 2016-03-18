@@ -13,6 +13,7 @@ import (
 	"github.com/google/go-github/github"
 )
 
+// LoadFromGithub load tasks from github issues
 func (u *ProjectStruct) LoadFromGithub(issues []github.Issue) error {
 	for _, issue := range issues {
 		targetTask, _ := task.FindByIssueNumber(u.ID, *issue.Number)
@@ -25,6 +26,7 @@ func (u *ProjectStruct) LoadFromGithub(issues []github.Issue) error {
 	return nil
 }
 
+// IssuesEvent apply issue changes to task
 func IssuesEvent(repositoryID int64, body github.IssuesEvent) error {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
@@ -52,6 +54,7 @@ func IssuesEvent(repositoryID int64, body github.IssuesEvent) error {
 	return err
 }
 
+// PullRequestEvent apply issue changes to task
 func PullRequestEvent(repositoryID int64, body github.PullRequestEvent) error {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
@@ -88,6 +91,7 @@ func PullRequestEvent(repositoryID int64, body github.PullRequestEvent) error {
 	return err
 }
 
+// GithubLabels get issues which match project's lists from github
 func GithubLabels(issue *github.Issue, projectLists []*list.ListStruct) []list.ListStruct {
 	var githubLabels []list.ListStruct
 	for _, label := range issue.Labels {
