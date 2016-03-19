@@ -152,6 +152,40 @@ func IsPullRequest(issue *github.Issue) bool {
 	return true
 }
 
+func CreateWebhook(token string, repo *repository.RepositoryStruct, secret string, url string) error {
+	client := prepareClient(token)
+
+	name := "web"
+	active := true
+	hookConfig := map[string]interface{}{
+		"url":          url,
+		"content_type": "json",
+		"secret":       secret,
+	}
+
+	hook := github.Hook{
+		Name: &name,
+		URL:  &url,
+		Events: []string{
+			"commit_comment",
+			"push",
+			"status",
+			"release",
+			"issues",
+			"issue_comment",
+			"pull_request",
+			"pull_request_review_comment",
+		},
+		Active: &active,
+		Config: hookConfig,
+	}
+	_, _, err := client.Repositories.CreateHook(repo.Owner.String, repo.Name.String, &hook)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func prepareClient(token string) *github.Client {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},

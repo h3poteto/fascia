@@ -10,6 +10,7 @@ import (
 	"../repository"
 	"database/sql"
 	"errors"
+	"fmt"
 )
 
 type Project interface {
@@ -91,6 +92,13 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 		tx.Rollback()
 		logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save project")
 		return nil, errors.New("failed to save project")
+	}
+
+	// github側にwebhooko登録
+	err := project.CreateWebhook()
+	if err != nil {
+		logging.SharedInstance().MethodInfo("Project", "Create").Infof("failed to create webhook: %v", err)
+		err = nil
 	}
 
 	// 初期リストの準備
@@ -307,6 +315,19 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (u *ProjectStruct) CreateWebhook() error {
+	oauthToken, err := u.OauthToken()
+	if err != nil {
+		logging.SharedInstance().MethodInfo("project", "CreateWebhook").Infof("oauth token is required: %v", err)
+		return err
+	}
+
+	url := fmt.Sprintf("%s://%s/repositories/hooks/github", config.Element("protocol").(string), config.Element("fqdn"))
+	repo := u.Repository()
+	err = hub.CreateWebhook(oauthToken, repo, repo.WebhookKey, url)
+	return err
 }
 
 // OauthToken get oauth token in users

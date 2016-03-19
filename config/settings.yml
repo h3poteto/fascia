@@ -10,6 +10,7 @@ development:
     from: "fascia.server+dev@gmail.com"
     to: "fascia.server+dev@gmail.com"
   fqdn: "fascia.localdomain"
+  protocol: "http"
 test:
   init_list:
     todo: "ToDo"
@@ -22,6 +23,7 @@ test:
     from: "fascia.server+test@gmail.com"
     to: "fascia.server+test@gmail.com"
   fqdn: "localhost"
+  protocol: "http"
 production:
   init_list:
     todo: "ToDo"
@@ -34,3 +36,4 @@ production:
     from: "support@fascia.io"
     to: "support@fascia.io"
   fqdn: "fascia.io"
+  protocol: "http"
