@@ -326,6 +326,9 @@ func (u *ProjectStruct) CreateWebhook() error {
 
 	url := fmt.Sprintf("%s://%s/repositories/hooks/github", config.Element("protocol").(string), config.Element("fqdn"))
 	repo := u.Repository()
+	if repo == nil {
+		return errors.New("cannot find repository")
+	}
 	err = hub.CreateWebhook(oauthToken, repo, repo.WebhookKey, url)
 	return err
 }
