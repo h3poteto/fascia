@@ -289,7 +289,6 @@ func (u *Projects) Webhook(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "not logined", 401)
 		return
 	}
-	//encoder := json.NewEncoder(w)
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook").Errorf("parse error: %v", err)
@@ -312,6 +311,7 @@ func (u *Projects) Webhook(c web.C, w http.ResponseWriter, r *http.Request) {
 	err = project.CreateWebhook()
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook").Errorf("failed to create webhook: %v", err)
+		http.Error(w, "cannot create webhook", 500)
 		return
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Webhook").Info("success to create webhook")
