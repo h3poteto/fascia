@@ -280,3 +280,41 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 }
+
+// Webhook create a new webhook in github repository
+func (u *Projects) Webhook(c web.C, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	currentUser, err := LoginRequired(r)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook").Infof("login error: %v", err)
+		http.Error(w, "not logined", 401)
+		return
+	}
+	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook").Errorf("parse error: %v", err)
+		http.Error(w, "project not found", 404)
+		return
+	}
+	project := projectModel.FindProject(projectID)
+	if project == nil || project.UserID != currentUser.ID {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook").Warn("project not found")
+		http.Error(w, "project not found", 404)
+		return
+	}
+
+	repo := project.Repository()
+	if repo == nil {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook").Warn("repository not found")
+		http.Error(w, "repository not found", 404)
+		return
+	}
+	err = project.CreateWebhook()
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook").Errorf("failed to create webhook: %v", err)
+		http.Error(w, "cannot create webhook", 500)
+		return
+	}
+	logging.SharedInstance().MethodInfo("ProjectsController", "Webhook").Info("success to create webhook")
+	return
+}

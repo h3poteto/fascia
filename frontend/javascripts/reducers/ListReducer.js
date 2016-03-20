@@ -428,6 +428,10 @@ export default function ListReducer(state = initState, action) {
       project: action.project,
       isProjectEditModalOpen: false
     })
+  case listActions.REQUEST_CREATE_WEBHOOK:
+    return Object.assign({}, state, {
+      isProjectEditModalOpen: false
+    })
   default:
     return state
   }

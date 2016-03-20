@@ -41,6 +41,7 @@ func Routes(m *web.Mux) {
 	m.Get("/projects/:project_id/show", controllers.CallController(&controllers.Projects{}, "Show"))
 	m.Post("/projects/:project_id/fetch_github", controllers.CallController(&controllers.Projects{}, "FetchGithub"))
 	m.Post("/projects/:project_id/settings", controllers.CallController(&controllers.Projects{}, "Settings"))
+	m.Post("/projects/:project_id/webhook", controllers.CallController(&controllers.Projects{}, "Webhook"))
 
 	m.Get("/github/repositories", controllers.CallController(&controllers.Github{}, "Repositories"))
 
