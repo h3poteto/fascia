@@ -179,6 +179,7 @@ export default class ListView extends React.Component {
                 <label htmlFor="description">Description</label>
                 <textarea id="description" name="description" value={selectedProject.Description} onChange={this.props.updateEditProjectDescription} className="form-control" />
                 <div className="form-action">
+                  <button onClick={e => this.props.createWebhook(this.props.params.projectID)} className="pure-button button-secondary" type="button">Setup Webhook</button>&nbsp;
                   <button onClick={e => this.props.fetchUpdateProject(this.props.params.projectID, selectedProject)} className="pure-button pure-button-primary" type="button">Update Project</button>
                 </div>
               </fieldset>

@@ -565,6 +565,40 @@ export function fetchUpdateProject(projectID, project) {
   }
 }
 
+export const REQUEST_CREATE_WEBHOOK = 'REQUEST_CREATE_WEBHOOK'
+export function requestCreateWebhook() {
+  return {
+    type: REQUEST_CREATE_WEBHOOK
+  }
+}
+
+export const RECEIVE_CREATE_WEBHOOK = 'RECEIVE_CREATE_WEBHOOK'
+function receiveCreateWebhook() {
+  return {
+    type: RECEIVE_CREATE_WEBHOOK
+  }
+}
+
+export const CREATE_WEBHOOK = 'CREATE_WEBHOOK'
+export function createWebhook(projectID) {
+  return dispatch => {
+    dispatch(requestCreateWebhook())
+    return Request
+      .post(`/projects/${projectID}/webhook`)
+      .end((err, res) => {
+        if (res.ok) {
+          dispatch(receiveCreateWebhook())
+        } else if (res.unauthorized) {
+          dispatch(unauthorized())
+        } else if (res.notFound) {
+          dispatch(notFound())
+        } else {
+          dispatch(serverError())
+        }
+      })
+  }
+}
+
 
 export const REQUEST_SETTINGS_PROJECT = 'REQUEST_SETTINGS_PROJECT'
 export function requestSettingsProject() {
