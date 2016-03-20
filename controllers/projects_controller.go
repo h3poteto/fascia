@@ -281,6 +281,7 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+// Webhook create a new webhook in github repository
 func (u *Projects) Webhook(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	currentUser, err := LoginRequired(r)

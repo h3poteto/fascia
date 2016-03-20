@@ -152,6 +152,7 @@ func IsPullRequest(issue *github.Issue) bool {
 	return true
 }
 
+// CreateWebhook create a new webhook in a github repository
 func CreateWebhook(token string, repo *repository.RepositoryStruct, secret string, url string) error {
 	client := prepareClient(token)
 

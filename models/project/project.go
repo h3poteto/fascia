@@ -317,6 +317,7 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 	return true, nil
 }
 
+// CreateWebhook call hub.CreateWebhook if project has repository
 func (u *ProjectStruct) CreateWebhook() error {
 	oauthToken, err := u.OauthToken()
 	if err != nil {
