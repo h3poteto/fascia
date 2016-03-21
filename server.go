@@ -8,6 +8,7 @@ import (
 	_ "github.com/flosch/pongo2-addons"
 	"github.com/zenazn/goji"
 	"github.com/zenazn/goji/web"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -69,5 +70,17 @@ func main() {
 	pongo2.RegisterFilter("suffixAssetsUpdate", filters.SuffixAssetsUpdate)
 	flag.Set("bind", ":9090")
 	Routes(goji.DefaultMux)
-	goji.Serve()
+
+	fd := flag.Uint("fd", 0, "File descriptor to listen and serve.")
+	flag.Parse()
+
+	if *fd != 0 {
+		listener, err := net.FileListener(os.NewFile(uintptr(*fd), ""))
+		if err != nil {
+			panic(err)
+		}
+		goji.ServeListener(listener)
+	} else {
+		goji.Serve()
+	}
 }
