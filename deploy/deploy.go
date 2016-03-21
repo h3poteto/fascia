@@ -216,7 +216,7 @@ func (d *deploy) restart() {
 	defer session.Close()
 
 	log.Println("restart application")
-	command := fmt.Sprint("sudo service supervisor restart")
+	command := fmt.Sprint("circusctl reload")
 	log.Println(command)
 	if err := session.Run(command); err != nil {
 		panic(err)
