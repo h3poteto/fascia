@@ -16,7 +16,6 @@ type Root struct {
 func (u *Root) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	currentUser, err := LoginRequired(r)
 	// ログインしていない場合はaboutページを見せる
-	panic("error")
 	if err != nil {
 		logging.SharedInstance().MethodInfo("RootController", "Index").Infof("login error: %v", err)
 		u.About(c, w, r)

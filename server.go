@@ -89,6 +89,7 @@ func main() {
 	}
 }
 
+// PanicRecover recover any panic and send information to logrus
 func PanicRecover(c *web.C, h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		requestID := middleware.GetReqID(*c)

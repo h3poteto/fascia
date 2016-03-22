@@ -55,6 +55,7 @@ func (u *LogStruct) MethodInfo(model string, method string, stack ...bool) *logr
 	})
 }
 
+// PanicRecover send error and stacktrace
 func (u *LogStruct) PanicRecover(requestID string) *logrus.Entry {
 	buf := make([]byte, 1<<16)
 	runtime.Stack(buf, false)
