@@ -3,11 +3,13 @@ package main
 import (
 	"./controllers"
 	"./filters"
+	"./modules/logging"
 	"flag"
 	"github.com/flosch/pongo2"
 	_ "github.com/flosch/pongo2-addons"
 	"github.com/zenazn/goji"
 	"github.com/zenazn/goji/web"
+	"github.com/zenazn/goji/web/middleware"
 	"net"
 	"net/http"
 	"os"
@@ -69,7 +71,9 @@ func main() {
 	pongo2.DefaultSet = pongo2.NewSet("default", pongo2.MustNewLocalFileSystemLoader(filepath.Join(root, "views")))
 	pongo2.RegisterFilter("suffixAssetsUpdate", filters.SuffixAssetsUpdate)
 	flag.Set("bind", ":9090")
-	Routes(goji.DefaultMux)
+	mux := goji.DefaultMux
+	mux.Use(PanicRecover)
+	Routes(mux)
 
 	fd := flag.Uint("fd", 0, "File descriptor to listen and serve.")
 	flag.Parse()
@@ -83,4 +87,22 @@ func main() {
 	} else {
 		goji.Serve()
 	}
+}
+
+// PanicRecover recover any panic and send information to logrus
+func PanicRecover(c *web.C, h http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		requestID := middleware.GetReqID(*c)
+
+		defer func() {
+			if err := recover(); err != nil {
+				logging.SharedInstance().PanicRecover(requestID).Error(err)
+				http.Error(w, http.StatusText(500), 500)
+			}
+		}()
+
+		h.ServeHTTP(w, r)
+	}
+
+	return http.HandlerFunc(fn)
 }
