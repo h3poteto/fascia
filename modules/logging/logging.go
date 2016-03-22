@@ -39,7 +39,7 @@ func SharedInstance() *LogStruct {
 
 func (u *LogStruct) MethodInfo(model string, method string, stack ...bool) *logrus.Entry {
 	if len(stack) > 0 && stack[0] {
-		buf := make([]byte, 1<<16)
+		buf := make([]byte, 1024)
 		runtime.Stack(buf, false)
 		return u.log.WithFields(logrus.Fields{
 			"time":       time.Now(),
@@ -55,11 +55,12 @@ func (u *LogStruct) MethodInfo(model string, method string, stack ...bool) *logr
 	})
 }
 
-func (u *LogStruct) PanicRecover() *logrus.Entry {
+func (u *LogStruct) PanicRecover(requestID string) *logrus.Entry {
 	buf := make([]byte, 1<<16)
 	runtime.Stack(buf, false)
 	return u.log.WithFields(logrus.Fields{
 		"time":       time.Now(),
+		"request":    requestID,
 		"model":      "main",
 		"stacktrace": string(buf),
 	})
