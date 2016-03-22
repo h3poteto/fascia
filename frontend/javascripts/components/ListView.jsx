@@ -92,6 +92,30 @@ export default class ListView extends React.Component {
     }
   }
 
+  projectOperations(project, selectedProject) {
+    if (project == null || project.RepositoryID == undefined || project.RepositoryID == null || project.RepositoryID == 0) {
+      return <span></span>
+    } else {
+      return (
+        <span>
+          <span className={project.ShowPullRequests ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.showPullRequests(this.props.params.projectID, selectedProject.ShowIssues, selectedProject.ShowPullRequests)}><i className="octicon octicon-git-pull-request"></i></span>
+          <span className={project.ShowIssues ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.showIssues(this.props.params.projectID, selectedProject.ShowIssues, selectedProject.ShowPullRequests)}><i className="octicon octicon-issue-opened"></i></span>
+          <i className="fa fa-repeat" onClick={e => this.props.fetchProjectGithub(this.props.params.projectID)}></i>
+        </span>
+      )
+    }
+  }
+
+  webhookButton(project) {
+    if (project == null || project.RepositoryID == undefined || project.RepositoryID == null || project.RepositoryID == 0) {
+      return null
+    } else {
+      return (
+        <button onClick={e => this.props.createWebhook(this.props.params.projectID)} className="pure-button button-secondary" type="button">Setup Webhook</button>
+      )
+    }
+  }
+
   render() {
     const { isLoading, isListModalOpen, newList, lists, listOptions, noneList, project, isTaskModalOpen, newTask, selectedList, selectedListOption, isListEditModalOpen, isProjectEditModalOpen, taskDraggingFrom, taskDraggingTo, selectedProject, error } = this.props.ListReducer
 
@@ -179,7 +203,7 @@ export default class ListView extends React.Component {
                 <label htmlFor="description">Description</label>
                 <textarea id="description" name="description" value={selectedProject.Description} onChange={this.props.updateEditProjectDescription} className="form-control" />
                 <div className="form-action">
-                  <button onClick={e => this.props.createWebhook(this.props.params.projectID)} className="pure-button button-secondary" type="button">Setup Webhook</button>&nbsp;
+                  {this.webhookButton(project)}&nbsp;
                   <button onClick={e => this.props.fetchUpdateProject(this.props.params.projectID, selectedProject)} className="pure-button pure-button-primary" type="button">Update Project</button>
                 </div>
               </fieldset>
@@ -188,9 +212,7 @@ export default class ListView extends React.Component {
         </Modal>
         <div className="title-wrapper">
           <div className="project-operation">
-            <span className={project != null && project.ShowPullRequests ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.showPullRequests(this.props.params.projectID, selectedProject.ShowIssues, selectedProject.ShowPullRequests)}><i className="octicon octicon-git-pull-request"></i></span>
-            <span className={project !=null && project.ShowIssues ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.showIssues(this.props.params.projectID, selectedProject.ShowIssues, selectedProject.ShowPullRequests)}><i className="octicon octicon-issue-opened"></i></span>
-            <i className="fa fa-repeat" onClick={e => this.props.fetchProjectGithub(this.props.params.projectID)}></i>
+            {this.projectOperations(project, selectedProject)}
           </div>
           <h3 className="project-title">{project != null ? project.Title : ''}<span className="fascia-project-menu" onClick={e => this.props.openEditProjectModal(project)}><i className="fa fa-pencil"></i></span></h3>
         </div>

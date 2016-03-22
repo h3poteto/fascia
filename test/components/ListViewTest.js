@@ -594,7 +594,7 @@ describe('ListView', () => {
         project: {
           Title: "testProject",
           Description: "description",
-          RepositoryID: 0,
+          RepositoryID: 1,
           ShowIssues: false,
           ShowPullRequests: true
         },
@@ -679,7 +679,7 @@ describe('ListView', () => {
         project: {
           Title: "testProject",
           Description: "description",
-          RepositoryID: 0,
+          RepositoryID: 1,
           ShowIssues: true,
           ShowPullRequests: false
         },
@@ -715,6 +715,113 @@ describe('ListView', () => {
       let [ secondListTasks, secondNewTask ] = secondTasks.props.children
       let [ tasks, newTask ] = noneList.props.children.props.children
       expect(tasks[0].props['data-id']).toBe(3)
+    })
+  })
+
+  describe('github action buttons', () => {
+    context('when project does not have repository', () => {
+      let state = {
+        ListReducer: {
+          isListModalOpen: false,
+          isTaskModalOpen: false,
+          isListEditModalOpen: false,
+          isProjectEditModalOpen: false,
+          newList: {title: "", color: "0effff"},
+          newTask: {title: ""},
+          lists: [],
+          noneList: {
+            ID: 3,
+            ListTasks: [
+              {
+                ID: 3,
+                Title: "task3",
+                PullRequest: false
+              }
+            ]
+          },
+          listOptions: [],
+          selectedListOption: null,
+          selectedList: null,
+          project: {
+            Title: "testProject",
+            Description: "description",
+            RepositoryID: 0,
+            ShowIssues: true,
+            ShowPullRequests: false
+          },
+          selectedProject: { Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
+          isTaskDraggingOver: false,
+          taskDraggingFrom: null,
+          taskDraggingTo: null,
+          error: null
+        },
+        params: {
+          projectID: 1
+        },
+        fetchLists: expect.createSpy(),
+        fetchProject: expect.createSpy(),
+        fetchListOptions: expect.createSpy(),
+        closeFlash: expect.createSpy()
+      }
+      it('should not render github action buttons', () => {
+        const { output, props } = setup(state)
+
+        let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
+        let [ operation, title ] = projectTitleWrapper.props.children
+        expect(operation.props.children.props.children).toBe(undefined)
+      })
+    })
+    context('when project has repository', () => {
+      let state = {
+        ListReducer: {
+          isListModalOpen: false,
+          isTaskModalOpen: false,
+          isListEditModalOpen: false,
+          isProjectEditModalOpen: false,
+          newList: {title: "", color: "0effff"},
+          newTask: {title: ""},
+          lists: [],
+          noneList: {
+            ID: 3,
+            ListTasks: [
+              {
+                ID: 3,
+                Title: "task3",
+                PullRequest: false
+              }
+            ]
+          },
+          listOptions: [],
+          selectedListOption: null,
+          selectedList: null,
+          project: {
+            Title: "testProject",
+            Description: "description",
+            RepositoryID: 1,
+            ShowIssues: true,
+            ShowPullRequests: false
+          },
+          selectedProject: { Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
+          isTaskDraggingOver: false,
+          taskDraggingFrom: null,
+          taskDraggingTo: null,
+          error: null
+        },
+        params: {
+          projectID: 1
+        },
+        fetchLists: expect.createSpy(),
+        fetchProject: expect.createSpy(),
+        fetchListOptions: expect.createSpy(),
+        closeFlash: expect.createSpy()
+      }
+      it('should not render github action buttons', () => {
+        const { output, props } = setup(state)
+
+        let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
+        let [ operation, title ] = projectTitleWrapper.props.children
+        expect(operation.props.children.props.children.length).toBe(3)
+      })
     })
   })
 })
