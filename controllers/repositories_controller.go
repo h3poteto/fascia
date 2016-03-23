@@ -26,6 +26,7 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	if eventType == "" || signature == "" || deliveryID == "" {
 		logging.SharedInstance().MethodInfo("Repositories", "Hook").Infof("could not find header information: %v", r.Header)
+		http.Error(w, "event, signature, or delivery_id is not exist", 404)
 		return
 	}
 
@@ -39,13 +40,19 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 		repo := repository.FindRepositoryByRepositoryID(id)
 		if repo == nil {
 			logging.SharedInstance().MethodInfo("Repositories", "Hook").Error("could not find repository")
+			http.Error(w, "repository not found", 404)
 			return
 		}
 		if !repo.Authenticate(signature, data) {
 			logging.SharedInstance().MethodInfo("Repositories", "Hook").Info("cannot authenticate to repository")
+			http.Error(w, "repository authenticate failed", 404)
 			return
 		}
-		project.IssuesEvent(repo.ID, githubBody)
+		err := project.IssuesEvent(repo.ID, githubBody)
+		if err != nil {
+			http.Error(w, "Internal Server Error", 500)
+			return
+		}
 
 	case "pull_request":
 		var githubBody github.PullRequestEvent
@@ -56,12 +63,20 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 		repo := repository.FindRepositoryByRepositoryID(id)
 		if repo == nil {
 			logging.SharedInstance().MethodInfo("Repositories", "Hook").Error("could not find repository")
+			http.Error(w, "repository not found", 404)
 			return
 		}
 		if !repo.Authenticate(signature, data) {
 			logging.SharedInstance().MethodInfo("Repositories", "Hook").Info("cannot authenticate to repository")
+			http.Error(w, "repository authenticate failed", 404)
 			return
 		}
-		project.PullRequestEvent(repo.ID, githubBody)
+		err := project.PullRequestEvent(repo.ID, githubBody)
+		if err != nil {
+			http.Error(w, "Internal Server Error", 500)
+			return
+		}
 	}
+
+	return
 }
