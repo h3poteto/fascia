@@ -38,7 +38,10 @@ func IssuesEvent(repositoryID int64, body github.IssuesEvent) error {
 	if err != nil {
 		return err
 	}
-	parentProject := FindProject(projectID)
+	parentProject, err := FindProject(projectID)
+	if err != nil {
+		return err
+	}
 	targetTask, _ := task.FindByIssueNumber(projectID, *body.Issue.Number)
 
 	switch *body.Action {
@@ -66,7 +69,10 @@ func PullRequestEvent(repositoryID int64, body github.PullRequestEvent) error {
 	if err != nil {
 		return err
 	}
-	parentProject := FindProject(projectID)
+	parentProject, err := FindProject(projectID)
+	if err != nil {
+		return err
+	}
 	targetTask, _ := task.FindByIssueNumber(projectID, *body.Number)
 
 	// TODO: もしgithubへのアクセスが増大するようであれば，PullRequestオブジェクトからラベルの付替えを行うように改修する
@@ -76,7 +82,11 @@ func PullRequestEvent(repositoryID int64, body github.PullRequestEvent) error {
 		return err
 	}
 
-	issue, err := hub.GetGithubIssue(oauthToken, parentProject.Repository(), *body.Number)
+	repo, err := parentProject.Repository()
+	if err != nil {
+		return err
+	}
+	issue, err := hub.GetGithubIssue(oauthToken, repo, *body.Number)
 
 	switch *body.Action {
 	case "opened", "reopened":
@@ -178,10 +188,10 @@ func (u *ProjectStruct) applyListToTask(issueTask *task.TaskStruct, issue *githu
 		return nil, errors.New("cannot find close list")
 	}
 
-	noneList = u.NoneList()
-	if noneList == nil {
+	noneList, err := u.NoneList()
+	if err != nil {
 		logging.SharedInstance().MethodInfo("Project", "applyListToTask", true).Panic("cannot find none list")
-		return nil, errors.New("cannot find none list")
+		return nil, err
 	}
 
 	githubLabels := GithubLabels(issue, u.Lists())

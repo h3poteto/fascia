@@ -26,9 +26,9 @@ func (u *Root) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if projectID != 0 {
-		parentProject := project.FindProject(projectID)
-		if parentProject == nil || parentProject.UserID != currentUser.ID {
-			logging.SharedInstance().MethodInfo("RootController", "Index").Warn("project not found")
+		parentProject, err := project.FindProject(projectID)
+		if err != nil || parentProject.UserID != currentUser.ID {
+			logging.SharedInstance().MethodInfo("RootController", "Index").Warnf("project not found: %v", err)
 			NotFound(w, r)
 			return
 		}

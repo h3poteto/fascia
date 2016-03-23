@@ -56,9 +56,9 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "project not found", 404)
 		return
 	}
-	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil || parentProject.UserID != currentUser.ID {
-		logging.SharedInstance().MethodInfo("ListsController", "Index").Warn("project not found")
+	parentProject, err := projectModel.FindProject(projectID)
+	if err != nil || parentProject.UserID != currentUser.ID {
+		logging.SharedInstance().MethodInfo("ListsController", "Index").Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -67,7 +67,12 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	for _, l := range lists {
 		jsonLists = append(jsonLists, &ListJSONFormat{ID: l.ID, ProjectID: l.ProjectID, UserID: l.UserID, Title: l.Title.String, ListTasks: TaskFormatToJson(l.Tasks()), Color: l.Color.String, ListOptionID: l.ListOptionID.Int64})
 	}
-	noneList := parentProject.NoneList()
+	noneList, err := parentProject.NoneList()
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Index").Error(err)
+		http.Error(w, "none list not found", 500)
+		return
+	}
 	jsonNoneList := &ListJSONFormat{ID: noneList.ID, ProjectID: noneList.ProjectID, UserID: noneList.UserID, Title: noneList.Title.String, ListTasks: TaskFormatToJson(noneList.Tasks()), Color: noneList.Color.String, ListOptionID: noneList.ListOptionID.Int64}
 	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 	encoder.Encode(jsonAllLists)
@@ -90,9 +95,9 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "project not found", 404)
 		return
 	}
-	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil || parentProject.UserID != currentUser.ID {
-		logging.SharedInstance().MethodInfo("ListsController", "Create").Warn("project not found")
+	parentProject, err := projectModel.FindProject(projectID)
+	if err != nil || parentProject.UserID != currentUser.ID {
+		logging.SharedInstance().MethodInfo("ListsController", "Create").Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -113,7 +118,7 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	logging.SharedInstance().MethodInfo("ListsController", "Create").Debugf("post new list parameter: %+v", newListForm)
 	list := listModel.NewList(0, projectID, currentUser.ID, newListForm.Title, newListForm.Color, sql.NullInt64{})
 
-	repo := parentProject.Repository()
+	repo, _ := parentProject.Repository()
 	if err := list.Save(repo, &currentUser.OauthToken); err != nil {
 		logging.SharedInstance().MethodInfo("ListsController", "Create", true).Errorf("failed save: %v", err)
 		http.Error(w, "failed save", 500)
@@ -140,9 +145,9 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "project not found", 404)
 		return
 	}
-	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil || parentProject.UserID != currentUser.ID {
-		logging.SharedInstance().MethodInfo("ListsController", "Update").Warn("project not found")
+	parentProject, err := projectModel.FindProject(projectID)
+	if err != nil || parentProject.UserID != currentUser.ID {
+		logging.SharedInstance().MethodInfo("ListsController", "Update").Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -174,7 +179,7 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	logging.SharedInstance().MethodInfo("ListsController", "Update").Debugf("post edit list parameter: %+v", editListForm)
 
-	repo := parentProject.Repository()
+	repo, _ := parentProject.Repository()
 	if err := targetList.Update(repo, &currentUser.OauthToken, &editListForm.Title, &editListForm.Color, &editListForm.Action); err != nil {
 		logging.SharedInstance().MethodInfo("ListsController", "Update", true).Errorf("save failed: %v", err)
 		http.Error(w, "save failed", 500)

@@ -39,7 +39,7 @@ func NewProject(id int64, userID int64, title string, description string, reposi
 	return project
 }
 
-func FindProject(projectID int64) *ProjectStruct {
+func FindProject(projectID int64) (*ProjectStruct, error) {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
 	table := interfaceDB.Init()
@@ -53,10 +53,10 @@ func FindProject(projectID int64) *ProjectStruct {
 	err := table.QueryRow("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where id = ?;", projectID).Scan(&id, &userID, &repositoryID, &title, &description, &showIssues, &showPullRequests)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("Project", "FindProject", true).Errorf("cannot find project: %v", err)
-		return nil
+		return nil, err
 	}
 	project := NewProject(id, userID, title, description, repositoryID, showIssues, showPullRequests)
-	return project
+	return project, nil
 }
 
 func Create(userID int64, title string, description string, repositoryID int64, repositoryOwner string, repositoryName string, oauthToken sql.NullString) (p *ProjectStruct, e error) {
@@ -88,10 +88,10 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 	}
 
 	project := NewProject(0, userID, title, description, repoID, true, true)
-	if !project.Save() {
+	if err := project.Save(); err != nil {
 		tx.Rollback()
-		logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save project")
-		return nil, errors.New("failed to save project")
+		logging.SharedInstance().MethodInfo("Project", "Create", true).Errorf("failed to save project: %v", err)
+		return nil, err
 	}
 
 	// github側にwebhooko登録
@@ -161,20 +161,20 @@ func (u *ProjectStruct) Initialize() {
 	u.database = interfaceDB
 }
 
-func (u *ProjectStruct) Save() bool {
+func (u *ProjectStruct) Save() error {
 	table := u.database.Init()
 	defer table.Close()
 
 	result, err := table.Exec("insert into projects (user_id, repository_id, title, description, show_issues, show_pull_requests, created_at) values (?, ?, ?, ?, ?, ?, now());", u.UserID, u.RepositoryID, u.Title, u.Description, u.ShowIssues, u.ShowPullRequests)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("Project", "Save", true).Errorf("failed to save project: %v", err)
-		return false
+		return err
 	}
 	u.ID, _ = result.LastInsertId()
-	return true
+	return nil
 }
 
-func (u *ProjectStruct) Update(title string, description string, showIssues bool, showPullRequests bool) bool {
+func (u *ProjectStruct) Update(title string, description string, showIssues bool, showPullRequests bool) error {
 	table := u.database.Init()
 	defer table.Close()
 
@@ -185,10 +185,10 @@ func (u *ProjectStruct) Update(title string, description string, showIssues bool
 	_, err := table.Exec("update projects set title = ?, description = ?, show_issues = ?, show_pull_requests = ? where id = ?;", u.Title, u.Description, u.ShowIssues, u.ShowPullRequests, u.ID)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("Project", "Update", true).Errorf("failed to update project: %v", err)
-		return false
+		return err
 	}
 
-	return true
+	return nil
 }
 
 func (u *ProjectStruct) Lists() []*list.ListStruct {
@@ -217,7 +217,7 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 	return slice
 }
 
-func (u *ProjectStruct) NoneList() *list.ListStruct {
+func (u *ProjectStruct) NoneList() (*list.ListStruct, error) {
 	table := u.database.Init()
 	defer table.Close()
 
@@ -227,15 +227,15 @@ func (u *ProjectStruct) NoneList() *list.ListStruct {
 	err := table.QueryRow("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ? and title = ?;", u.ID, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID)
 	if err != nil {
 		// noneが存在しないということはProjectsController#Createがうまく行ってないので，そっちでエラーハンドリングしてほしい
-		logging.SharedInstance().MethodInfo("Project", "NoneList", true).Panic(err)
+		panic(err)
 	}
 	if projectID == u.ID && title.Valid {
-		return list.NewList(id, projectID, userID, title.String, color.String, optionID)
+		return list.NewList(id, projectID, userID, title.String, color.String, optionID), nil
 	}
-	return nil
+	return nil, errors.New("none list not found")
 }
 
-func (u *ProjectStruct) Repository() *repository.RepositoryStruct {
+func (u *ProjectStruct) Repository() (*repository.RepositoryStruct, error) {
 	table := u.database.Init()
 	defer table.Close()
 
@@ -245,14 +245,14 @@ func (u *ProjectStruct) Repository() *repository.RepositoryStruct {
 	err := table.QueryRow("select repositories.id, repositories.repository_id, repositories.owner, repositories.name, repositories.webhook_key from projects inner join repositories on repositories.id = projects.repository_id where projects.id = ?;", u.ID).Scan(&id, &repositoryID, &owner, &name, &webhookKey)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("project", "Repository").Infof("cannot find repository: %v", err)
-		return nil
+		return nil, err
 	}
 	if id == u.RepositoryID.Int64 && owner.Valid {
 		r := repository.NewRepository(id, repositoryID, owner.String, name.String, webhookKey)
-		return r
+		return r, nil
 	} else {
 		logging.SharedInstance().MethodInfo("project", "Repository", true).Error("repository owner discord from project owner")
-		return nil
+		return nil, errors.New("repository not found")
 	}
 }
 
@@ -260,11 +260,11 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 	table := u.database.Init()
 	defer table.Close()
 
-	repo := u.Repository()
+	repo, err := u.Repository()
 	// user自体はgithub連携していても，projectが連携していない可能性もあるのでチェック
-	if repo == nil {
+	if err != nil {
 		logging.SharedInstance().MethodInfo("project", "FetchGithub").Info("repository related project is nil")
-		return false, errors.New("project did not related to repository")
+		return false, err
 	}
 
 	oauthToken, err := u.OauthToken()
@@ -326,9 +326,9 @@ func (u *ProjectStruct) CreateWebhook() error {
 	}
 
 	url := fmt.Sprintf("%s://%s/repositories/hooks/github", config.Element("protocol").(string), config.Element("fqdn"))
-	repo := u.Repository()
-	if repo == nil {
-		return errors.New("cannot find repository")
+	repo, err := u.Repository()
+	if err != nil {
+		return err
 	}
 	err = hub.CreateWebhook(oauthToken, repo, repo.WebhookKey, url)
 	return err
