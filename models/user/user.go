@@ -215,16 +215,14 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 	user := NewUser(id, email, provider, oauthToken, uuid, userName, avatarURL)
 
 	if id == 0 {
-		result := user.CreateGithubUser(token, githubUser, primaryEmail)
-		if !result {
+		if err := user.CreateGithubUser(token, githubUser, primaryEmail); err != nil {
 			logging.SharedInstance().MethodInfo("user", "FindOrCreateGithub", true).Error("cannot login to github")
 			return user, errors.New("cannot login to github")
 		}
 	}
 
 	if !user.OauthToken.Valid || user.OauthToken.String != token {
-		result := user.UpdateGithubUserInfo(token, githubUser)
-		if !result {
+		if err := user.UpdateGithubUserInfo(token, githubUser); err != nil {
 			logging.SharedInstance().MethodInfo("user", "FindOrCreateGithub", true).Error("cannot update user")
 			return user, errors.New("cannot update user")
 		}
@@ -261,38 +259,38 @@ func (u *UserStruct) Projects() []*project.ProjectStruct {
 	return slice
 }
 
-func (u *UserStruct) Save() bool {
+func (u *UserStruct) Save() error {
 	table := u.database.Init()
 	defer table.Close()
 
 	result, err := table.Exec("insert into users (email, password, provider, oauth_token, uuid, user_name, avatar_url, created_at) values (?, ?, ?, ?, ?, ?, ?, now());", u.Email, u.Password, u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("user", "Save", true).Errorf("failed to create user: %v", err)
-		return false
+		return err
 	}
 	u.ID, _ = result.LastInsertId()
 	logging.SharedInstance().MethodInfo("user", "Save").Infof("user saved: %v", u.ID)
-	return true
+	return nil
 }
 
-func (u *UserStruct) Update() bool {
+func (u *UserStruct) Update() error {
 	table := u.database.Init()
 	defer table.Close()
 
 	_, err := table.Exec("update users set provider = ?, oauth_token = ?, uuid = ?, user_name = ?, avatar_url = ? where email = ?;", u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar, u.Email)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("User", "Update", true).Panic(err)
-		return false
+		return err
 	}
-	return true
+	return nil
 }
 
-func (u *UserStruct) CreateGithubUser(token string, githubUser *github.User, primaryEmail string) bool {
+func (u *UserStruct) CreateGithubUser(token string, githubUser *github.User, primaryEmail string) error {
 	u.Email = primaryEmail
 	bytePassword, err := HashPassword(randomString())
 	if err != nil {
 		logging.SharedInstance().MethodInfo("User", "CreateGithubUser").Error(err)
-		return false
+		return err
 	}
 	u.Password = string(bytePassword)
 	u.Provider = sql.NullString{String: "github", Valid: true}
@@ -301,18 +299,20 @@ func (u *UserStruct) CreateGithubUser(token string, githubUser *github.User, pri
 	u.UserName = sql.NullString{String: *githubUser.Login, Valid: true}
 	u.Uuid = sql.NullInt64{Int64: int64(*githubUser.ID), Valid: true}
 	u.Avatar = sql.NullString{String: *githubUser.AvatarURL, Valid: true}
-	if !u.Save() {
-		return false
+	if err := u.Save(); err != nil {
+		return err
 	}
-	return true
+	return nil
 }
 
-func (u *UserStruct) UpdateGithubUserInfo(token string, githubUser *github.User) bool {
+func (u *UserStruct) UpdateGithubUserInfo(token string, githubUser *github.User) error {
 	u.Provider = sql.NullString{String: "github", Valid: true}
 	u.OauthToken = sql.NullString{String: token, Valid: true}
 	u.UserName = sql.NullString{String: *githubUser.Login, Valid: true}
 	u.Uuid = sql.NullInt64{Int64: int64(*githubUser.ID), Valid: true}
 	u.Avatar = sql.NullString{String: *githubUser.AvatarURL, Valid: true}
-	u.Update()
-	return true
+	if err := u.Update(); err != nil {
+		return err
+	}
+	return nil
 }
