@@ -128,9 +128,9 @@ func (u *ProjectStruct) taskApplyLabel(targetTask *task.TaskStruct, issue *githu
 		logging.SharedInstance().MethodInfo("Project", "taskApplyLabel", true).Errorf("apply list to task failed: %v", err)
 		return err
 	}
-	if !issueTask.Update(nil, nil) {
+	if err := issueTask.Update(nil, nil); err != nil {
 		logging.SharedInstance().MethodInfo("Project", "taskApplyLabel", true).Error("task update failed")
-		return errors.New("update failed")
+		return err
 	}
 	return nil
 }
@@ -141,9 +141,9 @@ func (u *ProjectStruct) reopenTask(targetTask *task.TaskStruct, issue *github.Is
 		logging.SharedInstance().MethodInfo("Project", "reopenTask", true).Errorf("apply list to task failed: %v", err)
 		return err
 	}
-	if !issueTask.Update(nil, nil) {
+	if err := issueTask.Update(nil, nil); err != nil {
 		logging.SharedInstance().MethodInfo("Project", "reopenTask", true).Error("task update failed")
-		return errors.New("update failed")
+		return err
 	}
 	return nil
 }
@@ -167,9 +167,9 @@ func (u *ProjectStruct) createNewTask(issue *github.Issue) error {
 		logging.SharedInstance().MethodInfo("Project", "createNewTask", true).Errorf("apply list to task failed: %v", err)
 		return err
 	}
-	if !issueTask.Save(nil, nil) {
+	if err := issueTask.Save(nil, nil); err != nil {
 		logging.SharedInstance().MethodInfo("Project", "createNewTask", true).Error("task save failed")
-		return errors.New("task save failed")
+		return err
 	}
 	return nil
 

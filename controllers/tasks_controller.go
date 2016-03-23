@@ -130,8 +130,8 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	task := taskModel.NewTask(0, parentList.ID, parentProject.ID, parentList.UserID, sql.NullInt64{}, newTaskForm.Title, newTaskForm.Description, false, sql.NullString{})
 
 	repo, _ := parentProject.Repository()
-	if !task.Save(repo, &currentUser.OauthToken) {
-		logging.SharedInstance().MethodInfo("TasksController", "Create", true).Error("save failed")
+	if err := task.Save(repo, &currentUser.OauthToken); err != nil {
+		logging.SharedInstance().MethodInfo("TasksController", "Create", true).Error("save failed: %v", err)
 		http.Error(w, "save failed", 500)
 		return
 	}
@@ -208,8 +208,8 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 
 	repo, _ := parentProject.Repository()
-	if !task.ChangeList(moveTaskFrom.ToListID, prevToTaskID, repo, &currentUser.OauthToken) {
-		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", true).Error("failed change list")
+	if err := task.ChangeList(moveTaskFrom.ToListID, prevToTaskID, repo, &currentUser.OauthToken); err != nil {
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", true).Errorf("failed change list: %v", err)
 		http.Error(w, "failed change list", 500)
 		return
 	}
