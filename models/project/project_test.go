@@ -60,8 +60,8 @@ var _ = Describe("Project", func() {
 
 	Describe("Save", func() {
 		It("should create project", func() {
-			result := newProject.Save()
-			Expect(result).To(BeTrue())
+			err := newProject.Save()
+			Expect(err).To(BeNil())
 			Expect(newProject.ID).NotTo(Equal(0))
 		})
 		It("should relate user and project", func() {
@@ -89,8 +89,8 @@ var _ = Describe("Project", func() {
 			newProject.Save()
 		})
 		It("should set new value", func() {
-			result := newProject.Update("newTitle", "newDescription", true, false)
-			Expect(result).To(BeTrue())
+			err := newProject.Update("newTitle", "newDescription", true, false)
+			Expect(err).To(BeNil())
 			Expect(newProject.Title).To(Equal("newTitle"))
 			Expect(newProject.Description).To(Equal("newDescription"))
 			Expect(newProject.RepositoryID.Valid).To(BeFalse())
@@ -104,14 +104,15 @@ var _ = Describe("Project", func() {
 			It("should relate project to repository", func() {
 				repositoryID := int64(12345)
 				newRepository := repository.NewRepository(0, repositoryID, "owner", "name", repository.GenerateWebhookKey("name"))
-				result := newRepository.Save()
-				Expect(result).To(BeTrue())
+				err := newRepository.Save()
+				Expect(err).To(BeNil())
 				newProject.RepositoryID = sql.NullInt64{Int64: newRepository.ID, Valid: true}
-				result = newProject.Save()
+				err = newProject.Save()
 
-				Expect(result).To(BeTrue())
-				Expect(newProject.Repository()).NotTo(BeNil())
-				Expect(newProject.Repository().ID).To(Equal(newRepository.ID))
+				Expect(err).To(BeNil())
+				repo, err := newProject.Repository()
+				Expect(err).To(BeNil())
+				Expect(repo.ID).To(Equal(newRepository.ID))
 			})
 		})
 	})
@@ -149,7 +150,8 @@ var _ = Describe("Project", func() {
 	Describe("NoneList", func() {
 		It("should contain only none list", func() {
 			newProject, _ := Create(uid, "new project", "description", 0, "", "", sql.NullString{})
-			noneList := newProject.NoneList()
+			noneList, err := newProject.NoneList()
+			Expect(err).To(BeNil())
 			Expect(noneList.Title.String).To(Equal(config.Element("init_list").(map[interface{}]interface{})["none"].(string)))
 		})
 	})

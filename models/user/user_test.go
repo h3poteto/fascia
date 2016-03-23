@@ -161,7 +161,7 @@ var _ = Describe("User", func() {
 	})
 
 	Describe("CreateGithubUser", func() {
-		var result bool
+		var result error
 		token := os.Getenv("TEST_TOKEN")
 		BeforeEach(func() {
 			newUser := NewUser(0, "", sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
@@ -178,9 +178,7 @@ var _ = Describe("User", func() {
 			var database db.DB = mydb
 			table := database.Init()
 			rows, err := table.Query("select id, oauth_token from users where oauth_token = ?;", token)
-			if err != nil {
-				panic(err)
-			}
+			Expect(err).To(BeNil())
 			var id int64
 			var oauthToken sql.NullString
 			for rows.Next() {
@@ -189,7 +187,7 @@ var _ = Describe("User", func() {
 					panic(err)
 				}
 			}
-			Expect(result).To(BeTrue())
+			Expect(result).To(BeNil())
 			Expect(oauthToken.Valid).To(BeTrue())
 			Expect(id).NotTo(Equal(int64(0)))
 		})
@@ -199,7 +197,7 @@ var _ = Describe("User", func() {
 		email := "update_github_user_info@example.com"
 		token := os.Getenv("TEST_TOKEN")
 		var currentUser *UserStruct
-		var result bool
+		var result error
 		BeforeEach(func() {
 			id, _ := Registration(email, "hogehoge")
 			currentUser, _ = CurrentUser(id)
@@ -216,9 +214,7 @@ var _ = Describe("User", func() {
 			var database db.DB = mydb
 			table := database.Init()
 			rows, err := table.Query("select id, uuid, oauth_token from users where email = ?;", email)
-			if err != nil {
-				panic(err)
-			}
+			Expect(err).To(BeNil())
 			var id int64
 			var oauthToken sql.NullString
 			var uuid sql.NullInt64
@@ -228,7 +224,7 @@ var _ = Describe("User", func() {
 					panic(err)
 				}
 			}
-			Expect(result).To(BeTrue())
+			Expect(result).To(BeNil())
 			Expect(oauthToken.Valid).To(BeTrue())
 			Expect(oauthToken.String).To(Equal(token))
 			Expect(uuid.Valid).To(BeTrue())
