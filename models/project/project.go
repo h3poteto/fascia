@@ -112,43 +112,43 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 	inprogress := list.NewList(0, project.ID, userID, config.Element("init_list").(map[interface{}]interface{})["inprogress"].(string), "5eb95e", sql.NullInt64{})
 	done := list.NewList(0, project.ID, userID, config.Element("init_list").(map[interface{}]interface{})["done"].(string), "333333", sql.NullInt64{Int64: closeListOption.ID, Valid: true})
 	none := list.NewList(0, project.ID, userID, config.Element("init_list").(map[interface{}]interface{})["none"].(string), "ffffff", sql.NullInt64{})
-	if !none.Save(nil, nil) {
+	if err := none.Save(nil, nil); err != nil {
 		tx.Rollback()
-		logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save none list")
-		return nil, errors.New("failed to save none list")
+		logging.SharedInstance().MethodInfo("Project", "Create", true).Errorf("failed to save none list: %v", err)
+		return nil, err
 	}
 
 	if project.RepositoryID.Valid {
-		if !todo.Save(repo, &oauthToken) {
+		if err := todo.Save(repo, &oauthToken); err != nil {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save todo list")
-			return nil, errors.New("failed to save todo list")
+			logging.SharedInstance().MethodInfo("Project", "Create", true).Errorf("failed to save todo list: %v", err)
+			return nil, err
 		}
-		if !inprogress.Save(repo, &oauthToken) {
+		if err := inprogress.Save(repo, &oauthToken); err != nil {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save inprogress list")
-			return nil, errors.New("failed to save inprogress list")
+			logging.SharedInstance().MethodInfo("Project", "Create", true).Errorf("failed to save inprogress list: %v", err)
+			return nil, err
 		}
-		if !done.Save(repo, &oauthToken) {
+		if err := done.Save(repo, &oauthToken); err != nil {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save done list")
-			return nil, errors.New("failed to save done list")
+			logging.SharedInstance().MethodInfo("Project", "Create", true).Errorf("failed to save done list: %v", err)
+			return nil, err
 		}
 	} else {
-		if !todo.Save(nil, nil) {
+		if err := todo.Save(nil, nil); err != nil {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save todo list")
-			return nil, errors.New("failed to save todo list")
+			logging.SharedInstance().MethodInfo("Project", "Create", true).Errorf("failed to save todo list: %v", err)
+			return nil, err
 		}
-		if !inprogress.Save(nil, nil) {
+		if err := inprogress.Save(nil, nil); err != nil {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save inprogress list")
-			return nil, errors.New("failed to save inprogress list")
+			logging.SharedInstance().MethodInfo("Project", "Create", true).Errorf("failed to save inprogress list: %v", err)
+			return nil, err
 		}
-		if !done.Save(nil, nil) {
+		if err := done.Save(nil, nil); err != nil {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save done list")
-			return nil, errors.New("failed to save done list")
+			logging.SharedInstance().MethodInfo("Project", "Create", true).Errorf("failed to save done list: %v", err)
+			return nil, err
 		}
 	}
 	tx.Commit()

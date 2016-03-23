@@ -114,8 +114,8 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	list := listModel.NewList(0, projectID, currentUser.ID, newListForm.Title, newListForm.Color, sql.NullInt64{})
 
 	repo := parentProject.Repository()
-	if !list.Save(repo, &currentUser.OauthToken) {
-		logging.SharedInstance().MethodInfo("ListsController", "Create", true).Error("failed save")
+	if err := list.Save(repo, &currentUser.OauthToken); err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Create", true).Errorf("failed save: %v", err)
 		http.Error(w, "failed save", 500)
 		return
 	}
@@ -152,9 +152,9 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "list not found", 404)
 		return
 	}
-	targetList := listModel.FindList(projectID, listID)
-	if targetList == nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Update", true).Error("list not found")
+	targetList, err := listModel.FindList(projectID, listID)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Update", true).Errorf("list not found: %v", err)
 		http.Error(w, "list not found", 404)
 		return
 	}
@@ -175,8 +175,8 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	logging.SharedInstance().MethodInfo("ListsController", "Update").Debugf("post edit list parameter: %+v", editListForm)
 
 	repo := parentProject.Repository()
-	if !targetList.Update(repo, &currentUser.OauthToken, &editListForm.Title, &editListForm.Color, &editListForm.Action) {
-		logging.SharedInstance().MethodInfo("ListsController", "Update", true).Error("save failed")
+	if err := targetList.Update(repo, &currentUser.OauthToken, &editListForm.Title, &editListForm.Color, &editListForm.Action); err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Update", true).Errorf("save failed: %v", err)
 		http.Error(w, "save failed", 500)
 		return
 	}

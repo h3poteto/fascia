@@ -62,9 +62,9 @@ func (u *Tasks) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "list not found", 404)
 		return
 	}
-	parentList := listModel.FindList(projectID, listID)
-	if parentList == nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Index").Warn("list not found")
+	parentList, err := listModel.FindList(projectID, listID)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("TasksController", "Index").Warnf("list not found: %v", err)
 		http.Error(w, "list not found", 404)
 		return
 	}
@@ -105,9 +105,9 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "list not found", 404)
 		return
 	}
-	parentList := listModel.FindList(projectID, listID)
-	if parentList == nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Create").Warn("list not found")
+	parentList, err := listModel.FindList(projectID, listID)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("TasksController", "Create").Warnf("list not found: %v", err)
 		http.Error(w, "list not found", 404)
 		return
 	}
@@ -168,9 +168,9 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "list not found", 404)
 		return
 	}
-	parentList := listModel.FindList(parentProject.ID, listID)
-	if parentList == nil {
-		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Warn("list not found")
+	parentList, err := listModel.FindList(parentProject.ID, listID)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Warnf("list not found: %v", err)
 		http.Error(w, "list not found", 404)
 		return
 	}
