@@ -159,6 +159,7 @@ func (u *ProjectStruct) createNewTask(issue *github.Issue) error {
 	}
 	if !issueTask.Save(nil, nil) {
 		logging.SharedInstance().MethodInfo("Project", "createNewTask", true).Error("task save failed")
+		return errors.New("task save failed")
 	}
 	return nil
 
