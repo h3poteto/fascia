@@ -132,9 +132,9 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	}
 
 	var listOptionID sql.NullInt64
-	listOption := list_option.FindByAction(*action)
-	if listOption == nil {
-		logging.SharedInstance().MethodInfo("list", "Update").Debug("cannot find list_options, set null to list_option_id")
+	listOption, err := list_option.FindByAction(*action)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("list", "Update").Debugf("cannot find list_options, set null to list_option_id: %v", err)
 	} else {
 		listOptionID.Int64 = listOption.ID
 		listOptionID.Valid = true
@@ -149,7 +149,7 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 		}
 	}()
 
-	_, err := tx.Exec("update lists set title = ?, color = ?, list_option_id = ? where id = ?;", *title, *color, listOptionID, u.ID)
+	_, err = tx.Exec("update lists set title = ?, color = ?, list_option_id = ? where id = ?;", *title, *color, listOptionID, u.ID)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("list", "Update", true).Errorf("list update error: %v", err)
 		tx.Rollback()

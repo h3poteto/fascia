@@ -280,8 +280,8 @@ func (u *TaskStruct) ChangeList(listID int64, prevToTaskID *int64, repo *reposit
 		}
 		// list_option
 		var issueAction *string
-		listOption := list_option.FindByID(listOptionID)
-		if listOption != nil {
+		listOption, err := list_option.FindByID(listOptionID)
+		if err == nil {
 			issueAction = &listOption.Action
 		}
 		// issueを移動

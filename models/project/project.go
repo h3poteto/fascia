@@ -102,8 +102,8 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 	}
 
 	// 初期リストの準備
-	closeListOption := list_option.FindByAction("close")
-	if closeListOption == nil {
+	closeListOption, err := list_option.FindByAction("close")
+	if err != nil {
 		tx.Rollback()
 		logging.SharedInstance().MethodInfo("Project", "Create", true).Error("cannot find close list option")
 		return nil, errors.New("failed to find close list option")
