@@ -79,10 +79,10 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 	if repositoryID != 0 {
 		key := repository.GenerateWebhookKey(repositoryName)
 		repo = repository.NewRepository(0, repositoryID, repositoryOwner, repositoryName, key)
-		if !repo.Save() {
+		if err := repo.Save(); err != nil {
 			tx.Rollback()
 			logging.SharedInstance().MethodInfo("Project", "Create", true).Error("failed to save repository")
-			return nil, errors.New("repository save error")
+			return nil, err
 		}
 		repoID = sql.NullInt64{Int64: repo.ID, Valid: true}
 	}

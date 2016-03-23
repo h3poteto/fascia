@@ -37,18 +37,18 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 		json.Unmarshal(data, &githubBody)
 		id := int64(*githubBody.Repo.ID)
 
-		repo := repository.FindRepositoryByRepositoryID(id)
-		if repo == nil {
-			logging.SharedInstance().MethodInfo("Repositories", "Hook").Error("could not find repository")
+		repo, err := repository.FindRepositoryByRepositoryID(id)
+		if err != nil {
+			logging.SharedInstance().MethodInfo("Repositories", "Hook").Errorf("could not find repository: %v", err)
 			http.Error(w, "repository not found", 404)
 			return
 		}
-		if !repo.Authenticate(signature, data) {
-			logging.SharedInstance().MethodInfo("Repositories", "Hook").Info("cannot authenticate to repository")
+		if err := repo.Authenticate(signature, data); err != nil {
+			logging.SharedInstance().MethodInfo("Repositories", "Hook").Infof("cannot authenticate to repository: %v", err)
 			http.Error(w, "repository authenticate failed", 404)
 			return
 		}
-		err := project.IssuesEvent(repo.ID, githubBody)
+		err = project.IssuesEvent(repo.ID, githubBody)
 		if err != nil {
 			http.Error(w, "Internal Server Error", 500)
 			return
@@ -60,18 +60,18 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 		json.Unmarshal(data, &githubBody)
 		id := int64(*githubBody.Repo.ID)
 
-		repo := repository.FindRepositoryByRepositoryID(id)
-		if repo == nil {
-			logging.SharedInstance().MethodInfo("Repositories", "Hook").Error("could not find repository")
+		repo, err := repository.FindRepositoryByRepositoryID(id)
+		if err != nil {
+			logging.SharedInstance().MethodInfo("Repositories", "Hook").Errorf("could not find repository: %v", err)
 			http.Error(w, "repository not found", 404)
 			return
 		}
-		if !repo.Authenticate(signature, data) {
-			logging.SharedInstance().MethodInfo("Repositories", "Hook").Info("cannot authenticate to repository")
+		if err := repo.Authenticate(signature, data); err != nil {
+			logging.SharedInstance().MethodInfo("Repositories", "Hook").Infof("cannot authenticate to repository: %v", err)
 			http.Error(w, "repository authenticate failed", 404)
 			return
 		}
-		err := project.PullRequestEvent(repo.ID, githubBody)
+		err = project.PullRequestEvent(repo.ID, githubBody)
 		if err != nil {
 			http.Error(w, "Internal Server Error", 500)
 			return
