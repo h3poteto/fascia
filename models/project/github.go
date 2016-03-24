@@ -183,7 +183,6 @@ func (u *ProjectStruct) applyListToTask(issueTask *task.TaskStruct, issue *githu
 	noneList, err := u.NoneList()
 	if err != nil {
 		panic("cannot find none list")
-		return nil, err
 	}
 
 	githubLabels := GithubLabels(issue, u.Lists())

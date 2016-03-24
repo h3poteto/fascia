@@ -267,7 +267,6 @@ func (u *UserStruct) Update() error {
 	_, err := table.Exec("update users set provider = ?, oauth_token = ?, uuid = ?, user_name = ?, avatar_url = ? where email = ?;", u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar, u.Email)
 	if err != nil {
 		panic(err)
-		return err
 	}
 	return nil
 }

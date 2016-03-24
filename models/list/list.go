@@ -51,13 +51,11 @@ func FindList(projectID int64, listID int64) (*ListStruct, error) {
 	rows, err := table.Query("select id, project_id, user_id, title, color, list_option_id from lists where id = ? AND project_id = ?;", listID, projectID)
 	if err != nil {
 		panic(err)
-		return nil, err
 	}
 	for rows.Next() {
 		err = rows.Scan(&id, &projectID, &userID, &title, &color, &optionID)
 		if err != nil {
 			panic(err)
-			return nil, err
 		}
 	}
 	if id != listID {
