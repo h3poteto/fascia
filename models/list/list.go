@@ -9,6 +9,7 @@ import (
 	"../repository"
 	"../task"
 	"database/sql"
+	"errors"
 )
 
 type List interface {
@@ -38,7 +39,7 @@ func NewList(id int64, projectID int64, userID int64, title string, color string
 	return list
 }
 
-func FindList(projectID int64, listID int64) *ListStruct {
+func FindList(projectID int64, listID int64) (*ListStruct, error) {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
 	table := interfaceDB.Init()
@@ -49,21 +50,19 @@ func FindList(projectID int64, listID int64) *ListStruct {
 	var optionID sql.NullInt64
 	rows, err := table.Query("select id, project_id, user_id, title, color, list_option_id from lists where id = ? AND project_id = ?;", listID, projectID)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("List", "FindList", true).Panic(err)
-		return nil
+		panic(err)
 	}
 	for rows.Next() {
 		err = rows.Scan(&id, &projectID, &userID, &title, &color, &optionID)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("List", "FindList", true).Panic(err)
+			panic(err)
 		}
 	}
 	if id != listID {
-		logging.SharedInstance().MethodInfo("list", "FindList", true).Errorf("cannot find list or project did not contain list: %v", listID)
-		return nil
+		return nil, errors.New("cannot find list or project did not contain list")
 	} else {
 		list := NewList(id, projectID, userID, title.String, color.String, optionID)
-		return list
+		return list, nil
 	}
 
 }
@@ -74,22 +73,21 @@ func (u *ListStruct) Initialize() {
 	u.database = interfaceDB
 }
 
-func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.NullString) bool {
+func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.NullString) (e error) {
 	table := u.database.Init()
 	defer table.Close()
 	tx, _ := table.Begin()
 	defer func() {
 		if err := recover(); err != nil {
-			logging.SharedInstance().MethodInfo("list", "Save", true).Error("unexpected error")
 			tx.Rollback()
+			e = errors.New("unexpected error")
 		}
 	}()
 
 	result, err := tx.Exec("insert into lists (project_id, user_id, title, color, list_option_id, created_at) values (?, ?, ?, ?, ?, now());", u.ProjectID, u.UserID, u.Title, u.Color, u.ListOptionID)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("list", "Save", true).Errorf("list save error: %v", err)
 		tx.Rollback()
-		return false
+		return err
 	}
 
 	if OauthToken != nil && OauthToken.Valid && repo != nil {
@@ -97,14 +95,12 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		label, err := hub.CheckLabelPresent(token, repo, &u.Title.String)
 		if err != nil {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("list", "Save", true).Errorf("check label error: %v", err)
-			return false
+			return err
 		} else if label == nil {
 			label, err = hub.CreateGithubLabel(token, repo, &u.Title.String, &u.Color.String)
 			if err != nil {
-				logging.SharedInstance().MethodInfo("list", "Save", true).Error("github label create failed")
 				tx.Rollback()
-				return false
+				return err
 			}
 		} else {
 			// createしようとしたときに存在している場合，それはあまり気にしなくて良い．むしろこれで同等の状態になる
@@ -113,10 +109,10 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	}
 	tx.Commit()
 	u.ID, _ = result.LastInsertId()
-	return true
+	return nil
 }
 
-func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.NullString, title *string, color *string, action *string) bool {
+func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.NullString, title *string, color *string, action *string) (e error) {
 	table := u.database.Init()
 	defer table.Close()
 
@@ -124,14 +120,13 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	// 色は変えられても良いが，titleとactionは変えられては困る
 	// 第一段階では色も含めてすべて固定とする
 	if u.IsInitList() {
-		logging.SharedInstance().MethodInfo("list", "Update", true).Error("cannot update initial list")
-		return false
+		return errors.New("cannot update initial list")
 	}
 
 	var listOptionID sql.NullInt64
-	listOption := list_option.FindByAction(*action)
-	if listOption == nil {
-		logging.SharedInstance().MethodInfo("list", "Update").Debug("cannot find list_options, set null to list_option_id")
+	listOption, err := list_option.FindByAction(*action)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("list", "Update").Debugf("cannot find list_options, set null to list_option_id: %v", err)
 	} else {
 		listOptionID.Int64 = listOption.ID
 		listOptionID.Valid = true
@@ -140,16 +135,15 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	tx, _ := table.Begin()
 	defer func() {
 		if err := recover(); err != nil {
-			logging.SharedInstance().MethodInfo("list", "Update", true).Error("unexpected error")
 			tx.Rollback()
+			e = errors.New("unexpected error")
 		}
 	}()
 
-	_, err := tx.Exec("update lists set title = ?, color = ?, list_option_id = ? where id = ?;", *title, *color, listOptionID, u.ID)
+	_, err = tx.Exec("update lists set title = ?, color = ?, list_option_id = ? where id = ?;", *title, *color, listOptionID, u.ID)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("list", "Update", true).Errorf("list update error: %v", err)
 		tx.Rollback()
-		return false
+		return err
 	}
 
 	if OauthToken != nil && OauthToken.Valid && repo != nil {
@@ -158,8 +152,7 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 		existLabel, err := hub.CheckLabelPresent(token, repo, &u.Title.String)
 		if err != nil {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("list", "Update", true).Errorf("check label error: %v", err)
-			return false
+			return err
 		} else if existLabel == nil {
 			// editの場合ここに入る可能性はほとんどない
 			// 編集前のラベルが存在しなければ新しく作るのと同義
@@ -169,13 +162,13 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 			_, err := hub.CreateGithubLabel(token, repo, title, color)
 			if err != nil {
 				tx.Rollback()
-				return false
+				return err
 			}
 		} else {
 			_, err := hub.UpdateGithubLabel(token, repo, &u.Title.String, title, color)
 			if err != nil {
 				tx.Rollback()
-				return false
+				return err
 			}
 		}
 	}
@@ -184,7 +177,7 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	u.Title = sql.NullString{String: *title, Valid: true}
 	u.Color = sql.NullString{String: *color, Valid: true}
 	u.ListOptionID = listOptionID
-	return true
+	return nil
 }
 
 func (u *ListStruct) Tasks() []*task.TaskStruct {
@@ -194,7 +187,7 @@ func (u *ListStruct) Tasks() []*task.TaskStruct {
 	var slice []*task.TaskStruct
 	rows, err := table.Query("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where list_id = ? order by display_index;", u.ID)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("List", "Tasks", true).Panic(err)
+		panic(err)
 		return slice
 	}
 
@@ -206,7 +199,7 @@ func (u *ListStruct) Tasks() []*task.TaskStruct {
 		var htmlURL sql.NullString
 		err := rows.Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("List", "Tasks", true).Panic(err)
+			panic(err)
 			return slice
 		}
 		if listID == u.ID {

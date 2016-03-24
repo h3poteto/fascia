@@ -73,7 +73,8 @@ var _ = Describe("ListsController", func() {
 		It("should exist in database", func() {
 			contents, _ := ParseJson(res)
 			parseContents := contents.(map[string]interface{})
-			newList := list.FindList(projectID, int64(parseContents["ID"].(float64)))
+			newList, err := list.FindList(projectID, int64(parseContents["ID"].(float64)))
+			Expect(err).To(BeNil())
 			Expect(newList.ID).To(BeEquivalentTo(parseContents["ID"]))
 			Expect(newList.Title.String).To(Equal("listTitle"))
 		})

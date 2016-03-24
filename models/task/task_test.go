@@ -45,8 +45,8 @@ var _ = Describe("Task", func() {
 
 	Describe("Save", func() {
 		It("can regist list", func() {
-			result := newTask.Save(nil, nil)
-			Expect(result).To(BeTrue())
+			err := newTask.Save(nil, nil)
+			Expect(err).To(BeNil())
 			Expect(newTask.ID).NotTo(Equal(0))
 		})
 		It("should relate taks to list", func() {
@@ -64,8 +64,8 @@ var _ = Describe("Task", func() {
 		})
 		Context("when list do not have tasks", func() {
 			It("should add display_index to task", func() {
-				result := newTask.Save(nil, nil)
-				Expect(result).To(BeTrue())
+				err := newTask.Save(nil, nil)
+				Expect(err).To(BeNil())
 				rows, _ := table.Query("select id, list_id, title, display_index from tasks where id = ?;", newTask.ID)
 				var id, list_id int64
 				var display_index int
@@ -85,8 +85,8 @@ var _ = Describe("Task", func() {
 				existTask.Save(nil, nil)
 			})
 			It("should set last display_index to task", func() {
-				result := newTask.Save(nil, nil)
-				Expect(result).To(BeTrue())
+				err := newTask.Save(nil, nil)
+				Expect(err).To(BeNil())
 				rows, _ := table.Query("select id, list_id, title, display_index from tasks where id = ?;", newTask.ID)
 				var id, list_id int64
 				var display_index int
@@ -113,8 +113,8 @@ var _ = Describe("Task", func() {
 		})
 		Context("when destination list do not have tasks", func() {
 			It("can move task", func() {
-				result := newTask.ChangeList(list2.ID, nil, nil, nil)
-				Expect(result).To(BeTrue())
+				err := newTask.ChangeList(list2.ID, nil, nil, nil)
+				Expect(err).To(BeNil())
 				rows, _ := table.Query("select id, list_id, title from tasks where id = ?;", newTask.ID)
 				var id, list_id int64
 				var title sql.NullString
@@ -137,8 +137,8 @@ var _ = Describe("Task", func() {
 			})
 			Context("when send nil", func() {
 				It("should add task to end of list", func() {
-					result := newTask.ChangeList(list2.ID, nil, nil, nil)
-					Expect(result).To(BeTrue())
+					err := newTask.ChangeList(list2.ID, nil, nil, nil)
+					Expect(err).To(BeNil())
 					rows, _ := table.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.ID, newTask.ID)
 					var id int64
 					var displayIndex int
@@ -154,8 +154,8 @@ var _ = Describe("Task", func() {
 			})
 			Context("when add task before exist task", func() {
 				It("should add task to top of list", func() {
-					result := newTask.ChangeList(list2.ID, &existTask.ID, nil, nil)
-					Expect(result).To(BeTrue())
+					err := newTask.ChangeList(list2.ID, &existTask.ID, nil, nil)
+					Expect(err).To(BeNil())
 					rows, _ := table.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.ID, newTask.ID)
 					var id int64
 					var displayIndex int
@@ -180,8 +180,8 @@ var _ = Describe("Task", func() {
 			})
 			Context("when send nil", func() {
 				It("should add task to end of list", func() {
-					result := newTask.ChangeList(list2.ID, nil, nil, nil)
-					Expect(result).To(BeTrue())
+					err := newTask.ChangeList(list2.ID, nil, nil, nil)
+					Expect(err).To(BeNil())
 					rows, _ := table.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.ID, newTask.ID)
 					var id int64
 					var displayIndex int
@@ -197,8 +197,8 @@ var _ = Describe("Task", func() {
 			})
 			Context("when send task to top of list", func() {
 				It("should add task to top of list", func() {
-					result := newTask.ChangeList(list2.ID, &existTask1.ID, nil, nil)
-					Expect(result).To(BeTrue())
+					err := newTask.ChangeList(list2.ID, &existTask1.ID, nil, nil)
+					Expect(err).To(BeNil())
 					rows, _ := table.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.ID, newTask.ID)
 					var id int64
 					var displayIndex int
@@ -214,8 +214,8 @@ var _ = Describe("Task", func() {
 			})
 			Context("when send task to mid-flow", func() {
 				It("should add task to mid-flow", func() {
-					result := newTask.ChangeList(list2.ID, &existTask2.ID, nil, nil)
-					Expect(result).To(BeTrue())
+					err := newTask.ChangeList(list2.ID, &existTask2.ID, nil, nil)
+					Expect(err).To(BeNil())
 					rows, _ := table.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.ID, newTask.ID)
 					var id int64
 					var displayIndex int
@@ -229,8 +229,8 @@ var _ = Describe("Task", func() {
 					Expect(displayIndex).To(Equal(2))
 				})
 				It("other tasks should be pushed out", func() {
-					result := newTask.ChangeList(list2.ID, &existTask2.ID, nil, nil)
-					Expect(result).To(BeTrue())
+					err := newTask.ChangeList(list2.ID, &existTask2.ID, nil, nil)
+					Expect(err).To(BeNil())
 					rows, _ := table.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.ID, existTask2.ID)
 					var id int64
 					var displayIndex int

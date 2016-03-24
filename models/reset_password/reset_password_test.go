@@ -38,7 +38,7 @@ var _ = Describe("ResetPassword", func() {
 
 	Describe("Authenticate", func() {
 		It("should authenticate", func() {
-			Expect(Authenticate(resetPassword.ID, resetPassword.Token)).To(BeTrue())
+			Expect(Authenticate(resetPassword.ID, resetPassword.Token)).To(BeNil())
 		})
 	})
 

@@ -46,25 +46,25 @@ func (u *Tasks) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Index").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "Index", true).Errorf("parse error: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
-	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil || parentProject.UserID != currentUser.ID {
-		logging.SharedInstance().MethodInfo("TasksController", "Index").Warn("project not found")
+	parentProject, err := projectModel.FindProject(projectID)
+	if err != nil || parentProject.UserID != currentUser.ID {
+		logging.SharedInstance().MethodInfo("TasksController", "Index").Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
 	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Index").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "Index", true).Errorf("parse error: %v", err)
 		http.Error(w, "list not found", 404)
 		return
 	}
-	parentList := listModel.FindList(projectID, listID)
-	if parentList == nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Index").Warn("list not found")
+	parentList, err := listModel.FindList(projectID, listID)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("TasksController", "Index").Warnf("list not found: %v", err)
 		http.Error(w, "list not found", 404)
 		return
 	}
@@ -89,25 +89,25 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Create").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "Create", true).Errorf("parse error: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
-	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil || parentProject.UserID != currentUser.ID {
-		logging.SharedInstance().MethodInfo("TasksController", "Create").Warn("project not found")
+	parentProject, err := projectModel.FindProject(projectID)
+	if err != nil || parentProject.UserID != currentUser.ID {
+		logging.SharedInstance().MethodInfo("TasksController", "Create").Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
 	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Create").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "Create", true).Errorf("parse error: %v", err)
 		http.Error(w, "list not found", 404)
 		return
 	}
-	parentList := listModel.FindList(projectID, listID)
-	if parentList == nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Create").Warn("list not found")
+	parentList, err := listModel.FindList(projectID, listID)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("TasksController", "Create").Warnf("list not found: %v", err)
 		http.Error(w, "list not found", 404)
 		return
 	}
@@ -129,9 +129,9 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	task := taskModel.NewTask(0, parentList.ID, parentProject.ID, parentList.UserID, sql.NullInt64{}, newTaskForm.Title, newTaskForm.Description, false, sql.NullString{})
 
-	repo := parentProject.Repository()
-	if !task.Save(repo, &currentUser.OauthToken) {
-		logging.SharedInstance().MethodInfo("TasksController", "Create", true).Error("save failed")
+	repo, _ := parentProject.Repository()
+	if err := task.Save(repo, &currentUser.OauthToken); err != nil {
+		logging.SharedInstance().MethodInfo("TasksController", "Create", true).Error("save failed: %v", err)
 		http.Error(w, "save failed", 500)
 		return
 	}
@@ -151,33 +151,33 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", true).Errorf("parse error: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
-	parentProject := projectModel.FindProject(projectID)
-	if parentProject == nil || parentProject.UserID != currentUser.ID {
-		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Warn("project not found")
+	parentProject, err := projectModel.FindProject(projectID)
+	if err != nil || parentProject.UserID != currentUser.ID {
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
 
 	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", true).Errorf("parse error: %v", err)
 		http.Error(w, "list not found", 404)
 		return
 	}
-	parentList := listModel.FindList(parentProject.ID, listID)
-	if parentList == nil {
-		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Warn("list not found")
+	parentList, err := listModel.FindList(parentProject.ID, listID)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Warnf("list not found: %v", err)
 		http.Error(w, "list not found", 404)
 		return
 	}
 
 	taskID, err := strconv.ParseInt(c.URLParams["task_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", true).Errorf("parse error: %v", err)
 		http.Error(w, "task not found", 404)
 		return
 	}
@@ -207,9 +207,9 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 		prevToTaskID = &moveTaskFrom.PrevToTaskID
 	}
 
-	repo := parentProject.Repository()
-	if !task.ChangeList(moveTaskFrom.ToListID, prevToTaskID, repo, &currentUser.OauthToken) {
-		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", true).Error("failed change list")
+	repo, _ := parentProject.Repository()
+	if err := task.ChangeList(moveTaskFrom.ToListID, prevToTaskID, repo, &currentUser.OauthToken); err != nil {
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", true).Errorf("failed change list: %v", err)
 		http.Error(w, "failed change list", 500)
 		return
 	}
@@ -218,7 +218,12 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 	for _, l := range allLists {
 		jsonLists = append(jsonLists, &ListJSONFormat{ID: l.ID, ProjectID: l.ProjectID, UserID: l.UserID, Title: l.Title.String, ListTasks: TaskFormatToJson(l.Tasks()), Color: l.Color.String, ListOptionID: l.ListOptionID.Int64})
 	}
-	noneList := parentProject.NoneList()
+	noneList, err := parentProject.NoneList()
+	if err != nil {
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", true).Error(err)
+		http.Error(w, "none list not found", 500)
+		return
+	}
 	jsonNoneList := &ListJSONFormat{ID: noneList.ID, ProjectID: noneList.ProjectID, UserID: noneList.UserID, Title: noneList.Title.String, ListTasks: TaskFormatToJson(noneList.Tasks()), Color: noneList.Color.String, ListOptionID: noneList.ListOptionID.Int64}
 	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 	logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Debugf("move task: %+v", allLists)

@@ -1,7 +1,6 @@
 package reset_password
 
 import (
-	"../../modules/logging"
 	"../db"
 	"../user"
 	"crypto/md5"
@@ -39,7 +38,7 @@ func GenerateResetPassword(userID int64, email string) *ResetPasswordStruct {
 	return NewResetPassword(0, userID, token, time.Now().AddDate(0, 0, 1))
 }
 
-func Authenticate(id int64, token string) bool {
+func Authenticate(id int64, token string) error {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
 	table := interfaceDB.Init()
@@ -48,11 +47,10 @@ func Authenticate(id int64, token string) bool {
 	var targetID int64
 	err := table.QueryRow("select id from reset_passwords where id = ? and token = ? and expires_at > now();", id, token).Scan(&targetID)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ResetPassword", "Authenticate").Infof("cannot authenticate to reset password: %v", err)
-		return false
+		return err
 	}
 
-	return true
+	return nil
 }
 
 func ChangeUserPassword(id int64, token string, password string) (u *user.UserStruct, e error) {
@@ -73,34 +71,29 @@ func ChangeUserPassword(id int64, token string, password string) (u *user.UserSt
 	var userID int64
 	err := tx.QueryRow("select user_id from reset_passwords where id = ? and token = ? and expires_at > now();", id, token).Scan(&userID)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ResetPassword", "ChangeUserPassword").Infof("cannot authenticate reset password: %v", err)
 		tx.Rollback()
 		return nil, err
 	}
 
 	hashPassword, err := user.HashPassword(password)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ResetPassword", "ChangeUserPassword").Infof("cannot create hash password: %v", err)
 		tx.Rollback()
 		return nil, err
 	}
 	_, err = tx.Exec("update users set password = ? where id = ?;", hashPassword, userID)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ResetPassword", "ChangeUserPassword", true).Errorf("cannot update user password: %v", err)
 		tx.Rollback()
 		return nil, err
 	}
 
 	_, err = tx.Exec("update reset_passwords set expires_at = now() where id = ?;", id)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ResetPassword", "ChangeUserPassword", true).Errorf("cannot change expires_at: %v", err)
 		tx.Rollback()
 		return nil, err
 	}
 
 	u, err = user.FindUser(userID)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ResetPassword", "ChangeUserPassword", true).Errorf("cannot find user: %v", err)
 		tx.Rollback()
 		return nil, err
 	}
@@ -114,15 +107,14 @@ func (u *ResetPasswordStruct) Initialize() {
 	u.database = interfaceDB
 }
 
-func (u *ResetPasswordStruct) Save() bool {
+func (u *ResetPasswordStruct) Save() error {
 	table := u.database.Init()
 	defer table.Close()
 
 	result, err := table.Exec("insert into reset_passwords (user_id, token, expires_at, created_at) values (?, ?, ?, now());", u.UserID, u.Token, u.ExpiresAt)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ResetPassword", "Save", true).Errorf("reset_password save error: %v", err)
-		return false
+		return err
 	}
 	u.ID, _ = result.LastInsertId()
-	return true
+	return nil
 }

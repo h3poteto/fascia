@@ -3,7 +3,6 @@ package project
 import (
 	"../../config"
 	"../../modules/hub"
-	"../../modules/logging"
 	"../db"
 	"../list"
 	"../task"
@@ -38,7 +37,10 @@ func IssuesEvent(repositoryID int64, body github.IssuesEvent) error {
 	if err != nil {
 		return err
 	}
-	parentProject := FindProject(projectID)
+	parentProject, err := FindProject(projectID)
+	if err != nil {
+		return err
+	}
 	targetTask, _ := task.FindByIssueNumber(projectID, *body.Issue.Number)
 
 	switch *body.Action {
@@ -66,7 +68,10 @@ func PullRequestEvent(repositoryID int64, body github.PullRequestEvent) error {
 	if err != nil {
 		return err
 	}
-	parentProject := FindProject(projectID)
+	parentProject, err := FindProject(projectID)
+	if err != nil {
+		return err
+	}
 	targetTask, _ := task.FindByIssueNumber(projectID, *body.Number)
 
 	// TODO: もしgithubへのアクセスが増大するようであれば，PullRequestオブジェクトからラベルの付替えを行うように改修する
@@ -76,7 +81,11 @@ func PullRequestEvent(repositoryID int64, body github.PullRequestEvent) error {
 		return err
 	}
 
-	issue, err := hub.GetGithubIssue(oauthToken, parentProject.Repository(), *body.Number)
+	repo, err := parentProject.Repository()
+	if err != nil {
+		return err
+	}
+	issue, err := hub.GetGithubIssue(oauthToken, repo, *body.Number)
 
 	switch *body.Action {
 	case "opened", "reopened":
@@ -108,19 +117,16 @@ func (u *ProjectStruct) taskApplyLabel(targetTask *task.TaskStruct, issue *githu
 	if targetTask == nil {
 		err := u.createNewTask(issue)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("Project", "taskApplyLabel", true).Errorf("create new task failed: %v", err)
 			return err
 		}
 		return nil
 	}
 	issueTask, err := u.applyListToTask(targetTask, issue)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Project", "taskApplyLabel", true).Errorf("apply list to task failed: %v", err)
 		return err
 	}
-	if !issueTask.Update(nil, nil) {
-		logging.SharedInstance().MethodInfo("Project", "taskApplyLabel", true).Error("task update failed")
-		return errors.New("update failed")
+	if err := issueTask.Update(nil, nil); err != nil {
+		return err
 	}
 	return nil
 }
@@ -128,12 +134,10 @@ func (u *ProjectStruct) taskApplyLabel(targetTask *task.TaskStruct, issue *githu
 func (u *ProjectStruct) reopenTask(targetTask *task.TaskStruct, issue *github.Issue) error {
 	issueTask, err := u.applyListToTask(targetTask, issue)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Project", "reopenTask", true).Errorf("apply list to task failed: %v", err)
 		return err
 	}
-	if !issueTask.Update(nil, nil) {
-		logging.SharedInstance().MethodInfo("Project", "reopenTask", true).Error("task update failed")
-		return errors.New("update failed")
+	if err := issueTask.Update(nil, nil); err != nil {
+		return err
 	}
 	return nil
 }
@@ -154,12 +158,10 @@ func (u *ProjectStruct) createNewTask(issue *github.Issue) error {
 
 	issueTask, err := u.applyListToTask(issueTask, issue)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Project", "createNewTask", true).Errorf("apply list to task failed: %v", err)
 		return err
 	}
-	if !issueTask.Save(nil, nil) {
-		logging.SharedInstance().MethodInfo("Project", "createNewTask", true).Error("task save failed")
-		return errors.New("task save failed")
+	if err := issueTask.Save(nil, nil); err != nil {
+		return err
 	}
 	return nil
 
@@ -174,14 +176,13 @@ func (u *ProjectStruct) applyListToTask(issueTask *task.TaskStruct, issue *githu
 		}
 	}
 	if closedList == nil {
-		logging.SharedInstance().MethodInfo("Project", "applyListToTask", true).Panic("cannot find close list")
+		panic("cannot find close list")
 		return nil, errors.New("cannot find close list")
 	}
 
-	noneList = u.NoneList()
-	if noneList == nil {
-		logging.SharedInstance().MethodInfo("Project", "applyListToTask", true).Panic("cannot find none list")
-		return nil, errors.New("cannot find none list")
+	noneList, err := u.NoneList()
+	if err != nil {
+		panic("cannot find none list")
 	}
 
 	githubLabels := GithubLabels(issue, u.Lists())

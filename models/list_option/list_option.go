@@ -1,9 +1,9 @@
 package list_option
 
 import (
-	"../../modules/logging"
 	"../db"
 	"database/sql"
+	"errors"
 )
 
 type ListOiption interface {
@@ -32,7 +32,7 @@ func ListOptionAll() []*ListOptionStruct {
 	var action string
 	rows, err := table.Query("select id, action from list_options;")
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListOption", "ListOptionAll", true).Panic(err)
+		panic(err)
 		return slice
 	}
 	for rows.Next() {
@@ -46,7 +46,7 @@ func ListOptionAll() []*ListOptionStruct {
 	return slice
 }
 
-func FindByAction(action string) *ListOptionStruct {
+func FindByAction(action string) (*ListOptionStruct, error) {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
 	table := interfaceDB.Init()
@@ -55,13 +55,12 @@ func FindByAction(action string) *ListOptionStruct {
 	var listOptionID int64
 	err := table.QueryRow("select id from list_options where action = ?;", action).Scan(&listOptionID)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListOption", "FindByAction").Info("cannot find list_option")
-		return nil
+		return nil, err
 	}
-	return NewListOption(listOptionID, action)
+	return NewListOption(listOptionID, action), nil
 }
 
-func FindByID(id sql.NullInt64) *ListOptionStruct {
+func FindByID(id sql.NullInt64) (*ListOptionStruct, error) {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
 	table := interfaceDB.Init()
@@ -72,12 +71,11 @@ func FindByID(id sql.NullInt64) *ListOptionStruct {
 		err := table.QueryRow("select action from list_options where id = ?;", id).Scan(&action)
 
 		if err != nil {
-			logging.SharedInstance().MethodInfo("ListOption", "FindByID").Infof("cannot find list_option: %v", id)
-			return nil
+			return nil, err
 		}
-		return NewListOption(id.Int64, action)
+		return NewListOption(id.Int64, action), nil
 	} else {
-		return nil
+		return nil, errors.New("id is not valid")
 	}
 }
 

@@ -47,8 +47,8 @@ var _ = Describe("List", func() {
 
 	Describe("Save", func() {
 		It("can registrate list", func() {
-			result := newList.Save(nil, nil)
-			Expect(result).To(BeTrue())
+			err := newList.Save(nil, nil)
+			Expect(err).To(BeNil())
 			Expect(newList.ID).NotTo(Equal(0))
 		})
 		It("should relate list to project", func() {
@@ -71,7 +71,8 @@ var _ = Describe("List", func() {
 	Describe("FindList", func() {
 		It("should find list which related project", func() {
 			newList.Save(nil, nil)
-			findList := FindList(newProject.ID, newList.ID)
+			findList, err := FindList(newProject.ID, newList.ID)
+			Expect(err).To(BeNil())
 			Expect(findList).To(Equal(newList))
 		})
 	})
@@ -101,7 +102,8 @@ var _ = Describe("List", func() {
 				newColor := "newColor"
 				action := "nothing"
 				newList.Update(nil, nil, &newTitle, &newColor, &action)
-				findList := FindList(newList.ProjectID, newList.ID)
+				findList, err := FindList(newList.ProjectID, newList.ID)
+				Expect(err).To(BeNil())
 				Expect(findList.Title.String).To(Equal(newTitle))
 				Expect(findList.Color.String).To(Equal(newColor))
 			})
@@ -112,10 +114,12 @@ var _ = Describe("List", func() {
 				newColor := "newColor"
 				action := "close"
 				newList.Update(nil, nil, &newTitle, &newColor, &action)
-				findList := FindList(newList.ProjectID, newList.ID)
+				findList, err := FindList(newList.ProjectID, newList.ID)
+				Expect(err).To(BeNil())
 				Expect(findList.Title.String).To(Equal(newTitle))
 				Expect(findList.Color.String).To(Equal(newColor))
-				listOption := list_option.FindByAction(action)
+				listOption, err := list_option.FindByAction(action)
+				Expect(err).To(BeNil())
 				Expect(findList.ListOptionID.Int64).To(Equal(listOption.ID))
 			})
 		})

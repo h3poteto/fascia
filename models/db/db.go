@@ -1,7 +1,6 @@
 package db
 
 import (
-	"../../modules/logging"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"gopkg.in/yaml.v2"
@@ -23,12 +22,12 @@ func (u *Database) Init() *sql.DB {
 	path := filepath.Join(root, "db/dbconf.yml")
 	buf, err := ioutil.ReadFile(path)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("DB", "Init", true).Panic(err)
+		panic(err)
 	}
 	m := make(map[interface{}]interface{})
 	err = yaml.Unmarshal(buf, &m)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("DB", "Init", true).Panic(err)
+		panic(err)
 	}
 	username := m[env].(map[interface{}]interface{})["user"].(string)
 	password := m[env].(map[interface{}]interface{})["password"].(string)
@@ -40,7 +39,7 @@ func (u *Database) Init() *sql.DB {
 	host = os.ExpandEnv(host)
 	db, err := sql.Open("mysql", username+":"+password+"@tcp("+host+":3306)/"+database+"?charset=utf8")
 	if err != nil {
-		logging.SharedInstance().MethodInfo("DB", "Init", true).Panic(err)
+		panic(err)
 	}
 	return db
 }

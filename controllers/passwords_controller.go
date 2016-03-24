@@ -77,8 +77,8 @@ func (u *Passwords) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 
 	reset := reset_password.GenerateResetPassword(targetUser.ID, targetUser.Email)
-	if !reset.Save() {
-		logging.SharedInstance().MethodInfo("PasswordsController", "Create", true).Error("password_reset save error")
+	if err := reset.Save(); err != nil {
+		logging.SharedInstance().MethodInfo("PasswordsController", "Create", true).Error("password_reset save error: %v", err)
 		InternalServerError(w, r)
 		return
 	}
@@ -99,12 +99,12 @@ func (u *Passwords) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
 	resetToken := r.URL.Query().Get("token")
 	id, err := strconv.ParseInt(c.URLParams["id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("PasswordsController", "Edit").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("PasswordsController", "Edit", true).Errorf("parse error: %v", err)
 		http.Error(w, "reset password not found", 404)
 		return
 	}
-	if !reset_password.Authenticate(id, resetToken) {
-		logging.SharedInstance().MethodInfo("PasswordsController", "Edit").Info("cannot authenticate reset password")
+	if err := reset_password.Authenticate(id, resetToken); err != nil {
+		logging.SharedInstance().MethodInfo("PasswordsController", "Edit").Info("cannot authenticate reset password: %v", err)
 		InternalServerError(w, r)
 		return
 	}
@@ -146,7 +146,7 @@ func (u *Passwords) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	id, err := strconv.ParseInt(c.URLParams["id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("PasswordsController", "Update").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("PasswordsController", "Update", true).Errorf("parse error: %v", err)
 		http.Error(w, "reset password not found", 404)
 		return
 	}
