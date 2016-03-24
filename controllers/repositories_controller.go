@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/google/go-github/github"
 	"github.com/zenazn/goji/web"
@@ -49,7 +50,11 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		err = project.IssuesEvent(repo.ID, githubBody)
-		if err != nil {
+		if err != nil && !u.includeDuplicateError(err) {
+			if u.includeDuplicateError(err) {
+				logging.SharedInstance().MethodInfo("Repositories", "Hook").Warn(err)
+				return
+			}
 			logging.SharedInstance().MethodInfo("Repositories", "Hook", true).Errorf("cannot handle issue event: %v", err)
 			http.Error(w, "Internal Server Error", 500)
 			return
@@ -74,6 +79,10 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 		}
 		err = project.PullRequestEvent(repo.ID, githubBody)
 		if err != nil {
+			if u.includeDuplicateError(err) {
+				logging.SharedInstance().MethodInfo("Repositories", "Hook").Warn(err)
+				return
+			}
 			logging.SharedInstance().MethodInfo("Repositories", "Hook", true).Errorf("cannot handle pull request event: %v", err)
 			http.Error(w, "Internal Server Error", 500)
 			return
@@ -81,4 +90,11 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 
 	return
+}
+
+func (u *Repositories) includeDuplicateError(err error) bool {
+	if strings.Index(err.Error(), "Error 1062") == 0 {
+		return true
+	}
+	return false
 }
