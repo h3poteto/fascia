@@ -1,13 +1,13 @@
 package repository
 
 import (
-	"../../modules/logging"
 	"../db"
 	"crypto/hmac"
 	"crypto/md5"
 	"crypto/sha1"
 	"database/sql"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -58,7 +58,6 @@ func FindRepositoryByRepositoryID(repositoryID int64) (*RepositoryStruct, error)
 	var owner, name, webhookKey string
 	err := table.QueryRow("select id, repository_id, owner, name, webhook_key from repositories where repository_id = ?;", repositoryID).Scan(&id, &repositoryID, &owner, &name, &webhookKey)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Repository", "FindRepositoryByRepositoryID", true).Errorf("repository not found: %v", err)
 		return nil, err
 	}
 	return NewRepository(id, repositoryID, owner, name, webhookKey), nil
@@ -76,7 +75,6 @@ func (u *RepositoryStruct) Save() error {
 
 	result, err := table.Exec("insert into repositories (repository_id, owner, name, webhook_key, created_at) values (?, ?, ?, ?, now());", u.RepositoryID, u.Owner, u.Name, u.WebhookKey)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Repository", "Save", true).Errorf("repository save failed: %v", err)
 		return err
 	}
 	u.ID, _ = result.LastInsertId()
@@ -91,14 +89,13 @@ func (u *RepositoryStruct) Authenticate(token string, response []byte) error {
 	var webhookKey string
 	err := table.QueryRow("select webhook_key from repositories where id = ?;", u.ID).Scan(&webhookKey)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Repository", "Authenticate").Infof("cannot authenticate to repository webhook_key: %v", err)
 		return err
 	}
 	mac := hmac.New(sha1.New, []byte(webhookKey))
 	mac.Write(response)
 	hashedToken := hex.EncodeToString(mac.Sum(nil))
 	if token != ("sha1=" + hashedToken) {
-		return err
+		return errors.New("token is not equal webhookKey")
 	}
 	return nil
 }
