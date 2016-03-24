@@ -50,18 +50,17 @@ func FindList(projectID int64, listID int64) (*ListStruct, error) {
 	var optionID sql.NullInt64
 	rows, err := table.Query("select id, project_id, user_id, title, color, list_option_id from lists where id = ? AND project_id = ?;", listID, projectID)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("List", "FindList", true).Panic(err)
+		panic(err)
 		return nil, err
 	}
 	for rows.Next() {
 		err = rows.Scan(&id, &projectID, &userID, &title, &color, &optionID)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("List", "FindList", true).Panic(err)
+			panic(err)
 			return nil, err
 		}
 	}
 	if id != listID {
-		logging.SharedInstance().MethodInfo("list", "FindList", true).Errorf("cannot find list or project did not contain list: %v", listID)
 		return nil, errors.New("cannot find list or project did not contain list")
 	} else {
 		list := NewList(id, projectID, userID, title.String, color.String, optionID)
@@ -82,7 +81,6 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	tx, _ := table.Begin()
 	defer func() {
 		if err := recover(); err != nil {
-			logging.SharedInstance().MethodInfo("list", "Save", true).Error("unexpected error")
 			tx.Rollback()
 			e = errors.New("unexpected error")
 		}
@@ -90,7 +88,6 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 
 	result, err := tx.Exec("insert into lists (project_id, user_id, title, color, list_option_id, created_at) values (?, ?, ?, ?, ?, now());", u.ProjectID, u.UserID, u.Title, u.Color, u.ListOptionID)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("list", "Save", true).Errorf("list save error: %v", err)
 		tx.Rollback()
 		return err
 	}
@@ -100,12 +97,10 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		label, err := hub.CheckLabelPresent(token, repo, &u.Title.String)
 		if err != nil {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("list", "Save", true).Errorf("check label error: %v", err)
 			return err
 		} else if label == nil {
 			label, err = hub.CreateGithubLabel(token, repo, &u.Title.String, &u.Color.String)
 			if err != nil {
-				logging.SharedInstance().MethodInfo("list", "Save", true).Error("github label create failed")
 				tx.Rollback()
 				return err
 			}
@@ -127,7 +122,6 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	// 色は変えられても良いが，titleとactionは変えられては困る
 	// 第一段階では色も含めてすべて固定とする
 	if u.IsInitList() {
-		logging.SharedInstance().MethodInfo("list", "Update", true).Error("cannot update initial list")
 		return errors.New("cannot update initial list")
 	}
 
@@ -143,7 +137,6 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	tx, _ := table.Begin()
 	defer func() {
 		if err := recover(); err != nil {
-			logging.SharedInstance().MethodInfo("list", "Update", true).Error("unexpected error")
 			tx.Rollback()
 			e = errors.New("unexpected error")
 		}
@@ -151,7 +144,6 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 
 	_, err = tx.Exec("update lists set title = ?, color = ?, list_option_id = ? where id = ?;", *title, *color, listOptionID, u.ID)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("list", "Update", true).Errorf("list update error: %v", err)
 		tx.Rollback()
 		return err
 	}
@@ -162,7 +154,6 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 		existLabel, err := hub.CheckLabelPresent(token, repo, &u.Title.String)
 		if err != nil {
 			tx.Rollback()
-			logging.SharedInstance().MethodInfo("list", "Update", true).Errorf("check label error: %v", err)
 			return err
 		} else if existLabel == nil {
 			// editの場合ここに入る可能性はほとんどない
@@ -198,7 +189,7 @@ func (u *ListStruct) Tasks() []*task.TaskStruct {
 	var slice []*task.TaskStruct
 	rows, err := table.Query("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where list_id = ? order by display_index;", u.ID)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("List", "Tasks", true).Panic(err)
+		panic(err)
 		return slice
 	}
 
@@ -210,7 +201,7 @@ func (u *ListStruct) Tasks() []*task.TaskStruct {
 		var htmlURL sql.NullString
 		err := rows.Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("List", "Tasks", true).Panic(err)
+			panic(err)
 			return slice
 		}
 		if listID == u.ID {
