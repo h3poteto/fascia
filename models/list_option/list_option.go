@@ -1,7 +1,6 @@
 package list_option
 
 import (
-	"../../modules/logging"
 	"../db"
 	"database/sql"
 	"errors"
@@ -56,7 +55,6 @@ func FindByAction(action string) (*ListOptionStruct, error) {
 	var listOptionID int64
 	err := table.QueryRow("select id from list_options where action = ?;", action).Scan(&listOptionID)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListOption", "FindByAction").Info("cannot find list_option")
 		return nil, err
 	}
 	return NewListOption(listOptionID, action), nil
@@ -73,7 +71,6 @@ func FindByID(id sql.NullInt64) (*ListOptionStruct, error) {
 		err := table.QueryRow("select action from list_options where id = ?;", id).Scan(&action)
 
 		if err != nil {
-			logging.SharedInstance().MethodInfo("ListOption", "FindByID").Infof("cannot find list_option: %v", id)
 			return nil, err
 		}
 		return NewListOption(id.Int64, action), nil
