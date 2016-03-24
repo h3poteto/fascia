@@ -74,7 +74,7 @@ func (u *Projects) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Show").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Show", true).Errorf("parse error: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -148,7 +148,7 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Update").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Update", true).Errorf("parse error: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -199,7 +199,7 @@ func (u *Projects) Settings(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Settings").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Settings", true).Errorf("parse error: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -251,7 +251,7 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 	encoder := json.NewEncoder(w)
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub", true).Errorf("parse error: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -274,7 +274,7 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 		}
 		noneList, err := project.NoneList()
 		if err != nil {
-			logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Error(err)
+			logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub", true).Error(err)
 			http.Error(w, "none list not found", 500)
 			return
 		}
@@ -297,7 +297,7 @@ func (u *Projects) Webhook(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook", true).Errorf("parse error: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -316,7 +316,7 @@ func (u *Projects) Webhook(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	err = project.CreateWebhook()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook").Errorf("failed to create webhook: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook", true).Errorf("failed to create webhook: %v", err)
 		http.Error(w, "cannot create webhook", 500)
 		return
 	}

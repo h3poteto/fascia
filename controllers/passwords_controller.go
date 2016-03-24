@@ -99,7 +99,7 @@ func (u *Passwords) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
 	resetToken := r.URL.Query().Get("token")
 	id, err := strconv.ParseInt(c.URLParams["id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("PasswordsController", "Edit").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("PasswordsController", "Edit", true).Errorf("parse error: %v", err)
 		http.Error(w, "reset password not found", 404)
 		return
 	}
@@ -146,7 +146,7 @@ func (u *Passwords) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	id, err := strconv.ParseInt(c.URLParams["id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("PasswordsController", "Update").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("PasswordsController", "Update", true).Errorf("parse error: %v", err)
 		http.Error(w, "reset password not found", 404)
 		return
 	}

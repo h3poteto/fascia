@@ -39,7 +39,7 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 
 		repo, err := repository.FindRepositoryByRepositoryID(id)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("Repositories", "Hook").Errorf("could not find repository: %v", err)
+			logging.SharedInstance().MethodInfo("Repositories", "Hook", true).Errorf("could not find repository: %v", err)
 			http.Error(w, "repository not found", 404)
 			return
 		}
@@ -50,6 +50,7 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 		}
 		err = project.IssuesEvent(repo.ID, githubBody)
 		if err != nil {
+			logging.SharedInstance().MethodInfo("Repositories", "Hook", true).Errorf("cannot handle issue event: %v", err)
 			http.Error(w, "Internal Server Error", 500)
 			return
 		}
@@ -62,7 +63,7 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 
 		repo, err := repository.FindRepositoryByRepositoryID(id)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("Repositories", "Hook").Errorf("could not find repository: %v", err)
+			logging.SharedInstance().MethodInfo("Repositories", "Hook", true).Errorf("could not find repository: %v", err)
 			http.Error(w, "repository not found", 404)
 			return
 		}
@@ -73,6 +74,7 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 		}
 		err = project.PullRequestEvent(repo.ID, githubBody)
 		if err != nil {
+			logging.SharedInstance().MethodInfo("Repositories", "Hook", true).Errorf("cannot handle pull request event: %v", err)
 			http.Error(w, "Internal Server Error", 500)
 			return
 		}

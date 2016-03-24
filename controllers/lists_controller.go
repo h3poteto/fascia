@@ -52,7 +52,7 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Index").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Index", true).Errorf("parse error: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -69,7 +69,7 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	noneList, err := parentProject.NoneList()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Index").Error(err)
+		logging.SharedInstance().MethodInfo("ListsController", "Index", true).Error(err)
 		http.Error(w, "none list not found", 500)
 		return
 	}
@@ -91,7 +91,7 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Create").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Create", true).Errorf("parse error: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -141,7 +141,7 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Update").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Update", true).Errorf("parse error: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -153,7 +153,7 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Update").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Update", true).Errorf("parse error: %v", err)
 		http.Error(w, "list not found", 404)
 		return
 	}

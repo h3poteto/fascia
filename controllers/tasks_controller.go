@@ -46,7 +46,7 @@ func (u *Tasks) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Index").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "Index", true).Errorf("parse error: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -58,7 +58,7 @@ func (u *Tasks) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Index").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "Index", true).Errorf("parse error: %v", err)
 		http.Error(w, "list not found", 404)
 		return
 	}
@@ -89,7 +89,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Create").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "Create", true).Errorf("parse error: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -101,7 +101,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Create").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "Create", true).Errorf("parse error: %v", err)
 		http.Error(w, "list not found", 404)
 		return
 	}
@@ -151,7 +151,7 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", true).Errorf("parse error: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -164,7 +164,7 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", true).Errorf("parse error: %v", err)
 		http.Error(w, "list not found", 404)
 		return
 	}
@@ -177,7 +177,7 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	taskID, err := strconv.ParseInt(c.URLParams["task_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", true).Errorf("parse error: %v", err)
 		http.Error(w, "task not found", 404)
 		return
 	}
@@ -220,7 +220,7 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	noneList, err := parentProject.NoneList()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "MoveTask").Error(err)
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", true).Error(err)
 		http.Error(w, "none list not found", 500)
 		return
 	}
