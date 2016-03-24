@@ -7,7 +7,6 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"encoding/binary"
-	"errors"
 	"github.com/google/go-github/github"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/oauth2"
@@ -42,13 +41,11 @@ func HashPassword(password string) ([]byte, error) {
 	cost := 10
 	hashPassword, err := bcrypt.GenerateFromPassword(bytePassword, cost)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("user", "hashPassword", true).Errorf("generate password error: %v", err)
-		return nil, errors.New("generate password error")
+		return nil, err
 	}
 	err = bcrypt.CompareHashAndPassword(hashPassword, bytePassword)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("user", "hashPassword", true).Errorf("hash password error: %v", err)
-		return nil, errors.New("hash password error")
+		return nil, err
 	}
 	return hashPassword, nil
 }
@@ -78,7 +75,6 @@ func CurrentUser(userID int64) (*UserStruct, error) {
 	var provider, oauthToken, userName, avatarURL sql.NullString
 	err := table.QueryRow("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where id = ?;", userID).Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("User", "CurrentUser").Infof("cannot find user: %v", err)
 		return nil, err
 	}
 	user.ID = id
@@ -103,7 +99,6 @@ func Registration(email string, password string) (int64, error) {
 	}
 	result, err := table.Exec("insert into users (email, password, created_at) values (?, ?, ?)", email, hashPassword, time.Now())
 	if err != nil {
-		logging.SharedInstance().MethodInfo("user", "Registration", true).Errorf("mysql error: %v", err)
 		return 0, err
 	}
 	id, _ := result.LastInsertId()
@@ -122,7 +117,6 @@ func Login(userEmail string, userPassword string) (*UserStruct, error) {
 	var provider, oauthToken, userName, avatarURL sql.NullString
 	err := table.QueryRow("select id, email, password, provider, oauth_token, user_name, uuid, avatar_url from users where email = ?;", userEmail).Scan(&id, &email, &password, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("User", "Login").Infof("cannot find user: %v", err)
 		return nil, err
 	}
 
@@ -130,8 +124,7 @@ func Login(userEmail string, userPassword string) (*UserStruct, error) {
 	bytePassword := []byte(userPassword)
 	err = bcrypt.CompareHashAndPassword([]byte(password), bytePassword)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("user", "Login").Debugf("cannot login: %v", userEmail)
-		return nil, errors.New("cannot login")
+		return nil, err
 	}
 	return user, nil
 }
@@ -147,7 +140,6 @@ func FindUser(id int64) (*UserStruct, error) {
 	var provider, oauthToken, userName, avatarURL sql.NullString
 	err := table.QueryRow("select email, provider, oauth_token, user_name, uuid, avatar_url from users where id = ?;", id).Scan(&email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("User", "FindUser").Infof("cannot find user: %v", err)
 		return nil, err
 	}
 	return NewUser(id, email, provider, oauthToken, uuid, userName, avatarURL), nil
@@ -164,7 +156,6 @@ func FindByEmail(email string) (*UserStruct, error) {
 	var provider, oauthToken, userName, avatarURL sql.NullString
 	err := table.QueryRow("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where email = ?;", email).Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("User", "FindByEmail").Infof("cannot find user: %v", err)
 		return nil, err
 	}
 	return NewUser(id, email, provider, oauthToken, uuid, userName, avatarURL), nil
@@ -185,8 +176,7 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 	client := github.NewClient(tc)
 	githubUser, _, err := client.Users.Get("")
 	if err != nil {
-		logging.SharedInstance().MethodInfo("User", "FindOrCreateGithub", true).Errorf("github user find error: %v", err)
-		return nil, errors.New("github user find error")
+		return nil, err
 	}
 
 	// TODO: primaryじゃないEmailも保存しておいてログインブロックに使いたい
@@ -204,27 +194,25 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 	var provider, oauthToken, userName, avatarURL sql.NullString
 	rows, err := table.Query("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where uuid = ? or email = ?;", *githubUser.ID, primaryEmail)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("User", "FindOrCreateGithub", true).Panic(err)
+		panic(err)
 	}
 	for rows.Next() {
 		err := rows.Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("User", "FindOrCreateGithub", true).Panic(err)
+			panic(err)
 		}
 	}
 	user := NewUser(id, email, provider, oauthToken, uuid, userName, avatarURL)
 
 	if id == 0 {
 		if err := user.CreateGithubUser(token, githubUser, primaryEmail); err != nil {
-			logging.SharedInstance().MethodInfo("user", "FindOrCreateGithub", true).Error("cannot login to github")
-			return user, errors.New("cannot login to github")
+			return user, err
 		}
 	}
 
 	if !user.OauthToken.Valid || user.OauthToken.String != token {
 		if err := user.UpdateGithubUserInfo(token, githubUser); err != nil {
-			logging.SharedInstance().MethodInfo("user", "FindOrCreateGithub", true).Error("cannot update user")
-			return user, errors.New("cannot update user")
+			return user, err
 		}
 	}
 
@@ -239,7 +227,7 @@ func (u *UserStruct) Projects() []*project.ProjectStruct {
 	var slice []*project.ProjectStruct
 	rows, err := table.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where user_id = ?;", u.ID)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("User", "Projects", true).Panic(err)
+		panic(err)
 	}
 	for rows.Next() {
 		var id, userID int64
@@ -249,7 +237,7 @@ func (u *UserStruct) Projects() []*project.ProjectStruct {
 		var showIssues, showPullRequests bool
 		err := rows.Scan(&id, &userID, &repositoryID, &title, &description, &showIssues, &showPullRequests)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("User", "Projects", true).Panic(err)
+			panic(err)
 		}
 		if id != 0 {
 			p := project.NewProject(id, userID, title, description, repositoryID, showIssues, showPullRequests)
@@ -265,7 +253,6 @@ func (u *UserStruct) Save() error {
 
 	result, err := table.Exec("insert into users (email, password, provider, oauth_token, uuid, user_name, avatar_url, created_at) values (?, ?, ?, ?, ?, ?, ?, now());", u.Email, u.Password, u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("user", "Save", true).Errorf("failed to create user: %v", err)
 		return err
 	}
 	u.ID, _ = result.LastInsertId()
@@ -279,7 +266,7 @@ func (u *UserStruct) Update() error {
 
 	_, err := table.Exec("update users set provider = ?, oauth_token = ?, uuid = ?, user_name = ?, avatar_url = ? where email = ?;", u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar, u.Email)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("User", "Update", true).Panic(err)
+		panic(err)
 		return err
 	}
 	return nil
@@ -289,7 +276,6 @@ func (u *UserStruct) CreateGithubUser(token string, githubUser *github.User, pri
 	u.Email = primaryEmail
 	bytePassword, err := HashPassword(randomString())
 	if err != nil {
-		logging.SharedInstance().MethodInfo("User", "CreateGithubUser").Error(err)
 		return err
 	}
 	u.Password = string(bytePassword)
