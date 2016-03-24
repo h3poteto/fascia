@@ -3,7 +3,6 @@ package project
 import (
 	"../../config"
 	"../../modules/hub"
-	"../../modules/logging"
 	"../db"
 	"../list"
 	"../task"
@@ -118,18 +117,15 @@ func (u *ProjectStruct) taskApplyLabel(targetTask *task.TaskStruct, issue *githu
 	if targetTask == nil {
 		err := u.createNewTask(issue)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("Project", "taskApplyLabel", true).Errorf("create new task failed: %v", err)
 			return err
 		}
 		return nil
 	}
 	issueTask, err := u.applyListToTask(targetTask, issue)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Project", "taskApplyLabel", true).Errorf("apply list to task failed: %v", err)
 		return err
 	}
 	if err := issueTask.Update(nil, nil); err != nil {
-		logging.SharedInstance().MethodInfo("Project", "taskApplyLabel", true).Error("task update failed")
 		return err
 	}
 	return nil
@@ -138,11 +134,9 @@ func (u *ProjectStruct) taskApplyLabel(targetTask *task.TaskStruct, issue *githu
 func (u *ProjectStruct) reopenTask(targetTask *task.TaskStruct, issue *github.Issue) error {
 	issueTask, err := u.applyListToTask(targetTask, issue)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Project", "reopenTask", true).Errorf("apply list to task failed: %v", err)
 		return err
 	}
 	if err := issueTask.Update(nil, nil); err != nil {
-		logging.SharedInstance().MethodInfo("Project", "reopenTask", true).Error("task update failed")
 		return err
 	}
 	return nil
@@ -164,11 +158,9 @@ func (u *ProjectStruct) createNewTask(issue *github.Issue) error {
 
 	issueTask, err := u.applyListToTask(issueTask, issue)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Project", "createNewTask", true).Errorf("apply list to task failed: %v", err)
 		return err
 	}
 	if err := issueTask.Save(nil, nil); err != nil {
-		logging.SharedInstance().MethodInfo("Project", "createNewTask", true).Error("task save failed")
 		return err
 	}
 	return nil
@@ -184,13 +176,13 @@ func (u *ProjectStruct) applyListToTask(issueTask *task.TaskStruct, issue *githu
 		}
 	}
 	if closedList == nil {
-		logging.SharedInstance().MethodInfo("Project", "applyListToTask", true).Panic("cannot find close list")
+		panic("cannot find close list")
 		return nil, errors.New("cannot find close list")
 	}
 
 	noneList, err := u.NoneList()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Project", "applyListToTask", true).Panic("cannot find none list")
+		panic("cannot find none list")
 		return nil, err
 	}
 
