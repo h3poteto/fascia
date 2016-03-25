@@ -58,18 +58,18 @@ var _ = Describe("Project", func() {
 				rows, _ := table.Query("select id, user_id, title, description from projects where id = ?;", newProject.ID)
 
 				var id int64
-				var user_id sql.NullInt64
+				var userID sql.NullInt64
 				var title string
 				var description string
 
 				for rows.Next() {
-					err := rows.Scan(&id, &user_id, &title, &description)
+					err := rows.Scan(&id, &userID, &title, &description)
 					if err != nil {
 						panic(err)
 					}
 				}
-				Expect(user_id.Valid).To(BeTrue())
-				Expect(user_id.Int64).To(Equal(uid))
+				Expect(userID.Valid).To(BeTrue())
+				Expect(userID.Int64).To(Equal(uid))
 			})
 		})
 	})
