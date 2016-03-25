@@ -9,7 +9,6 @@ import (
 	_ "github.com/flosch/pongo2-addons"
 	"github.com/zenazn/goji"
 	"github.com/zenazn/goji/web"
-	"github.com/zenazn/goji/web/middleware"
 	"net"
 	"net/http"
 	"os"
@@ -92,11 +91,10 @@ func main() {
 // PanicRecover recover any panic and send information to logrus
 func PanicRecover(c *web.C, h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		requestID := middleware.GetReqID(*c)
 
 		defer func() {
 			if err := recover(); err != nil {
-				logging.SharedInstance().PanicRecover(requestID).Error(err)
+				logging.SharedInstance().PanicRecover(*c).Error(err)
 				http.Error(w, http.StatusText(500), 500)
 			}
 		}()

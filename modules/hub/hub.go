@@ -19,16 +19,15 @@ func CheckLabelPresent(token string, repo *repository.RepositoryStruct, title *s
 	client := prepareClient(token)
 
 	if title == nil {
-		logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent", true).Error("title is nil")
 		return nil, errors.New("title is nil")
 	}
 	githubLabel, response, err := client.Issues.GetLabel(repo.Owner.String, repo.Name.String, *title)
-	logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent").Debugf("respone of geting github label: %+v", response)
+	logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent", false).Debugf("respone of geting github label: %+v", response)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent").Debugf("cannot find github label: %v", repo.Name.String)
+		logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent", false).Debugf("cannot find github label: %v", repo.Name.String)
 		return nil, nil
 	}
-	logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent").Debugf("github label is exist: %+v", githubLabel)
+	logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent", false).Debugf("github label is exist: %+v", githubLabel)
 	return githubLabel, nil
 }
 
@@ -36,7 +35,6 @@ func CreateGithubLabel(token string, repo *repository.RepositoryStruct, title *s
 	client := prepareClient(token)
 
 	if title == nil || color == nil {
-		logging.SharedInstance().MethodInfo("hub", "CreateGithubLabel", true).Error("title or color is nil")
 		return nil, errors.New("title or color is nil")
 	}
 
@@ -45,11 +43,11 @@ func CreateGithubLabel(token string, repo *repository.RepositoryStruct, title *s
 		Color: color,
 	}
 	githubLabel, response, err := client.Issues.CreateLabel(repo.Owner.String, repo.Name.String, label)
-	logging.SharedInstance().MethodInfo("hub", "CreateGithubLabel").Debugf("response of creating github label: %+v\n", response)
+	logging.SharedInstance().MethodInfo("hub", "CreateGithubLabel", false).Debugf("response of creating github label: %+v\n", response)
 	if err != nil {
 		return nil, err
 	}
-	logging.SharedInstance().MethodInfo("hub", "CreateGithubLabel").Debugf("github label is created: %+v", githubLabel)
+	logging.SharedInstance().MethodInfo("hub", "CreateGithubLabel", false).Debugf("github label is created: %+v", githubLabel)
 	return githubLabel, nil
 }
 
@@ -57,7 +55,6 @@ func UpdateGithubLabel(token string, repo *repository.RepositoryStruct, original
 	client := prepareClient(token)
 
 	if title == nil || color == nil {
-		logging.SharedInstance().MethodInfo("hub", "UpdateGithubLabel", true).Error("title or color is nil")
 		return nil, errors.New("title or color is nil")
 	}
 
@@ -66,11 +63,11 @@ func UpdateGithubLabel(token string, repo *repository.RepositoryStruct, original
 		Color: color,
 	}
 	githubLabel, response, err := client.Issues.EditLabel(repo.Owner.String, repo.Name.String, *originalTitle, label)
-	logging.SharedInstance().MethodInfo("hub", "UpddateGithubLabel").Debugf("response of updating github label: %+v", response)
+	logging.SharedInstance().MethodInfo("hub", "UpddateGithubLabel", false).Debugf("response of updating github label: %+v", response)
 	if err != nil {
 		return nil, err
 	}
-	logging.SharedInstance().MethodInfo("hub", "UpdateGithubLabel").Debugf("github label is updated: %+v", githubLabel)
+	logging.SharedInstance().MethodInfo("hub", "UpdateGithubLabel", false).Debugf("github label is updated: %+v", githubLabel)
 	return githubLabel, nil
 }
 
@@ -78,7 +75,6 @@ func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels [
 	client := prepareClient(token)
 
 	if title == nil {
-		logging.SharedInstance().MethodInfo("hub", "CreateGithubIssue", true).Error("title is nil")
 		return nil, errors.New("title is nil")
 	}
 
@@ -88,11 +84,11 @@ func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels [
 		Labels: &labels,
 	}
 	githubIssue, response, err := client.Issues.Create(repo.Owner.String, repo.Name.String, issueRequest)
-	logging.SharedInstance().MethodInfo("hub", "CreateGithubIssue").Debugf("response of creating github issue: %+v\n", response)
+	logging.SharedInstance().MethodInfo("hub", "CreateGithubIssue", false).Debugf("response of creating github issue: %+v\n", response)
 	if err != nil {
 		return nil, err
 	}
-	logging.SharedInstance().MethodInfo("hub", "CreateGithubIssue").Debugf("github issue is created: %+v", githubIssue)
+	logging.SharedInstance().MethodInfo("hub", "CreateGithubIssue", false).Debugf("github issue is created: %+v", githubIssue)
 	return githubIssue, nil
 }
 
@@ -108,11 +104,11 @@ func EditGithubIssue(token string, repo *repository.RepositoryStruct, number int
 
 	issueNumber := int(number)
 	issue, response, err := client.Issues.Edit(repo.Owner.String, repo.Name.String, issueNumber, issueRequest)
-	logging.SharedInstance().MethodInfo("hub", "EditGithubIssue").Debugf("response of edit github issue: %+v", response)
+	logging.SharedInstance().MethodInfo("hub", "EditGithubIssue", false).Debugf("response of edit github issue: %+v", response)
 	if err != nil {
 		return false, err
 	}
-	logging.SharedInstance().MethodInfo("hub", "EditGithubIssue").Debugf("github issue is updated: %+v", issue)
+	logging.SharedInstance().MethodInfo("hub", "EditGithubIssue", false).Debugf("github issue is updated: %+v", issue)
 	return true, nil
 }
 

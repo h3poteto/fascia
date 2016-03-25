@@ -3,6 +3,8 @@ package logging
 import (
 	"github.com/Sirupsen/logrus"
 	"github.com/johntdyer/slackrus"
+	"github.com/zenazn/goji/web"
+	"github.com/zenazn/goji/web/middleware"
 	"os"
 	"runtime"
 	"time"
@@ -37,31 +39,39 @@ func SharedInstance() *LogStruct {
 	return sharedInstance
 }
 
-func (u *LogStruct) MethodInfo(model string, method string, stack ...bool) *logrus.Entry {
-	if len(stack) > 0 && stack[0] {
+// MethodInfo is prepare logrus entry with fields
+func (u *LogStruct) MethodInfo(model string, method string, stack bool, context ...web.C) *logrus.Entry {
+	requestID := "null"
+	if len(context) > 0 {
+		requestID = middleware.GetReqID(context[0])
+	}
+	if stack {
 		buf := make([]byte, 1024)
 		runtime.Stack(buf, false)
 		return u.log.WithFields(logrus.Fields{
 			"time":       time.Now(),
+			"requestID":  requestID,
 			"model":      model,
 			"method":     method,
 			"stacktrace": string(buf),
 		})
 	}
 	return u.log.WithFields(logrus.Fields{
-		"time":   time.Now(),
-		"model":  model,
-		"method": method,
+		"time":      time.Now(),
+		"requestID": requestID,
+		"model":     model,
+		"method":    method,
 	})
 }
 
 // PanicRecover send error and stacktrace
-func (u *LogStruct) PanicRecover(requestID string) *logrus.Entry {
+func (u *LogStruct) PanicRecover(context web.C) *logrus.Entry {
+	requestID := middleware.GetReqID(context)
 	buf := make([]byte, 1<<16)
 	runtime.Stack(buf, false)
 	return u.log.WithFields(logrus.Fields{
 		"time":       time.Now(),
-		"request":    requestID,
+		"requestID":  requestID,
 		"model":      "main",
 		"stacktrace": string(buf),
 	})

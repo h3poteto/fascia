@@ -104,7 +104,7 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 			}
 		} else {
 			// createしようとしたときに存在している場合，それはあまり気にしなくて良い．むしろこれで同等の状態になる
-			logging.SharedInstance().MethodInfo("list", "Save").Info("github label already exist")
+			logging.SharedInstance().MethodInfo("list", "Save", false).Info("github label already exist")
 		}
 	}
 	tx.Commit()
@@ -126,7 +126,7 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	var listOptionID sql.NullInt64
 	listOption, err := list_option.FindByAction(*action)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("list", "Update").Debugf("cannot find list_options, set null to list_option_id: %v", err)
+		logging.SharedInstance().MethodInfo("list", "Update", false).Debugf("cannot find list_options, set null to list_option_id: %v", err)
 	} else {
 		listOptionID.Int64 = listOption.ID
 		listOptionID.Valid = true

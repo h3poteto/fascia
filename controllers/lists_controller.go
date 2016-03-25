@@ -45,20 +45,20 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	currentUser, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Index").Infof("login error: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Index", false, c).Infof("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
 	encoder := json.NewEncoder(w)
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Index", true).Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Index", true, c).Errorf("parse error: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
 	parentProject, err := projectModel.FindProject(projectID)
 	if err != nil || parentProject.UserID != currentUser.ID {
-		logging.SharedInstance().MethodInfo("ListsController", "Index").Warnf("project not found: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Index", false, c).Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -69,14 +69,14 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	noneList, err := parentProject.NoneList()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Index", true).Error(err)
+		logging.SharedInstance().MethodInfo("ListsController", "Index", true, c).Error(err)
 		http.Error(w, "none list not found", 500)
 		return
 	}
 	jsonNoneList := &ListJSONFormat{ID: noneList.ID, ProjectID: noneList.ProjectID, UserID: noneList.UserID, Title: noneList.Title.String, ListTasks: TaskFormatToJson(noneList.Tasks()), Color: noneList.Color.String, ListOptionID: noneList.ListOptionID.Int64}
 	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 	encoder.Encode(jsonAllLists)
-	logging.SharedInstance().MethodInfo("ListsController", "Index").Info("success to get lists")
+	logging.SharedInstance().MethodInfo("ListsController", "Index", false, c).Info("success to get lists")
 	return
 }
 
@@ -84,49 +84,49 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	currentUser, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Create").Infof("login error: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Create", false, c).Infof("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
 	encoder := json.NewEncoder(w)
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Create", true).Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Create", true, c).Errorf("parse error: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
 	parentProject, err := projectModel.FindProject(projectID)
 	if err != nil || parentProject.UserID != currentUser.ID {
-		logging.SharedInstance().MethodInfo("ListsController", "Create").Warnf("project not found: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Create", false, c).Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
 
 	err = r.ParseForm()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Create", true).Errorf("wrong form: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Create", true, c).Errorf("wrong form: %v", err)
 		http.Error(w, "Wrong Form", 400)
 		return
 	}
 	var newListForm NewListForm
 	err = param.Parse(r.PostForm, &newListForm)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Create", true).Errorf("wrong parameter: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Create", true, c).Errorf("wrong parameter: %v", err)
 		http.Error(w, "Wrong parameter", 500)
 		return
 	}
-	logging.SharedInstance().MethodInfo("ListsController", "Create").Debugf("post new list parameter: %+v", newListForm)
+	logging.SharedInstance().MethodInfo("ListsController", "Create", false, c).Debugf("post new list parameter: %+v", newListForm)
 	list := listModel.NewList(0, projectID, currentUser.ID, newListForm.Title, newListForm.Color, sql.NullInt64{})
 
 	repo, _ := parentProject.Repository()
 	if err := list.Save(repo, &currentUser.OauthToken); err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Create", true).Errorf("failed save: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Create", true, c).Errorf("failed save: %v", err)
 		http.Error(w, "failed save", 500)
 		return
 	}
 	jsonList := ListJSONFormat{ID: list.ID, ProjectID: list.ProjectID, UserID: list.UserID, Title: list.Title.String, Color: list.Color.String, ListOptionID: list.ListOptionID.Int64}
 	encoder.Encode(jsonList)
-	logging.SharedInstance().MethodInfo("ListsController", "Create").Info("success to create list")
+	logging.SharedInstance().MethodInfo("ListsController", "Create", false, c).Info("success to create list")
 	return
 }
 
@@ -134,59 +134,59 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	currentUser, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Update").Infof("login error: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Update", false, c).Infof("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
 	encoder := json.NewEncoder(w)
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Update", true).Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Update", true, c).Errorf("parse error: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
 	parentProject, err := projectModel.FindProject(projectID)
 	if err != nil || parentProject.UserID != currentUser.ID {
-		logging.SharedInstance().MethodInfo("ListsController", "Update").Warnf("project not found: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Update", false, c).Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
 	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Update", true).Errorf("parse error: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Update", true, c).Errorf("parse error: %v", err)
 		http.Error(w, "list not found", 404)
 		return
 	}
 	targetList, err := listModel.FindList(projectID, listID)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Update", true).Errorf("list not found: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Update", true, c).Errorf("list not found: %v", err)
 		http.Error(w, "list not found", 404)
 		return
 	}
 
 	err = r.ParseForm()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Update", true).Errorf("wrong form: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Update", true, c).Errorf("wrong form: %v", err)
 		http.Error(w, "Wrong Form", 400)
 		return
 	}
 	var editListForm EditListForm
 	err = param.Parse(r.PostForm, &editListForm)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Update", true).Errorf("wrong parameter: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Update", true, c).Errorf("wrong parameter: %v", err)
 		http.Error(w, "Wrong parameter", 500)
 		return
 	}
-	logging.SharedInstance().MethodInfo("ListsController", "Update").Debugf("post edit list parameter: %+v", editListForm)
+	logging.SharedInstance().MethodInfo("ListsController", "Update", false, c).Debugf("post edit list parameter: %+v", editListForm)
 
 	repo, _ := parentProject.Repository()
 	if err := targetList.Update(repo, &currentUser.OauthToken, &editListForm.Title, &editListForm.Color, &editListForm.Action); err != nil {
-		logging.SharedInstance().MethodInfo("ListsController", "Update", true).Errorf("save failed: %v", err)
+		logging.SharedInstance().MethodInfo("ListsController", "Update", true, c).Errorf("save failed: %v", err)
 		http.Error(w, "save failed", 500)
 		return
 	}
 	jsonList := ListJSONFormat{ID: targetList.ID, ProjectID: targetList.ProjectID, UserID: targetList.UserID, Title: targetList.Title.String, ListTasks: TaskFormatToJson(targetList.Tasks()), Color: targetList.Color.String, ListOptionID: targetList.ListOptionID.Int64}
 	encoder.Encode(jsonList)
-	logging.SharedInstance().MethodInfo("ListsController", "Update").Info("success to update list")
+	logging.SharedInstance().MethodInfo("ListsController", "Update", false, c).Info("success to update list")
 	return
 }
