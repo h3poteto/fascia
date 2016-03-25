@@ -142,7 +142,12 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 	tx.Commit()
 
 	// githubから同期
-	go project.FetchGithub()
+	go func() {
+		_, err := project.FetchGithub()
+		if err != nil {
+			logging.SharedInstance().MethodInfo("Project", "Create", true).Error(err)
+		}
+	}()
 
 	return project, nil
 }
