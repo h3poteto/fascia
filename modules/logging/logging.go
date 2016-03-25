@@ -39,6 +39,7 @@ func SharedInstance() *LogStruct {
 	return sharedInstance
 }
 
+// MethodInfo is prepare logrus entry with fields
 func (u *LogStruct) MethodInfo(model string, method string, stack bool, context ...web.C) *logrus.Entry {
 	requestID := "null"
 	if len(context) > 0 {
