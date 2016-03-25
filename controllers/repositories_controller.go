@@ -26,7 +26,7 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 	deliveryID := r.Header.Get("X-GitHub-Delivery")
 
 	if eventType == "" || signature == "" || deliveryID == "" {
-		logging.SharedInstance().MethodInfo("Repositories", "Hook").Infof("could not find header information: %v", r.Header)
+		logging.SharedInstance().MethodInfo("Repositories", "Hook", false).Infof("could not find header information: %v", r.Header)
 		http.Error(w, "event, signature, or delivery_id is not exist", 404)
 		return
 	}
@@ -45,14 +45,14 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if err := repo.Authenticate(signature, data); err != nil {
-			logging.SharedInstance().MethodInfo("Repositories", "Hook").Infof("cannot authenticate to repository: %v", err)
+			logging.SharedInstance().MethodInfo("Repositories", "Hook", false).Infof("cannot authenticate to repository: %v", err)
 			http.Error(w, "repository authenticate failed", 404)
 			return
 		}
 		err = project.IssuesEvent(repo.ID, githubBody)
 		if err != nil && !u.includeDuplicateError(err) {
 			if u.includeDuplicateError(err) {
-				logging.SharedInstance().MethodInfo("Repositories", "Hook").Warn(err)
+				logging.SharedInstance().MethodInfo("Repositories", "Hook", false).Warn(err)
 				return
 			}
 			logging.SharedInstance().MethodInfo("Repositories", "Hook", true).Errorf("cannot handle issue event: %v", err)
@@ -73,14 +73,14 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if err := repo.Authenticate(signature, data); err != nil {
-			logging.SharedInstance().MethodInfo("Repositories", "Hook").Infof("cannot authenticate to repository: %v", err)
+			logging.SharedInstance().MethodInfo("Repositories", "Hook", false).Infof("cannot authenticate to repository: %v", err)
 			http.Error(w, "repository authenticate failed", 404)
 			return
 		}
 		err = project.PullRequestEvent(repo.ID, githubBody)
 		if err != nil {
 			if u.includeDuplicateError(err) {
-				logging.SharedInstance().MethodInfo("Repositories", "Hook").Warn(err)
+				logging.SharedInstance().MethodInfo("Repositories", "Hook", false).Warn(err)
 				return
 			}
 			logging.SharedInstance().MethodInfo("Repositories", "Hook", true).Errorf("cannot handle pull request event: %v", err)

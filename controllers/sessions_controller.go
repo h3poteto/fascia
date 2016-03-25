@@ -78,11 +78,11 @@ func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	currentUser, err := userModel.Login(template.HTMLEscapeString(signInForm.Email), template.HTMLEscapeString(signInForm.Password))
 	if err != nil {
-		logging.SharedInstance().MethodInfo("SessionsController", "NewSession").Infof("login error: %v", err)
+		logging.SharedInstance().MethodInfo("SessionsController", "NewSession", false).Infof("login error: %v", err)
 		http.Redirect(w, r, "/sign_in", 302)
 		return
 	}
-	logging.SharedInstance().MethodInfo("SessionsController", "NewSession").Debugf("login success: %+v", currentUser)
+	logging.SharedInstance().MethodInfo("SessionsController", "NewSession", false).Debugf("login success: %+v", currentUser)
 	session, err = cookieStore.Get(r, "fascia")
 	session.Options = &sessions.Options{Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int)}
 	session.Values["current_user_id"] = currentUser.ID
@@ -92,7 +92,7 @@ func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, r)
 		return
 	}
-	logging.SharedInstance().MethodInfo("SessionsController", "NewSession").Info("login success")
+	logging.SharedInstance().MethodInfo("SessionsController", "NewSession", false).Info("login success")
 	http.Redirect(w, r, "/", 302)
 	return
 }
@@ -111,7 +111,7 @@ func (u *Sessions) SignOut(c web.C, w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, r)
 		return
 	}
-	logging.SharedInstance().MethodInfo("SessionsController", "SignOut").Info("logout success")
+	logging.SharedInstance().MethodInfo("SessionsController", "SignOut", false).Info("logout success")
 	http.Redirect(w, r, "/sign_in", 302)
 	return
 }

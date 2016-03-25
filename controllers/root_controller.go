@@ -17,18 +17,18 @@ func (u *Root) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	currentUser, err := LoginRequired(r)
 	// ログインしていない場合はaboutページを見せる
 	if err != nil {
-		logging.SharedInstance().MethodInfo("RootController", "Index").Infof("login error: %v", err)
+		logging.SharedInstance().MethodInfo("RootController", "Index", false).Infof("login error: %v", err)
 		u.About(c, w, r)
 		return
 	}
 	// ログインしている場合はダッシュボードへ
-	logging.SharedInstance().MethodInfo("RootController", "Index").Info("login success")
+	logging.SharedInstance().MethodInfo("RootController", "Index", false).Info("login success")
 
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if projectID != 0 {
 		parentProject, err := project.FindProject(projectID)
 		if err != nil || parentProject.UserID != currentUser.ID {
-			logging.SharedInstance().MethodInfo("RootController", "Index").Warnf("project not found: %v", err)
+			logging.SharedInstance().MethodInfo("RootController", "Index", false).Warnf("project not found: %v", err)
 			NotFound(w, r)
 			return
 		}

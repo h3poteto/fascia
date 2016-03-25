@@ -55,7 +55,7 @@ func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Req
 		InternalServerError(w, r)
 		return
 	}
-	logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp").Debugf("post registration form: %+v", signUpForm)
+	logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", false).Debugf("post registration form: %+v", signUpForm)
 
 	if !CheckCSRFToken(r, signUpForm.Token) {
 		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", true).Error("cannot verify CSRF token")
@@ -72,7 +72,7 @@ func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Req
 			http.Redirect(w, r, "/sign_up", 302)
 			return
 		} else {
-			logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp").Info("registration success")
+			logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", false).Info("registration success")
 			http.Redirect(w, r, "/sign_in", 302)
 			return
 		}

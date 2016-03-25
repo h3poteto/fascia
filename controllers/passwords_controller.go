@@ -71,7 +71,7 @@ func (u *Passwords) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	targetUser, err := user.FindByEmail(newPasswordForm.Email)
 	if err != nil {
 		// OKにしておかないとEmail探りに使われる
-		logging.SharedInstance().MethodInfo("PasswordsController", "Create").Infof("cannot find user: %v", err)
+		logging.SharedInstance().MethodInfo("PasswordsController", "Create", false).Infof("cannot find user: %v", err)
 		http.Redirect(w, r, "/sign_in", 302)
 		return
 	}
@@ -85,7 +85,7 @@ func (u *Passwords) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	// ここでemail送信
 	go password_mailer.Reset(reset.ID, targetUser.Email, reset.Token)
 	http.Redirect(w, r, "/sign_in", 302)
-	logging.SharedInstance().MethodInfo("PasswordsController", "Create").Info("success to send password reset request")
+	logging.SharedInstance().MethodInfo("PasswordsController", "Create", false).Info("success to send password reset request")
 	return
 }
 
@@ -104,7 +104,7 @@ func (u *Passwords) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := reset_password.Authenticate(id, resetToken); err != nil {
-		logging.SharedInstance().MethodInfo("PasswordsController", "Edit").Info("cannot authenticate reset password: %v", err)
+		logging.SharedInstance().MethodInfo("PasswordsController", "Edit", false).Info("cannot authenticate reset password: %v", err)
 		InternalServerError(w, r)
 		return
 	}
@@ -152,13 +152,13 @@ func (u *Passwords) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	targetUser, err := reset_password.ChangeUserPassword(id, editPasswordForm.ResetToken, editPasswordForm.Password)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("PasswordsController", "Update").Info("cannot authenticate reset password")
+		logging.SharedInstance().MethodInfo("PasswordsController", "Update", false).Info("cannot authenticate reset password")
 		InternalServerError(w, r)
 		return
 	}
 
 	go password_mailer.Changed(targetUser.Email)
-	logging.SharedInstance().MethodInfo("PasswordsController", "Update").Info("success to change password")
+	logging.SharedInstance().MethodInfo("PasswordsController", "Update", false).Info("success to change password")
 	http.Redirect(w, r, "/sign_in", 302)
 	return
 }

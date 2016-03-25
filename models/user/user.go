@@ -256,7 +256,7 @@ func (u *UserStruct) Save() error {
 		return err
 	}
 	u.ID, _ = result.LastInsertId()
-	logging.SharedInstance().MethodInfo("user", "Save").Infof("user saved: %v", u.ID)
+	logging.SharedInstance().MethodInfo("user", "Save", false).Infof("user saved: %v", u.ID)
 	return nil
 }
 

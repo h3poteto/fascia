@@ -45,7 +45,7 @@ func (u *Projects) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	currentUser, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Index").Infof("login error: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Index", false).Infof("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -67,7 +67,7 @@ func (u *Projects) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	currentUser, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Show").Infof("login error: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Show", false).Infof("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -80,7 +80,7 @@ func (u *Projects) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	project, err := projectModel.FindProject(projectID)
 	if err != nil || project.UserID != currentUser.ID {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Show").Warnf("project not found: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Show", false).Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -98,7 +98,7 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	currentUser, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Create").Infof("login error: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Create", false).Infof("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -118,7 +118,7 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Wrong parameter", 500)
 		return
 	}
-	logging.SharedInstance().MethodInfo("ProjectsController", "Create").Debugf("post new project parameter: %+v", newProjectForm)
+	logging.SharedInstance().MethodInfo("ProjectsController", "Create", false).Debugf("post new project parameter: %+v", newProjectForm)
 
 	project, err := projectModel.Create(currentUser.ID, newProjectForm.Title, newProjectForm.Description, newProjectForm.RepositoryID, newProjectForm.RepositoryOwner, newProjectForm.RepositoryName, currentUser.OauthToken)
 	if err != nil {
@@ -132,7 +132,7 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		repositoryID = repo.ID
 	}
 	jsonProject := ProjectJsonFormat{ID: project.ID, UserID: project.UserID, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repositoryID}
-	logging.SharedInstance().MethodInfo("ProjectsController", "Create").Info("success to create project")
+	logging.SharedInstance().MethodInfo("ProjectsController", "Create", false).Info("success to create project")
 	encoder.Encode(jsonProject)
 }
 
@@ -142,7 +142,7 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	currentUser, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Update").Infof("login error: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Update", false).Infof("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -154,7 +154,7 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	project, err := projectModel.FindProject(projectID)
 	if err != nil || project.UserID != currentUser.ID {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Update").Warnf("project not found: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Update", false).Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -173,13 +173,13 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Wrong parameter", 500)
 		return
 	}
-	logging.SharedInstance().MethodInfo("ProjectsController", "Update").Debug("post edit project parameter: %+v", editProjectForm)
+	logging.SharedInstance().MethodInfo("ProjectsController", "Update", false).Debug("post edit project parameter: %+v", editProjectForm)
 	if err := project.Update(editProjectForm.Title, editProjectForm.Description, project.ShowIssues, project.ShowPullRequests); err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Update", true).Errorf("update failed: %v", err)
 		http.Error(w, "update failed", 500)
 		return
 	}
-	logging.SharedInstance().MethodInfo("ProjectsController", "Update").Info("success to update project")
+	logging.SharedInstance().MethodInfo("ProjectsController", "Update", false).Info("success to update project")
 	var repositoryID int64
 	repo, err := project.Repository()
 	if err == nil {
@@ -193,7 +193,7 @@ func (u *Projects) Settings(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	currentUser, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Settings").Infof("login error: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Settings", false).Infof("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -205,7 +205,7 @@ func (u *Projects) Settings(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	project, err := projectModel.FindProject(projectID)
 	if err != nil || project.UserID != currentUser.ID {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Settings").Warnf("project not found: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Settings", false).Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -224,13 +224,13 @@ func (u *Projects) Settings(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Wrong parameter", 500)
 		return
 	}
-	logging.SharedInstance().MethodInfo("ProjectsController", "Settings").Debug("post edit project parameter: %+v", settingsProjectForm)
+	logging.SharedInstance().MethodInfo("ProjectsController", "Settings", false).Debug("post edit project parameter: %+v", settingsProjectForm)
 	if err := project.Update(project.Title, project.Description, settingsProjectForm.ShowIssues, settingsProjectForm.ShowPullRequests); err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Settings", true).Errorf("update failed: %v", err)
 		http.Error(w, "update failed", 500)
 		return
 	}
-	logging.SharedInstance().MethodInfo("ProjectsController", "Settings").Info("success to update project")
+	logging.SharedInstance().MethodInfo("ProjectsController", "Settings", false).Info("success to update project")
 	var repositoryID int64
 	repo, err := project.Repository()
 	if err == nil {
@@ -244,7 +244,7 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "application/json")
 	currentUser, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Infof("login error: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub", false).Infof("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -257,7 +257,7 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 	}
 	project, err := projectModel.FindProject(projectID)
 	if err != nil || project.UserID != currentUser.ID {
-		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Warnf("project not found: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub", false).Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -280,7 +280,7 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 		}
 		jsonNoneList := &ListJSONFormat{ID: noneList.ID, ProjectID: noneList.ProjectID, UserID: noneList.UserID, Title: noneList.Title.String, ListTasks: TaskFormatToJson(noneList.Tasks()), Color: noneList.Color.String, ListOptionID: noneList.ListOptionID.Int64}
 		jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
-		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub").Info("success to fetch github")
+		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub", false).Info("success to fetch github")
 		encoder.Encode(jsonAllLists)
 		return
 	}
@@ -291,7 +291,7 @@ func (u *Projects) Webhook(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	currentUser, err := LoginRequired(r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook").Infof("login error: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook", false).Infof("login error: %v", err)
 		http.Error(w, "not logined", 401)
 		return
 	}
@@ -303,14 +303,14 @@ func (u *Projects) Webhook(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	project, err := projectModel.FindProject(projectID)
 	if err != nil || project.UserID != currentUser.ID {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook").Warnf("project not found: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook", false).Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
 
 	_, err = project.Repository()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook").Warn("repository not found: %v", err)
+		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook", false).Warn("repository not found: %v", err)
 		http.Error(w, "repository not found", 404)
 		return
 	}
@@ -320,6 +320,6 @@ func (u *Projects) Webhook(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "cannot create webhook", 500)
 		return
 	}
-	logging.SharedInstance().MethodInfo("ProjectsController", "Webhook").Info("success to create webhook")
+	logging.SharedInstance().MethodInfo("ProjectsController", "Webhook", false).Info("success to create webhook")
 	return
 }
