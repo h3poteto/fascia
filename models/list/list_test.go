@@ -40,8 +40,7 @@ var _ = Describe("List", func() {
 		mydb := &db.Database{}
 		var database db.DB = mydb
 		table = database.Init()
-		newProject = project.NewProject(0, uid, "title", "desc", sql.NullInt64{}, true, true)
-		newProject.Save()
+		newProject, _ = project.Create(uid, "title", "desc", 0, "", "", sql.NullString{})
 		newList = NewList(0, newProject.ID, newProject.UserID, "list title", "", sql.NullInt64{})
 	})
 

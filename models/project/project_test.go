@@ -6,7 +6,6 @@ import (
 	"../db"
 	"../list"
 	. "../project"
-	"../repository"
 	"../user"
 	"database/sql"
 
@@ -42,7 +41,6 @@ var _ = Describe("Project", func() {
 		mydb := &db.Database{}
 		var database db.DB = mydb
 		table = database.Init()
-		newProject = NewProject(0, uid, "title", "desc", sql.NullInt64{}, true, true)
 	})
 
 	Describe("Create", func() {
@@ -55,38 +53,30 @@ var _ = Describe("Project", func() {
 				Expect(newProject.ShowIssues).To(BeTrue())
 				Expect(newProject.ShowPullRequests).To(BeTrue())
 			})
-		})
-	})
+			It("should relate user and project", func() {
+				newProject, _ = Create(uid, "new project", "description", 0, "", "", sql.NullString{})
+				rows, _ := table.Query("select id, user_id, title, description from projects where id = ?;", newProject.ID)
 
-	Describe("Save", func() {
-		It("should create project", func() {
-			err := newProject.Save()
-			Expect(err).To(BeNil())
-			Expect(newProject.ID).NotTo(Equal(0))
-		})
-		It("should relate user and project", func() {
-			_ = newProject.Save()
-			rows, _ := table.Query("select id, user_id, title, description from projects where id = ?;", newProject.ID)
+				var id int64
+				var userID sql.NullInt64
+				var title string
+				var description string
 
-			var id int64
-			var user_id sql.NullInt64
-			var title string
-			var description string
-
-			for rows.Next() {
-				err := rows.Scan(&id, &user_id, &title, &description)
-				if err != nil {
-					panic(err)
+				for rows.Next() {
+					err := rows.Scan(&id, &userID, &title, &description)
+					if err != nil {
+						panic(err)
+					}
 				}
-			}
-			Expect(user_id.Valid).To(BeTrue())
-			Expect(user_id.Int64).To(Equal(uid))
+				Expect(userID.Valid).To(BeTrue())
+				Expect(userID.Int64).To(Equal(uid))
+			})
 		})
 	})
 
 	Describe("Update", func() {
 		BeforeEach(func() {
-			newProject.Save()
+			newProject, _ = Create(uid, "new project", "description", 0, "", "", sql.NullString{})
 		})
 		It("should set new value", func() {
 			err := newProject.Update("newTitle", "newDescription", true, false)
@@ -103,16 +93,12 @@ var _ = Describe("Project", func() {
 		Context("when repository exist", func() {
 			It("should relate project to repository", func() {
 				repositoryID := int64(12345)
-				newRepository := repository.NewRepository(0, repositoryID, "owner", "name", repository.GenerateWebhookKey("name"))
-				err := newRepository.Save()
-				Expect(err).To(BeNil())
-				newProject.RepositoryID = sql.NullInt64{Int64: newRepository.ID, Valid: true}
-				err = newProject.Save()
+				newProject, err := Create(uid, "new project", "description", repositoryID, "owner", "name", sql.NullString{})
 
 				Expect(err).To(BeNil())
 				repo, err := newProject.Repository()
 				Expect(err).To(BeNil())
-				Expect(repo.ID).To(Equal(newRepository.ID))
+				Expect(repo.RepositoryID).To(Equal(repositoryID))
 			})
 		})
 	})
@@ -124,12 +110,7 @@ var _ = Describe("Project", func() {
 		)
 
 		BeforeEach(func() {
-			email := "lists@example.com"
-			password := "hogehoge"
-			user_id, _ := user.Registration(email, password)
-
-			newProject = NewProject(0, user_id, "project title", "project desc", sql.NullInt64{}, true, true)
-			_ = newProject.Save()
+			newProject, _ = Create(uid, "new project", "description", 0, "", "", sql.NullString{})
 			newList = list.NewList(0, newProject.ID, newProject.UserID, "list title", "", sql.NullInt64{})
 			_ = newList.Save(nil, nil)
 			noneList = list.NewList(0, newProject.ID, newProject.UserID, config.Element("init_list").(map[interface{}]interface{})["none"].(string), "", sql.NullInt64{})
@@ -138,11 +119,11 @@ var _ = Describe("Project", func() {
 		It("should relate project and list", func() {
 			lists := newProject.Lists()
 			Expect(lists).NotTo(BeEmpty())
-			Expect(lists[0].ID).To(Equal(newList.ID))
+			Expect(lists[3].ID).To(Equal(newList.ID))
 		})
 		It("should not take none list", func() {
 			lists := newProject.Lists()
-			Expect(len(lists)).To(Equal(1))
+			Expect(len(lists)).To(Equal(4))
 		})
 
 	})

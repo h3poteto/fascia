@@ -85,7 +85,7 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 	}
 
 	project := NewProject(0, userID, title, description, repoID, true, true)
-	if err := project.Save(); err != nil {
+	if err := project.save(); err != nil {
 		tx.Rollback()
 		return nil, err
 	}
@@ -140,6 +140,18 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 		}
 	}
 	tx.Commit()
+
+	// githubから同期
+	go func() {
+		_, err := project.Repository()
+		if err == nil {
+			_, err := project.FetchGithub()
+			if err != nil {
+				logging.SharedInstance().MethodInfo("Project", "Create", true).Error(err)
+			}
+		}
+	}()
+
 	return project, nil
 }
 
@@ -149,7 +161,7 @@ func (u *ProjectStruct) Initialize() {
 	u.database = interfaceDB
 }
 
-func (u *ProjectStruct) Save() error {
+func (u *ProjectStruct) save() error {
 	table := u.database.Init()
 	defer table.Close()
 

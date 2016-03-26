@@ -36,8 +36,7 @@ var _ = Describe("Task", func() {
 		mydb := &db.Database{}
 		var database db.DB = mydb
 		table = database.Init()
-		newProject = project.NewProject(0, uid, "title", "desc", sql.NullInt64{}, true, true)
-		newProject.Save()
+		newProject, _ = project.Create(uid, "title", "desc", 0, "", "", sql.NullString{})
 		newList = list.NewList(0, newProject.ID, newProject.UserID, "list title", "", sql.NullInt64{})
 		newList.Save(nil, nil)
 		newTask = NewTask(0, newList.ID, newProject.ID, newList.UserID, sql.NullInt64{}, "task title", "task description", false, sql.NullString{})
@@ -60,7 +59,7 @@ var _ = Describe("Task", func() {
 					panic(err)
 				}
 			}
-			Expect(list_id).To(Equal(newTask.ID))
+			Expect(list_id).To(Equal(newList.ID))
 		})
 		Context("when list do not have tasks", func() {
 			It("should add display_index to task", func() {

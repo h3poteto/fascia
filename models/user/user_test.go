@@ -149,8 +149,7 @@ var _ = Describe("User", func() {
 					panic(err)
 				}
 			}
-			newProject = project.NewProject(0, userid, "project title", "project desc", sql.NullInt64{}, true, true)
-			_ = newProject.Save()
+			newProject, _ = project.Create(userid, "title", "desc", 0, "", "", sql.NullString{})
 			currentUser = NewUser(userid, dbemail, sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
 		})
 		It("ユーザとプロジェクトが関連づいていること", func() {
