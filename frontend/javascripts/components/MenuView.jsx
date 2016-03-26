@@ -15,11 +15,11 @@ class MenuView extends React.Component {
             </ul>
             <ul className="pure-menu-list fascia-menu-list right-align-list">
               <li className="pure-menu-item fascia-menu-item pure-menu-has-children pure-menu-allow-hover">
-                <a href="#" className="pure-menu-link">settings</a>
+                <a href="#" className="pure-menu-link">account</a>
                 <ul className="pure-menu-children">
                   <li className="pure-menu-item fascia-menu-item">
                     <form id="logout" action="/sign_out" method="post">
-                      <a href="#" className="pure-menu-link" onClick={() => this.props.logout(document.getElementById("logout"))}>logout</a>
+                      <a href="#" className="pure-menu-link" onClick={() => this.props.logout(document.getElementById("logout"))}>Sign Out</a>
                     </form>
                   </li>
                 </ul>
