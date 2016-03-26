@@ -7,7 +7,7 @@
   {% include "layouts/_login_header.html.tpl" %}
   <div class="main-board">
     <h1>Simple Task Management</h1>
-    <h2>Fascia is a free task menagement solution.</h2>
+    <h2>Fascia is a free task management solution.</h2>
     <article>
       <div class="title">
         <h3>Sign Up - It's Free</h3>
@@ -59,15 +59,15 @@
           </tr>
         </table>
 
-        <p>In addition, you can create tasks which is not related to GitHub labels.</p>
-        <p>At first, you create tasks which are not belong to any GitHub labels, and then you can move task(GitHub issue) to a GitHub label.</p>
+        <p>In addition, you can create tasks which are not related to GitHub labels.</p>
+        <p>At first, you create tasks which do not belong to any GitHub labels, and then you can move task(GitHub issue) to a GitHub label.</p>
       </div>
     </div>
     <div class="not-github">
       <h2>Projects are not synced GitHub</h2>
       <div class="content">
         <p>Fascia can manage projects are not related GitHub repositories.</p>
-        <p>Therefore, please manage your private tasks, for example shopping list and domestic work.</p>
+        <p>Therefore, please manage your private tasks, for example, shopping list and domestic work.</p>
         <img src="/images/fascia-ss-3.png" class="fascia-ss-3">
       </div>
     </div>
