@@ -111,7 +111,7 @@ export default class ListView extends React.Component {
       return null
     } else {
       return (
-        <button onClick={e => this.props.createWebhook(this.props.params.projectID)} className="pure-button button-secondary" type="button">Setup Webhook</button>
+        <button onClick={e => this.props.createWebhook(this.props.params.projectID)} className="pure-button button-secondary" type="button">Update Webhook</button>
       )
     }
   }
