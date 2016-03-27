@@ -3,11 +3,13 @@ package project
 import (
 	"../../config"
 	"../../modules/hub"
+	"../../modules/logging"
 	"../db"
 	"../list"
 	"../task"
 	"database/sql"
 	"errors"
+	"strings"
 
 	"github.com/google/go-github/github"
 )
@@ -105,7 +107,7 @@ func GithubLabels(issue *github.Issue, projectLists []*list.ListStruct) []list.L
 	var githubLabels []list.ListStruct
 	for _, label := range issue.Labels {
 		for _, list := range projectLists {
-			if list.Title.Valid && list.Title.String == *label.Name {
+			if list.Title.Valid && strings.ToLower(list.Title.String) == strings.ToLower(*label.Name) {
 				githubLabels = append(githubLabels, *list)
 			}
 		}
@@ -186,6 +188,7 @@ func (u *ProjectStruct) applyListToTask(issueTask *task.TaskStruct, issue *githu
 	}
 
 	githubLabels := GithubLabels(issue, u.Lists())
+	logging.SharedInstance().MethodInfo("Project", "applyListToTask", false).Debugf("github label: %v", githubLabels)
 
 	// label所属よりcloseかどうかを優先して判定したい
 	// closeのものはどんなlabelがついていようと，doneに放り込む
