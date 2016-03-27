@@ -59,6 +59,7 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Internal Server Error", 500)
 			return
 		}
+		logging.SharedInstance().MethodInfo("Repositories", "Hook", false, c).Info("success apply issues event from webhook")
 
 	case "pull_request":
 		var githubBody github.PullRequestEvent
@@ -87,6 +88,7 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Internal Server Error", 500)
 			return
 		}
+		logging.SharedInstance().MethodInfo("Repositories", "Hook", false, c).Info("success apply pull request event from webhook")
 	}
 
 	return
