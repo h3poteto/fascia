@@ -4,3 +4,4 @@ public
 frontend/javascripts/build/
 tmp
 deploy/setting.yml
+bin

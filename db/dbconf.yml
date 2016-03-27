@@ -4,7 +4,7 @@ test:
     name: $DB_TEST_NAME
     user: $DB_USER
     password: $DB_PASSWORD
-    open: $DB_TEST_NAME/$DB_USER/$DB_PASSWORD
+    open: tcp:$DATABASE_URL:3306*$DB_TEST_NAME/$DB_USER/$DB_PASSWORD
 
 development:
     driver: mymysql
@@ -12,7 +12,7 @@ development:
     name: $DB_NAME
     user: $DB_USER
     password: $DB_PASSWORD
-    open: $DB_NAME/$DB_USER/$DB_PASSWORD
+    open: tcp:$DATABASE_URL:3306*$DB_NAME/$DB_USER/$DB_PASSWORD
 
 production:
     driver: mymysql
