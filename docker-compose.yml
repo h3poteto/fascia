@@ -6,12 +6,19 @@ mysql:
     - "3307:3306"
   environment:
     MYSQL_ROOT_PASSWORD: mysql
+node:
+  image: node:5.9.1-slim
+  volumes:
+    - .:/var/opt
+  working_dir: /var/opt
+  command: npm run-script watch
 fascia:
   build: .
   volumes:
     - .:/go/src/fascia
   links:
     - mysql:mysql
+    - node:node
   ports:
     - "9090:9090"
   command: gom run server.go
