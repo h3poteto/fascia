@@ -1,5 +1,7 @@
 mysql:
   image: mysql
+  volumes:
+    - ~/docker-data/mysql:/var/lib/mysql
   ports:
     - "3307:3306"
   environment:

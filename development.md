@@ -1,5 +1,5 @@
 # Development
-This will explain how to develop fascia.
+This document explain how to develop fascia.
 
 ## Environment Variables
 
@@ -30,7 +30,7 @@ Please install [Docker](https://docs.docker.com/mac/) and [Docker Compose](https
 Then, you can run docker container.
 
 ```
-$ docker-compose run --service-ports fascia /bin/bash
+$ docker-compose run --rm --service-ports fascia /bin/bash
 ```
 
 Please install dependent packages.

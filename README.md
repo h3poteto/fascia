@@ -4,5 +4,5 @@
 Fascia is simple task management web application written using Golang with Goji.
 
 
-# Development
+## Development
 Please check [development guid](development.md).
