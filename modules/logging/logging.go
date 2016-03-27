@@ -11,7 +11,7 @@ import (
 )
 
 type LogStruct struct {
-	log *logrus.Logger
+	Log *logrus.Logger
 }
 
 var sharedInstance *LogStruct = New()
@@ -32,7 +32,7 @@ func New() *LogStruct {
 	} else {
 		log.Level = logrus.DebugLevel
 	}
-	return &LogStruct{log: log}
+	return &LogStruct{Log: log}
 }
 
 func SharedInstance() *LogStruct {
@@ -40,7 +40,7 @@ func SharedInstance() *LogStruct {
 }
 
 // MethodInfo is prepare logrus entry with fields
-func (u *LogStruct) MethodInfo(model string, method string, stack bool, context ...web.C) *logrus.Entry {
+func (u *LogStruct) MethodInfo(model string, action string, stack bool, context ...web.C) *logrus.Entry {
 	requestID := "null"
 	if len(context) > 0 {
 		requestID = middleware.GetReqID(context[0])
@@ -48,19 +48,19 @@ func (u *LogStruct) MethodInfo(model string, method string, stack bool, context 
 	if stack {
 		buf := make([]byte, 1024)
 		runtime.Stack(buf, false)
-		return u.log.WithFields(logrus.Fields{
+		return u.Log.WithFields(logrus.Fields{
 			"time":       time.Now(),
 			"requestID":  requestID,
 			"model":      model,
-			"method":     method,
+			"action":     action,
 			"stacktrace": string(buf),
 		})
 	}
-	return u.log.WithFields(logrus.Fields{
+	return u.Log.WithFields(logrus.Fields{
 		"time":      time.Now(),
 		"requestID": requestID,
 		"model":     model,
-		"method":    method,
+		"action":    action,
 	})
 }
 
@@ -69,7 +69,7 @@ func (u *LogStruct) PanicRecover(context web.C) *logrus.Entry {
 	requestID := middleware.GetReqID(context)
 	buf := make([]byte, 1<<16)
 	runtime.Stack(buf, false)
-	return u.log.WithFields(logrus.Fields{
+	return u.Log.WithFields(logrus.Fields{
 		"time":       time.Now(),
 		"requestID":  requestID,
 		"model":      "main",
