@@ -7,8 +7,10 @@ import (
 	"flag"
 	"github.com/flosch/pongo2"
 	_ "github.com/flosch/pongo2-addons"
+	"github.com/goji/glogrus"
 	"github.com/zenazn/goji"
 	"github.com/zenazn/goji/web"
+	"github.com/zenazn/goji/web/middleware"
 	"net"
 	"net/http"
 	"os"
@@ -73,6 +75,9 @@ func main() {
 	mux := goji.DefaultMux
 	mux.Use(PanicRecover)
 	Routes(mux)
+
+	goji.Use(glogrus.NewGlogrus(logging.SharedInstance().Log, "fascia"))
+	goji.Abandon(middleware.Logger)
 
 	fd := flag.Uint("fd", 0, "File descriptor to listen and serve.")
 	flag.Parse()
