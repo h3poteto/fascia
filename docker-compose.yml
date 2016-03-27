@@ -1,0 +1,16 @@
+mysql:
+  image: mysql
+  ports:
+    - "3307:3306"
+  environment:
+    MYSQL_ROOT_PASSWORD: mysql
+fascia:
+  build: .
+  volumes:
+    - .:/go/src/fascia
+  links:
+    - mysql:mysql
+  ports:
+    - "9090:9090"
+  command: gom run server.go
+
