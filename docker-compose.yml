@@ -1,19 +1,20 @@
+storage:
+  build: dockerfiles/storage
 mysql:
   image: mysql
-  volumes:
-    - ~/docker-data/mysql:/var/lib/mysql
+  volumes_from:
+    - storage
   ports:
     - "3307:3306"
   environment:
     MYSQL_ROOT_PASSWORD: mysql
 node:
-  image: node:5.9.1-slim
+  build: dockerfiles/node
   volumes:
-    - .:/var/opt
-  working_dir: /var/opt
+    - .:/var/opt/app
   command: npm run-script watch
 fascia:
-  build: .
+  build: dockerfiles/fascia
   volumes:
     - .:/go/src/fascia
   links:
