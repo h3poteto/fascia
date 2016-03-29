@@ -1,7 +1,9 @@
+storage:
+  build: dockerfiles/storage
 mysql:
   image: mysql
-  volumes:
-    - ~/docker-data/mysql:/var/lib/mysql
+  volumes_from:
+    - storage
   ports:
     - "3307:3306"
   environment:
