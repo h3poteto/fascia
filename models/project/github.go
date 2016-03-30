@@ -76,7 +76,7 @@ func PullRequestEvent(repositoryID int64, body github.PullRequestEvent) error {
 	}
 	targetTask, _ := task.FindByIssueNumber(projectID, *body.Number)
 
-	// TODO: もしgithubへのアクセスが増大するようであれば，PullRequestオブジェクトからラベルの付替えを行うように改修する
+	// note: もしgithubへのアクセスが増大するようであれば，PullRequestオブジェクトからラベルの付替えを行うように改修する
 
 	oauthToken, err := parentProject.OauthToken()
 	if err != nil {
@@ -124,6 +124,10 @@ func (u *ProjectStruct) taskApplyLabel(targetTask *task.TaskStruct, issue *githu
 		return nil
 	}
 	issueTask, err := u.applyListToTask(targetTask, issue)
+	if err != nil {
+		return err
+	}
+	issueTask, err = u.applyIssueInfoToTask(issueTask, issue)
 	if err != nil {
 		return err
 	}
@@ -208,4 +212,14 @@ func (u *ProjectStruct) applyListToTask(issueTask *task.TaskStruct, issue *githu
 		issueTask.ListID = closedList.ID
 	}
 	return issueTask, nil
+}
+
+func (u *ProjectStruct) applyIssueInfoToTask(targetTask *task.TaskStruct, issue *github.Issue) (*task.TaskStruct, error) {
+	if targetTask == nil {
+		return nil, errors.New("target task is required")
+	}
+	targetTask.Title = *issue.Title
+	targetTask.Description = *issue.Body
+	targetTask.HTMLURL = sql.NullString{String: *issue.HTMLURL, Valid: true}
+	return targetTask, nil
 }
