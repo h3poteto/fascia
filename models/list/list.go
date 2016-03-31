@@ -180,6 +180,17 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	return nil
 }
 
+func (u *ListStruct) UpdateColor() error {
+	table := u.database.Init()
+	defer table.Close()
+
+	_, err := table.Exec("update lists set color = ? where id = ?;", u.Color.String, u.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (u *ListStruct) Tasks() []*task.TaskStruct {
 	table := u.database.Init()
 	defer table.Close()

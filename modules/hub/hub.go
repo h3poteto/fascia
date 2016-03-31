@@ -141,6 +141,16 @@ func GetGithubIssues(token string, repo *repository.RepositoryStruct) ([]github.
 	return opneIssues, closedIssues, nil
 }
 
+func ListLabels(token string, repo *repository.RepositoryStruct) ([]github.Label, error) {
+	client := prepareClient(token)
+
+	labels, _, err := client.Issues.ListLabels(repo.Owner.String, repo.Name.String, nil)
+	if err != nil {
+		return nil, err
+	}
+	return labels, nil
+}
+
 func IsPullRequest(issue *github.Issue) bool {
 	if issue.PullRequestLinks == nil {
 		return false
