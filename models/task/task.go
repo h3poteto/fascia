@@ -105,6 +105,7 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		return err
 	}
 	result, err := transaction.Exec("insert into tasks (list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index, created_at) values (?,?,?, ?, ?, ?, ?, ?, ?, now());", u.ListID, u.ProjectID, u.UserID, u.IssueNumber, u.Title, u.Description, u.PullRequest, u.HTMLURL, count+1)
+	currentID, _ := result.LastInsertId()
 	if err != nil {
 		transaction.Rollback()
 		return err
@@ -138,10 +139,11 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 			transaction.Rollback()
 			return err
 		}
-		currentID, _ := result.LastInsertId()
+
 		_, err = transaction.Exec("update tasks set issue_number = ?, pull_request = false, html_url = ? where id = ?;", *issue.Number, *issue.HTMLURL, currentID)
 		if err != nil {
 			// TODO: そもそもこのときはissueを削除しなければいけないのでは？
+			// しかしissueの削除は不可能のはずで，どうするかを考えないといけないが，そもそもここの発生確率って今のところかなり低いはずなので，そこまで気にする必要はないのではないか？
 			transaction.Rollback()
 			return err
 		}
@@ -231,7 +233,7 @@ func (u *TaskStruct) ChangeList(listID int64, prevToTaskID *int64, repo *reposit
 		return err
 	}
 
-	// TODO: noneListの場合はlabelを外す処理
+	// labelの所属を変更する処理
 	if !isReorder && OauthToken != nil && OauthToken.Valid && repo != nil && u.IssueNumber.Valid {
 		token := OauthToken.String
 		var listTitle, listColor sql.NullString
@@ -242,6 +244,7 @@ func (u *TaskStruct) ChangeList(listID int64, prevToTaskID *int64, repo *reposit
 			return err
 		}
 
+		// noneListの場合はリストを外す
 		var labelName []string
 		if listTitle.String == config.Element("init_list").(map[interface{}]interface{})["none"].(string) {
 			labelName = []string{}

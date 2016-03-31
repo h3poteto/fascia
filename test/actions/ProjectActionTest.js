@@ -153,7 +153,6 @@ describe('fetchCreateProject', () => {
         login: "ownerName"
       }
     }
-    // TODO: できれば文字列じゃなくてハッシュでやりたいけど，とりあえずこれで通しておく
     const postForm = `title=${title}&description=${description}&repositoryID=${repository.id}&repositoryOwner=${repository.owner.login}&repositoryName=${repository.name}`
     beforeEach(() => {
       nock('http://localhost')
