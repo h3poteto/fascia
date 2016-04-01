@@ -14,6 +14,7 @@ import (
 	"github.com/google/go-github/github"
 )
 
+// ListLoadFromGithub load lists from github labels
 func (u *ProjectStruct) ListLoadFromGithub(labels []github.Label) error {
 	for _, l := range u.Lists() {
 		if err := u.labelUpdate(l, labels); err != nil {

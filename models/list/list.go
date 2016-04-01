@@ -185,6 +185,7 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	return nil
 }
 
+// UpdateColor sync list color to github
 func (u *ListStruct) UpdateColor() error {
 	table := u.database.Init()
 	defer table.Close()

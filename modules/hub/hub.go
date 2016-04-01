@@ -141,6 +141,7 @@ func GetGithubIssues(token string, repo *repository.RepositoryStruct) ([]github.
 	return opneIssues, closedIssues, nil
 }
 
+// ListLabels list all github labels
 func ListLabels(token string, repo *repository.RepositoryStruct) ([]github.Label, error) {
 	client := prepareClient(token)
 
