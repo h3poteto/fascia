@@ -103,7 +103,12 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 				return err
 			}
 		} else {
-			// createしようとしたときに存在している場合，それはあまり気にしなくて良い．むしろこれで同等の状態になる
+			// 色だけはこちら指定のものに変更したい
+			_, err := hub.UpdateGithubLabel(token, repo, &u.Title.String, &u.Title.String, &u.Color.String)
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
 			logging.SharedInstance().MethodInfo("list", "Save", false).Info("github label already exist")
 		}
 	}
