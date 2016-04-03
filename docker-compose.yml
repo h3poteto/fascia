@@ -16,6 +16,7 @@ node:
 fascia:
   build: dockerfiles/fascia
   volumes:
+    - ~/.ssh:/root/.ssh
     - .:/go/src/fascia
   links:
     - mysql:mysql
