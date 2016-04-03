@@ -9,6 +9,7 @@ import (
 	"../repository"
 	"database/sql"
 	"errors"
+	"runtime"
 )
 
 type Task interface {
@@ -92,7 +93,14 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	defer func() {
 		if err := recover(); err != nil {
 			transaction.Rollback()
-			e = errors.New("unexpected error")
+			switch ty := err.(type) {
+			case runtime.Error:
+				e = ty
+			case string:
+				e = errors.New(err.(string))
+			default:
+				e = errors.New("unexpected error")
+			}
 		}
 	}()
 
