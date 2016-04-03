@@ -14,8 +14,30 @@ import (
 	"github.com/google/go-github/github"
 )
 
-// LoadFromGithub load tasks from github issues
-func (u *ProjectStruct) LoadFromGithub(issues []github.Issue) error {
+// ListLoadFromGithub load lists from github labels
+func (u *ProjectStruct) ListLoadFromGithub(labels []github.Label) error {
+	for _, l := range u.Lists() {
+		if err := u.labelUpdate(l, labels); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (u *ProjectStruct) labelUpdate(l *list.ListStruct, labels []github.Label) error {
+	for _, label := range labels {
+		if strings.ToLower(*label.Name) == strings.ToLower(l.Title.String) {
+			l.Color.String = *label.Color
+			if err := l.UpdateColor(); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// TaskLoadFromGithub load tasks from github issues
+func (u *ProjectStruct) TaskLoadFromGithub(issues []github.Issue) error {
 	for _, issue := range issues {
 		targetTask, _ := task.FindByIssueNumber(u.ID, *issue.Number)
 

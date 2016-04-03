@@ -267,12 +267,23 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		return false, err
 	}
 
+	// listを同期
+	labels, err := hub.ListLabels(oauthToken, repo)
+	if err != nil {
+		return false, err
+	}
+	err = u.ListLoadFromGithub(labels)
+	if err != nil {
+		return false, err
+	}
+
 	openIssues, closedIssues, err := hub.GetGithubIssues(oauthToken, repo)
 	if err != nil {
 		return false, err
 	}
 
-	err = u.LoadFromGithub(append(openIssues, closedIssues...))
+	// taskをすべて同期
+	err = u.TaskLoadFromGithub(append(openIssues, closedIssues...))
 	if err != nil {
 		return false, err
 	}
