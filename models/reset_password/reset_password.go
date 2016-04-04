@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"runtime"
 	"strconv"
 	"time"
 )
@@ -64,7 +65,14 @@ func ChangeUserPassword(id int64, token string, password string) (u *user.UserSt
 		if err := recover(); err != nil {
 			tx.Rollback()
 			u = nil
-			e = errors.New("unexpected error!")
+			switch ty := err.(type) {
+			case runtime.Error:
+				e = ty
+			case string:
+				e = errors.New(err.(string))
+			default:
+				e = errors.New("unexpected error")
+			}
 		}
 	}()
 

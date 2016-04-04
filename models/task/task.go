@@ -190,7 +190,14 @@ func (u *TaskStruct) ChangeList(listID int64, prevToTaskID *int64, repo *reposit
 	defer func() {
 		if err := recover(); err != nil {
 			transaction.Rollback()
-			e = errors.New("unexpected error")
+			switch ty := err.(type) {
+			case runtime.Error:
+				e = ty
+			case string:
+				e = errors.New(err.(string))
+			default:
+				e = errors.New("unexpected error")
+			}
 		}
 	}()
 

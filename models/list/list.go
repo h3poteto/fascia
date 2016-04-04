@@ -10,6 +10,7 @@ import (
 	"../task"
 	"database/sql"
 	"errors"
+	"runtime"
 )
 
 type List interface {
@@ -80,7 +81,14 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	defer func() {
 		if err := recover(); err != nil {
 			tx.Rollback()
-			e = errors.New("unexpected error")
+			switch ty := err.(type) {
+			case runtime.Error:
+				e = ty
+			case string:
+				e = errors.New(err.(string))
+			default:
+				e = errors.New("unexpected error")
+			}
 		}
 	}()
 
@@ -141,7 +149,14 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	defer func() {
 		if err := recover(); err != nil {
 			tx.Rollback()
-			e = errors.New("unexpected error")
+			switch ty := err.(type) {
+			case runtime.Error:
+				e = ty
+			case string:
+				e = errors.New(err.(string))
+			default:
+				e = errors.New("unexpected error")
+			}
 		}
 	}()
 
