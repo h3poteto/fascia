@@ -108,16 +108,16 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	count := 0
 	err := transaction.QueryRow("SELECT COUNT(id) FROM tasks WHERE list_id = ?;", u.ListID).Scan(&count)
 	if err != nil {
-		panic(err)
 		transaction.Rollback()
 		return err
 	}
 	result, err := transaction.Exec("insert into tasks (list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index, created_at) values (?,?,?, ?, ?, ?, ?, ?, ?, now());", u.ListID, u.ProjectID, u.UserID, u.IssueNumber, u.Title, u.Description, u.PullRequest, u.HTMLURL, count+1)
-	currentID, _ := result.LastInsertId()
 	if err != nil {
 		transaction.Rollback()
 		return err
 	}
+	currentID, _ := result.LastInsertId()
+
 	if OauthToken != nil && OauthToken.Valid && repo != nil {
 		var listTitle, listColor sql.NullString
 		var listOptionID sql.NullInt64
