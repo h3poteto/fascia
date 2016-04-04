@@ -11,6 +11,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"runtime"
 )
 
 type Project interface {
@@ -67,8 +68,15 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 	defer func() {
 		if err := recover(); err != nil {
 			tx.Rollback()
-			e = errors.New("unexpected error")
 			p = nil
+			switch ty := err.(type) {
+			case runtime.Error:
+				e = ty
+			case string:
+				e = errors.New(err.(string))
+			default:
+				e = errors.New("unexpected error")
+			}
 		}
 	}()
 

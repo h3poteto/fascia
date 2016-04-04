@@ -131,7 +131,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	repo, _ := parentProject.Repository()
 	if err := task.Save(repo, &currentUser.OauthToken); err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Create", true, c).Error("save failed: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "Create", true, c).Errorf("save failed: %v", err)
 		http.Error(w, "save failed", 500)
 		return
 	}
