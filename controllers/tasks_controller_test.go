@@ -116,7 +116,7 @@ var _ = Describe("TasksController", func() {
 			newList *list.ListStruct
 		)
 		JustBeforeEach(func() {
-			newList = list.NewList(0, projectID, userID, "list2", "", sql.NullInt64{})
+			newList = list.NewList(0, projectID, userID, "list2", "", sql.NullInt64{}, false)
 			newList.Save(nil, nil)
 			newTask = task.NewTask(0, listID, projectID, userID, sql.NullInt64{}, "taskTitle", "taskDescription", false, sql.NullString{})
 			newTask.Save(nil, nil)

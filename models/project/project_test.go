@@ -111,9 +111,9 @@ var _ = Describe("Project", func() {
 
 		BeforeEach(func() {
 			newProject, _ = Create(uid, "new project", "description", 0, "", "", sql.NullString{})
-			newList = list.NewList(0, newProject.ID, newProject.UserID, "list title", "", sql.NullInt64{})
+			newList = list.NewList(0, newProject.ID, newProject.UserID, "list title", "", sql.NullInt64{}, false)
 			_ = newList.Save(nil, nil)
-			noneList = list.NewList(0, newProject.ID, newProject.UserID, config.Element("init_list").(map[interface{}]interface{})["none"].(string), "", sql.NullInt64{})
+			noneList = list.NewList(0, newProject.ID, newProject.UserID, config.Element("init_list").(map[interface{}]interface{})["none"].(string), "", sql.NullInt64{}, false)
 			_ = noneList.Save(nil, nil)
 		})
 		It("should relate project and list", func() {

@@ -41,7 +41,7 @@ var _ = Describe("List", func() {
 		var database db.DB = mydb
 		table = database.Init()
 		newProject, _ = project.Create(uid, "title", "desc", 0, "", "", sql.NullString{})
-		newList = NewList(0, newProject.ID, newProject.UserID, "list title", "", sql.NullInt64{})
+		newList = NewList(0, newProject.ID, newProject.UserID, "list title", "", sql.NullInt64{}, false)
 	})
 
 	Describe("Save", func() {
@@ -95,7 +95,7 @@ var _ = Describe("List", func() {
 		JustBeforeEach(func() {
 			newList.Save(nil, nil)
 		})
-		Context("not have list_option", func() {
+		Context("does not have list_option", func() {
 			It("should update list", func() {
 				newTitle := "newTitle"
 				newColor := "newColor"
@@ -123,4 +123,16 @@ var _ = Describe("List", func() {
 			})
 		})
 	})
+
+	Describe("Archive", func() {
+		JustBeforeEach(func() {
+			newList.Save(nil, nil)
+		})
+		It("should archive list", func() {
+			err := newList.Archive()
+			Expect(err).To(BeNil())
+			Expect(newList.IsArchived).To(BeTrue())
+		})
+	})
+
 })

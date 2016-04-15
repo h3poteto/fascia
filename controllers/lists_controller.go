@@ -116,7 +116,7 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ListsController", "Create", false, c).Debugf("post new list parameter: %+v", newListForm)
-	list := listModel.NewList(0, projectID, currentUser.ID, newListForm.Title, newListForm.Color, sql.NullInt64{})
+	list := listModel.NewList(0, projectID, currentUser.ID, newListForm.Title, newListForm.Color, sql.NullInt64{}, false)
 
 	repo, _ := parentProject.Repository()
 	if err := list.Save(repo, &currentUser.OauthToken); err != nil {
@@ -189,4 +189,44 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder.Encode(jsonList)
 	logging.SharedInstance().MethodInfo("ListsController", "Update", false, c).Info("success to update list")
 	return
+}
+
+func (u *Lists) Archive(c web.C, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	currentUser, err := LoginRequired(r)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Archive", false, c).Infof("login error: %v", err)
+		http.Error(w, "not logined", 401)
+		return
+	}
+	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Archive", true, c).Errorf("parse error: %v", err)
+		http.Error(w, "project not found", 404)
+		return
+	}
+	parentProject, err := projectModel.FindProject(projectID)
+	if err != nil || parentProject.UserID != currentUser.ID {
+		logging.SharedInstance().MethodInfo("ListsController", "Archive", false, c).Warnf("project not found: %v", err)
+		http.Error(w, "project not found", 404)
+		return
+	}
+	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Archive", true, c).Errorf("parse error: %v", err)
+		http.Error(w, "list not found", 404)
+		return
+	}
+	targetList, err := listModel.FindList(projectID, listID)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Archive", true, c).Errorf("list not found: %v", err)
+		http.Error(w, "list not found", 404)
+		return
+	}
+
+	if err = targetList.Archive(); err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Archive", true, c).Errorf("archive failed: %v", err)
+		http.Error(w, "archive failed", 500)
+		return
+	}
 }

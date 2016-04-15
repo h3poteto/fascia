@@ -87,7 +87,7 @@ var _ = Describe("ListsController", func() {
 		)
 		Context("when action is null", func() {
 			JustBeforeEach(func() {
-				newList := list.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{})
+				newList := list.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
 				newList.Save(nil, nil)
 				values := url.Values{}
 				values.Add("title", "newListTitle")
@@ -104,7 +104,7 @@ var _ = Describe("ListsController", func() {
 		})
 		Context("when action is close", func() {
 			JustBeforeEach(func() {
-				newList := list.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{})
+				newList := list.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
 				newList.Save(nil, nil)
 				values := url.Values{}
 				values.Add("title", "newListTitle")

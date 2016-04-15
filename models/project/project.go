@@ -111,10 +111,10 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 		tx.Rollback()
 		return nil, err
 	}
-	todo := list.NewList(0, project.ID, userID, config.Element("init_list").(map[interface{}]interface{})["todo"].(string), "f37b1d", sql.NullInt64{})
-	inprogress := list.NewList(0, project.ID, userID, config.Element("init_list").(map[interface{}]interface{})["inprogress"].(string), "5eb95e", sql.NullInt64{})
-	done := list.NewList(0, project.ID, userID, config.Element("init_list").(map[interface{}]interface{})["done"].(string), "333333", sql.NullInt64{Int64: closeListOption.ID, Valid: true})
-	none := list.NewList(0, project.ID, userID, config.Element("init_list").(map[interface{}]interface{})["none"].(string), "ffffff", sql.NullInt64{})
+	todo := list.NewList(0, project.ID, userID, config.Element("init_list").(map[interface{}]interface{})["todo"].(string), "f37b1d", sql.NullInt64{}, false)
+	inprogress := list.NewList(0, project.ID, userID, config.Element("init_list").(map[interface{}]interface{})["inprogress"].(string), "5eb95e", sql.NullInt64{}, false)
+	done := list.NewList(0, project.ID, userID, config.Element("init_list").(map[interface{}]interface{})["done"].(string), "333333", sql.NullInt64{Int64: closeListOption.ID, Valid: true}, false)
+	none := list.NewList(0, project.ID, userID, config.Element("init_list").(map[interface{}]interface{})["none"].(string), "ffffff", sql.NullInt64{}, false)
 	if err := none.Save(nil, nil); err != nil {
 		tx.Rollback()
 		return nil, err
@@ -202,7 +202,7 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 	defer table.Close()
 
 	var slice []*list.ListStruct
-	rows, err := table.Query("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ? and title != ?;", u.ID, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
+	rows, err := table.Query("select id, project_id, user_id, title, color, list_option_id, is_archived from lists where project_id = ? and title != ?;", u.ID, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
 	if err != nil {
 		panic(err)
 		return slice
@@ -211,12 +211,13 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 		var id, projectID, userID int64
 		var title, color sql.NullString
 		var optionID sql.NullInt64
-		err = rows.Scan(&id, &projectID, &userID, &title, &color, &optionID)
+		var isArchived bool
+		err = rows.Scan(&id, &projectID, &userID, &title, &color, &optionID, &isArchived)
 		if err != nil {
 			panic(err)
 		}
 		if projectID == u.ID && title.Valid {
-			l := list.NewList(id, projectID, userID, title.String, color.String, optionID)
+			l := list.NewList(id, projectID, userID, title.String, color.String, optionID, isArchived)
 			slice = append(slice, l)
 		}
 	}
@@ -230,13 +231,14 @@ func (u *ProjectStruct) NoneList() (*list.ListStruct, error) {
 	var id, projectID, userID int64
 	var title, color sql.NullString
 	var optionID sql.NullInt64
-	err := table.QueryRow("select id, project_id, user_id, title, color, list_option_id from lists where project_id = ? and title = ?;", u.ID, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID)
+	var isArchived bool
+	err := table.QueryRow("select id, project_id, user_id, title, color, list_option_id, is_archived from lists where project_id = ? and title = ?;", u.ID, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID, &isArchived)
 	if err != nil {
 		// noneが存在しないということはProjectsController#Createがうまく行ってないので，そっちでエラーハンドリングしてほしい
 		panic(err)
 	}
 	if projectID == u.ID && title.Valid {
-		return list.NewList(id, projectID, userID, title.String, color.String, optionID), nil
+		return list.NewList(id, projectID, userID, title.String, color.String, optionID, isArchived), nil
 	}
 	return nil, errors.New("none list not found")
 }

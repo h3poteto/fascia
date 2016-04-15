@@ -37,7 +37,7 @@ var _ = Describe("Task", func() {
 		var database db.DB = mydb
 		table = database.Init()
 		newProject, _ = project.Create(uid, "title", "desc", 0, "", "", sql.NullString{})
-		newList = list.NewList(0, newProject.ID, newProject.UserID, "list title", "", sql.NullInt64{})
+		newList = list.NewList(0, newProject.ID, newProject.UserID, "list title", "", sql.NullInt64{}, false)
 		newList.Save(nil, nil)
 		newTask = NewTask(0, newList.ID, newProject.ID, newList.UserID, sql.NullInt64{}, "task title", "task description", false, sql.NullString{})
 	})
@@ -107,7 +107,7 @@ var _ = Describe("Task", func() {
 		)
 		JustBeforeEach(func() {
 			newTask.Save(nil, nil)
-			list2 = list.NewList(0, newProject.ID, newProject.UserID, "list2", "", sql.NullInt64{})
+			list2 = list.NewList(0, newProject.ID, newProject.UserID, "list2", "", sql.NullInt64{}, false)
 			list2.Save(nil, nil)
 		})
 		Context("when destination list do not have tasks", func() {
