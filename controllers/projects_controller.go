@@ -268,17 +268,14 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 		return
 	} else {
 		lists := project.Lists()
-		var jsonLists []*ListJSONFormat
-		for _, l := range lists {
-			jsonLists = append(jsonLists, &ListJSONFormat{ID: l.ID, ProjectID: l.ProjectID, UserID: l.UserID, Title: l.Title.String, ListTasks: TaskFormatToJson(l.Tasks()), Color: l.Color.String, ListOptionID: l.ListOptionID.Int64})
-		}
+		jsonLists := ListsFormatToJson(lists)
 		noneList, err := project.NoneList()
 		if err != nil {
 			logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub", true, c).Error(err)
 			http.Error(w, "none list not found", 500)
 			return
 		}
-		jsonNoneList := &ListJSONFormat{ID: noneList.ID, ProjectID: noneList.ProjectID, UserID: noneList.UserID, Title: noneList.Title.String, ListTasks: TaskFormatToJson(noneList.Tasks()), Color: noneList.Color.String, ListOptionID: noneList.ListOptionID.Int64}
+		jsonNoneList := ListFormatToJson(noneList)
 		jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub", false, c).Info("success to fetch github")
 		encoder.Encode(jsonAllLists)

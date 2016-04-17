@@ -202,7 +202,7 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 	defer table.Close()
 
 	var slice []*list.ListStruct
-	rows, err := table.Query("select id, project_id, user_id, title, color, list_option_id, is_archived from lists where project_id = ? and title != ?;", u.ID, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
+	rows, err := table.Query("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where project_id = ? and title != ?;", u.ID, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
 	if err != nil {
 		panic(err)
 		return slice
@@ -211,13 +211,13 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 		var id, projectID, userID int64
 		var title, color sql.NullString
 		var optionID sql.NullInt64
-		var isArchived bool
-		err = rows.Scan(&id, &projectID, &userID, &title, &color, &optionID, &isArchived)
+		var isHidden bool
+		err = rows.Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
 		if err != nil {
 			panic(err)
 		}
 		if projectID == u.ID && title.Valid {
-			l := list.NewList(id, projectID, userID, title.String, color.String, optionID, isArchived)
+			l := list.NewList(id, projectID, userID, title.String, color.String, optionID, isHidden)
 			slice = append(slice, l)
 		}
 	}
@@ -231,14 +231,14 @@ func (u *ProjectStruct) NoneList() (*list.ListStruct, error) {
 	var id, projectID, userID int64
 	var title, color sql.NullString
 	var optionID sql.NullInt64
-	var isArchived bool
-	err := table.QueryRow("select id, project_id, user_id, title, color, list_option_id, is_archived from lists where project_id = ? and title = ?;", u.ID, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID, &isArchived)
+	var isHidden bool
+	err := table.QueryRow("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where project_id = ? and title = ?;", u.ID, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
 	if err != nil {
 		// noneが存在しないということはProjectsController#Createがうまく行ってないので，そっちでエラーハンドリングしてほしい
 		panic(err)
 	}
 	if projectID == u.ID && title.Valid {
-		return list.NewList(id, projectID, userID, title.String, color.String, optionID, isArchived), nil
+		return list.NewList(id, projectID, userID, title.String, color.String, optionID, isHidden), nil
 	}
 	return nil, errors.New("none list not found")
 }

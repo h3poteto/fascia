@@ -141,4 +141,19 @@ var _ = Describe("ListsController", func() {
 			Expect(contents.Lists[4].Title).To(Equal("list2"))
 		})
 	})
+
+	Describe("Hide", func() {
+		var newList list.ListStruct
+		JustBeforeEach(func() {
+			newList := list.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
+			newList.Save(nil, nil)
+		})
+		It("should hide list", func() {
+			_, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(newList.ID, 10)+"/hide", url.Values{})
+			Expect(err).To(BeNil())
+			targetList, err := list.FindList(projectID, newList.ID)
+			Expect(err).To(BeNil())
+			Expect(targetList.IsHidden).To(BeTrue())
+		})
+	})
 })

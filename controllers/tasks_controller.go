@@ -214,17 +214,14 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	allLists := parentProject.Lists()
-	var jsonLists []*ListJSONFormat
-	for _, l := range allLists {
-		jsonLists = append(jsonLists, &ListJSONFormat{ID: l.ID, ProjectID: l.ProjectID, UserID: l.UserID, Title: l.Title.String, ListTasks: TaskFormatToJson(l.Tasks()), Color: l.Color.String, ListOptionID: l.ListOptionID.Int64})
-	}
+	jsonLists := ListsFormatToJson(allLists)
 	noneList, err := parentProject.NoneList()
 	if err != nil {
 		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", true, c).Error(err)
 		http.Error(w, "none list not found", 500)
 		return
 	}
-	jsonNoneList := &ListJSONFormat{ID: noneList.ID, ProjectID: noneList.ProjectID, UserID: noneList.UserID, Title: noneList.Title.String, ListTasks: TaskFormatToJson(noneList.Tasks()), Color: noneList.Color.String, ListOptionID: noneList.ListOptionID.Int64}
+	jsonNoneList := ListFormatToJson(noneList)
 	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 	logging.SharedInstance().MethodInfo("TasksController", "MoveTask", false, c).Debugf("move task: %+v", allLists)
 	logging.SharedInstance().MethodInfo("TasksController", "MoveTask", false, c).Info("success to move task")

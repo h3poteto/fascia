@@ -25,18 +25,18 @@ type ListStruct struct {
 	ListTasks    []*task.TaskStruct
 	Color        sql.NullString
 	ListOptionID sql.NullInt64
-	IsArchived   bool
+	IsHidden     bool
 	database     db.DB
 }
 
-func NewList(id int64, projectID int64, userID int64, title string, color string, optionID sql.NullInt64, isArchived bool) *ListStruct {
+func NewList(id int64, projectID int64, userID int64, title string, color string, optionID sql.NullInt64, isHidden bool) *ListStruct {
 	if projectID == 0 {
 		return nil
 	}
 	nullTitle := sql.NullString{String: title, Valid: true}
 	nullColor := sql.NullString{String: color, Valid: true}
 
-	list := &ListStruct{ID: id, ProjectID: projectID, UserID: userID, Title: nullTitle, Color: nullColor, ListOptionID: optionID, IsArchived: isArchived}
+	list := &ListStruct{ID: id, ProjectID: projectID, UserID: userID, Title: nullTitle, Color: nullColor, ListOptionID: optionID, IsHidden: isHidden}
 	list.Initialize()
 	return list
 }
@@ -50,13 +50,13 @@ func FindList(projectID int64, listID int64) (*ListStruct, error) {
 	var id, userID int64
 	var title, color sql.NullString
 	var optionID sql.NullInt64
-	var isArchived bool
-	rows, err := table.Query("select id, project_id, user_id, title, color, list_option_id, is_archived from lists where id = ? AND project_id = ?;", listID, projectID)
+	var isHidden bool
+	rows, err := table.Query("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where id = ? AND project_id = ?;", listID, projectID)
 	if err != nil {
 		panic(err)
 	}
 	for rows.Next() {
-		err = rows.Scan(&id, &projectID, &userID, &title, &color, &optionID, &isArchived)
+		err = rows.Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
 		if err != nil {
 			panic(err)
 		}
@@ -64,7 +64,7 @@ func FindList(projectID int64, listID int64) (*ListStruct, error) {
 	if id != listID {
 		return nil, errors.New("cannot find list or project did not contain list")
 	} else {
-		list := NewList(id, projectID, userID, title.String, color.String, optionID, isArchived)
+		list := NewList(id, projectID, userID, title.String, color.String, optionID, isHidden)
 		return list, nil
 	}
 
@@ -94,7 +94,7 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		}
 	}()
 
-	result, err := tx.Exec("insert into lists (project_id, user_id, title, color, list_option_id, is_archived, created_at) values (?, ?, ?, ?, ?, ?, now());", u.ProjectID, u.UserID, u.Title, u.Color, u.ListOptionID, u.IsArchived)
+	result, err := tx.Exec("insert into lists (project_id, user_id, title, color, list_option_id, is_hidden, created_at) values (?, ?, ?, ?, ?, ?, now());", u.ProjectID, u.UserID, u.Title, u.Color, u.ListOptionID, u.IsHidden)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -162,7 +162,7 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 		}
 	}()
 
-	_, err = tx.Exec("update lists set title = ?, color = ?, list_option_id = ?, is_archived = ? where id = ?;", *title, *color, listOptionID, u.IsArchived, u.ID)
+	_, err = tx.Exec("update lists set title = ?, color = ?, list_option_id = ?, is_hidden = ? where id = ?;", *title, *color, listOptionID, u.IsHidden, u.ID)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -253,14 +253,14 @@ func (u *ListStruct) IsInitList() bool {
 	return false
 }
 
-func (u *ListStruct) Archive() error {
+func (u *ListStruct) Hide() error {
 	table := u.database.Init()
 	defer table.Close()
 
-	_, err := table.Exec("update lists set is_archived = true where id = ?;", u.ID)
+	_, err := table.Exec("update lists set is_hidden = true where id = ?;", u.ID)
 	if err != nil {
 		return err
 	}
-	u.IsArchived = true
+	u.IsHidden = true
 	return nil
 }

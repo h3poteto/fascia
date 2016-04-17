@@ -124,14 +124,14 @@ var _ = Describe("List", func() {
 		})
 	})
 
-	Describe("Archive", func() {
+	Describe("Hidden", func() {
 		JustBeforeEach(func() {
 			newList.Save(nil, nil)
 		})
-		It("should archive list", func() {
-			err := newList.Archive()
+		It("should hidden list", func() {
+			err := newList.Hidden()
 			Expect(err).To(BeNil())
-			Expect(newList.IsArchived).To(BeTrue())
+			Expect(newList.IsHidden).To(BeTrue())
 		})
 	})
 

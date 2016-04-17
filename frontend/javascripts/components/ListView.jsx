@@ -220,7 +220,10 @@ export default class ListView extends React.Component {
           {lists.map(function(list, index) {
             return (
               <div key={index} className="fascia-list" data-dropped-depth="0" data-id={list.ID} onDragOver={this.props.taskDragOver} onDrop={e=> this.props.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.taskDragLeave}>
-                <div className="fascia-list-menu" data-dropped-depth="1"><i className="fa fa-pencil" onClick={e => this.props.openEditListModal(list)} data-dropped-depth="2"></i></div>
+                <div className="fascia-list-menu" data-dropped-depth="1">
+                  <i className="fa fa-eye-slash" onClick={e => this.props.hideList(project.ID, list.ID)} data-dropped-depth="2"></i>
+                  <i className="fa fa-pencil" onClick={e => this.props.openEditListModal(list)} data-dropped-depth="2"></i>
+                </div>
                 <span className="list-title" data-dropped-depth="1">{list.Title}</span>
                 <ul className="fascia-task" data-dropped-depth="1">
                   {list.ListTasks.map(function(task, index) {
