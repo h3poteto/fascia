@@ -137,4 +137,18 @@ var _ = Describe("List", func() {
 		})
 	})
 
+	Describe("Display", func() {
+		JustBeforeEach(func() {
+			newList.Save(nil, nil)
+			newList.Hide()
+		})
+		It("should display list", func() {
+			err := newList.Display()
+			Expect(err).To(BeNil())
+			Expect(newList.IsHidden).To(BeFalse())
+			l, _ := FindList(newProject.ID, newList.ID)
+			Expect(l.IsHidden).To(BeFalse())
+		})
+	})
+
 })

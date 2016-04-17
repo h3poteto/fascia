@@ -245,6 +245,62 @@ func (u *Lists) Hide(c web.C, w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func (u *Lists) Display(c web.C, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	currentUser, err := LoginRequired(r)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Display", false, c).Infof("login error: %v", err)
+		http.Error(w, "not logined", 401)
+		return
+	}
+	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Display", true, c).Errorf("parse error: %v", err)
+		http.Error(w, "project not found", 404)
+		return
+	}
+	parentProject, err := projectModel.FindProject(projectID)
+	if err != nil || parentProject.UserID != currentUser.ID {
+		logging.SharedInstance().MethodInfo("ListsController", "Display", false, c).Warnf("project not found: %v", err)
+		http.Error(w, "project not found", 404)
+		return
+	}
+	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Display", true, c).Errorf("parse error: %v", err)
+		http.Error(w, "list not found", 404)
+		return
+	}
+	targetList, err := listModel.FindList(projectID, listID)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Display", true, c).Errorf("list not found: %v", err)
+		http.Error(w, "list not found", 404)
+		return
+	}
+
+	if err = targetList.Display(); err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Display", true, c).Errorf("display failed: %v", err)
+		http.Error(w, "display failed", 500)
+		return
+	}
+
+	// prepare response
+	encoder := json.NewEncoder(w)
+	lists := parentProject.Lists()
+	jsonLists := ListsFormatToJson(lists)
+	noneList, err := parentProject.NoneList()
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Display", true, c).Error(err)
+		http.Error(w, "none list not found", 500)
+		return
+	}
+	jsonNoneList := ListFormatToJson(noneList)
+	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
+	logging.SharedInstance().MethodInfo("ListsController", "Display", false, c).Info("success to display list")
+	encoder.Encode(jsonAllLists)
+	return
+}
+
 func ListsFormatToJson(lists []*listModel.ListStruct) []*ListJSONFormat {
 	var jsonLists []*ListJSONFormat
 	for _, l := range lists {

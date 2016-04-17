@@ -264,3 +264,15 @@ func (u *ListStruct) Hide() error {
 	u.IsHidden = true
 	return nil
 }
+
+func (u *ListStruct) Display() error {
+	table := u.database.Init()
+	defer table.Close()
+
+	_, err := table.Exec("update lists set is_hidden = false where id = ?;", u.ID)
+	if err != nil {
+		return err
+	}
+	u.IsHidden = false
+	return nil
+}
