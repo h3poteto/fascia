@@ -31,7 +31,7 @@ type ListJSONFormat struct {
 	ProjectID    int64
 	UserID       int64
 	Title        string
-	ListTasks    []*TaskJsonFormat
+	ListTasks    []*TaskJSONFormat
 	Color        string
 	ListOptionID int64
 	IsHidden     bool
@@ -64,14 +64,14 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	lists := parentProject.Lists()
-	jsonLists := ListsFormatToJson(lists)
+	jsonLists := ListsFormatToJSON(lists)
 	noneList, err := parentProject.NoneList()
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ListsController", "Index", true, c).Error(err)
 		http.Error(w, "none list not found", 500)
 		return
 	}
-	jsonNoneList := ListFormatToJson(noneList)
+	jsonNoneList := ListFormatToJSON(noneList)
 	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 	encoder.Encode(jsonAllLists)
 	logging.SharedInstance().MethodInfo("ListsController", "Index", false, c).Info("success to get lists")
@@ -122,7 +122,7 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed save", 500)
 		return
 	}
-	jsonList := ListFormatToJson(list)
+	jsonList := ListFormatToJSON(list)
 	encoder.Encode(jsonList)
 	logging.SharedInstance().MethodInfo("ListsController", "Create", false, c).Info("success to create list")
 	return
@@ -183,12 +183,13 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "save failed", 500)
 		return
 	}
-	jsonList := ListFormatToJson(targetList)
+	jsonList := ListFormatToJSON(targetList)
 	encoder.Encode(jsonList)
 	logging.SharedInstance().MethodInfo("ListsController", "Update", false, c).Info("success to update list")
 	return
 }
 
+// Hide can hide a list
 func (u *Lists) Hide(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	currentUser, err := LoginRequired(r)
@@ -231,20 +232,21 @@ func (u *Lists) Hide(c web.C, w http.ResponseWriter, r *http.Request) {
 	// prepare response
 	encoder := json.NewEncoder(w)
 	lists := parentProject.Lists()
-	jsonLists := ListsFormatToJson(lists)
+	jsonLists := ListsFormatToJSON(lists)
 	noneList, err := parentProject.NoneList()
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ListsController", "Hide", true, c).Error(err)
 		http.Error(w, "none list not found", 500)
 		return
 	}
-	jsonNoneList := ListFormatToJson(noneList)
+	jsonNoneList := ListFormatToJSON(noneList)
 	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 	logging.SharedInstance().MethodInfo("ListsController", "Hide", false, c).Info("success to hide list")
 	encoder.Encode(jsonAllLists)
 	return
 }
 
+// Display can display a list
 func (u *Lists) Display(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	currentUser, err := LoginRequired(r)
@@ -287,28 +289,30 @@ func (u *Lists) Display(c web.C, w http.ResponseWriter, r *http.Request) {
 	// prepare response
 	encoder := json.NewEncoder(w)
 	lists := parentProject.Lists()
-	jsonLists := ListsFormatToJson(lists)
+	jsonLists := ListsFormatToJSON(lists)
 	noneList, err := parentProject.NoneList()
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ListsController", "Display", true, c).Error(err)
 		http.Error(w, "none list not found", 500)
 		return
 	}
-	jsonNoneList := ListFormatToJson(noneList)
+	jsonNoneList := ListFormatToJSON(noneList)
 	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 	logging.SharedInstance().MethodInfo("ListsController", "Display", false, c).Info("success to display list")
 	encoder.Encode(jsonAllLists)
 	return
 }
 
-func ListsFormatToJson(lists []*listModel.ListStruct) []*ListJSONFormat {
+// ListsFormatToJSON convert lists models's array to json
+func ListsFormatToJSON(lists []*listModel.ListStruct) []*ListJSONFormat {
 	var jsonLists []*ListJSONFormat
 	for _, l := range lists {
-		jsonLists = append(jsonLists, ListFormatToJson(l))
+		jsonLists = append(jsonLists, ListFormatToJSON(l))
 	}
 	return jsonLists
 }
 
-func ListFormatToJson(list *listModel.ListStruct) *ListJSONFormat {
-	return &ListJSONFormat{ID: list.ID, ProjectID: list.ProjectID, UserID: list.UserID, Title: list.Title.String, ListTasks: TaskFormatToJson(list.Tasks()), Color: list.Color.String, ListOptionID: list.ListOptionID.Int64, IsHidden: list.IsHidden}
+// ListFormatToJSON convert a list model to json
+func ListFormatToJSON(list *listModel.ListStruct) *ListJSONFormat {
+	return &ListJSONFormat{ID: list.ID, ProjectID: list.ProjectID, UserID: list.UserID, Title: list.Title.String, ListTasks: TaskFormatToJSON(list.Tasks()), Color: list.Color.String, ListOptionID: list.ListOptionID.Int64, IsHidden: list.IsHidden}
 }

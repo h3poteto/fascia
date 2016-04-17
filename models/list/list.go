@@ -253,6 +253,7 @@ func (u *ListStruct) IsInitList() bool {
 	return false
 }
 
+// Hide can hide a list, it change is_hidden field
 func (u *ListStruct) Hide() error {
 	table := u.database.Init()
 	defer table.Close()
@@ -265,6 +266,7 @@ func (u *ListStruct) Hide() error {
 	return nil
 }
 
+// Display can display a list, it change is_hidden filed
 func (u *ListStruct) Display() error {
 	table := u.database.Init()
 	defer table.Close()

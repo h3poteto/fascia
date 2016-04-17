@@ -97,7 +97,7 @@ var _ = Describe("ProjectsController", func() {
 		It("should receive projects", func() {
 			res, err := http.Get(ts.URL + "/projects")
 			Expect(err).To(BeNil())
-			var resp []controllers.ProjectJsonFormat
+			var resp []controllers.ProjectJSONFormat
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &resp)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
@@ -114,7 +114,7 @@ var _ = Describe("ProjectsController", func() {
 		It("should receive project title", func() {
 			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(newProject.ID, 10) + "/show")
 			Expect(err).To(BeNil())
-			var resp controllers.ProjectJsonFormat
+			var resp controllers.ProjectJSONFormat
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &resp)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
@@ -132,7 +132,7 @@ var _ = Describe("ProjectsController", func() {
 			values.Add("title", "newTitle")
 			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(newProject.ID, 10), values)
 			Expect(err).To(BeNil())
-			var resp controllers.ProjectJsonFormat
+			var resp controllers.ProjectJSONFormat
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &resp)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
@@ -151,7 +151,7 @@ var _ = Describe("ProjectsController", func() {
 			values.Add("show_pull_requests", "true")
 			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(newProject.ID, 10)+"/settings", values)
 			Expect(err).To(BeNil())
-			var resp controllers.ProjectJsonFormat
+			var resp controllers.ProjectJSONFormat
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &resp)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
@@ -165,7 +165,7 @@ var _ = Describe("ProjectsController", func() {
 			values.Add("show_pull_requests", "false")
 			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(newProject.ID, 10)+"/settings", values)
 			Expect(err).To(BeNil())
-			var resp controllers.ProjectJsonFormat
+			var resp controllers.ProjectJSONFormat
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &resp)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))

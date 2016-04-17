@@ -43,7 +43,7 @@ var _ = Describe("ListOptionsController", func() {
 		JustBeforeEach(func() {
 			res, err := http.Get(ts.URL + "/list_options")
 			Expect(err).To(BeNil())
-			var contents []controllers.ListOptionJsonFormat
+			var contents []controllers.ListOptionJSONFormat
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))

@@ -101,7 +101,7 @@ var _ = Describe("TasksController", func() {
 		It("should receive tasks", func() {
 			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(projectID, 10) + "/lists/" + strconv.FormatInt(listID, 10) + "/tasks")
 			Expect(err).To(BeNil())
-			var contents []controllers.TaskJsonFormat
+			var contents []controllers.TaskJSONFormat
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))

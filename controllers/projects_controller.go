@@ -31,7 +31,7 @@ type SettingsProjectForm struct {
 	ShowPullRequests bool `param:"show_pull_requests"`
 }
 
-type ProjectJsonFormat struct {
+type ProjectJSONFormat struct {
 	ID               int64
 	UserID           int64
 	Title            string
@@ -51,14 +51,14 @@ func (u *Projects) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	encoder := json.NewEncoder(w)
 	projects := currentUser.Projects()
-	jsonProjects := make([]*ProjectJsonFormat, 0)
+	jsonProjects := make([]*ProjectJSONFormat, 0)
 	for _, p := range projects {
 		var repositoryID int64
 		repo, err := p.Repository()
 		if err == nil {
 			repositoryID = repo.ID
 		}
-		jsonProjects = append(jsonProjects, &ProjectJsonFormat{ID: p.ID, UserID: p.UserID, Title: p.Title, Description: p.Description, ShowIssues: p.ShowIssues, ShowPullRequests: p.ShowPullRequests, RepositoryID: repositoryID})
+		jsonProjects = append(jsonProjects, &ProjectJSONFormat{ID: p.ID, UserID: p.UserID, Title: p.Title, Description: p.Description, ShowIssues: p.ShowIssues, ShowPullRequests: p.ShowPullRequests, RepositoryID: repositoryID})
 	}
 	encoder.Encode(jsonProjects)
 }
@@ -89,7 +89,7 @@ func (u *Projects) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		repoID = repo.ID
 	}
-	jsonProject := ProjectJsonFormat{ID: project.ID, UserID: project.UserID, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repoID}
+	jsonProject := ProjectJSONFormat{ID: project.ID, UserID: project.UserID, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repoID}
 	encoder.Encode(jsonProject)
 	return
 }
@@ -131,7 +131,7 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		repositoryID = repo.ID
 	}
-	jsonProject := ProjectJsonFormat{ID: project.ID, UserID: project.UserID, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repositoryID}
+	jsonProject := ProjectJSONFormat{ID: project.ID, UserID: project.UserID, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repositoryID}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Create", false, c).Info("success to create project")
 	encoder.Encode(jsonProject)
 }
@@ -185,7 +185,7 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		repositoryID = repo.ID
 	}
-	jsonProject := ProjectJsonFormat{ID: project.ID, UserID: project.UserID, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repositoryID}
+	jsonProject := ProjectJSONFormat{ID: project.ID, UserID: project.UserID, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repositoryID}
 	encoder.Encode(jsonProject)
 }
 
@@ -236,7 +236,7 @@ func (u *Projects) Settings(c web.C, w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		repositoryID = repo.ID
 	}
-	jsonProject := ProjectJsonFormat{ID: project.ID, UserID: project.UserID, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repositoryID}
+	jsonProject := ProjectJSONFormat{ID: project.ID, UserID: project.UserID, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repositoryID}
 	encoder.Encode(jsonProject)
 }
 
@@ -268,14 +268,14 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 		return
 	} else {
 		lists := project.Lists()
-		jsonLists := ListsFormatToJson(lists)
+		jsonLists := ListsFormatToJSON(lists)
 		noneList, err := project.NoneList()
 		if err != nil {
 			logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub", true, c).Error(err)
 			http.Error(w, "none list not found", 500)
 			return
 		}
-		jsonNoneList := ListFormatToJson(noneList)
+		jsonNoneList := ListFormatToJSON(noneList)
 		jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub", false, c).Info("success to fetch github")
 		encoder.Encode(jsonAllLists)
