@@ -124,14 +124,16 @@ var _ = Describe("List", func() {
 		})
 	})
 
-	Describe("Hidden", func() {
+	Describe("Hide", func() {
 		JustBeforeEach(func() {
 			newList.Save(nil, nil)
 		})
 		It("should hidden list", func() {
-			err := newList.Hidden()
+			err := newList.Hide()
 			Expect(err).To(BeNil())
 			Expect(newList.IsHidden).To(BeTrue())
+			l, _ := FindList(newProject.ID, newList.ID)
+			Expect(l.IsHidden).To(BeTrue())
 		})
 	})
 
