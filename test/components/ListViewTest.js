@@ -2,6 +2,7 @@ import TestUtils from 'react-addons-test-utils'
 import expect from 'expect'
 import React from 'react'
 import ListView from '../../frontend/javascripts/components/ListView.jsx'
+import * as ListViewFixture from '../fixtures/components/ListViewFixture'
 
 function setup(props) {
   let renderer = TestUtils.createRenderer()
@@ -17,70 +18,7 @@ function setup(props) {
 
 describe('ListView', () => {
   context('when no error', () => {
-    let state = {
-      ListReducer: {
-        isListModalOpen: false,
-        isTaskModalOpen: false,
-        isListEditModalOpen: false,
-        isProjectEditModalOpen: false,
-        newList: {title: "", color: "0effff"},
-        newTask: {title: ""},
-        lists: [
-          {
-            ID: 1,
-            Title: "list1",
-            ListTasks: [
-              {
-                ID: 1,
-                Title: "task1"
-              }, {
-                ID: 2,
-                Title: "task2"
-              }
-            ]
-          }, {
-            ID: 2,
-            Title: "list2",
-            ListTasks: []
-          }
-        ],
-        noneList: {
-          ID: 3,
-          ListTasks: [
-            {
-              ID: 3,
-              Title: "task3"
-            }
-          ]
-        },
-        listOptions: [],
-        selectedListOption: null,
-        selectedList: null,
-        project: {
-          Title: "testProject",
-          Description: "description",
-          RepositoryID: 0,
-          ShowIssues: true,
-          ShowPullRequests: true
-        },
-        selectedProject: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
-        isTaskDraggingOver: false,
-        taskDraggingFrom: null,
-        taskDraggingTo: null,
-        error: null
-      },
-      params: {
-        projectID: 1
-      },
-      fetchLists: expect.createSpy(),
-      fetchProject: expect.createSpy(),
-      fetchListOptions: expect.createSpy(),
-      closeFlash: expect.createSpy(),
-      taskDrop: expect.createSpy(),
-      openNewListModal: expect.createSpy(),
-      taskDragStart: expect.createSpy(),
-      openNewTaskModal: expect.createSpy()
-    }
+    let state = ListViewFixture.initState()
     it('should render correctly', () => {
       const { output, props } = setup(state)
 
@@ -134,62 +72,7 @@ describe('ListView', () => {
   })
 
   context('when one error, not modal', () => {
-    let state = {
-      ListReducer: {
-        isListModalOpen: false,
-        isTaskModalOpen: false,
-        isListEditModalOpen: false,
-        isProjectEditModalOpen: false,
-        newList: {title: "", color: "0effff"},
-        newTask: {title: ""},
-        lists: [
-          {
-            ID: 1,
-            Title: "list1",
-            ListTasks: [
-              {
-                ID: 1,
-                Title: "task1"
-              }, {
-                ID: 2,
-                Title: "task2"
-              }
-            ]
-          }, {
-            ID: 2,
-            Title: "list2",
-            ListTasks: []
-          }
-        ],
-        noneList: {ID: 0, ListTasks: [] },
-        listOptions: [],
-        selectedListOption: null,
-        selectedList: null,
-        project: {
-          Title: "testProject",
-          Description: "description",
-          RepositoryID: 0,
-          ShowIssues: true,
-          ShowPullRequests: true
-        },
-        selectedProject: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
-        isTaskDraggingOver: false,
-        taskDraggingFrom: null,
-        taskDraggingTo: null,
-        error: "Server Error"
-      },
-      params: {
-        projectID: 1
-      },
-      fetchLists: expect.createSpy(),
-      fetchProject: expect.createSpy(),
-      fetchListOptions: expect.createSpy(),
-      closeFlash: expect.createSpy(),
-      taskDrop: expect.createSpy(),
-      openNewListModal: expect.createSpy(),
-      taskDragStart: expect.createSpy(),
-      openNewTaskModal: expect.createSpy()
-    }
+    let state = ListViewFixture.errorState()
     it('should render error', () => {
       const { output } = setup(state)
       let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
@@ -197,63 +80,7 @@ describe('ListView', () => {
     })
   })
   context('when whole loading is open', () => {
-    let state = {
-      ListReducer: {
-        isListModalOpen: false,
-        isTaskModalOpen: false,
-        isListEditModalOpen: false,
-        isProjectEditModalOpen: false,
-        isLoading: true,
-        newList: {title: "", color: "0effff"},
-        newTask: {title: ""},
-        lists: [
-          {
-            ID: 1,
-            Title: "list1",
-            ListTasks: [
-              {
-                ID: 1,
-                Title: "task1"
-              }, {
-                ID: 2,
-                Title: "task2"
-              }
-            ]
-          }, {
-            ID: 2,
-            Title: "list2",
-            ListTasks: []
-          }
-        ],
-        noneList: {ID: 0, ListTasks: [] },
-        listOptions: [],
-        selectedListOption: null,
-        selectedList: null,
-        project: {
-          Title: "testProject",
-          Description: "description",
-          RepositoryID: 0,
-          ShowIssues: true,
-          ShowPullRequests: true
-        },
-        selectedProject: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
-        isTaskDraggingOver: false,
-        taskDraggingFrom: null,
-        taskDraggingTo: null,
-        error: null
-      },
-      params: {
-        projectID: 1
-      },
-      fetchLists: expect.createSpy(),
-      fetchProject: expect.createSpy(),
-      fetchListOptions: expect.createSpy(),
-      closeFlash: expect.createSpy(),
-      taskDrop: expect.createSpy(),
-      openNewListModal: expect.createSpy(),
-      taskDragStart: expect.createSpy(),
-      openNewTaskModal: expect.createSpy()
-    }
+    let state = ListViewFixture.wholeLoadingState()
     it('should render loading window', () => {
       const { output } = setup(state)
       let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
@@ -263,62 +90,7 @@ describe('ListView', () => {
   })
 
   context('when list modal open', () => {
-    let state = {
-      ListReducer: {
-        isListModalOpen: true,
-        isTaskModalOpen: false,
-        isListEditModalOpen: false,
-        isProjectEditModalOpen: false,
-        newList: {title: "", color: "0effff"},
-        newTask: {title: ""},
-        lists: [
-          {
-            ID: 1,
-            Title: "list1",
-            ListTasks: [
-              {
-                ID: 1,
-                Title: "task1"
-              }, {
-                ID: 2,
-                Title: "task2"
-              }
-            ]
-          }, {
-            ID: 2,
-            Title: "list2",
-            ListTasks: []
-          }
-        ],
-        noneList: {ID: 0, ListTasks: [] },
-        listOptions: [],
-        selectedListOption: null,
-        selectedList: null,
-        project: {
-          Title: "testProject",
-          Description: "description",
-          RepositoryID: 0,
-          ShowIssues: true,
-          ShowPullRequests: true
-        },
-        selectedProject: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
-        isTaskDraggingOver: false,
-        taskDraggingFrom: null,
-        taskDraggingTo: null,
-        error: null
-      },
-      params: {
-        projectID: 1
-      },
-      fetchLists: expect.createSpy(),
-      fetchProject: expect.createSpy(),
-      fetchListOptions: expect.createSpy(),
-      closeFlash: expect.createSpy(),
-      taskDrop: expect.createSpy(),
-      openNewListModal: expect.createSpy(),
-      taskDragStart: expect.createSpy(),
-      openNewTaskModal: expect.createSpy()
-    }
+    let state = ListViewFixture.listModalState()
     it('should render modal', () => {
       const { output, props } = setup(state)
       let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
@@ -326,58 +98,7 @@ describe('ListView', () => {
     })
   })
   context('when task modal open', () => {
-    let state = {
-      ListReducer: {
-        isListModalOpen: false,
-        isTaskModalOpen: true,
-        isListEditModalOpen: false,
-        isProjectEditModalOpen: false,
-        newList: {title: "", color: "0effff"},
-        newTask: {title: ""},
-        lists: [
-          {
-            ID: 1,
-            Title: "list1",
-            ListTasks: [
-              {
-                ID: 1,
-                Title: "task1"
-              }, {
-                ID: 2,
-                Title: "task2"
-              }
-            ]
-          }, {
-            ID: 2,
-            Title: "list2",
-            ListTasks: []
-          }
-        ],
-        noneList: {ID: 0, ListTasks: [] },
-        listOptions: [],
-        selectedListOption: null,
-        selectedList: null,
-        project: {
-          Title: "testProject"
-        },
-        selectedProject: {Title: "", Description: "", RepositoryID: 0},
-        isTaskDraggingOver: false,
-        taskDraggingFrom: null,
-        taskDraggingTo: null,
-        error: null
-      },
-      params: {
-        projectID: 1
-      },
-      fetchLists: expect.createSpy(),
-      fetchProject: expect.createSpy(),
-      fetchListOptions: expect.createSpy(),
-      closeFlash: expect.createSpy(),
-      taskDrop: expect.createSpy(),
-      openNewListModal: expect.createSpy(),
-      taskDragStart: expect.createSpy(),
-      openNewTaskModal: expect.createSpy()
-    }
+    let state = ListViewFixture.taskModalState()
     it('should render task modal', () => {
       const { output } = setup(state)
       let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
@@ -386,71 +107,7 @@ describe('ListView', () => {
   })
   context('when list edit modal open', () => {
     context('when project does not have repository', () => {
-      let state = {
-        ListReducer: {
-          isListModalOpen: false,
-          isTaskModalOpen: false,
-          isListEditModalOpen: true,
-          isProjectEditModalOpen: false,
-          newList: {title: "", color: "0effff"},
-          newTask: {title: ""},
-          lists: [
-            {
-              ID: 1,
-              Title: "list1",
-              ListTasks: [
-                {
-                  ID: 1,
-                  Title: "task1"
-                }, {
-                  ID: 2,
-                  Title: "task2"
-                }
-              ]
-            }, {
-              ID: 2,
-              Title: "list2",
-              ListTasks: []
-            }
-          ],
-          noneList: {ID: 0, ListTasks: [] },
-          listOptions: [
-            {
-              ID: 1,
-              Action: "close"
-            }, {
-              ID: 2,
-              Action: "open"
-            }
-          ],
-          selectedListOption: {
-            ID: 1,
-            Action: "close"
-          },
-          selectedList: null,
-          project: {
-            Title: "testProject",
-            RepositoryID: 0
-          },
-          selectedProject: {Title: "", Description: "", RepositoryID: 0},
-          isTaskDraggingOver: false,
-          taskDraggingFrom: null,
-          taskDraggingTo: null,
-          error: null
-        },
-        params: {
-          projectID: 1
-        },
-        fetchLists: expect.createSpy(),
-        fetchProject: expect.createSpy(),
-        fetchListOptions: expect.createSpy(),
-        fetchUpdateList: expect.createSpy(),
-        closeFlash: expect.createSpy(),
-        taskDrop: expect.createSpy(),
-        openNewListModal: expect.createSpy(),
-        taskDragStart: expect.createSpy(),
-        openNewTaskModal: expect.createSpy()
-      }
+      let state = ListViewFixture.noRepositoryProjectState(ListViewFixture.listEditModalState())
       it('should render list edit modal without action', () => {
         const { output, props } = setup(state)
         let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
@@ -465,74 +122,7 @@ describe('ListView', () => {
       })
     })
     context('when project has repository', () => {
-      let state = {
-        ListReducer: {
-          isListModalOpen: false,
-          isTaskModalOpen: false,
-          isListEditModalOpen: true,
-          isProjectEditModalOpen: false,
-          newList: {title: "", color: "0effff"},
-          newTask: {title: ""},
-          lists: [
-            {
-              ID: 1,
-              Title: "list1",
-              ListTasks: [
-                {
-                  ID: 1,
-                  Title: "task1"
-                }, {
-                  ID: 2,
-                  Title: "task2"
-                }
-              ]
-            }, {
-              ID: 2,
-              Title: "list2",
-              ListTasks: []
-            }
-          ],
-          noneList: {ID: 0, ListTasks: [] },
-          listOptions: [
-            {
-              ID: 1,
-              Action: "close"
-            }, {
-              ID: 2,
-              Action: "open"
-            }
-          ],
-          selectedListOption: {
-            ID: 1,
-            Action: "close"
-          },
-          selectedList: null,
-          project: {
-            Title: "testProject",
-            Description: "description",
-            RepositoryID: 1,
-            ShowIssues: true,
-            ShowPullRequests: true
-          },
-          selectedProject: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
-          isTaskDraggingOver: false,
-          taskDraggingFrom: null,
-          taskDraggingTo: null,
-          error: null
-        },
-        params: {
-          projectID: 1
-        },
-        fetchLists: expect.createSpy(),
-        fetchProject: expect.createSpy(),
-        fetchListOptions: expect.createSpy(),
-        fetchUpdateList: expect.createSpy(),
-        closeFlash: expect.createSpy(),
-        taskDrop: expect.createSpy(),
-        openNewListModal: expect.createSpy(),
-        taskDragStart: expect.createSpy(),
-        openNewTaskModal: expect.createSpy()
-      }
+      let state = ListViewFixture.repositoryProjectState(ListViewFixture.listEditModalState())
       it('should render list edit modal with action', () => {
         const { output, props } = setup(state)
         let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
@@ -549,73 +139,7 @@ describe('ListView', () => {
   })
 
   context('when showIssue is false', () => {
-    let state = {
-      ListReducer: {
-        isListModalOpen: false,
-        isTaskModalOpen: false,
-        isListEditModalOpen: false,
-        isProjectEditModalOpen: false,
-        newList: {title: "", color: "0effff"},
-        newTask: {title: ""},
-        lists: [
-          {
-            ID: 1,
-            Title: "list1",
-            ListTasks: [
-              {
-                ID: 1,
-                Title: "task1",
-                PullRequest: true
-              }, {
-                ID: 2,
-                Title: "task2",
-                PullRequest: false
-              }
-            ]
-          }, {
-            ID: 2,
-            Title: "list2",
-            ListTasks: []
-          }
-        ],
-        noneList: {
-          ID: 3,
-          ListTasks: [
-            {
-              ID: 3,
-              Title: "task3",
-              PullRequest: false
-            }
-          ]
-        },
-        listOptions: [],
-        selectedListOption: null,
-        selectedList: null,
-        project: {
-          Title: "testProject",
-          Description: "description",
-          RepositoryID: 1,
-          ShowIssues: false,
-          ShowPullRequests: true
-        },
-        selectedProject: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
-        isTaskDraggingOver: false,
-        taskDraggingFrom: null,
-        taskDraggingTo: null,
-        error: null
-      },
-      params: {
-        projectID: 1
-      },
-      fetchLists: expect.createSpy(),
-      fetchProject: expect.createSpy(),
-      fetchListOptions: expect.createSpy(),
-      closeFlash: expect.createSpy(),
-      taskDrop: expect.createSpy(),
-      openNewListModal: expect.createSpy(),
-      taskDragStart: expect.createSpy(),
-      openNewTaskModal: expect.createSpy()
-    }
+    let state = ListViewFixture.hideIssueState()
     it('should not render issues', () => {
       const { output, props } = setup(state)
 
@@ -634,73 +158,7 @@ describe('ListView', () => {
   })
 
   context('when showPullRequest is false', () => {
-    let state = {
-      ListReducer: {
-        isListModalOpen: false,
-        isTaskModalOpen: false,
-        isListEditModalOpen: false,
-        isProjectEditModalOpen: false,
-        newList: {title: "", color: "0effff"},
-        newTask: {title: ""},
-        lists: [
-          {
-            ID: 1,
-            Title: "list1",
-            ListTasks: [
-              {
-                ID: 1,
-                Title: "task1",
-                PullRequest: true
-              }, {
-                ID: 2,
-                Title: "task2",
-                PullRequest: false
-              }
-            ]
-          }, {
-            ID: 2,
-            Title: "list2",
-            ListTasks: []
-          }
-        ],
-        noneList: {
-          ID: 3,
-          ListTasks: [
-            {
-              ID: 3,
-              Title: "task3",
-              PullRequest: false
-            }
-          ]
-        },
-        listOptions: [],
-        selectedListOption: null,
-        selectedList: null,
-        project: {
-          Title: "testProject",
-          Description: "description",
-          RepositoryID: 1,
-          ShowIssues: true,
-          ShowPullRequests: false
-        },
-        selectedProject: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
-        isTaskDraggingOver: false,
-        taskDraggingFrom: null,
-        taskDraggingTo: null,
-        error: null
-      },
-      params: {
-        projectID: 1
-      },
-      fetchLists: expect.createSpy(),
-      fetchProject: expect.createSpy(),
-      fetchListOptions: expect.createSpy(),
-      closeFlash: expect.createSpy(),
-      taskDrop: expect.createSpy(),
-      openNewListModal: expect.createSpy(),
-      taskDragStart: expect.createSpy(),
-      openNewTaskModal: expect.createSpy()
-    }
+    let state = ListViewFixture.showIssueState()
     it('should not render pull requests', () => {
       const { output, props } = setup(state)
 
@@ -720,49 +178,7 @@ describe('ListView', () => {
 
   describe('github action buttons', () => {
     context('when project does not have repository', () => {
-      let state = {
-        ListReducer: {
-          isListModalOpen: false,
-          isTaskModalOpen: false,
-          isListEditModalOpen: false,
-          isProjectEditModalOpen: false,
-          newList: {title: "", color: "0effff"},
-          newTask: {title: ""},
-          lists: [],
-          noneList: {
-            ID: 3,
-            ListTasks: [
-              {
-                ID: 3,
-                Title: "task3",
-                PullRequest: false
-              }
-            ]
-          },
-          listOptions: [],
-          selectedListOption: null,
-          selectedList: null,
-          project: {
-            Title: "testProject",
-            Description: "description",
-            RepositoryID: 0,
-            ShowIssues: true,
-            ShowPullRequests: false
-          },
-          selectedProject: { Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
-          isTaskDraggingOver: false,
-          taskDraggingFrom: null,
-          taskDraggingTo: null,
-          error: null
-        },
-        params: {
-          projectID: 1
-        },
-        fetchLists: expect.createSpy(),
-        fetchProject: expect.createSpy(),
-        fetchListOptions: expect.createSpy(),
-        closeFlash: expect.createSpy()
-      }
+      let state = ListViewFixture.noRepositoryProjectState()
       it('should not render github action buttons', () => {
         const { output, props } = setup(state)
 
@@ -772,49 +188,7 @@ describe('ListView', () => {
       })
     })
     context('when project has repository', () => {
-      let state = {
-        ListReducer: {
-          isListModalOpen: false,
-          isTaskModalOpen: false,
-          isListEditModalOpen: false,
-          isProjectEditModalOpen: false,
-          newList: {title: "", color: "0effff"},
-          newTask: {title: ""},
-          lists: [],
-          noneList: {
-            ID: 3,
-            ListTasks: [
-              {
-                ID: 3,
-                Title: "task3",
-                PullRequest: false
-              }
-            ]
-          },
-          listOptions: [],
-          selectedListOption: null,
-          selectedList: null,
-          project: {
-            Title: "testProject",
-            Description: "description",
-            RepositoryID: 1,
-            ShowIssues: true,
-            ShowPullRequests: false
-          },
-          selectedProject: { Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
-          isTaskDraggingOver: false,
-          taskDraggingFrom: null,
-          taskDraggingTo: null,
-          error: null
-        },
-        params: {
-          projectID: 1
-        },
-        fetchLists: expect.createSpy(),
-        fetchProject: expect.createSpy(),
-        fetchListOptions: expect.createSpy(),
-        closeFlash: expect.createSpy()
-      }
+      let state = ListViewFixture.repositoryProjectState()
       it('should not render github action buttons', () => {
         const { output, props } = setup(state)
 
@@ -827,56 +201,7 @@ describe('ListView', () => {
 
   describe('hide and display', () => {
     context('when a list is hidden', () => {
-      let state = {
-        ListReducer: {
-          isListModalOpen: false,
-          isTaskModalOpen: false,
-          isListEditModalOpen: false,
-          isProjectEditModalOpen: false,
-          newList: {title: "", color: "0efffff"},
-          newTask: {title: ""},
-          lists: [
-            {
-              ID: 1,
-              Title: "List1",
-              IsHidden: true,
-              ListTasks: [
-                {
-                  ID: 1,
-                  Title: "task1",
-                  PullRequest: false
-                }
-              ]
-            }
-          ],
-          noneList: {
-            ID: 3,
-            ListTasks: []
-          },
-          listOptions: [],
-          selectedListOption: null,
-          selectedList: null,
-          project: {
-            Title: "testProject",
-            Description: "description",
-            RepositoryID: 0,
-            ShowIssues: true,
-            ShowPullRequests: false
-          },
-          selectedProject: { Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
-          isTaskDraggingOver: false,
-          taskDraggingFrom: null,
-          taskDraggingTo: null,
-          error: null
-        },
-        params: {
-          projectID: 1
-        },
-        fetchLists: expect.createSpy(),
-        fetchProject: expect.createSpy(),
-        fetchListOptions: expect.createSpy(),
-        closeFlash: expect.createSpy()
-      }
+      let state = ListViewFixture.hiddenListState()
       it('should hide a list', () => {
         const { output, props } = setup(state)
 
@@ -888,56 +213,7 @@ describe('ListView', () => {
       })
     })
     context('when a list is displeyd', () => {
-      let state = {
-        ListReducer: {
-          isListModalOpen: false,
-          isTaskModalOpen: false,
-          isListEditModalOpen: false,
-          isProjectEditModalOpen: false,
-          newList: {title: "", color: "0efffff"},
-          newTask: {title: ""},
-          lists: [
-            {
-              ID: 1,
-              Title: "List1",
-              IsHidden:false,
-              ListTasks: [
-                {
-                  ID: 1,
-                  Title: "task1",
-                  PullRequest: false
-                }
-              ]
-            }
-          ],
-          noneList: {
-            ID: 3,
-            ListTasks: []
-          },
-          listOptions: [],
-          selectedListOption: null,
-          selectedList: null,
-          project: {
-            Title: "testProject",
-            Description: "description",
-            RepositoryID: 0,
-            ShowIssues: true,
-            ShowPullRequests: false
-          },
-          selectedProject: { Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
-          isTaskDraggingOver: false,
-          taskDraggingFrom: null,
-          taskDraggingTo: null,
-          error: null
-        },
-        params: {
-          projectID: 1
-        },
-        fetchLists: expect.createSpy(),
-        fetchProject: expect.createSpy(),
-        fetchListOptions: expect.createSpy(),
-        closeFlash: expect.createSpy()
-      }
+      let state = ListViewFixture.initState()
       it('should display a list', () => {
         const { output, props } = setup(state)
 
