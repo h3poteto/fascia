@@ -824,4 +824,129 @@ describe('ListView', () => {
       })
     })
   })
+
+  describe('hide and display', () => {
+    context('when a list is hidden', () => {
+      let state = {
+        ListReducer: {
+          isListModalOpen: false,
+          isTaskModalOpen: false,
+          isListEditModalOpen: false,
+          isProjectEditModalOpen: false,
+          newList: {title: "", color: "0efffff"},
+          newTask: {title: ""},
+          lists: [
+            {
+              ID: 1,
+              Title: "List1",
+              IsHidden: true,
+              ListTasks: [
+                {
+                  ID: 1,
+                  Title: "task1",
+                  PullRequest: false
+                }
+              ]
+            }
+          ],
+          noneList: {
+            ID: 3,
+            ListTasks: []
+          },
+          listOptions: [],
+          selectedListOption: null,
+          selectedList: null,
+          project: {
+            Title: "testProject",
+            Description: "description",
+            RepositoryID: 0,
+            ShowIssues: true,
+            ShowPullRequests: false
+          },
+          selectedProject: { Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
+          isTaskDraggingOver: false,
+          taskDraggingFrom: null,
+          taskDraggingTo: null,
+          error: null
+        },
+        params: {
+          projectID: 1
+        },
+        fetchLists: expect.createSpy(),
+        fetchProject: expect.createSpy(),
+        fetchListOptions: expect.createSpy(),
+        closeFlash: expect.createSpy()
+      }
+      it('should hide a list', () => {
+        const { output, props } = setup(state)
+
+        let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
+        let [ list, button ] = items.props.children
+        let [ listMenu, listTitle, tasks ] = list[0].props.children
+
+        expect(tasks).toBe('')
+      })
+    })
+    context('when a list is displeyd', () => {
+      let state = {
+        ListReducer: {
+          isListModalOpen: false,
+          isTaskModalOpen: false,
+          isListEditModalOpen: false,
+          isProjectEditModalOpen: false,
+          newList: {title: "", color: "0efffff"},
+          newTask: {title: ""},
+          lists: [
+            {
+              ID: 1,
+              Title: "List1",
+              IsHidden:false,
+              ListTasks: [
+                {
+                  ID: 1,
+                  Title: "task1",
+                  PullRequest: false
+                }
+              ]
+            }
+          ],
+          noneList: {
+            ID: 3,
+            ListTasks: []
+          },
+          listOptions: [],
+          selectedListOption: null,
+          selectedList: null,
+          project: {
+            Title: "testProject",
+            Description: "description",
+            RepositoryID: 0,
+            ShowIssues: true,
+            ShowPullRequests: false
+          },
+          selectedProject: { Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
+          isTaskDraggingOver: false,
+          taskDraggingFrom: null,
+          taskDraggingTo: null,
+          error: null
+        },
+        params: {
+          projectID: 1
+        },
+        fetchLists: expect.createSpy(),
+        fetchProject: expect.createSpy(),
+        fetchListOptions: expect.createSpy(),
+        closeFlash: expect.createSpy()
+      }
+      it('should display a list', () => {
+        const { output, props } = setup(state)
+
+        let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
+        let [ list, button ] = items.props.children
+        let [ listMenu, listTitle, tasks ] = list[0].props.children
+
+        expect(tasks.props.children.length).toNotBe(0)
+      })
+    })
+  })
 })
