@@ -41,7 +41,7 @@ var _ = Describe("List", func() {
 		var database db.DB = mydb
 		table = database.Init()
 		newProject, _ = project.Create(uid, "title", "desc", 0, "", "", sql.NullString{})
-		newList = NewList(0, newProject.ID, newProject.UserID, "list title", "", sql.NullInt64{})
+		newList = NewList(0, newProject.ID, newProject.UserID, "list title", "", sql.NullInt64{}, false)
 	})
 
 	Describe("Save", func() {
@@ -95,7 +95,7 @@ var _ = Describe("List", func() {
 		JustBeforeEach(func() {
 			newList.Save(nil, nil)
 		})
-		Context("not have list_option", func() {
+		Context("does not have list_option", func() {
 			It("should update list", func() {
 				newTitle := "newTitle"
 				newColor := "newColor"
@@ -123,4 +123,32 @@ var _ = Describe("List", func() {
 			})
 		})
 	})
+
+	Describe("Hide", func() {
+		JustBeforeEach(func() {
+			newList.Save(nil, nil)
+		})
+		It("should hidden list", func() {
+			err := newList.Hide()
+			Expect(err).To(BeNil())
+			Expect(newList.IsHidden).To(BeTrue())
+			l, _ := FindList(newProject.ID, newList.ID)
+			Expect(l.IsHidden).To(BeTrue())
+		})
+	})
+
+	Describe("Display", func() {
+		JustBeforeEach(func() {
+			newList.Save(nil, nil)
+			newList.Hide()
+		})
+		It("should display list", func() {
+			err := newList.Display()
+			Expect(err).To(BeNil())
+			Expect(newList.IsHidden).To(BeFalse())
+			l, _ := FindList(newProject.ID, newList.ID)
+			Expect(l.IsHidden).To(BeFalse())
+		})
+	})
+
 })

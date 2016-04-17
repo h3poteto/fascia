@@ -5,3 +5,4 @@ frontend/javascripts/build/
 tmp
 deploy/setting.yml
 bin
+.docker-env

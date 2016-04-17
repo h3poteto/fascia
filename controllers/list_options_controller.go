@@ -11,7 +11,7 @@ import (
 type ListOptions struct {
 }
 
-type ListOptionJsonFormat struct {
+type ListOptionJSONFormat struct {
 	ID     int64
 	Action string
 }
@@ -26,9 +26,9 @@ func (u *ListOptions) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 
 	encoder := json.NewEncoder(w)
-	jsonOptions := make([]*ListOptionJsonFormat, 0)
+	jsonOptions := make([]*ListOptionJSONFormat, 0)
 	for _, o := range list_option.ListOptionAll() {
-		jsonOptions = append(jsonOptions, &ListOptionJsonFormat{ID: o.ID, Action: o.Action})
+		jsonOptions = append(jsonOptions, &ListOptionJSONFormat{ID: o.ID, Action: o.Action})
 	}
 	encoder.Encode(jsonOptions)
 	logging.SharedInstance().MethodInfo("ListOptionsController", "Index", false, c).Info("success to get list options")

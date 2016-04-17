@@ -113,6 +113,8 @@ export default function ListReducer(state = initState, action) {
   case listActions.RECEIVE_LISTS:
   case listActions.RECEIVE_FETCH_GITHUB:
   case listActions.RECEIVE_MOVE_TASK:
+  case listActions.RECEIVE_HIDE_LIST:
+  case listActions.RECEIVE_DISPLAY_LIST:
     var lists
     if (action.lists == null) {
       lists = []

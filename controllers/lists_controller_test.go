@@ -87,7 +87,7 @@ var _ = Describe("ListsController", func() {
 		)
 		Context("when action is null", func() {
 			JustBeforeEach(func() {
-				newList := list.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{})
+				newList := list.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
 				newList.Save(nil, nil)
 				values := url.Values{}
 				values.Add("title", "newListTitle")
@@ -104,7 +104,7 @@ var _ = Describe("ListsController", func() {
 		})
 		Context("when action is close", func() {
 			JustBeforeEach(func() {
-				newList := list.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{})
+				newList := list.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
 				newList.Save(nil, nil)
 				values := url.Values{}
 				values.Add("title", "newListTitle")
@@ -139,6 +139,45 @@ var _ = Describe("ListsController", func() {
 			// 初期リストが入るようになったのでそれ以降
 			Expect(contents.Lists[3].Title).To(Equal("list1"))
 			Expect(contents.Lists[4].Title).To(Equal("list2"))
+		})
+	})
+
+	Describe("Hide", func() {
+		var newList *list.ListStruct
+		JustBeforeEach(func() {
+			newList = list.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
+			newList.Save(nil, nil)
+		})
+		It("should hide list", func() {
+			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(newList.ID, 10)+"/hide", url.Values{})
+			Expect(err).To(BeNil())
+			var contents controllers.AllListJSONFormat
+			con, _ := ioutil.ReadAll(res.Body)
+			json.Unmarshal(con, &contents)
+			Expect(contents.Lists[3].IsHidden).To(BeTrue())
+			targetList, err := list.FindList(projectID, newList.ID)
+			Expect(err).To(BeNil())
+			Expect(targetList.IsHidden).To(BeTrue())
+		})
+	})
+
+	Describe("Display", func() {
+		var newList *list.ListStruct
+		JustBeforeEach(func() {
+			newList = list.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
+			newList.Save(nil, nil)
+			newList.Hide()
+		})
+		It("should display list", func() {
+			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(newList.ID, 10)+"/display", url.Values{})
+			Expect(err).To(BeNil())
+			var contents controllers.AllListJSONFormat
+			con, _ := ioutil.ReadAll(res.Body)
+			json.Unmarshal(con, &contents)
+			Expect(contents.Lists[3].IsHidden).To(BeFalse())
+			targetList, err := list.FindList(projectID, newList.ID)
+			Expect(err).To(BeNil())
+			Expect(targetList.IsHidden).To(BeFalse())
 		})
 	})
 })

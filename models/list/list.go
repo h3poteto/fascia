@@ -25,17 +25,18 @@ type ListStruct struct {
 	ListTasks    []*task.TaskStruct
 	Color        sql.NullString
 	ListOptionID sql.NullInt64
+	IsHidden     bool
 	database     db.DB
 }
 
-func NewList(id int64, projectID int64, userID int64, title string, color string, optionID sql.NullInt64) *ListStruct {
+func NewList(id int64, projectID int64, userID int64, title string, color string, optionID sql.NullInt64, isHidden bool) *ListStruct {
 	if projectID == 0 {
 		return nil
 	}
 	nullTitle := sql.NullString{String: title, Valid: true}
 	nullColor := sql.NullString{String: color, Valid: true}
 
-	list := &ListStruct{ID: id, ProjectID: projectID, UserID: userID, Title: nullTitle, Color: nullColor, ListOptionID: optionID}
+	list := &ListStruct{ID: id, ProjectID: projectID, UserID: userID, Title: nullTitle, Color: nullColor, ListOptionID: optionID, IsHidden: isHidden}
 	list.Initialize()
 	return list
 }
@@ -49,12 +50,13 @@ func FindList(projectID int64, listID int64) (*ListStruct, error) {
 	var id, userID int64
 	var title, color sql.NullString
 	var optionID sql.NullInt64
-	rows, err := table.Query("select id, project_id, user_id, title, color, list_option_id from lists where id = ? AND project_id = ?;", listID, projectID)
+	var isHidden bool
+	rows, err := table.Query("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where id = ? AND project_id = ?;", listID, projectID)
 	if err != nil {
 		panic(err)
 	}
 	for rows.Next() {
-		err = rows.Scan(&id, &projectID, &userID, &title, &color, &optionID)
+		err = rows.Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
 		if err != nil {
 			panic(err)
 		}
@@ -62,7 +64,7 @@ func FindList(projectID int64, listID int64) (*ListStruct, error) {
 	if id != listID {
 		return nil, errors.New("cannot find list or project did not contain list")
 	} else {
-		list := NewList(id, projectID, userID, title.String, color.String, optionID)
+		list := NewList(id, projectID, userID, title.String, color.String, optionID, isHidden)
 		return list, nil
 	}
 
@@ -92,7 +94,7 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		}
 	}()
 
-	result, err := tx.Exec("insert into lists (project_id, user_id, title, color, list_option_id, created_at) values (?, ?, ?, ?, ?, now());", u.ProjectID, u.UserID, u.Title, u.Color, u.ListOptionID)
+	result, err := tx.Exec("insert into lists (project_id, user_id, title, color, list_option_id, is_hidden, created_at) values (?, ?, ?, ?, ?, ?, now());", u.ProjectID, u.UserID, u.Title, u.Color, u.ListOptionID, u.IsHidden)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -160,7 +162,7 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 		}
 	}()
 
-	_, err = tx.Exec("update lists set title = ?, color = ?, list_option_id = ? where id = ?;", *title, *color, listOptionID, u.ID)
+	_, err = tx.Exec("update lists set title = ?, color = ?, list_option_id = ?, is_hidden = ? where id = ?;", *title, *color, listOptionID, u.IsHidden, u.ID)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -249,4 +251,30 @@ func (u *ListStruct) IsInitList() bool {
 		}
 	}
 	return false
+}
+
+// Hide can hide a list, it change is_hidden field
+func (u *ListStruct) Hide() error {
+	table := u.database.Init()
+	defer table.Close()
+
+	_, err := table.Exec("update lists set is_hidden = true where id = ?;", u.ID)
+	if err != nil {
+		return err
+	}
+	u.IsHidden = true
+	return nil
+}
+
+// Display can display a list, it change is_hidden filed
+func (u *ListStruct) Display() error {
+	table := u.database.Init()
+	defer table.Close()
+
+	_, err := table.Exec("update lists set is_hidden = false where id = ?;", u.ID)
+	if err != nil {
+		return err
+	}
+	u.IsHidden = false
+	return nil
 }

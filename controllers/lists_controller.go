@@ -31,9 +31,10 @@ type ListJSONFormat struct {
 	ProjectID    int64
 	UserID       int64
 	Title        string
-	ListTasks    []*TaskJsonFormat
+	ListTasks    []*TaskJSONFormat
 	Color        string
 	ListOptionID int64
+	IsHidden     bool
 }
 
 type AllListJSONFormat struct {
@@ -63,17 +64,14 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	lists := parentProject.Lists()
-	var jsonLists []*ListJSONFormat
-	for _, l := range lists {
-		jsonLists = append(jsonLists, &ListJSONFormat{ID: l.ID, ProjectID: l.ProjectID, UserID: l.UserID, Title: l.Title.String, ListTasks: TaskFormatToJson(l.Tasks()), Color: l.Color.String, ListOptionID: l.ListOptionID.Int64})
-	}
+	jsonLists := ListsFormatToJSON(lists)
 	noneList, err := parentProject.NoneList()
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ListsController", "Index", true, c).Error(err)
 		http.Error(w, "none list not found", 500)
 		return
 	}
-	jsonNoneList := &ListJSONFormat{ID: noneList.ID, ProjectID: noneList.ProjectID, UserID: noneList.UserID, Title: noneList.Title.String, ListTasks: TaskFormatToJson(noneList.Tasks()), Color: noneList.Color.String, ListOptionID: noneList.ListOptionID.Int64}
+	jsonNoneList := ListFormatToJSON(noneList)
 	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 	encoder.Encode(jsonAllLists)
 	logging.SharedInstance().MethodInfo("ListsController", "Index", false, c).Info("success to get lists")
@@ -116,7 +114,7 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ListsController", "Create", false, c).Debugf("post new list parameter: %+v", newListForm)
-	list := listModel.NewList(0, projectID, currentUser.ID, newListForm.Title, newListForm.Color, sql.NullInt64{})
+	list := listModel.NewList(0, projectID, currentUser.ID, newListForm.Title, newListForm.Color, sql.NullInt64{}, false)
 
 	repo, _ := parentProject.Repository()
 	if err := list.Save(repo, &currentUser.OauthToken); err != nil {
@@ -124,7 +122,7 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed save", 500)
 		return
 	}
-	jsonList := ListJSONFormat{ID: list.ID, ProjectID: list.ProjectID, UserID: list.UserID, Title: list.Title.String, Color: list.Color.String, ListOptionID: list.ListOptionID.Int64}
+	jsonList := ListFormatToJSON(list)
 	encoder.Encode(jsonList)
 	logging.SharedInstance().MethodInfo("ListsController", "Create", false, c).Info("success to create list")
 	return
@@ -185,8 +183,136 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "save failed", 500)
 		return
 	}
-	jsonList := ListJSONFormat{ID: targetList.ID, ProjectID: targetList.ProjectID, UserID: targetList.UserID, Title: targetList.Title.String, ListTasks: TaskFormatToJson(targetList.Tasks()), Color: targetList.Color.String, ListOptionID: targetList.ListOptionID.Int64}
+	jsonList := ListFormatToJSON(targetList)
 	encoder.Encode(jsonList)
 	logging.SharedInstance().MethodInfo("ListsController", "Update", false, c).Info("success to update list")
 	return
+}
+
+// Hide can hide a list
+func (u *Lists) Hide(c web.C, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	currentUser, err := LoginRequired(r)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Hide", false, c).Infof("login error: %v", err)
+		http.Error(w, "not logined", 401)
+		return
+	}
+	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Hide", true, c).Errorf("parse error: %v", err)
+		http.Error(w, "project not found", 404)
+		return
+	}
+	parentProject, err := projectModel.FindProject(projectID)
+	if err != nil || parentProject.UserID != currentUser.ID {
+		logging.SharedInstance().MethodInfo("ListsController", "Hide", false, c).Warnf("project not found: %v", err)
+		http.Error(w, "project not found", 404)
+		return
+	}
+	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Hide", true, c).Errorf("parse error: %v", err)
+		http.Error(w, "list not found", 404)
+		return
+	}
+	targetList, err := listModel.FindList(projectID, listID)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Hide", true, c).Errorf("list not found: %v", err)
+		http.Error(w, "list not found", 404)
+		return
+	}
+
+	if err = targetList.Hide(); err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Hide", true, c).Errorf("hide failed: %v", err)
+		http.Error(w, "hide failed", 500)
+		return
+	}
+
+	// prepare response
+	encoder := json.NewEncoder(w)
+	lists := parentProject.Lists()
+	jsonLists := ListsFormatToJSON(lists)
+	noneList, err := parentProject.NoneList()
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Hide", true, c).Error(err)
+		http.Error(w, "none list not found", 500)
+		return
+	}
+	jsonNoneList := ListFormatToJSON(noneList)
+	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
+	logging.SharedInstance().MethodInfo("ListsController", "Hide", false, c).Info("success to hide list")
+	encoder.Encode(jsonAllLists)
+	return
+}
+
+// Display can display a list
+func (u *Lists) Display(c web.C, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	currentUser, err := LoginRequired(r)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Display", false, c).Infof("login error: %v", err)
+		http.Error(w, "not logined", 401)
+		return
+	}
+	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Display", true, c).Errorf("parse error: %v", err)
+		http.Error(w, "project not found", 404)
+		return
+	}
+	parentProject, err := projectModel.FindProject(projectID)
+	if err != nil || parentProject.UserID != currentUser.ID {
+		logging.SharedInstance().MethodInfo("ListsController", "Display", false, c).Warnf("project not found: %v", err)
+		http.Error(w, "project not found", 404)
+		return
+	}
+	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Display", true, c).Errorf("parse error: %v", err)
+		http.Error(w, "list not found", 404)
+		return
+	}
+	targetList, err := listModel.FindList(projectID, listID)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Display", true, c).Errorf("list not found: %v", err)
+		http.Error(w, "list not found", 404)
+		return
+	}
+
+	if err = targetList.Display(); err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Display", true, c).Errorf("display failed: %v", err)
+		http.Error(w, "display failed", 500)
+		return
+	}
+
+	// prepare response
+	encoder := json.NewEncoder(w)
+	lists := parentProject.Lists()
+	jsonLists := ListsFormatToJSON(lists)
+	noneList, err := parentProject.NoneList()
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Display", true, c).Error(err)
+		http.Error(w, "none list not found", 500)
+		return
+	}
+	jsonNoneList := ListFormatToJSON(noneList)
+	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
+	logging.SharedInstance().MethodInfo("ListsController", "Display", false, c).Info("success to display list")
+	encoder.Encode(jsonAllLists)
+	return
+}
+
+// ListsFormatToJSON convert lists models's array to json
+func ListsFormatToJSON(lists []*listModel.ListStruct) []*ListJSONFormat {
+	var jsonLists []*ListJSONFormat
+	for _, l := range lists {
+		jsonLists = append(jsonLists, ListFormatToJSON(l))
+	}
+	return jsonLists
+}
+
+// ListFormatToJSON convert a list model to json
+func ListFormatToJSON(list *listModel.ListStruct) *ListJSONFormat {
+	return &ListJSONFormat{ID: list.ID, ProjectID: list.ProjectID, UserID: list.UserID, Title: list.Title.String, ListTasks: TaskFormatToJSON(list.Tasks()), Color: list.Color.String, ListOptionID: list.ListOptionID.Int64, IsHidden: list.IsHidden}
 }

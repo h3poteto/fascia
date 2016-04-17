@@ -650,3 +650,76 @@ export function showPullRequests(projectID, showIssues, showPullRequests) {
       })
   }
 }
+
+
+export const REQUEST_HIDE_LIST = 'REQUEST_HIDE_LIST'
+function requestHideList() {
+  return {
+    type: REQUEST_HIDE_LIST
+  }
+}
+
+export const RECEIVE_HIDE_LIST = 'RECEIVE_HIDE_LIST'
+function receiveHideList(lists) {
+  return {
+    type: RECEIVE_HIDE_LIST,
+    lists: lists.Lists,
+    noneList: lists.NoneList
+  }
+}
+
+export const HIDE_LIST = 'HIDE_LIST'
+export function hideList(projectID, listID) {
+  return dispatch => {
+    dispatch(requestHideList())
+    return Request
+      .post(`/projects/${projectID}/lists/${listID}/hide`)
+      .end((err, res) => {
+        if (res.ok) {
+          dispatch(receiveHideList(res.body))
+        } else if(res.unauthorized) {
+          dispatch(unauthorized())
+        } else if (res.notFound) {
+          dispatch(notFound())
+        } else {
+          dispatch(serverError())
+        }
+      })
+  }
+}
+
+export const REQUEST_DISPLAY_LIST = 'REQUEST_DISPLAY_LIST'
+function requestDisplayList() {
+  return {
+    type: REQUEST_DISPLAY_LIST
+  }
+}
+
+export const RECEIVE_DISPLAY_LIST = 'RECEIVE_DISPLAY_LIST'
+function receiveDisplayList(lists) {
+  return {
+    type: RECEIVE_DISPLAY_LIST,
+    lists: lists.Lists,
+    noneList: lists.NoneList
+  }
+}
+
+export const DISPLAY_LIST = 'DISPLAY_LIST'
+export function displayList(projectID, listID) {
+  return dispatch => {
+    dispatch(requestDisplayList())
+    return Request
+      .post(`/projects/${projectID}/lists/${listID}/display`)
+      .end((err, res) => {
+        if (res.ok) {
+          dispatch(receiveDisplayList(res.body))
+        } else if(res.unauthorized) {
+          dispatch(unauthorized())
+        } else if(res.notFound) {
+          dispatch(notFound())
+        } else {
+          dispatch(serverError())
+        }
+      })
+  }
+}

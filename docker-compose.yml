@@ -17,9 +17,10 @@ node:
   command: npm run-script watch
 fascia:
   build: dockerfiles/fascia
+  env_file: .docker-env
   volumes:
     - ~/.ssh:/root/.ssh
-    - .:/go/src/fascia
+    - .:/root/fascia
   links:
     - mysql:mysql
     - node:node

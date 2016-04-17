@@ -116,6 +116,44 @@ export default class ListView extends React.Component {
     }
   }
 
+  listItem(index, list, project, taskDraggingFrom, taskDraggingTo) {
+    if (list.IsHidden) {
+      return (
+        <div key={index} className="fascia-list fascia-list-hidden" data-dropped-depth="0" data-id={list.ID} onDragOver={this.props.taskDragOver} onDrop={e=> this.props.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.taskDragLeave}>
+          <div className="fascia-list-menu" data-dropped-depth="1">
+            <i className="fa fa-eye" onClick={e => this.props.displayList(project.ID, list.ID)} data-dropped-depth="2"></i>
+            <i className="fa fa-pencil" onClick={e => this.props.openEditListModal(list)} data-dropped-depth="2"></i>
+          </div>
+          <span className="list-title" data-dropped-depth="1">{list.Title}</span>
+          {list.isLoading != undefined && list.isLoading ? this.listLoading() : ''}
+        </div>
+      )
+    } else {
+      return (
+        <div key={index} className="fascia-list" data-dropped-depth="0" data-id={list.ID} onDragOver={this.props.taskDragOver} onDrop={e=> this.props.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.taskDragLeave}>
+          <div className="fascia-list-menu" data-dropped-depth="1">
+            <i className="fa fa-eye-slash" onClick={e => this.props.hideList(project.ID, list.ID)} data-dropped-depth="2"></i>
+            <i className="fa fa-pencil" onClick={e => this.props.openEditListModal(list)} data-dropped-depth="2"></i>
+          </div>
+          <span className="list-title" data-dropped-depth="1">{list.Title}</span>
+          <ul className="fascia-task" data-dropped-depth="1">
+            {list.ListTasks.map(function(task, index) {
+               if (task.draggedOn) {
+                 return <li key={index} className="arrow"></li>
+               } else if(project != null && project.ShowIssues && !task.PullRequest || project != null && project.ShowPullRequests && task.PullRequest) {
+                 return <li key={index} style={{"borderLeft": `solid 6px #${list.Color}`}} className="task" draggable="true" data-dropped-depth="2" data-id={task.ID} onDragStart={this.props.taskDragStart}>{task.Title}</li>
+               }
+             }, this)}
+            <li className="new-task" data-dropped-depth="2" style={{"borderLeft": `solid 6px #${list.Color}`}} onClick={e => this.props.openNewTaskModal(list)}>
+              <i className="fa fa-plus" data-dropped-depth="3"></i>
+            </li>
+          </ul>
+          {list.isLoading != undefined && list.isLoading ? this.listLoading() : ''}
+        </div>
+      )
+    }
+  }
+
   render() {
     const { isLoading, isListModalOpen, newList, lists, listOptions, noneList, project, isTaskModalOpen, newTask, selectedList, selectedListOption, isListEditModalOpen, isProjectEditModalOpen, taskDraggingFrom, taskDraggingTo, selectedProject, error } = this.props.ListReducer
 
@@ -218,25 +256,7 @@ export default class ListView extends React.Component {
         </div>
         <div className="items">
           {lists.map(function(list, index) {
-            return (
-              <div key={index} className="fascia-list" data-dropped-depth="0" data-id={list.ID} onDragOver={this.props.taskDragOver} onDrop={e=> this.props.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.taskDragLeave}>
-                <div className="fascia-list-menu" data-dropped-depth="1"><i className="fa fa-pencil" onClick={e => this.props.openEditListModal(list)} data-dropped-depth="2"></i></div>
-                <span className="list-title" data-dropped-depth="1">{list.Title}</span>
-                <ul className="fascia-task" data-dropped-depth="1">
-                  {list.ListTasks.map(function(task, index) {
-                    if (task.draggedOn) {
-                      return <li key={index} className="arrow"></li>
-                    } else if(project != null && project.ShowIssues && !task.PullRequest || project != null && project.ShowPullRequests && task.PullRequest) {
-                      return <li key={index} style={{"borderLeft": `solid 6px #${list.Color}`}} className="task" draggable="true" data-dropped-depth="2" data-id={task.ID} onDragStart={this.props.taskDragStart}>{task.Title}</li>
-                    }
-                  }, this)}
-                  <li className="new-task" data-dropped-depth="2" style={{"borderLeft": `solid 6px #${list.Color}`}} onClick={e => this.props.openNewTaskModal(list)}>
-                    <i className="fa fa-plus" data-dropped-depth="3"></i>
-                  </li>
-                </ul>
-                {list.isLoading != undefined && list.isLoading ? this.listLoading() : ''}
-              </div>
-            );
+            return this.listItem(index, list, project, taskDraggingFrom, taskDraggingTo)
            }, this)}
            <button onClick={this.props.openNewListModal} className="pure-button button-large fascia-new-list pure-button-primary" type="button">New</button>
            <div className="clearfix"></div>
