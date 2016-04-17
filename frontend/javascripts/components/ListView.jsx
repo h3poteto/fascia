@@ -121,7 +121,7 @@ export default class ListView extends React.Component {
       return (
         <div key={index} className="fascia-list fascia-list-hidden" data-dropped-depth="0" data-id={list.ID} onDragOver={this.props.taskDragOver} onDrop={e=> this.props.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.taskDragLeave}>
           <div className="fascia-list-menu" data-dropped-depth="1">
-            <i className="fa fa-eye" data-dropped-depth="2"></i>
+            <i className="fa fa-eye" onClick={e => this.props.displayList(project.ID, list.ID)} data-dropped-depth="2"></i>
             <i className="fa fa-pencil" onClick={e => this.props.openEditListModal(list)} data-dropped-depth="2"></i>
           </div>
           <span className="list-title" data-dropped-depth="1">{list.Title}</span>

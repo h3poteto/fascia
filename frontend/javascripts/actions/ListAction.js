@@ -688,3 +688,38 @@ export function hideList(projectID, listID) {
   }
 }
 
+export const REQUEST_DISPLAY_LIST = 'REQUEST_DISPLAY_LIST'
+function requestDisplayList() {
+  return {
+    type: REQUEST_DISPLAY_LIST
+  }
+}
+
+export const RECEIVE_DISPLAY_LIST = 'RECEIVE_DISPLAY_LIST'
+function receiveDisplayList(lists) {
+  return {
+    type: RECEIVE_DISPLAY_LIST,
+    lists: lists.Lists,
+    noneList: lists.NoneList
+  }
+}
+
+export const DISPLAY_LIST = 'DISPLAY_LIST'
+export function displayList(projectID, listID) {
+  return dispatch => {
+    dispatch(requestDisplayList())
+    return Request
+      .post(`/projects/${projectID}/lists/${listID}/display`)
+      .end((err, res) => {
+        if (res.ok) {
+          dispatch(receiveDisplayList(res.body))
+        } else if(res.unauthorized) {
+          dispatch(unauthorized())
+        } else if(res.notFound) {
+          dispatch(notFound())
+        } else {
+          dispatch(serverError())
+        }
+      })
+  }
+}
