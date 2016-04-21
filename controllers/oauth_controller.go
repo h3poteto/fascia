@@ -50,12 +50,7 @@ func (u *Oauth) Github(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	// iosからのセッションの場合はリダイレクト先を変更
 	cookie, err := r.Cookie("fascia-ios")
-	if err != nil {
-		logging.SharedInstance().MethodInfo("OauthController", "Github", true, c).Errorf("cookie error: %v", err)
-		http.Error(w, "cookie error", 500)
-		return
-	}
-	if cookie.Value == "login-session" {
+	if err == nil && cookie.Value == "login-session" {
 		http.Redirect(w, r, "/webviews/callback", 302)
 		return
 	}
