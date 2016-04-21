@@ -4,6 +4,7 @@ import (
 	"../config"
 	userModel "../models/user"
 	"../modules/logging"
+	"time"
 
 	"github.com/flosch/pongo2"
 	"github.com/goji/param"
@@ -26,6 +27,15 @@ func (u *Webviews) SignIn(c web.C, w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, r)
 		return
 	}
+
+	// prepare cookie
+	cookie := http.Cookie{
+		Path:    "/",
+		Name:    "fascia-ios",
+		Value:   "login-session",
+		Expires: time.Now().AddDate(0, 0, 1),
+	}
+	http.SetCookie(w, &cookie)
 
 	tpl, err := pongo2.DefaultSet.FromFile("webviews/sign_in.html.tpl")
 	if err != nil {
