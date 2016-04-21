@@ -1,0 +1,30 @@
+#content {
+  height: 100%;
+}
+
+.session {
+  width: 100%;
+  height: 100%;
+
+  .main {
+    text-align: center;
+    color: rgb(255, 255, 255);
+  }
+
+  .sign-in-board, .sign-up-board {
+    display: inline-block;
+    text-align: center;
+    width: auto;
+    box-sizing: border-box;
+    padding: 20px;
+    border-radius: 15px;
+    color: rgb(51, 51, 51);
+
+    .session-button {
+      width: 100%;
+    }
+    .control-group {
+      margin: 14px 0;
+    }
+  }
+}
