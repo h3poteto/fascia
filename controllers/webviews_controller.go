@@ -88,6 +88,10 @@ func (u *Webviews) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("WebviewsController", "NewSession", false, c).Info("login success")
-	http.Redirect(w, r, "/", 302)
+	http.Redirect(w, r, "/webviews/callback", 302)
+	return
+}
+
+func (u *Webviews) Callback(c web.C, w http.ResponseWriter, r *http.Request) {
 	return
 }

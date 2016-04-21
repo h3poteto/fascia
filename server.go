@@ -42,6 +42,7 @@ func Routes(m *web.Mux) {
 	// webview
 	m.Get("/webviews/sign_in", controllers.CallController(&controllers.Webviews{}, "SignIn"))
 	m.Post("/webviews/sign_in", controllers.CallController(&controllers.Webviews{}, "NewSession"))
+	m.Get("/webviews/callback", controllers.CallController(&controllers.Webviews{}, "Callback"))
 
 	m.Post("/projects", controllers.CallController(&controllers.Projects{}, "Create"))
 	m.Get("/projects", controllers.CallController(&controllers.Projects{}, "Index"))
