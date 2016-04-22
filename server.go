@@ -19,6 +19,9 @@ import (
 
 func Routes(m *web.Mux) {
 	root := os.Getenv("GOJIROOT")
+	// robots
+	m.Get("/robots.txt", http.FileServer(http.Dir(filepath.Join(root, "public/"))))
+
 	// assets
 	m.Get("/stylesheets/*", http.FileServer(http.Dir(filepath.Join(root, "public/assets/"))))
 	m.Get("/javascripts/*", http.FileServer(http.Dir(filepath.Join(root, "public/assets/"))))
