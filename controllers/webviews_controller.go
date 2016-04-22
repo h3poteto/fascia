@@ -15,9 +15,11 @@ import (
 	"net/http"
 )
 
+// Webviews controller struct
 type Webviews struct {
 }
 
+// SignIn is a sign in action for mobile app
 func (u *Webviews) SignIn(c web.C, w http.ResponseWriter, r *http.Request) {
 	url := githubOauthConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
 
@@ -47,6 +49,7 @@ func (u *Webviews) SignIn(c web.C, w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+// NewSession is a sign in action for mobile app
 func (u *Webviews) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	session, err := cookieStore.Get(r, "fascia")
 	if err != nil {
@@ -102,6 +105,7 @@ func (u *Webviews) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+// Callback is a empty page for mobile application handling
 func (u *Webviews) Callback(c web.C, w http.ResponseWriter, r *http.Request) {
 	return
 }
