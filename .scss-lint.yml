@@ -6,4 +6,10 @@ linters:
   IdSelector:
     enabled: false
 
+  SelectorDepth:
+    enabled: true
+    max_depth: 5
+
+  ColorVariable:
+    enabled: false
 
