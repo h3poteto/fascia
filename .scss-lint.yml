@@ -1,0 +1,9 @@
+scss_files: "**/*.scss"
+
+severity: warning
+
+linters:
+  IdSelector:
+    enabled: false
+
+
