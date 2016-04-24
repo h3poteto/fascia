@@ -33,6 +33,7 @@ func Routes(m *web.Mux) {
 	m.Get("/projects/:project_id", controllers.CallController(&controllers.Root{}, "Index"))
 	m.Get("/sign_in", controllers.CallController(&controllers.Sessions{}, "SignIn"))
 	m.Post("/sign_in", controllers.CallController(&controllers.Sessions{}, "NewSession"))
+	m.Post("/session", controllers.CallController(&controllers.Sessions{}, "Update"))
 	m.Post("/sign_out", controllers.CallController(&controllers.Sessions{}, "SignOut"))
 	m.Get("/sign_up", controllers.CallController(&controllers.Registrations{}, "SignUp"))
 	m.Post("/sign_up", controllers.CallController(&controllers.Registrations{}, "Registration"))
