@@ -115,3 +115,27 @@ func (u *Sessions) SignOut(c web.C, w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/sign_in", 302)
 	return
 }
+
+func (u *Sessions) Update(c web.C, w http.ResponseWriter, r *http.Request) {
+	currentUser, err := LoginRequired(r)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("SessionsController", "Update", false, c).Infof("login error: %v", err)
+		http.Error(w, "Authentication Error", 401)
+		return
+	}
+	logging.SharedInstance().MethodInfo("SessionsController", "Update", false, c).Info("login success")
+	session, err := cookieStore.Get(r, "fascia")
+	session.Options = &sessions.Options{
+		Path:   "/",
+		MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int),
+	}
+	session.Values["current_user_id"] = currentUser.ID
+	err = session.Save(r, w)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("SessionsController", "Update", true, c).Errorf("session error: %v", err)
+		InternalServerError(w, r)
+		return
+	}
+	logging.SharedInstance().MethodInfo("SessionsController", "Update", false, c).Info("session update success")
+	return
+}

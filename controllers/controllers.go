@@ -32,7 +32,7 @@ var githubOauthConf = &oauth2.Config{
 	Endpoint:     github.Endpoint,
 }
 
-var cookieStore = sessions.NewCookieStore([]byte("session-kesy"))
+var cookieStore = sessions.NewCookieStore([]byte("session-keys"))
 
 // ここテストでstubするために関数ポインタをグローバル変数に代入しておきます．もしインスタンスメソッドではない関数をstubする方法があれば，書き換えて構わない．
 var CheckCSRFToken = checkCSRF
