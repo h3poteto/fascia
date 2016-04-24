@@ -121,4 +121,16 @@ var _ = Describe("SessionsController", func() {
 			Expect(res.Request.URL.Path).To(Equal("/sign_in"))
 		})
 	})
+
+	Describe("Update", func() {
+		JustBeforeEach(func() {
+			LoginFaker(ts, "update@example.com", "hogehoge")
+		})
+		It("can update session", func() {
+			values := url.Values{}
+			res, err := http.PostForm(ts.URL+"/session", values)
+			Expect(err).To(BeNil())
+			Expect(res.StatusCode).To(Equal(http.StatusOK))
+		})
+	})
 })
