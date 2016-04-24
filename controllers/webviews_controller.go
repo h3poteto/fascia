@@ -87,7 +87,7 @@ func (u *Webviews) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	currentUser, err := userModel.Login(template.HTMLEscapeString(signInForm.Email), template.HTMLEscapeString(signInForm.Password))
 	if err != nil {
 		logging.SharedInstance().MethodInfo("WebviewsController", "NewSession", false, c).Infof("login error: %v", err)
-		http.Redirect(w, r, "/sign_in", 302)
+		http.Redirect(w, r, "/webviews/sign_in", 302)
 		return
 	}
 	logging.SharedInstance().MethodInfo("WebviewsController", "NewSession", false, c).Debugf("login success: %+v", currentUser)
