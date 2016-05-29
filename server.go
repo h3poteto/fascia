@@ -76,6 +76,9 @@ func Routes(m *web.Mux) {
 	m.Get("/400", controllers.BadRequest)
 	m.Get("/404", controllers.NotFound)
 	m.Get("/500", controllers.InternalServerError)
+
+	// 任意のファイルも一応ホスティングできるようにしておく
+	m.Get("/*", http.FileServer(http.Dir(filepath.Join(root, "public/"))))
 }
 
 func main() {
