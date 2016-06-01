@@ -95,6 +95,7 @@ func CurrentUser(userID int64) (*UserStruct, error) {
 	return &user, nil
 }
 
+// Validation is check email and password for user model
 func Validation(email string, password string, passwordConfirm string) bool {
 	if !emailValidation(email) {
 		return false
@@ -108,6 +109,7 @@ func Validation(email string, password string, passwordConfirm string) bool {
 	return true
 }
 
+// Registration is create new user through validation
 func Registration(email string, password string, passwordConfirm string) (int64, error) {
 	if !Validation(email, password, passwordConfirm) {
 		return 0, errors.New("validation failed")
