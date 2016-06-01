@@ -10,8 +10,10 @@ import (
 	"github.com/google/go-github/github"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/oauth2"
+	"regexp"
 	"strconv"
 	"time"
+	"unicode/utf8"
 )
 
 type User interface {
@@ -34,6 +36,11 @@ func randomString() string {
 	var n uint64
 	binary.Read(rand.Reader, binary.LittleEndian, &n)
 	return strconv.FormatUint(n, 36)
+}
+
+func emailValidation(email string) bool {
+	re := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
+	return re.MatchString(email)
 }
 
 func HashPassword(password string) ([]byte, error) {
@@ -85,6 +92,19 @@ func CurrentUser(userID int64) (*UserStruct, error) {
 	user.Uuid = uuid
 	user.Avatar = avatarURL
 	return &user, nil
+}
+
+func Validation(email string, password string, passwordConfirm string) bool {
+	if !emailValidation(email) {
+		return false
+	}
+	if password != passwordConfirm {
+		return false
+	}
+	if utf8.RuneCountInString(password) < 8 {
+		return false
+	}
+	return true
 }
 
 func Registration(email string, password string) (int64, error) {
