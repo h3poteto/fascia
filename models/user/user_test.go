@@ -84,13 +84,13 @@ var _ = Describe("User", func() {
 		email := "registration@example.com"
 		password := "hogehoge"
 		It("can regist", func() {
-			id, err := Registration(email, password)
+			id, err := Registration(email, password, password)
 			Expect(err).To(BeNil())
 			Expect(id).NotTo(Equal(int64(0)))
 		})
 		Context("after registration", func() {
 			BeforeEach(func() {
-				_, _ = Registration(email, password)
+				_, _ = Registration(email, password, password)
 			})
 			It("should save user in database", func() {
 				mydb := &db.Database{}
@@ -110,7 +110,7 @@ var _ = Describe("User", func() {
 				Expect(id).NotTo(Equal(int64(0)))
 			})
 			It("cannot double regist", func() {
-				id, err := Registration(email, password)
+				id, err := Registration(email, password, password)
 				Expect(err).NotTo(BeNil())
 				Expect(id).To(Equal(int64(0)))
 			})
@@ -122,7 +122,7 @@ var _ = Describe("User", func() {
 		email := "login@example.com"
 		password := "hogehoge"
 		BeforeEach(func() {
-			_, _ = Registration(email, password)
+			_, _ = Registration(email, password, password)
 		})
 
 		Context("when send correctly login information", func() {
@@ -171,7 +171,7 @@ var _ = Describe("User", func() {
 			email := "already_regist@example.com"
 			var currentUser *UserStruct
 			BeforeEach(func() {
-				Registration(email, "hogehoge")
+				Registration(email, "hogehoge", "hogehoge")
 				currentUser, _ = FindOrCreateGithub(token)
 			})
 			It("should update github information", func() {
@@ -192,7 +192,7 @@ var _ = Describe("User", func() {
 		BeforeEach(func() {
 			email := "project@example.com"
 			password := "hogehoge"
-			_, _ = Registration(email, password)
+			_, _ = Registration(email, password, password)
 			mydb := &db.Database{}
 			var database db.DB = mydb
 			table := database.Init()
@@ -259,7 +259,7 @@ var _ = Describe("User", func() {
 		var currentUser *UserStruct
 		var result error
 		BeforeEach(func() {
-			id, _ := Registration(email, "hogehoge")
+			id, _ := Registration(email, "hogehoge", "hogehoge")
 			currentUser, _ = CurrentUser(id)
 			ts := oauth2.StaticTokenSource(
 				&oauth2.Token{AccessToken: token},

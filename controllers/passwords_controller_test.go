@@ -41,7 +41,7 @@ var _ = Describe("PasswordsController", func() {
 	JustBeforeEach(func() {
 		email = "hoge@example.com"
 		password = "hogehoge"
-		uid, _ = user.Registration(email, password)
+		uid, _ = user.Registration(email, password, password)
 	})
 
 	Describe("New", func() {

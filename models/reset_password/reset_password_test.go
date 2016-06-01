@@ -28,7 +28,7 @@ var _ = Describe("ResetPassword", func() {
 	JustBeforeEach(func() {
 		email = "hoge@example.com"
 		password = "hogehoge"
-		uid, _ := user.Registration(email, password)
+		uid, _ := user.Registration(email, password, password)
 		mydb := &db.Database{}
 		var database db.DB = mydb
 		table = database.Init()

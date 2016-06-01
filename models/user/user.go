@@ -7,6 +7,7 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"encoding/binary"
+	"errors"
 	"github.com/google/go-github/github"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/oauth2"
@@ -107,7 +108,10 @@ func Validation(email string, password string, passwordConfirm string) bool {
 	return true
 }
 
-func Registration(email string, password string) (int64, error) {
+func Registration(email string, password string, passwordConfirm string) (int64, error) {
+	if !Validation(email, password, passwordConfirm) {
+		return 0, errors.New("validation failed")
+	}
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
 	table := interfaceDB.Init()
