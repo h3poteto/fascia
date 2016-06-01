@@ -1,6 +1,7 @@
 package user_test
 
 import (
+	seed "../../db/seed"
 	"../db"
 	"../project"
 	. "../user"
@@ -14,12 +15,16 @@ import (
 )
 
 var _ = Describe("User", func() {
+	BeforeEach(func() {
+		seed.ListOptions()
+	})
 	AfterEach(func() {
 		mydb := &db.Database{}
 		var database db.DB = mydb
 		table := database.Init()
 		table.Exec("truncate table users;")
 		table.Exec("truncate table projects;")
+		table.Exec("truncate table list_options;")
 		table.Close()
 	})
 
@@ -201,7 +206,11 @@ var _ = Describe("User", func() {
 					panic(err)
 				}
 			}
-			newProject, _ = project.Create(userid, "title", "desc", 0, "", "", sql.NullString{})
+			var err error
+			newProject, err = project.Create(userid, "title", "desc", 0, "", "", sql.NullString{})
+			if err != nil {
+				panic(err)
+			}
 			currentUser = NewUser(userid, dbemail, sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
 		})
 		It("ユーザとプロジェクトが関連づいていること", func() {

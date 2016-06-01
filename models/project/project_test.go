@@ -31,6 +31,7 @@ var _ = Describe("Project", func() {
 		sql.Exec("truncate table projects;")
 		sql.Exec("truncate table repositories;")
 		sql.Exec("truncate table lists;")
+		sql.Exec("truncate table list_options;")
 		sql.Close()
 	})
 
