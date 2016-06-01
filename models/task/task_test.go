@@ -1,6 +1,7 @@
 package task_test
 
 import (
+	seed "../../db/seed"
 	"../db"
 	"../list"
 	"../project"
@@ -19,6 +20,9 @@ var _ = Describe("Task", func() {
 		newProject *project.ProjectStruct
 		table      *sql.DB
 	)
+	BeforeEach(func() {
+		seed.ListOptions()
+	})
 	AfterEach(func() {
 		mydb := &db.Database{}
 		var database db.DB = mydb
@@ -27,6 +31,7 @@ var _ = Describe("Task", func() {
 		sql.Exec("truncate table projects;")
 		sql.Exec("truncate table lists;")
 		sql.Exec("truncate table tasks;")
+		sql.Exec("truncate table list_options;")
 		sql.Close()
 	})
 	JustBeforeEach(func() {
