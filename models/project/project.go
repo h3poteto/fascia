@@ -98,11 +98,13 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 		return nil, err
 	}
 
-	// github側にwebhooko登録
-	err := project.CreateWebhook()
-	if err != nil {
-		logging.SharedInstance().MethodInfo("Project", "Create", false).Infof("failed to create webhook: %v", err)
-		err = nil
+	if repo != nil {
+		// github側にwebhooko登録
+		err := project.CreateWebhook()
+		if err != nil {
+			logging.SharedInstance().MethodInfo("Project", "Create", false).Infof("failed to create webhook: %v", err)
+			err = nil
+		}
 	}
 
 	// 初期リストの準備

@@ -31,13 +31,14 @@ var _ = Describe("Project", func() {
 		sql.Exec("truncate table projects;")
 		sql.Exec("truncate table repositories;")
 		sql.Exec("truncate table lists;")
+		sql.Exec("truncate table list_options;")
 		sql.Close()
 	})
 
 	JustBeforeEach(func() {
 		email := "save@example.com"
 		password := "hogehoge"
-		uid, _ = user.Registration(email, password)
+		uid, _ = user.Registration(email, password, password)
 		mydb := &db.Database{}
 		var database db.DB = mydb
 		table = database.Init()

@@ -7,11 +7,14 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"encoding/binary"
+	"errors"
 	"github.com/google/go-github/github"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/oauth2"
+	"regexp"
 	"strconv"
 	"time"
+	"unicode/utf8"
 )
 
 type User interface {
@@ -34,6 +37,11 @@ func randomString() string {
 	var n uint64
 	binary.Read(rand.Reader, binary.LittleEndian, &n)
 	return strconv.FormatUint(n, 36)
+}
+
+func emailValidation(email string) bool {
+	re := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
+	return re.MatchString(email)
 }
 
 func HashPassword(password string) ([]byte, error) {
@@ -87,7 +95,25 @@ func CurrentUser(userID int64) (*UserStruct, error) {
 	return &user, nil
 }
 
-func Registration(email string, password string) (int64, error) {
+// Validation is check email and password for user model
+func Validation(email string, password string, passwordConfirm string) bool {
+	if !emailValidation(email) {
+		return false
+	}
+	if password != passwordConfirm {
+		return false
+	}
+	if utf8.RuneCountInString(password) < 8 {
+		return false
+	}
+	return true
+}
+
+// Registration is create new user through validation
+func Registration(email string, password string, passwordConfirm string) (int64, error) {
+	if !Validation(email, password, passwordConfirm) {
+		return 0, errors.New("validation failed")
+	}
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
 	table := interfaceDB.Init()

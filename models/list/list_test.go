@@ -36,7 +36,7 @@ var _ = Describe("List", func() {
 		seed.ListOptions()
 		email := "save@example.com"
 		password := "hogehoge"
-		uid, _ := user.Registration(email, password)
+		uid, _ := user.Registration(email, password, password)
 		mydb := &db.Database{}
 		var database db.DB = mydb
 		table = database.Init()

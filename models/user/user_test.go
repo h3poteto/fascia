@@ -1,6 +1,7 @@
 package user_test
 
 import (
+	seed "../../db/seed"
 	"../db"
 	"../project"
 	. "../user"
@@ -14,26 +15,82 @@ import (
 )
 
 var _ = Describe("User", func() {
+	BeforeEach(func() {
+		seed.ListOptions()
+	})
 	AfterEach(func() {
 		mydb := &db.Database{}
 		var database db.DB = mydb
 		table := database.Init()
 		table.Exec("truncate table users;")
 		table.Exec("truncate table projects;")
+		table.Exec("truncate table list_options;")
 		table.Close()
+	})
+
+	Describe("Validation", func() {
+		Context("when email is empty", func() {
+			email := ""
+			password := "hogehoge"
+			It("should validation failed", func() {
+				result := Validation(email, password, password)
+				Expect(result).To(BeFalse())
+			})
+		})
+		Context("when email does not contain domain", func() {
+			email := "abc@def"
+			password := "hogehoge"
+			It("should validation failed", func() {
+				result := Validation(email, password, password)
+				Expect(result).To(BeFalse())
+			})
+		})
+		Context("when passwod length is less than 8 characters", func() {
+			email := "abc@def.com"
+			password := "hoho"
+			It("should validation failed", func() {
+				result := Validation(email, password, password)
+				Expect(result).To(BeFalse())
+			})
+		})
+		Context("when password is empty", func() {
+			email := "abc@def.com"
+			password := ""
+			It("should validation failed", func() {
+				result := Validation(email, password, password)
+				Expect(result).To(BeFalse())
+			})
+		})
+		Context("when password disagree with password comfirm", func() {
+			email := "abc@def.com"
+			password := "hogehoge"
+			passwordConfirm := "fugafuga"
+			It("should validation failed", func() {
+				result := Validation(email, password, passwordConfirm)
+				Expect(result).To(BeFalse())
+			})
+		})
+		Context("when email and password is right", func() {
+			email := "abc@def.com"
+			password := "hogehoge"
+			It("should validation success", func() {
+				result := Validation(email, password, password)
+				Expect(result).To(BeTrue())
+			})
+		})
 	})
 
 	Describe("Registration", func() {
 		email := "registration@example.com"
 		password := "hogehoge"
 		It("can regist", func() {
-			id, err := Registration(email, password)
+			id, err := Registration(email, password, password)
 			Expect(err).To(BeNil())
 			Expect(id).NotTo(Equal(int64(0)))
 		})
 		Context("after registration", func() {
 			BeforeEach(func() {
-				_, _ = Registration(email, password)
+				_, _ = Registration(email, password, password)
 			})
 			It("should save user in database", func() {
 				mydb := &db.Database{}
@@ -53,7 +110,7 @@ var _ = Describe("User", func() {
 				Expect(id).NotTo(Equal(int64(0)))
 			})
 			It("cannot double regist", func() {
-				id, err := Registration(email, password)
+				id, err := Registration(email, password, password)
 				Expect(err).NotTo(BeNil())
 				Expect(id).To(Equal(int64(0)))
 			})
@@ -65,7 +122,7 @@ var _ = Describe("User", func() {
 		email := "login@example.com"
 		password := "hogehoge"
 		BeforeEach(func() {
-			_, _ = Registration(email, password)
+			_, _ = Registration(email, password, password)
 		})
 
 		Context("when send correctly login information", func() {
@@ -114,7 +171,7 @@ var _ = Describe("User", func() {
 			email := "already_regist@example.com"
 			var currentUser *UserStruct
 			BeforeEach(func() {
-				Registration(email, "hogehoge")
+				Registration(email, "hogehoge", "hogehoge")
 				currentUser, _ = FindOrCreateGithub(token)
 			})
 			It("should update github information", func() {
@@ -135,7 +192,7 @@ var _ = Describe("User", func() {
 		BeforeEach(func() {
 			email := "project@example.com"
 			password := "hogehoge"
-			_, _ = Registration(email, password)
+			_, _ = Registration(email, password, password)
 			mydb := &db.Database{}
 			var database db.DB = mydb
 			table := database.Init()
@@ -149,7 +206,11 @@ var _ = Describe("User", func() {
 					panic(err)
 				}
 			}
-			newProject, _ = project.Create(userid, "title", "desc", 0, "", "", sql.NullString{})
+			var err error
+			newProject, err = project.Create(userid, "title", "desc", 0, "", "", sql.NullString{})
+			if err != nil {
+				panic(err)
+			}
 			currentUser = NewUser(userid, dbemail, sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
 		})
 		It("ユーザとプロジェクトが関連づいていること", func() {
@@ -198,7 +259,7 @@ var _ = Describe("User", func() {
 		var currentUser *UserStruct
 		var result error
 		BeforeEach(func() {
-			id, _ := Registration(email, "hogehoge")
+			id, _ := Registration(email, "hogehoge", "hogehoge")
 			currentUser, _ = CurrentUser(id)
 			ts := oauth2.StaticTokenSource(
 				&oauth2.Token{AccessToken: token},
