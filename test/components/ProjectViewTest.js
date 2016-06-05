@@ -2,6 +2,7 @@ import TestUtils from 'react-addons-test-utils'
 import expect from 'expect'
 import React from 'react'
 import ProjectView from '../../frontend/javascripts/components/ProjectView.jsx'
+import * as ProjectViewFixture from '../fixtures/components/ProjectViewFixture'
 
 function setup(props) {
   let renderer = TestUtils.createRenderer()
@@ -17,25 +18,7 @@ function setup(props) {
 
 describe('ProjectView', () => {
   context('when no error, no repositories, and one project', () => {
-    let state = {
-      ProjectReducer: {
-        isModalOpen: false,
-        newProject: {
-          title: "",
-          description: ""
-        },
-        projects: [{
-          ID: 1,
-          Title: "project title",
-          Description: "project description"
-        }],
-        isLoading: false
-      },
-      fetchProjects: expect.createSpy(),
-      fetchRepositories: expect.createSpy(),
-      closeFlash: expect.createSpy(),
-      openNewProjectModal: expect.createSpy()
-    }
+    let state = ProjectViewFixture.initState()
     it('should render correctly', () => {
       const { output, props } = setup(state)
 
@@ -53,80 +36,17 @@ describe('ProjectView', () => {
     })
   })
   context('when one error, no repositories, and one project', () => {
-    let state = {
-      ProjectReducer: {
-        isModalOpen: true,
-        newProject: {
-          title: "Title",
-          description: ""
-        },
-        projects: [{
-          ID: 1,
-          Title: "project title",
-          Description: "project description"
-        }],
-        isLoading: false
-      },
-      fetchProjects: expect.createSpy(),
-      fetchRepositories: expect.createSpy(),
-      closeFlash: expect.createSpy(),
-      openNewProjectModal: expect.createSpy(),
-      updateNewProjectTitle: expect.createSpy(),
-      changeSelectedRepository: expect.createSpy(),
-      fetchCreateProject: expect.createSpy()
-    }
-    it('should render page and modal', () => {
-      const { output, props } = setup(state)
-
-      expect(output.type).toBe('div')
-      expect(output.props.id).toBe('projects')
-
+    let state = ProjectViewFixture.errorState()
+    it('should render error', () => {
+      const { output } = setup(state)
       let [ wholeLoading, flash, modal, items ] = output.props.children
-      expect(modal.props.isOpen).toBe(true)
-      let formWrapper = modal.props.children
-      let form = formWrapper.props.children
-      let field = form.props.children
-      let [ legend, titileLabel, titleInput, descriptionLabel, descriptionInput, repositoryLabel, repositorySelect, action ] = field.props.children
-      expect(titleInput.props.value).toBe("Title")
-      titleInput.props.onChange()
-      expect(props.updateNewProjectTitle.calls.length).toBe(1)
-      let button = action.props.children
-      button.props.onClick()
-      expect(props.fetchCreateProject.calls.length).toBe(1)
+      expect(flash.props.children).toBe('Server Error')
     })
   })
+
   context('when open project modal with repositories', () => {
     context('without selectedRepository', () => {
-      let state = {
-        ProjectReducer: {
-          isModalOpen: true,
-          newProject: {
-            title: "Title",
-            description: ""
-          },
-          projects: [{
-            ID: 1,
-            Title: "project title",
-            Description: "project description"
-          }],
-          selectedRepository: null,
-          repositories: [{
-            id: 1,
-            full_name: "repo1"
-          }, {
-            id: 2,
-            full_name: "repo2"
-          }],
-          isLoading: false
-        },
-        fetchProjects: expect.createSpy(),
-        fetchRepositories: expect.createSpy(),
-        closeFlash: expect.createSpy(),
-        openNewProjectModal: expect.createSpy(),
-        updateNewProjectTitle: expect.createSpy(),
-        changeSelectedRepository: expect.createSpy(),
-        fetchCreateProject: expect.createSpy()
-      }
+      let state = ProjectViewFixture.openProjectModal()
       it('should render repositories', () => {
         const { output, props } = setup(state)
 
@@ -146,38 +66,7 @@ describe('ProjectView', () => {
       })
     })
     context('with selectedRepository', () => {
-      let state = {
-        ProjectReducer: {
-          isModalOpen: true,
-          newProject: {
-            title: "Title",
-            description: ""
-          },
-          projects: [{
-            ID: 1,
-            Title: "project title",
-            Description: "project description"
-          }],
-          selectedRepository: {
-            id: 1
-          },
-          repositories: [{
-            id: 1,
-            full_name: "repo1"
-          }, {
-            id: 2,
-            full_name: "repo2"
-          }],
-          isLoading: false
-        },
-        fetchProjects: expect.createSpy(),
-        fetchRepositories: expect.createSpy(),
-        closeFlash: expect.createSpy(),
-        openNewProjectModal: expect.createSpy(),
-        updateNewProjectTitle: expect.createSpy(),
-        changeSelectedRepository: expect.createSpy(),
-        fetchCreateProject: expect.createSpy()
-      }
+      let state = ProjectViewFixture.openProjectModalWithRepository()
       it('should render repositories', () => {
         const { output, props } = setup(state)
 
