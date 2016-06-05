@@ -78,7 +78,7 @@ export function initState() {
     taskDrop: expect.createSpy(),
     openNewListModal: expect.createSpy(),
     taskDragStart: expect.createSpy(),
-    openNewTaskModal: expect.createSpy(),
+    openNewTaskModal: expect.createSpy()
   }
 }
 
