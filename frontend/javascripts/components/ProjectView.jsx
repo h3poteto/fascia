@@ -21,27 +21,27 @@ const customStyles = {
     marginRight : '-50%',
     transform : 'translate(-50%, -50%)'
   }
-};
+}
 
 class ProjectView extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
   }
 
   componentWillMount() {
-    this.props.fetchProjects();
+    this.props.fetchProjects()
   }
 
   componentDidMount() {
-    this.props.fetchRepositories();
-    this.props.fetchSession();
+    this.props.fetchRepositories()
+    this.props.fetchSession()
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.ProjectReducer.error != null || nextProps.ProjectReducer.error != null) {
       setTimeout(() => {
         this.props.closeFlash()
-      }, 3000);
+      }, 3000)
     }
   }
 
@@ -68,9 +68,9 @@ class ProjectView extends React.Component {
       repositories = []
     }
 
-    var flash;
+    var flash
     if (error != null) {
-      flash = <div className="flash flash-error">{error}</div>;
+      flash = <div className="flash flash-error">{error}</div>
     }
     return (
       <div id="projects">
@@ -94,9 +94,9 @@ class ProjectView extends React.Component {
                   <option value="0">--</option>
                   {repositories.map(function(repo, index) {
                     if (selectedRepository != null && repo.id == selectedRepository.id) {
-                      return <option key={index} value={repo.id} selected>{repo.full_name}</option>;
+                      return <option key={index} value={repo.id} selected>{repo.full_name}</option>
                     } else {
-                      return <option key={index} value={repo.id}>{repo.full_name}</option>;
+                      return <option key={index} value={repo.id}>{repo.full_name}</option>
                     }
                    }, this)}
                 </select>
@@ -116,13 +116,13 @@ class ProjectView extends React.Component {
                   <div className="project-description">{truncate(item.Description, 52)}</div>
                 </div>
               </Link>
-            );
+            )
            }, this)}
               <button onClick={this.props.openNewProjectModal} className="pure-button button-large fascia-new-project button-primary" type="button">New</button>
         </div>
       </div>
-    );
+    )
   }
 }
 
-export default ProjectView;
+export default ProjectView
