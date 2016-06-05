@@ -34,6 +34,7 @@ class ProjectView extends React.Component {
 
   componentDidMount() {
     this.props.fetchRepositories();
+    this.props.fetchSession();
   }
 
   componentWillReceiveProps(nextProps) {
