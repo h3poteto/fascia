@@ -176,3 +176,27 @@ describe('fetchCreateProject', () => {
     })
   })
 })
+
+describe('fetchSession', () => {
+  afterEach(() => {
+    nock.cleanAll()
+  })
+  context('when response is right', () => {
+    beforeEach(() => {
+      nock('http://localhost')
+        .post('/session')
+        .reply(200, {
+          ok: true
+        })
+    })
+
+    it('call RECEIVE_SESSION', (done) => {
+      const expectedActions = [
+        { type: projectActions.REQUEST_SESSION },
+        { type: projectActions.RECEIVE_SESSION }
+      ]
+      const store = mockStore({}, expectedActions, done)
+      store.dispatch(projectActions.fetchSession())
+    })
+  })
+})
