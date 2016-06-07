@@ -116,13 +116,21 @@ export default class ListView extends React.Component {
     }
   }
 
+  listEditButton(list) {
+    if (list.IsInitList) {
+      return null
+    } else {
+      return <i className="fa fa-pencil" onClick={e => this.props.openEditListModal(list)} data-dropped-depth="2"></i>
+    }
+  }
+
   listItem(index, list, project, taskDraggingFrom, taskDraggingTo) {
     if (list.IsHidden) {
       return (
         <div key={index} className="fascia-list fascia-list-hidden" data-dropped-depth="0" data-id={list.ID} onDragOver={this.props.taskDragOver} onDrop={e=> this.props.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.taskDragLeave}>
           <div className="fascia-list-menu" data-dropped-depth="1">
             <i className="fa fa-eye" onClick={e => this.props.displayList(project.ID, list.ID)} data-dropped-depth="2"></i>
-            <i className="fa fa-pencil" onClick={e => this.props.openEditListModal(list)} data-dropped-depth="2"></i>
+            {this.listEditButton(list)}
           </div>
           <span className="list-title" data-dropped-depth="1">{list.Title}</span>
           {list.isLoading != undefined && list.isLoading ? this.listLoading() : ''}
@@ -133,7 +141,7 @@ export default class ListView extends React.Component {
         <div key={index} className="fascia-list" data-dropped-depth="0" data-id={list.ID} onDragOver={this.props.taskDragOver} onDrop={e=> this.props.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.taskDragLeave}>
           <div className="fascia-list-menu" data-dropped-depth="1">
             <i className="fa fa-eye-slash" onClick={e => this.props.hideList(project.ID, list.ID)} data-dropped-depth="2"></i>
-            <i className="fa fa-pencil" onClick={e => this.props.openEditListModal(list)} data-dropped-depth="2"></i>
+            {this.listEditButton(list)}
           </div>
           <span className="list-title" data-dropped-depth="1">{list.Title}</span>
           <ul className="fascia-task" data-dropped-depth="1">
