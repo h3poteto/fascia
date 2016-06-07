@@ -44,18 +44,18 @@ func emailValidation(email string) bool {
 	return re.MatchString(email)
 }
 
-func HashPassword(password string) ([]byte, error) {
+func HashPassword(password string) []byte {
 	bytePassword := []byte(password)
 	cost := 10
 	hashPassword, err := bcrypt.GenerateFromPassword(bytePassword, cost)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 	err = bcrypt.CompareHashAndPassword(hashPassword, bytePassword)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-	return hashPassword, nil
+	return hashPassword
 }
 
 func NewUser(id int64, email string, provider sql.NullString, oauthToken sql.NullString, uuid sql.NullInt64, userName sql.NullString, avatar sql.NullString) *UserStruct {
@@ -119,13 +119,11 @@ func Registration(email string, password string, passwordConfirm string) (int64,
 	table := interfaceDB.Init()
 	defer table.Close()
 
-	hashPassword, err := HashPassword(password)
-	if err != nil {
-		return 0, err
-	}
+	hashPassword := HashPassword(password)
+
 	result, err := table.Exec("insert into users (email, password, created_at) values (?, ?, ?)", email, hashPassword, time.Now())
 	if err != nil {
-		return 0, err
+		panic(err)
 	}
 	id, _ := result.LastInsertId()
 	return id, nil
@@ -230,6 +228,7 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 	}
 	user := NewUser(id, email, provider, oauthToken, uuid, userName, avatarURL)
 
+	// create
 	if id == 0 {
 		if err := user.CreateGithubUser(token, githubUser, primaryEmail); err != nil {
 			return user, err
@@ -279,7 +278,7 @@ func (u *UserStruct) Save() error {
 
 	result, err := table.Exec("insert into users (email, password, provider, oauth_token, uuid, user_name, avatar_url, created_at) values (?, ?, ?, ?, ?, ?, ?, now());", u.Email, u.Password, u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar)
 	if err != nil {
-		return err
+		panic(err)
 	}
 	u.ID, _ = result.LastInsertId()
 	logging.SharedInstance().MethodInfo("user", "Save", false).Infof("user saved: %v", u.ID)
@@ -299,10 +298,8 @@ func (u *UserStruct) Update() error {
 
 func (u *UserStruct) CreateGithubUser(token string, githubUser *github.User, primaryEmail string) error {
 	u.Email = primaryEmail
-	bytePassword, err := HashPassword(randomString())
-	if err != nil {
-		return err
-	}
+	bytePassword := HashPassword(randomString())
+
 	u.Password = string(bytePassword)
 	u.Provider = sql.NullString{String: "github", Valid: true}
 	u.OauthToken = sql.NullString{String: token, Valid: true}
