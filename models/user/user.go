@@ -45,6 +45,7 @@ func emailValidation(email string) bool {
 	return re.MatchString(email)
 }
 
+// HashPassword mask password
 func HashPassword(password string) []byte {
 	bytePassword := []byte(password)
 	cost := 10
@@ -267,6 +268,7 @@ func (u *UserStruct) Projects() []*project.ProjectStruct {
 	return slice
 }
 
+// UniqueValidation is check record unique
 func (u *UserStruct) UniqueValidation(tx *sql.Tx) bool {
 	// unique
 	var id int64
