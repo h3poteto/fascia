@@ -69,6 +69,7 @@ func (u *RepositoryStruct) Initialize() {
 	u.database = interfaceDB
 }
 
+// Validation check record required column
 func (u *RepositoryStruct) Validation(tx *sql.Tx) bool {
 	if u.RepositoryID == 0 {
 		return false
