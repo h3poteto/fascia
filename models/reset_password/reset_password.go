@@ -83,11 +83,8 @@ func ChangeUserPassword(id int64, token string, password string) (u *user.UserSt
 		return nil, err
 	}
 
-	hashPassword, err := user.HashPassword(password)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
+	hashPassword := user.HashPassword(password)
+
 	_, err = tx.Exec("update users set password = ? where id = ?;", hashPassword, userID)
 	if err != nil {
 		tx.Rollback()
