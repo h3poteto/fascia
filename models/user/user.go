@@ -325,6 +325,7 @@ func (u *UserStruct) Update() error {
 		panic(err)
 	}
 	tx.Commit()
+	logging.SharedInstance().MethodInfo("user", "Update", false).Infof("user updated: %v", u.ID)
 	return nil
 }
 
