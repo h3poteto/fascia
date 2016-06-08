@@ -69,14 +69,31 @@ func (u *RepositoryStruct) Initialize() {
 	u.database = interfaceDB
 }
 
+func (u *RepositoryStruct) Validation(tx *sql.Tx) bool {
+	if u.RepositoryID == 0 {
+		return false
+	}
+	return true
+}
+
 func (u *RepositoryStruct) Save() error {
 	table := u.database.Init()
 	defer table.Close()
-
-	result, err := table.Exec("insert into repositories (repository_id, owner, name, webhook_key, created_at) values (?, ?, ?, ?, now());", u.RepositoryID, u.Owner, u.Name, u.WebhookKey)
+	tx, err := table.Begin()
 	if err != nil {
-		return err
+		panic(err)
 	}
+
+	if !u.Validation(tx) {
+		return errors.New("validation error")
+	}
+
+	result, err := tx.Exec("insert into repositories (repository_id, owner, name, webhook_key, created_at) values (?, ?, ?, ?, now());", u.RepositoryID, u.Owner, u.Name, u.WebhookKey)
+	if err != nil {
+		tx.Rollback()
+		panic(err)
+	}
+	tx.Commit()
 	u.ID, _ = result.LastInsertId()
 	return nil
 }
