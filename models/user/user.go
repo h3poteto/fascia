@@ -13,7 +13,6 @@ import (
 	"golang.org/x/oauth2"
 	"regexp"
 	"strconv"
-	"time"
 	"unicode/utf8"
 )
 
@@ -39,6 +38,8 @@ func randomString() string {
 	return strconv.FormatUint(n, 36)
 }
 
+// TODO: ここのバリデーションはむしろformバリデーションなので，モデル層で持ちたくない
+// validator層を作るべき
 func emailValidation(email string) bool {
 	re := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
 	return re.MatchString(email)
@@ -114,19 +115,13 @@ func Registration(email string, password string, passwordConfirm string) (int64,
 	if !Validation(email, password, passwordConfirm) {
 		return 0, errors.New("validation failed")
 	}
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	table := interfaceDB.Init()
-	defer table.Close()
 
+	user := NewUser(0, email, sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
 	hashPassword := HashPassword(password)
+	user.Password = string(hashPassword)
 
-	result, err := table.Exec("insert into users (email, password, created_at) values (?, ?, ?)", email, hashPassword, time.Now())
-	if err != nil {
-		panic(err)
-	}
-	id, _ := result.LastInsertId()
-	return id, nil
+	err := user.Save()
+	return user.ID, err
 }
 
 func Login(userEmail string, userPassword string) (*UserStruct, error) {
@@ -272,14 +267,39 @@ func (u *UserStruct) Projects() []*project.ProjectStruct {
 	return slice
 }
 
+func (u *UserStruct) UniqueValidation(tx *sql.Tx) bool {
+	// unique
+	var id int64
+	var err error
+	if u.ID == 0 {
+		err = tx.QueryRow("select id from users where email = ?;", u.Email).Scan(&id)
+	} else {
+		err = tx.QueryRow("select id from users where email = ? and id != ?;", u.Email, u.ID).Scan(&id)
+	}
+	if err == nil || id != 0 {
+		return false
+	}
+	return true
+}
+
 func (u *UserStruct) Save() error {
 	table := u.database.Init()
 	defer table.Close()
-
-	result, err := table.Exec("insert into users (email, password, provider, oauth_token, uuid, user_name, avatar_url, created_at) values (?, ?, ?, ?, ?, ?, ?, now());", u.Email, u.Password, u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar)
+	tx, err := table.Begin()
 	if err != nil {
 		panic(err)
 	}
+
+	if !u.UniqueValidation(tx) {
+		tx.Rollback()
+		return errors.New("record is not unique")
+	}
+	result, err := tx.Exec("insert into users (email, password, provider, oauth_token, uuid, user_name, avatar_url, created_at) values (?, ?, ?, ?, ?, ?, ?, now());", u.Email, u.Password, u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar)
+	if err != nil {
+		tx.Rollback()
+		panic(err)
+	}
+	tx.Commit()
 	u.ID, _ = result.LastInsertId()
 	logging.SharedInstance().MethodInfo("user", "Save", false).Infof("user saved: %v", u.ID)
 	return nil
@@ -288,11 +308,21 @@ func (u *UserStruct) Save() error {
 func (u *UserStruct) Update() error {
 	table := u.database.Init()
 	defer table.Close()
-
-	_, err := table.Exec("update users set provider = ?, oauth_token = ?, uuid = ?, user_name = ?, avatar_url = ? where email = ?;", u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar, u.Email)
+	tx, err := table.Begin()
 	if err != nil {
 		panic(err)
 	}
+
+	if !u.UniqueValidation(tx) {
+		tx.Rollback()
+		return errors.New("record is not unique")
+	}
+
+	_, err = tx.Exec("update users set provider = ?, oauth_token = ?, uuid = ?, user_name = ?, avatar_url = ? where email = ?;", u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar, u.Email)
+	if err != nil {
+		panic(err)
+	}
+	tx.Commit()
 	return nil
 }
 
