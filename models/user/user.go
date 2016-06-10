@@ -85,7 +85,7 @@ func CurrentUser(userID int64) (*UserStruct, error) {
 	var provider, oauthToken, userName, avatarURL sql.NullString
 	err := table.QueryRow("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where id = ?;", userID).Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "sql select error")
 	}
 	user.ID = id
 	user.Email = email
@@ -123,7 +123,7 @@ func Registration(email string, password string, passwordConfirm string) (int64,
 
 	hashPassword, err := HashPassword(password)
 	if err != nil {
-		return 0, errors.Wrap(err, "hashPassword error")
+		return 0, err
 	}
 	// TODO: ここ独自でsql作るのではなくsaveメソッドを使って共通化したい
 	result, err := table.Exec("insert into users (email, password, created_at) values (?, ?, ?)", email, hashPassword, time.Now())
@@ -235,13 +235,13 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 
 	if id == 0 {
 		if err := user.CreateGithubUser(token, githubUser, primaryEmail); err != nil {
-			return user, errors.Wrap(err, "cannot create github")
+			return user, err
 		}
 	}
 
 	if !user.OauthToken.Valid || user.OauthToken.String != token {
 		if err := user.UpdateGithubUserInfo(token, githubUser); err != nil {
-			return user, errors.Wrap(err, "cannot update github")
+			return user, err
 		}
 	}
 
@@ -305,7 +305,7 @@ func (u *UserStruct) CreateGithubUser(token string, githubUser *github.User, pri
 	u.Email = primaryEmail
 	bytePassword, err := HashPassword(randomString())
 	if err != nil {
-		return errors.Wrap(err, "hash password error")
+		return err
 	}
 	u.Password = string(bytePassword)
 	u.Provider = sql.NullString{String: "github", Valid: true}
@@ -315,7 +315,7 @@ func (u *UserStruct) CreateGithubUser(token string, githubUser *github.User, pri
 	u.Uuid = sql.NullInt64{Int64: int64(*githubUser.ID), Valid: true}
 	u.Avatar = sql.NullString{String: *githubUser.AvatarURL, Valid: true}
 	if err := u.Save(); err != nil {
-		return errors.Wrap(err, "user save error")
+		return err
 	}
 	return nil
 }
@@ -327,7 +327,7 @@ func (u *UserStruct) UpdateGithubUserInfo(token string, githubUser *github.User)
 	u.Uuid = sql.NullInt64{Int64: int64(*githubUser.ID), Valid: true}
 	u.Avatar = sql.NullString{String: *githubUser.AvatarURL, Valid: true}
 	if err := u.Update(); err != nil {
-		return errors.Wrap(err, "user update error")
+		return err
 	}
 	return nil
 }
