@@ -1,8 +1,10 @@
 package logging
 
 import (
+	"fmt"
 	"github.com/Sirupsen/logrus"
 	"github.com/johntdyer/slackrus"
+	"github.com/pkg/errors"
 	"github.com/zenazn/goji/web"
 	"github.com/zenazn/goji/web/middleware"
 	"os"
@@ -12,6 +14,10 @@ import (
 
 type LogStruct struct {
 	Log *logrus.Logger
+}
+
+type Stacktrace interface {
+	Stacktrace() []errors.Frame
 }
 
 var sharedInstance *LogStruct = New()
@@ -61,6 +67,27 @@ func (u *LogStruct) MethodInfo(model string, action string, stack bool, context 
 		"requestID": requestID,
 		"model":     model,
 		"action":    action,
+	})
+}
+
+func (u *LogStruct) MethodInfoWithStacktrace(model string, action string, err error, context ...web.C) *logrus.Entry {
+	requestID := "null"
+	if len(context) > 0 {
+		requestID = middleware.GetReqID(context[0])
+	}
+
+	stackErr, ok := err.(Stacktrace)
+	if !ok {
+		panic("oops, err does not implement Stacktrace")
+	}
+	st := stackErr.Stacktrace()
+
+	return u.Log.WithFields(logrus.Fields{
+		"time":       time.Now(),
+		"requestID":  requestID,
+		"model":      model,
+		"action":     action,
+		"stacktrace": fmt.Sprintf("%+v", st[0:5]),
 	})
 }
 
