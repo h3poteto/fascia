@@ -3,7 +3,8 @@ package list_option
 import (
 	"../db"
 	"database/sql"
-	"errors"
+
+	"github.com/pkg/errors"
 )
 
 type ListOiption interface {
@@ -55,7 +56,7 @@ func FindByAction(action string) (*ListOptionStruct, error) {
 	var listOptionID int64
 	err := table.QueryRow("select id from list_options where action = ?;", action).Scan(&listOptionID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "sql select error")
 	}
 	return NewListOption(listOptionID, action), nil
 }
@@ -71,7 +72,7 @@ func FindByID(id sql.NullInt64) (*ListOptionStruct, error) {
 		err := table.QueryRow("select action from list_options where id = ?;", id).Scan(&action)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "sql select error")
 		}
 		return NewListOption(id.Int64, action), nil
 	} else {
