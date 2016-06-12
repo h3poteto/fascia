@@ -47,22 +47,12 @@ func SharedInstance() *LogStruct {
 }
 
 // MethodInfo is prepare logrus entry with fields
-func (u *LogStruct) MethodInfo(model string, action string, stack bool, context ...web.C) *logrus.Entry {
+func (u *LogStruct) MethodInfo(model string, action string, context ...web.C) *logrus.Entry {
 	requestID := "null"
 	if len(context) > 0 {
 		requestID = middleware.GetReqID(context[0])
 	}
-	if stack {
-		buf := make([]byte, 1024)
-		runtime.Stack(buf, false)
-		return u.Log.WithFields(logrus.Fields{
-			"time":       time.Now(),
-			"requestID":  requestID,
-			"model":      model,
-			"action":     action,
-			"stacktrace": string(buf),
-		})
-	}
+
 	return u.Log.WithFields(logrus.Fields{
 		"time":      time.Now(),
 		"requestID": requestID,
