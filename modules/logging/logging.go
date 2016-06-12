@@ -17,6 +17,7 @@ type LogStruct struct {
 	Log *logrus.Logger
 }
 
+// Stacktrace provide stacktrace for pkg/errors
 type Stacktrace interface {
 	Stacktrace() []errors.Frame
 }
@@ -61,6 +62,7 @@ func (u *LogStruct) MethodInfo(model string, action string, context ...web.C) *l
 	})
 }
 
+// MethodInfoWithStacktrace is prepare logrus entry with fields
 func (u *LogStruct) MethodInfoWithStacktrace(model string, action string, err error, context ...web.C) *logrus.Entry {
 	requestID := "null"
 	if len(context) > 0 {
