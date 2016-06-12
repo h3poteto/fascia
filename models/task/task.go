@@ -156,7 +156,7 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 			transaction.Rollback()
 			return errors.Wrap(err, "sql execute error")
 		}
-		logging.SharedInstance().MethodInfo("task", "Save", false).Info("issue number is updated")
+		logging.SharedInstance().MethodInfo("task", "Save").Info("issue number is updated")
 		u.IssueNumber = sql.NullInt64{Int64: int64(*issue.Number), Valid: true}
 		u.HTMLURL = sql.NullString{String: *issue.HTMLURL, Valid: true}
 	}
@@ -167,7 +167,7 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		return errors.Wrap(err, "sql execute error")
 	}
 	u.ID, _ = result.LastInsertId()
-	logging.SharedInstance().MethodInfo("task", "Save", false).Debugf("new task saved: %+v", u)
+	logging.SharedInstance().MethodInfo("task", "Save").Debugf("new task saved: %+v", u)
 	return nil
 }
 
@@ -179,7 +179,7 @@ func (u *TaskStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
-	logging.SharedInstance().MethodInfo("task", "Update", false).Debugf("task updated: %+v", u)
+	logging.SharedInstance().MethodInfo("task", "Update").Debugf("task updated: %+v", u)
 	return nil
 }
 
