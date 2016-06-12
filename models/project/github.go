@@ -216,7 +216,7 @@ func (u *ProjectStruct) applyListToTask(issueTask *task.TaskStruct, issue *githu
 	}
 
 	githubLabels := GithubLabels(issue, u.Lists())
-	logging.SharedInstance().MethodInfo("Project", "applyListToTask", false).Debugf("github label: %v", githubLabels)
+	logging.SharedInstance().MethodInfo("Project", "applyListToTask").Debugf("github label: %v", githubLabels)
 
 	// label所属よりcloseかどうかを優先して判定したい
 	// closeのものはどんなlabelがついていようと，doneに放り込む
