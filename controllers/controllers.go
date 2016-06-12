@@ -3,20 +3,22 @@ package controllers
 import (
 	userModel "../models/user"
 	"../modules/logging"
+
 	"crypto/md5"
-	"errors"
 	"fmt"
-	"github.com/flosch/pongo2"
-	"github.com/gorilla/sessions"
-	"github.com/zenazn/goji/web"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/github"
 	"io"
 	"net/http"
 	"os"
 	"reflect"
 	"strconv"
 	"time"
+
+	"github.com/flosch/pongo2"
+	"github.com/gorilla/sessions"
+	"github.com/pkg/errors"
+	"github.com/zenazn/goji/web"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/github"
 )
 
 const Key = "fascia"
@@ -94,7 +96,8 @@ func checkCSRF(r *http.Request, token string) bool {
 func BadRequest(w http.ResponseWriter, r *http.Request) {
 	tpl, err := pongo2.DefaultSet.FromFile("400.html.tpl")
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Controllers", "BadRequest", true).Errorf("template error: %v", err)
+		err := errors.Wrap(err, "template error")
+		logging.SharedInstance().MethodInfoWithStacktrace("Controllers", "BadRequest", err).Error(err)
 		http.Error(w, "400 BadRequest", 400)
 		return
 	}
@@ -105,7 +108,8 @@ func BadRequest(w http.ResponseWriter, r *http.Request) {
 func NotFound(w http.ResponseWriter, r *http.Request) {
 	tpl, err := pongo2.DefaultSet.FromFile("404.html.tpl")
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Controllers", "NotFound", true).Errorf("template error: %v", err)
+		err := errors.Wrap(err, "template error")
+		logging.SharedInstance().MethodInfoWithStacktrace("Controllers", "NotFound", err).Error(err)
 		http.Error(w, "404 NotFound", 404)
 		return
 	}
@@ -116,7 +120,8 @@ func NotFound(w http.ResponseWriter, r *http.Request) {
 func InternalServerError(w http.ResponseWriter, r *http.Request) {
 	tpl, err := pongo2.DefaultSet.FromFile("500.html.tpl")
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Controllers", "InternalServerError", true).Errorf("template error: %v", err)
+		err := errors.Wrap(err, "template error")
+		logging.SharedInstance().MethodInfoWithStacktrace("Controllers", "InternalServerError", err).Error(err)
 		http.Error(w, "InternalServerError", 500)
 		return
 	}
