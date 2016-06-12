@@ -21,11 +21,11 @@ func Reset(id int64, address string, token string) {
 	resp, err := sendMail(address, title, htmlBody, rawBody)
 
 	if err != nil {
-		logging.SharedInstance().MethodInfo("PasswordMailer", "Reset", true).Errorf("send mail error: %v", err)
+		logging.SharedInstance().MethodInfoWithStacktrace("PasswordMailer", "Reset", err).Error(err)
 		return
 	}
-	logging.SharedInstance().MethodInfo("PasswordMailer", "Reset", false).Debugf("send mail response: %v", resp)
-	logging.SharedInstance().MethodInfo("PasswordMailer", "Reset", false).Info("success to send mail")
+	logging.SharedInstance().MethodInfo("PasswordMailer", "Reset").Debugf("send mail response: %v", resp)
+	logging.SharedInstance().MethodInfo("PasswordMailer", "Reset").Info("success to send mail")
 
 }
 
@@ -37,10 +37,11 @@ func Changed(address string) {
 	resp, err := sendMail(address, title, htmlBody, rawBody)
 
 	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("PasswordMailer", "Changed", err).Error(err)
 		return
 	}
-	logging.SharedInstance().MethodInfo("PasswordMailer", "Changed", false).Debug("send mail response: %v", resp)
-	logging.SharedInstance().MethodInfo("PasswordMailer", "Changed", false).Info("success to send mail")
+	logging.SharedInstance().MethodInfo("PasswordMailer", "Changed").Debug("send mail response: %v", resp)
+	logging.SharedInstance().MethodInfo("PasswordMailer", "Changed").Info("success to send mail")
 }
 
 func production() bool {
