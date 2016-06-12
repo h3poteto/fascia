@@ -2,16 +2,18 @@ package repository
 
 import (
 	"../db"
+
 	"crypto/hmac"
 	"crypto/md5"
 	"crypto/sha1"
 	"database/sql"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"io"
 	"strconv"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 type Repository interface {
@@ -58,7 +60,7 @@ func FindRepositoryByRepositoryID(repositoryID int64) (*RepositoryStruct, error)
 	var owner, name, webhookKey string
 	err := table.QueryRow("select id, repository_id, owner, name, webhook_key from repositories where repository_id = ?;", repositoryID).Scan(&id, &repositoryID, &owner, &name, &webhookKey)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "sql select error")
 	}
 	return NewRepository(id, repositoryID, owner, name, webhookKey), nil
 }
@@ -75,7 +77,7 @@ func (u *RepositoryStruct) Save() error {
 
 	result, err := table.Exec("insert into repositories (repository_id, owner, name, webhook_key, created_at) values (?, ?, ?, ?, now());", u.RepositoryID, u.Owner, u.Name, u.WebhookKey)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "sql execute error")
 	}
 	u.ID, _ = result.LastInsertId()
 	return nil
@@ -89,7 +91,7 @@ func (u *RepositoryStruct) Authenticate(token string, response []byte) error {
 	var webhookKey string
 	err := table.QueryRow("select webhook_key from repositories where id = ?;", u.ID).Scan(&webhookKey)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "sql select error")
 	}
 	mac := hmac.New(sha1.New, []byte(webhookKey))
 	mac.Write(response)
