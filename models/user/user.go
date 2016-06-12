@@ -247,6 +247,7 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 
 }
 
+// TODO: panicやめたい
 func (u *UserStruct) Projects() []*project.ProjectStruct {
 	table := u.database.Init()
 	defer table.Close()
