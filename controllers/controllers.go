@@ -56,7 +56,7 @@ func CheckLogin(r *http.Request) (*userModel.UserStruct, error) {
 	}
 	currentUser, err := userModel.CurrentUser(id.(int64))
 	if err != nil {
-		return nil, errors.New("cannot find login user")
+		return nil, err
 	}
 	return currentUser, nil
 }
@@ -64,7 +64,7 @@ func CheckLogin(r *http.Request) (*userModel.UserStruct, error) {
 func GenerateCSRFToken(c web.C, w http.ResponseWriter, r *http.Request) (string, error) {
 	session, err := cookieStore.Get(r, Key)
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, "cookie error")
 	}
 
 	// 現在時間とソルトからトークンを生成
@@ -76,7 +76,7 @@ func GenerateCSRFToken(c web.C, w http.ResponseWriter, r *http.Request) (string,
 
 	err = cookieStore.Save(r, w, session)
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, "cookie error")
 	}
 	return token, nil
 }
