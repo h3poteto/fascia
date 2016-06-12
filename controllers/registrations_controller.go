@@ -3,12 +3,15 @@ package controllers
 import (
 	userModel "../models/user"
 	"../modules/logging"
-	"github.com/flosch/pongo2"
-	"github.com/goji/param"
-	"github.com/zenazn/goji/web"
-	"golang.org/x/oauth2"
+
 	"html/template"
 	"net/http"
+
+	"github.com/flosch/pongo2"
+	"github.com/goji/param"
+	"github.com/pkg/errors"
+	"github.com/zenazn/goji/web"
+	"golang.org/x/oauth2"
 )
 
 type Registrations struct {
@@ -26,14 +29,15 @@ func (u *Registrations) SignUp(c web.C, w http.ResponseWriter, r *http.Request) 
 
 	token, err := GenerateCSRFToken(c, w, r)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", true, c).Errorf("CSRF error: %v", err)
+		logging.SharedInstance().MethodInfoWithStacktrace("RegistrationsController", "SignUp", err, c).Errorf("CSRF error: %v", err)
 		InternalServerError(w, r)
 		return
 	}
 
 	tpl, err := pongo2.DefaultSet.FromFile("sign_up.html.tpl")
 	if err != nil {
-		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", true, c).Errorf("template error: %v", err)
+		err := errors.Wrap(err, "template error")
+		logging.SharedInstance().MethodInfoWithStacktrace("RegistrationsController", "SignUp", err, c).Error(err)
 		InternalServerError(w, r)
 		return
 	}
@@ -43,7 +47,8 @@ func (u *Registrations) SignUp(c web.C, w http.ResponseWriter, r *http.Request) 
 func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", true, c).Errorf("wrong form: %v", err)
+		err := errors.Wrap(err, "wrong form")
+		logging.SharedInstance().MethodInfoWithStacktrace("RegistrationsController", "SignUp", err, c).Error(err)
 		BadRequest(w, r)
 		return
 	}
@@ -51,14 +56,16 @@ func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Req
 	var signUpForm SignUpForm
 	err = param.Parse(r.PostForm, &signUpForm)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", true, c).Errorf("wrong parameter: %v", err)
+		err := errors.Wrap(err, "wrong parameter")
+		logging.SharedInstance().MethodInfoWithStacktrace("RegistrationsController", "SignUp", err, c).Error(err)
 		InternalServerError(w, r)
 		return
 	}
-	logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", false, c).Debugf("post registration form: %+v", signUpForm)
+	logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", c).Debugf("post registration form: %+v", signUpForm)
 
 	if !CheckCSRFToken(r, signUpForm.Token) {
-		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", true, c).Error("cannot verify CSRF token")
+		err := errors.New("cannot verify CSRF token")
+		logging.SharedInstance().MethodInfoWithStacktrace("RegistrationsController", "SignUp", err, c).Error(err)
 		InternalServerError(w, r)
 		return
 	}
@@ -67,12 +74,12 @@ func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Req
 	_, err = userModel.Registration(template.HTMLEscapeString(signUpForm.Email), template.HTMLEscapeString(signUpForm.Password), template.HTMLEscapeString(signUpForm.PasswordConfirm))
 	if err != nil {
 		// TODO: 登録情報が間違っていることを通知したい
-		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", false, c).Infof("registration error: %v", err)
+		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", c).Infof("registration error: %v", err)
 		http.Redirect(w, r, "/sign_up", 302)
 		return
 	}
 
-	logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", false, c).Info("registration success")
+	logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", c).Info("registration success")
 	http.Redirect(w, r, "/sign_in", 302)
 	return
 }
