@@ -3,9 +3,9 @@ package hub
 import (
 	"../../models/repository"
 	"../logging"
-	"errors"
 
 	"github.com/google/go-github/github"
+	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 )
 
@@ -19,12 +19,13 @@ func CheckLabelPresent(token string, repo *repository.RepositoryStruct, title *s
 	client := prepareClient(token)
 
 	if title == nil {
-		return nil, errors.New("title is nil")
+		return nil, errors.New("title is required")
 	}
 	githubLabel, response, err := client.Issues.GetLabel(repo.Owner.String, repo.Name.String, *title)
 	logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent", false).Debugf("respone of geting github label: %+v", response)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent", false).Debugf("cannot find github label: %v", repo.Name.String)
+		// TODO: 本当はerrorで返したいが，error=nil, label=nilでラベルの存在判定をしている箇所があるので，それらを駆逐したい
 		return nil, nil
 	}
 	logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent", false).Debugf("github label is exist: %+v", githubLabel)
@@ -45,7 +46,7 @@ func CreateGithubLabel(token string, repo *repository.RepositoryStruct, title *s
 	githubLabel, response, err := client.Issues.CreateLabel(repo.Owner.String, repo.Name.String, label)
 	logging.SharedInstance().MethodInfo("hub", "CreateGithubLabel", false).Debugf("response of creating github label: %+v\n", response)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "response is error")
 	}
 	logging.SharedInstance().MethodInfo("hub", "CreateGithubLabel", false).Debugf("github label is created: %+v", githubLabel)
 	return githubLabel, nil
@@ -65,7 +66,7 @@ func UpdateGithubLabel(token string, repo *repository.RepositoryStruct, original
 	githubLabel, response, err := client.Issues.EditLabel(repo.Owner.String, repo.Name.String, *originalTitle, label)
 	logging.SharedInstance().MethodInfo("hub", "UpddateGithubLabel", false).Debugf("response of updating github label: %+v", response)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "response is error")
 	}
 	logging.SharedInstance().MethodInfo("hub", "UpdateGithubLabel", false).Debugf("github label is updated: %+v", githubLabel)
 	return githubLabel, nil
@@ -86,7 +87,7 @@ func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels [
 	githubIssue, response, err := client.Issues.Create(repo.Owner.String, repo.Name.String, issueRequest)
 	logging.SharedInstance().MethodInfo("hub", "CreateGithubIssue", false).Debugf("response of creating github issue: %+v\n", response)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "response is error")
 	}
 	logging.SharedInstance().MethodInfo("hub", "CreateGithubIssue", false).Debugf("github issue is created: %+v", githubIssue)
 	return githubIssue, nil
@@ -106,7 +107,7 @@ func EditGithubIssue(token string, repo *repository.RepositoryStruct, number int
 	issue, response, err := client.Issues.Edit(repo.Owner.String, repo.Name.String, issueNumber, issueRequest)
 	logging.SharedInstance().MethodInfo("hub", "EditGithubIssue", false).Debugf("response of edit github issue: %+v", response)
 	if err != nil {
-		return false, err
+		return false, errors.Wrap(err, "response is error")
 	}
 	logging.SharedInstance().MethodInfo("hub", "EditGithubIssue", false).Debugf("github issue is updated: %+v", issue)
 	return true, nil
@@ -118,7 +119,7 @@ func GetGithubIssue(token string, repo *repository.RepositoryStruct, number int)
 
 	issue, _, err := client.Issues.Get(repo.Owner.String, repo.Name.String, number)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "response is error")
 	}
 	return issue, nil
 }
@@ -134,9 +135,12 @@ func GetGithubIssues(token string, repo *repository.RepositoryStruct) ([]github.
 	}
 	opneIssues, _, err := client.Issues.ListByRepo(repo.Owner.String, repo.Name.String, &openIssueOption)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, errors.Wrap(err, "response is error")
 	}
 	closedIssues, _, err := client.Issues.ListByRepo(repo.Owner.String, repo.Name.String, &closedIssueOption)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "response is error")
+	}
 
 	return opneIssues, closedIssues, nil
 }
@@ -147,7 +151,7 @@ func ListLabels(token string, repo *repository.RepositoryStruct) ([]github.Label
 
 	labels, _, err := client.Issues.ListLabels(repo.Owner.String, repo.Name.String, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "response is error")
 	}
 	return labels, nil
 }
@@ -189,7 +193,7 @@ func CreateWebhook(token string, repo *repository.RepositoryStruct, secret strin
 	}
 	_, _, err := client.Repositories.CreateHook(repo.Owner.String, repo.Name.String, &hook)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "response is error")
 	}
 	return nil
 }
