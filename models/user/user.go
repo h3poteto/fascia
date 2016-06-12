@@ -10,7 +10,6 @@ import (
 	"encoding/binary"
 	"regexp"
 	"strconv"
-	"time"
 	"unicode/utf8"
 
 	"github.com/google/go-github/github"
@@ -125,13 +124,12 @@ func Registration(email string, password string, passwordConfirm string) (int64,
 	if err != nil {
 		return 0, err
 	}
-	// TODO: ここ独自でsql作るのではなくsaveメソッドを使って共通化したい
-	result, err := table.Exec("insert into users (email, password, created_at) values (?, ?, ?)", email, hashPassword, time.Now())
-	if err != nil {
-		return 0, errors.Wrap(err, "sql execute error")
-	}
-	id, _ := result.LastInsertId()
-	return id, nil
+
+	user := NewUser(0, email, sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
+	user.Password = string(hashPassword)
+	err = user.Save()
+
+	return user.ID, err
 }
 
 func Login(userEmail string, userPassword string) (*UserStruct, error) {
