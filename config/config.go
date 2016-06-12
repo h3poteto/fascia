@@ -1,7 +1,6 @@
 package config
 
 import (
-	"../modules/logging"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
@@ -14,12 +13,12 @@ func Element(elem string) interface{} {
 	path := filepath.Join(root, "config/settings.yml")
 	buf, err := ioutil.ReadFile(path)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Config", "Element", true).Panic(err)
+		panic(err)
 	}
 	m := make(map[interface{}]interface{})
 	err = yaml.Unmarshal(buf, &m)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("Config", "Element", true).Panic(err)
+		panic(err)
 	}
 	return m[env].(map[interface{}]interface{})[elem]
 }
