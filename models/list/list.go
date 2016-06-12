@@ -8,9 +8,11 @@ import (
 	"../list_option"
 	"../repository"
 	"../task"
+
 	"database/sql"
-	"errors"
 	"runtime"
+
+	"github.com/pkg/errors"
 )
 
 type List interface {
@@ -53,20 +55,19 @@ func FindList(projectID int64, listID int64) (*ListStruct, error) {
 	var isHidden bool
 	rows, err := table.Query("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where id = ? AND project_id = ?;", listID, projectID)
 	if err != nil {
-		panic(err)
+		return nil, errors.Wrap(err, "sql select error")
 	}
 	for rows.Next() {
 		err = rows.Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
 		if err != nil {
-			panic(err)
+			return nil, errors.Wrap(err, "sql scan error")
 		}
 	}
 	if id != listID {
 		return nil, errors.New("cannot find list or project did not contain list")
-	} else {
-		list := NewList(id, projectID, userID, title.String, color.String, optionID, isHidden)
-		return list, nil
 	}
+	list := NewList(id, projectID, userID, title.String, color.String, optionID, isHidden)
+	return list, nil
 
 }
 
@@ -85,7 +86,7 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 			tx.Rollback()
 			switch ty := err.(type) {
 			case runtime.Error:
-				e = ty
+				e = errors.Wrap(ty, "runtime error")
 			case string:
 				e = errors.New(err.(string))
 			default:
@@ -97,7 +98,7 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	result, err := tx.Exec("insert into lists (project_id, user_id, title, color, list_option_id, is_hidden, created_at) values (?, ?, ?, ?, ?, ?, now());", u.ProjectID, u.UserID, u.Title, u.Color, u.ListOptionID, u.IsHidden)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return errors.Wrap(err, "sql execute error")
 	}
 
 	if OauthToken != nil && OauthToken.Valid && repo != nil {
@@ -141,6 +142,8 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	var listOptionID sql.NullInt64
 	listOption, err := list_option.FindByAction(*action)
 	if err != nil {
+		// list_optionはnullでも構わない
+		// nullの場合は特にactionが発生しないだけ
 		logging.SharedInstance().MethodInfo("list", "Update", false).Debugf("cannot find list_options, set null to list_option_id: %v", err)
 	} else {
 		listOptionID.Int64 = listOption.ID
@@ -153,7 +156,7 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 			tx.Rollback()
 			switch ty := err.(type) {
 			case runtime.Error:
-				e = ty
+				e = errors.Wrap(ty, "runtime error")
 			case string:
 				e = errors.New(err.(string))
 			default:
@@ -165,7 +168,7 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	_, err = tx.Exec("update lists set title = ?, color = ?, list_option_id = ?, is_hidden = ? where id = ?;", *title, *color, listOptionID, u.IsHidden, u.ID)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return errors.Wrap(err, "sql execute error")
 	}
 
 	if OauthToken != nil && OauthToken.Valid && repo != nil {
@@ -209,11 +212,12 @@ func (u *ListStruct) UpdateColor() error {
 
 	_, err := table.Exec("update lists set color = ? where id = ?;", u.Color.String, u.ID)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "sql execute error")
 	}
 	return nil
 }
 
+// TODO: この辺，できればpanicさせたくない
 func (u *ListStruct) Tasks() []*task.TaskStruct {
 	table := u.database.Init()
 	defer table.Close()
@@ -222,7 +226,6 @@ func (u *ListStruct) Tasks() []*task.TaskStruct {
 	rows, err := table.Query("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where list_id = ? order by display_index;", u.ID)
 	if err != nil {
 		panic(err)
-		return slice
 	}
 
 	for rows.Next() {
@@ -234,7 +237,6 @@ func (u *ListStruct) Tasks() []*task.TaskStruct {
 		err := rows.Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
 		if err != nil {
 			panic(err)
-			return slice
 		}
 		if listID == u.ID {
 			l := task.NewTask(id, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL)
@@ -260,7 +262,7 @@ func (u *ListStruct) Hide() error {
 
 	_, err := table.Exec("update lists set is_hidden = true where id = ?;", u.ID)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "sql execute error")
 	}
 	u.IsHidden = true
 	return nil
@@ -273,7 +275,7 @@ func (u *ListStruct) Display() error {
 
 	_, err := table.Exec("update lists set is_hidden = false where id = ?;", u.ID)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "sql execute error")
 	}
 	u.IsHidden = false
 	return nil
