@@ -7,11 +7,12 @@ import (
 	"../db"
 	"../list"
 	"../task"
+
 	"database/sql"
-	"errors"
 	"strings"
 
 	"github.com/google/go-github/github"
+	"github.com/pkg/errors"
 )
 
 // ListLoadFromGithub load lists from github labels
@@ -59,12 +60,13 @@ func IssuesEvent(repositoryID int64, body github.IssuesEvent) error {
 	var projectID int64
 	err := table.QueryRow("select id from projects where repository_id = ?;", repositoryID).Scan(&projectID)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "sql select error")
 	}
 	parentProject, err := FindProject(projectID)
 	if err != nil {
 		return err
 	}
+	// taskが見つからない場合は新規作成するのでエラーハンドリング不要
 	targetTask, _ := task.FindByIssueNumber(projectID, *body.Issue.Number)
 
 	switch *body.Action {
@@ -90,12 +92,13 @@ func PullRequestEvent(repositoryID int64, body github.PullRequestEvent) error {
 	var projectID int64
 	err := table.QueryRow("select id from projects where repository_id = ?;", repositoryID).Scan(&projectID)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "sql select error")
 	}
 	parentProject, err := FindProject(projectID)
 	if err != nil {
 		return err
 	}
+	// taskが見つからない場合は新規作成するのでエラーハンドリング不要
 	targetTask, _ := task.FindByIssueNumber(projectID, *body.Number)
 
 	// note: もしgithubへのアクセスが増大するようであれば，PullRequestオブジェクトからラベルの付替えを行うように改修する
@@ -204,13 +207,12 @@ func (u *ProjectStruct) applyListToTask(issueTask *task.TaskStruct, issue *githu
 		}
 	}
 	if closedList == nil {
-		panic("cannot find close list")
 		return nil, errors.New("cannot find close list")
 	}
 
 	noneList, err := u.NoneList()
 	if err != nil {
-		panic("cannot find none list")
+		return nil, errors.New("cannot find none list")
 	}
 
 	githubLabels := GithubLabels(issue, u.Lists())
