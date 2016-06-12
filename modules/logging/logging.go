@@ -82,13 +82,17 @@ func (u *LogStruct) MethodInfoWithStacktrace(model string, action string, err er
 		panic("oops, err does not implement Stacktrace")
 	}
 	st := stackErr.Stacktrace()
+	traceLength := len(st)
+	if traceLength > 5 {
+		traceLength = 5
+	}
 
 	return u.Log.WithFields(logrus.Fields{
 		"time":       time.Now(),
 		"requestID":  requestID,
 		"model":      model,
 		"action":     action,
-		"stacktrace": fmt.Sprintf("%+v", st[0:5]),
+		"stacktrace": fmt.Sprintf("%+v", st[0:traceLength]),
 	})
 }
 
