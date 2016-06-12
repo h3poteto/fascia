@@ -4,6 +4,7 @@ import (
 	"../models/project"
 	"../models/repository"
 	"../modules/logging"
+
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -26,7 +27,7 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 	deliveryID := r.Header.Get("X-GitHub-Delivery")
 
 	if eventType == "" || signature == "" || deliveryID == "" {
-		logging.SharedInstance().MethodInfo("Repositories", "Hook", false, c).Infof("could not find header information: %v", r.Header)
+		logging.SharedInstance().MethodInfo("Repositories", "Hook", c).Infof("could not find header information: %v", r.Header)
 		http.Error(w, "event, signature, or delivery_id is not exist", 404)
 		return
 	}
@@ -40,26 +41,26 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 
 		repo, err := repository.FindRepositoryByRepositoryID(id)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("Repositories", "Hook", true, c).Errorf("could not find repository: %v", err)
+			logging.SharedInstance().MethodInfoWithStacktrace("Repositories", "Hook", err, c).Errorf("could not find repository: %v", err)
 			http.Error(w, "repository not found", 404)
 			return
 		}
 		if err := repo.Authenticate(signature, data); err != nil {
-			logging.SharedInstance().MethodInfo("Repositories", "Hook", false, c).Infof("cannot authenticate to repository: %v", err)
+			logging.SharedInstance().MethodInfo("Repositories", "Hook", c).Infof("cannot authenticate to repository: %v", err)
 			http.Error(w, "repository authenticate failed", 404)
 			return
 		}
 		err = project.IssuesEvent(repo.ID, githubBody)
 		if err != nil && !u.includeDuplicateError(err) {
 			if u.includeDuplicateError(err) {
-				logging.SharedInstance().MethodInfo("Repositories", "Hook", false, c).Warn(err)
+				logging.SharedInstance().MethodInfo("Repositories", "Hook", c).Warn(err)
 				return
 			}
-			logging.SharedInstance().MethodInfo("Repositories", "Hook", true, c).Errorf("cannot handle issue event: %v", err)
+			logging.SharedInstance().MethodInfoWithStacktrace("Repositories", "Hook", err, c).Errorf("cannot handle issue event: %v", err)
 			http.Error(w, "Internal Server Error", 500)
 			return
 		}
-		logging.SharedInstance().MethodInfo("Repositories", "Hook", false, c).Info("success apply issues event from webhook")
+		logging.SharedInstance().MethodInfo("Repositories", "Hook", c).Info("success apply issues event from webhook")
 
 	case "pull_request":
 		var githubBody github.PullRequestEvent
@@ -69,26 +70,26 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 
 		repo, err := repository.FindRepositoryByRepositoryID(id)
 		if err != nil {
-			logging.SharedInstance().MethodInfo("Repositories", "Hook", true, c).Errorf("could not find repository: %v", err)
+			logging.SharedInstance().MethodInfoWithStacktrace("Repositories", "Hook", err, c).Errorf("could not find repository: %v", err)
 			http.Error(w, "repository not found", 404)
 			return
 		}
 		if err := repo.Authenticate(signature, data); err != nil {
-			logging.SharedInstance().MethodInfo("Repositories", "Hook", false, c).Infof("cannot authenticate to repository: %v", err)
+			logging.SharedInstance().MethodInfo("Repositories", "Hook", c).Infof("cannot authenticate to repository: %v", err)
 			http.Error(w, "repository authenticate failed", 404)
 			return
 		}
 		err = project.PullRequestEvent(repo.ID, githubBody)
 		if err != nil {
 			if u.includeDuplicateError(err) {
-				logging.SharedInstance().MethodInfo("Repositories", "Hook", false, c).Warn(err)
+				logging.SharedInstance().MethodInfo("Repositories", "Hook", c).Warn(err)
 				return
 			}
-			logging.SharedInstance().MethodInfo("Repositories", "Hook", true, c).Errorf("cannot handle pull request event: %v", err)
+			logging.SharedInstance().MethodInfoWithStacktrace("Repositories", "Hook", err, c).Errorf("cannot handle pull request event: %v", err)
 			http.Error(w, "Internal Server Error", 500)
 			return
 		}
-		logging.SharedInstance().MethodInfo("Repositories", "Hook", false, c).Info("success apply pull request event from webhook")
+		logging.SharedInstance().MethodInfo("Repositories", "Hook", c).Info("success apply pull request event from webhook")
 	}
 
 	return
