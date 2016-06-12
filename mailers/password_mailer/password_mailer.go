@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
+	"github.com/pkg/errors"
 )
 
 func Reset(id int64, address string, token string) {
@@ -98,5 +99,5 @@ func sendMail(address string, title string, htmlBody string, rawBody string) (r 
 		},
 	}
 	resp, err := svc.SendEmail(params)
-	return resp, err
+	return resp, errors.Wrap(err, "aws api error")
 }

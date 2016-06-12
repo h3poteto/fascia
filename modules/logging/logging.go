@@ -2,14 +2,15 @@ package logging
 
 import (
 	"fmt"
+	"os"
+	"runtime"
+	"time"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/johntdyer/slackrus"
 	"github.com/pkg/errors"
 	"github.com/zenazn/goji/web"
 	"github.com/zenazn/goji/web/middleware"
-	"os"
-	"runtime"
-	"time"
 )
 
 type LogStruct struct {
