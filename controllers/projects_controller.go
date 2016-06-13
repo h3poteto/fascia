@@ -53,7 +53,12 @@ func (u *Projects) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	encoder := json.NewEncoder(w)
-	projects := currentUser.Projects()
+	projects, err := currentUser.Projects()
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Index", err, c).Error(err)
+		http.Error(w, "cannot find projects", 500)
+		return
+	}
 	jsonProjects := make([]*ProjectJSONFormat, 0)
 	for _, p := range projects {
 		var repositoryID int64

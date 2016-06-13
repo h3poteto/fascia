@@ -214,7 +214,8 @@ var _ = Describe("User", func() {
 			currentUser = NewUser(userid, dbemail, sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
 		})
 		It("ユーザとプロジェクトが関連づいていること", func() {
-			projects := currentUser.Projects()
+			projects, err := currentUser.Projects()
+			Expect(err).To(BeNil())
 			Expect(projects).NotTo(BeEmpty())
 			Expect(projects[0].ID).To(Equal(newProject.ID))
 		})

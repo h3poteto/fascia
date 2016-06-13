@@ -247,15 +247,14 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 
 }
 
-// TODO: panicやめたい
-func (u *UserStruct) Projects() []*project.ProjectStruct {
+func (u *UserStruct) Projects() ([]*project.ProjectStruct, error) {
 	table := u.database.Init()
 	defer table.Close()
 
 	var slice []*project.ProjectStruct
 	rows, err := table.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where user_id = ?;", u.ID)
 	if err != nil {
-		panic(err)
+		return nil, errors.Wrap(err, "sql select error")
 	}
 	for rows.Next() {
 		var id, userID int64
@@ -265,14 +264,14 @@ func (u *UserStruct) Projects() []*project.ProjectStruct {
 		var showIssues, showPullRequests bool
 		err := rows.Scan(&id, &userID, &repositoryID, &title, &description, &showIssues, &showPullRequests)
 		if err != nil {
-			panic(err)
+			return nil, errors.Wrap(err, "sql select error")
 		}
 		if id != 0 {
 			p := project.NewProject(id, userID, title, description, repositoryID, showIssues, showPullRequests)
 			slice = append(slice, p)
 		}
 	}
-	return slice
+	return slice, nil
 }
 
 func (u *UserStruct) Save() error {
