@@ -238,14 +238,24 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "lists not found", 500)
 		return
 	}
-	jsonLists := ListsFormatToJSON(allLists)
+	jsonLists, err := ListsFormatToJSON(allLists)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Error(err)
+		http.Error(w, "lists format error", 500)
+		return
+	}
 	noneList, err := parentProject.NoneList()
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Error(err)
 		http.Error(w, "none list not found", 500)
 		return
 	}
-	jsonNoneList := ListFormatToJSON(noneList)
+	jsonNoneList, err := ListFormatToJSON(noneList)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Error(err)
+		http.Error(w, "list format error", 500)
+		return
+	}
 	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 	logging.SharedInstance().MethodInfo("TasksController", "MoveTask", c).Debugf("move task: %+v", allLists)
 	logging.SharedInstance().MethodInfo("TasksController", "MoveTask", c).Info("success to move task")

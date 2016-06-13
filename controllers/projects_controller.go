@@ -290,14 +290,24 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 			http.Error(w, "lists not found", 500)
 			return
 		}
-		jsonLists := ListsFormatToJSON(lists)
+		jsonLists, err := ListsFormatToJSON(lists)
+		if err != nil {
+			logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "FetchGithub", err, c).Error(err)
+			http.Error(w, "lists format error", 500)
+			return
+		}
 		noneList, err := project.NoneList()
 		if err != nil {
 			logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "FetchGithub", err, c).Error(err)
 			http.Error(w, "none list not found", 500)
 			return
 		}
-		jsonNoneList := ListFormatToJSON(noneList)
+		jsonNoneList, err := ListFormatToJSON(noneList)
+		if err != nil {
+			logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "FetchGithub", err, c).Error(err)
+			http.Error(w, "list format error", 500)
+			return
+		}
 		jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub", c).Info("success to fetch github")
 		encoder.Encode(jsonAllLists)

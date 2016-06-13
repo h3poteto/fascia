@@ -74,14 +74,24 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "lists not found", 500)
 		return
 	}
-	jsonLists := ListsFormatToJSON(lists)
+	jsonLists, err := ListsFormatToJSON(lists)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Index", err, c).Error(err)
+		http.Error(w, "lists format error", 500)
+		return
+	}
 	noneList, err := parentProject.NoneList()
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Index", err, c).Error(err)
 		http.Error(w, "none list not found", 500)
 		return
 	}
-	jsonNoneList := ListFormatToJSON(noneList)
+	jsonNoneList, err := ListFormatToJSON(noneList)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Index", err, c).Error(err)
+		http.Error(w, "list format error", 500)
+		return
+	}
 	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 	encoder.Encode(jsonAllLists)
 	logging.SharedInstance().MethodInfo("ListsController", "Index", c).Info("success to get lists")
@@ -135,7 +145,12 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed save", 500)
 		return
 	}
-	jsonList := ListFormatToJSON(list)
+	jsonList, err := ListFormatToJSON(list)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Create", err, c).Error(err)
+		http.Error(w, "list format error", 500)
+		return
+	}
 	encoder.Encode(jsonList)
 	logging.SharedInstance().MethodInfo("ListsController", "Create", c).Info("success to create list")
 	return
@@ -200,7 +215,12 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "save failed", 500)
 		return
 	}
-	jsonList := ListFormatToJSON(targetList)
+	jsonList, err := ListFormatToJSON(targetList)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Update", err, c).Error(err)
+		http.Error(w, "list format error", 500)
+		return
+	}
 	encoder.Encode(jsonList)
 	logging.SharedInstance().MethodInfo("ListsController", "Update", c).Info("success to update list")
 	return
@@ -256,14 +276,24 @@ func (u *Lists) Hide(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "lists not found", 500)
 		return
 	}
-	jsonLists := ListsFormatToJSON(lists)
+	jsonLists, err := ListsFormatToJSON(lists)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Hide", err, c).Error(err)
+		http.Error(w, "list format error", 500)
+		return
+	}
 	noneList, err := parentProject.NoneList()
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Hide", err, c).Error(err)
 		http.Error(w, "none list not found", 500)
 		return
 	}
-	jsonNoneList := ListFormatToJSON(noneList)
+	jsonNoneList, err := ListFormatToJSON(noneList)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Hide", err, c).Error(err)
+		http.Error(w, "lists format error", 500)
+		return
+	}
 	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 	logging.SharedInstance().MethodInfo("ListsController", "Hide", c).Info("success to hide list")
 	encoder.Encode(jsonAllLists)
@@ -320,14 +350,24 @@ func (u *Lists) Display(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "lists not found", 500)
 		return
 	}
-	jsonLists := ListsFormatToJSON(lists)
+	jsonLists, err := ListsFormatToJSON(lists)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Display", err, c).Error(err)
+		http.Error(w, "lists format error", 500)
+		return
+	}
 	noneList, err := parentProject.NoneList()
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Display", err, c).Error(err)
 		http.Error(w, "none list not found", 500)
 		return
 	}
-	jsonNoneList := ListFormatToJSON(noneList)
+	jsonNoneList, err := ListFormatToJSON(noneList)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Display", err, c).Error(err)
+		http.Error(w, "list format error", 500)
+		return
+	}
 	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 	logging.SharedInstance().MethodInfo("ListsController", "Display", c).Info("success to display list")
 	encoder.Encode(jsonAllLists)
@@ -335,19 +375,33 @@ func (u *Lists) Display(c web.C, w http.ResponseWriter, r *http.Request) {
 }
 
 // ListsFormatToJSON convert lists models's array to json
-func ListsFormatToJSON(lists []*listModel.ListStruct) []*ListJSONFormat {
+func ListsFormatToJSON(lists []*listModel.ListStruct) ([]*ListJSONFormat, error) {
 	var jsonLists []*ListJSONFormat
 	for _, l := range lists {
-		jsonLists = append(jsonLists, ListFormatToJSON(l))
+		list, err := ListFormatToJSON(l)
+		if err != nil {
+			return nil, err
+		}
+		jsonLists = append(jsonLists, list)
 	}
-	return jsonLists
+	return jsonLists, nil
 }
 
 // ListFormatToJSON convert a list model to json
-func ListFormatToJSON(list *listModel.ListStruct) *ListJSONFormat {
+func ListFormatToJSON(list *listModel.ListStruct) (*ListJSONFormat, error) {
 	tasks, err := list.Tasks()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return &ListJSONFormat{ID: list.ID, ProjectID: list.ProjectID, UserID: list.UserID, Title: list.Title.String, ListTasks: TaskFormatToJSON(tasks), Color: list.Color.String, ListOptionID: list.ListOptionID.Int64, IsHidden: list.IsHidden, IsInitList: list.IsInitList()}
+	return &ListJSONFormat{
+		ID:           list.ID,
+		ProjectID:    list.ProjectID,
+		UserID:       list.UserID,
+		Title:        list.Title.String,
+		ListTasks:    TaskFormatToJSON(tasks),
+		Color:        list.Color.String,
+		ListOptionID: list.ListOptionID.Int64,
+		IsHidden:     list.IsHidden,
+		IsInitList:   list.IsInitList(),
+	}, nil
 }
