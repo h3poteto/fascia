@@ -73,7 +73,12 @@ func (u *Tasks) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "list not found", 404)
 		return
 	}
-	tasks := parentList.Tasks()
+	tasks, err := parentList.Tasks()
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Index", err, c).Error(err)
+		http.Error(w, "task not found", 500)
+		return
+	}
 	jsonTasks := make([]*TaskJSONFormat, 0)
 	for _, t := range tasks {
 		jsonTasks = append(jsonTasks, &TaskJSONFormat{ID: t.ID, ListID: t.ListID, UserID: t.UserID, IssueNumber: t.IssueNumber.Int64, Title: t.Title, PullRequest: t.PullRequest})

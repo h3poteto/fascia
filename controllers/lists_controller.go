@@ -345,5 +345,9 @@ func ListsFormatToJSON(lists []*listModel.ListStruct) []*ListJSONFormat {
 
 // ListFormatToJSON convert a list model to json
 func ListFormatToJSON(list *listModel.ListStruct) *ListJSONFormat {
-	return &ListJSONFormat{ID: list.ID, ProjectID: list.ProjectID, UserID: list.UserID, Title: list.Title.String, ListTasks: TaskFormatToJSON(list.Tasks()), Color: list.Color.String, ListOptionID: list.ListOptionID.Int64, IsHidden: list.IsHidden, IsInitList: list.IsInitList()}
+	tasks, err := list.Tasks()
+	if err != nil {
+		panic(err)
+	}
+	return &ListJSONFormat{ID: list.ID, ProjectID: list.ProjectID, UserID: list.UserID, Title: list.Title.String, ListTasks: TaskFormatToJSON(tasks), Color: list.Color.String, ListOptionID: list.ListOptionID.Int64, IsHidden: list.IsHidden, IsInitList: list.IsInitList()}
 }

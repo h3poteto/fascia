@@ -84,7 +84,8 @@ var _ = Describe("List", func() {
 			newTask.Save(nil, nil)
 		})
 		It("should related task to list", func() {
-			tasks := newList.Tasks()
+			tasks, err := newList.Tasks()
+			Expect(err).To(BeNil())
 			Expect(tasks).NotTo(BeEmpty())
 			Expect(tasks[0].ID).To(Equal(newTask.ID))
 		})
