@@ -227,7 +227,12 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed change list", 500)
 		return
 	}
-	allLists := parentProject.Lists()
+	allLists, err := parentProject.Lists()
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Error(err)
+		http.Error(w, "lists not found", 500)
+		return
+	}
 	jsonLists := ListsFormatToJSON(allLists)
 	noneList, err := parentProject.NoneList()
 	if err != nil {

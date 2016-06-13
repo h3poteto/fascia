@@ -49,7 +49,8 @@ var _ = Describe("Project", func() {
 			It("should create new project", func() {
 				newProject, err := Create(uid, "new project", "description", 0, "", "", sql.NullString{})
 				Expect(err).To(BeNil())
-				Expect(len(newProject.Lists())).To(Equal(3))
+				lists, _ := newProject.Lists()
+				Expect(len(lists)).To(Equal(3))
 				Expect(newProject.NoneList()).NotTo(BeNil())
 				Expect(newProject.ShowIssues).To(BeTrue())
 				Expect(newProject.ShowPullRequests).To(BeTrue())
@@ -118,12 +119,14 @@ var _ = Describe("Project", func() {
 			_ = noneList.Save(nil, nil)
 		})
 		It("should relate project and list", func() {
-			lists := newProject.Lists()
+			lists, err := newProject.Lists()
+			Expect(err).To(BeNil())
 			Expect(lists).NotTo(BeEmpty())
 			Expect(lists[3].ID).To(Equal(newList.ID))
 		})
 		It("should not take none list", func() {
-			lists := newProject.Lists()
+			lists, err := newProject.Lists()
+			Expect(err).To(BeNil())
 			Expect(len(lists)).To(Equal(4))
 		})
 

@@ -68,7 +68,12 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "project not found", 404)
 		return
 	}
-	lists := parentProject.Lists()
+	lists, err := parentProject.Lists()
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Index", err, c).Error(err)
+		http.Error(w, "lists not found", 500)
+		return
+	}
 	jsonLists := ListsFormatToJSON(lists)
 	noneList, err := parentProject.NoneList()
 	if err != nil {
@@ -245,7 +250,12 @@ func (u *Lists) Hide(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	// prepare response
 	encoder := json.NewEncoder(w)
-	lists := parentProject.Lists()
+	lists, err := parentProject.Lists()
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Hide", err, c).Error(err)
+		http.Error(w, "lists not found", 500)
+		return
+	}
 	jsonLists := ListsFormatToJSON(lists)
 	noneList, err := parentProject.NoneList()
 	if err != nil {
@@ -304,7 +314,12 @@ func (u *Lists) Display(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	// prepare response
 	encoder := json.NewEncoder(w)
-	lists := parentProject.Lists()
+	lists, err := parentProject.Lists()
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Display", err, c).Error(err)
+		http.Error(w, "lists not found", 500)
+		return
+	}
 	jsonLists := ListsFormatToJSON(lists)
 	noneList, err := parentProject.NoneList()
 	if err != nil {

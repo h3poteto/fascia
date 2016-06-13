@@ -284,7 +284,12 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 		http.Error(w, err.Error(), 500)
 		return
 	} else {
-		lists := project.Lists()
+		lists, err := project.Lists()
+		if err != nil {
+			logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "FetchGithub", err, c).Error(err)
+			http.Error(w, "lists not found", 500)
+			return
+		}
 		jsonLists := ListsFormatToJSON(lists)
 		noneList, err := project.NoneList()
 		if err != nil {

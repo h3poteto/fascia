@@ -17,7 +17,11 @@ import (
 
 // ListLoadFromGithub load lists from github labels
 func (u *ProjectStruct) ListLoadFromGithub(labels []github.Label) error {
-	for _, l := range u.Lists() {
+	lists, err := u.Lists()
+	if err != nil {
+		return err
+	}
+	for _, l := range lists {
 		if err := u.labelUpdate(l, labels); err != nil {
 			return err
 		}
@@ -201,7 +205,11 @@ func (u *ProjectStruct) createNewTask(issue *github.Issue) error {
 func (u *ProjectStruct) applyListToTask(issueTask *task.TaskStruct, issue *github.Issue) (*task.TaskStruct, error) {
 	// close noneの用意
 	var closedList, noneList *list.ListStruct
-	for _, list := range u.Lists() {
+	lists, err := u.Lists()
+	if err != nil {
+		return nil, err
+	}
+	for _, list := range lists {
 		if list.Title.Valid && list.Title.String == config.Element("init_list").(map[interface{}]interface{})["done"].(string) {
 			closedList = list
 		}
@@ -210,12 +218,12 @@ func (u *ProjectStruct) applyListToTask(issueTask *task.TaskStruct, issue *githu
 		return nil, errors.New("cannot find close list")
 	}
 
-	noneList, err := u.NoneList()
+	noneList, err = u.NoneList()
 	if err != nil {
-		return nil, errors.New("cannot find none list")
+		return nil, err
 	}
 
-	githubLabels := GithubLabels(issue, u.Lists())
+	githubLabels := GithubLabels(issue, lists)
 	logging.SharedInstance().MethodInfo("Project", "applyListToTask").Debugf("github label: %v", githubLabels)
 
 	// label所属よりcloseかどうかを優先して判定したい
