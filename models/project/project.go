@@ -8,10 +8,12 @@ import (
 	"../list"
 	"../list_option"
 	"../repository"
+
 	"database/sql"
-	"errors"
 	"fmt"
 	"runtime"
+
+	"github.com/pkg/errors"
 )
 
 type Project interface {
@@ -53,7 +55,7 @@ func FindProject(projectID int64) (*ProjectStruct, error) {
 	var showIssues, showPullRequests bool
 	err := table.QueryRow("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where id = ?;", projectID).Scan(&id, &userID, &repositoryID, &title, &description, &showIssues, &showPullRequests)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "sql select error")
 	}
 	project := NewProject(id, userID, title, description, repositoryID, showIssues, showPullRequests)
 	return project, nil
@@ -71,7 +73,7 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 			p = nil
 			switch ty := err.(type) {
 			case runtime.Error:
-				e = ty
+				e = errors.Wrap(ty, "runtime error")
 			case string:
 				e = errors.New(err.(string))
 			default:
@@ -102,7 +104,7 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 		// github側にwebhooko登録
 		err := project.CreateWebhook()
 		if err != nil {
-			logging.SharedInstance().MethodInfo("Project", "Create", false).Infof("failed to create webhook: %v", err)
+			logging.SharedInstance().MethodInfo("Project", "Create").Infof("failed to create webhook: %v", err)
 			err = nil
 		}
 	}
@@ -157,7 +159,7 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 		if err == nil {
 			_, err := project.FetchGithub()
 			if err != nil {
-				logging.SharedInstance().MethodInfo("Project", "Create", true).Error(err)
+				logging.SharedInstance().MethodInfoWithStacktrace("Project", "Create", err).Error(err)
 			}
 		}
 	}()
@@ -177,7 +179,7 @@ func (u *ProjectStruct) save() error {
 
 	result, err := table.Exec("insert into projects (user_id, repository_id, title, description, show_issues, show_pull_requests, created_at) values (?, ?, ?, ?, ?, ?, now());", u.UserID, u.RepositoryID, u.Title, u.Description, u.ShowIssues, u.ShowPullRequests)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "sql execute error")
 	}
 	u.ID, _ = result.LastInsertId()
 	return nil
@@ -193,12 +195,13 @@ func (u *ProjectStruct) Update(title string, description string, showIssues bool
 	u.ShowPullRequests = showPullRequests
 	_, err := table.Exec("update projects set title = ?, description = ?, show_issues = ?, show_pull_requests = ? where id = ?;", u.Title, u.Description, u.ShowIssues, u.ShowPullRequests, u.ID)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "sql execute error")
 	}
 
 	return nil
 }
 
+// TODO: panicやめたい
 func (u *ProjectStruct) Lists() []*list.ListStruct {
 	table := u.database.Init()
 	defer table.Close()
@@ -207,7 +210,6 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 	rows, err := table.Query("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where project_id = ? and title != ?;", u.ID, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
 	if err != nil {
 		panic(err)
-		return slice
 	}
 	for rows.Next() {
 		var id, projectID, userID int64
@@ -237,7 +239,7 @@ func (u *ProjectStruct) NoneList() (*list.ListStruct, error) {
 	err := table.QueryRow("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where project_id = ? and title = ?;", u.ID, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
 	if err != nil {
 		// noneが存在しないということはProjectsController#Createがうまく行ってないので，そっちでエラーハンドリングしてほしい
-		panic(err)
+		return nil, errors.Wrap(err, "sql select error")
 	}
 	if projectID == u.ID && title.Valid {
 		return list.NewList(id, projectID, userID, title.String, color.String, optionID, isHidden), nil
@@ -254,14 +256,13 @@ func (u *ProjectStruct) Repository() (*repository.RepositoryStruct, error) {
 	var webhookKey string
 	err := table.QueryRow("select repositories.id, repositories.repository_id, repositories.owner, repositories.name, repositories.webhook_key from projects inner join repositories on repositories.id = projects.repository_id where projects.id = ?;", u.ID).Scan(&id, &repositoryID, &owner, &name, &webhookKey)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "sql select error")
 	}
 	if id == u.RepositoryID.Int64 && owner.Valid {
 		r := repository.NewRepository(id, repositoryID, owner.String, name.String, webhookKey)
 		return r, nil
-	} else {
-		return nil, errors.New("repository not found")
 	}
+	return nil, errors.New("repository not found")
 }
 
 func (u *ProjectStruct) FetchGithub() (bool, error) {
@@ -304,15 +305,14 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 	// ここではprojectとlist両方考慮する必要がある
 	rows, err := table.Query("select tasks.title, tasks.description, lists.title, lists.color from tasks left join lists on lists.id = tasks.list_id where tasks.project_id = ? and tasks.user_id = ? and tasks.issue_number IS NULL;", u.ID, u.UserID)
 	if err != nil {
-		panic(err)
-		return false, err
+		return false, errors.Wrap(err, "sql select error")
 	}
 	for rows.Next() {
 		var title, description string
 		var listTitle, listColor sql.NullString
 		err := rows.Scan(&title, &description, &listTitle, &listColor)
 		if err != nil {
-			return false, err
+			return false, errors.Wrap(err, "sql scan error")
 		}
 		label, err := hub.CheckLabelPresent(oauthToken, repo, &listTitle.String)
 		if err != nil {
@@ -321,14 +321,14 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 		if label == nil {
 			label, err = hub.CreateGithubLabel(oauthToken, repo, &listTitle.String, &listColor.String)
 			if err != nil {
-				return false, errors.New("cannot create github label")
+				return false, err
 			}
 		}
 		// ここcreateだけでなくupdateも考慮したほうが良いのではと思ったが，そもそも現状fasciaにはtaskのupdateアクションがないので，updateされることはありえない．そのため，未実装でも問題はない．
 		// note: task#update実装時にはここも実装すること
 		_, err = hub.CreateGithubIssue(oauthToken, repo, []string{*label.Name}, &title, &description)
 		if err != nil {
-			return false, errors.New("cannot create github issue")
+			return false, err
 		}
 	}
 
@@ -359,7 +359,7 @@ func (u *ProjectStruct) OauthToken() (string, error) {
 	var oauthToken sql.NullString
 	err := table.QueryRow("select users.oauth_token from projects left join users on users.id = projects.user_id where projects.id = ?;", u.ID).Scan(&oauthToken)
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, "sql select error")
 	}
 	if !oauthToken.Valid {
 		return "", errors.New("oauth token isn't exist")

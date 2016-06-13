@@ -3,13 +3,15 @@ package reset_password
 import (
 	"../db"
 	"../user"
+
 	"crypto/md5"
-	"errors"
 	"fmt"
 	"io"
 	"runtime"
 	"strconv"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 type ResetPassword interface {
@@ -48,7 +50,7 @@ func Authenticate(id int64, token string) error {
 	var targetID int64
 	err := table.QueryRow("select id from reset_passwords where id = ? and token = ? and expires_at > now();", id, token).Scan(&targetID)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "sql select error")
 	}
 
 	return nil
@@ -67,7 +69,7 @@ func ChangeUserPassword(id int64, token string, password string) (u *user.UserSt
 			u = nil
 			switch ty := err.(type) {
 			case runtime.Error:
-				e = ty
+				e = errors.Wrap(ty, "runtime error")
 			case string:
 				e = errors.New(err.(string))
 			default:
@@ -80,7 +82,7 @@ func ChangeUserPassword(id int64, token string, password string) (u *user.UserSt
 	err := tx.QueryRow("select user_id from reset_passwords where id = ? and token = ? and expires_at > now();", id, token).Scan(&userID)
 	if err != nil {
 		tx.Rollback()
-		return nil, err
+		return nil, errors.Wrap(err, "sql select error")
 	}
 
 	hashPassword, err := user.HashPassword(password)
@@ -91,13 +93,13 @@ func ChangeUserPassword(id int64, token string, password string) (u *user.UserSt
 	_, err = tx.Exec("update users set password = ? where id = ?;", hashPassword, userID)
 	if err != nil {
 		tx.Rollback()
-		return nil, err
+		return nil, errors.Wrap(err, "sql execute error")
 	}
 
 	_, err = tx.Exec("update reset_passwords set expires_at = now() where id = ?;", id)
 	if err != nil {
 		tx.Rollback()
-		return nil, err
+		return nil, errors.Wrap(err, "sql execute error")
 	}
 
 	u, err = user.FindUser(userID)
@@ -121,7 +123,7 @@ func (u *ResetPasswordStruct) Save() error {
 
 	result, err := table.Exec("insert into reset_passwords (user_id, token, expires_at, created_at) values (?, ?, ?, now());", u.UserID, u.Token, u.ExpiresAt)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "sql execute error")
 	}
 	u.ID, _ = result.LastInsertId()
 	return nil

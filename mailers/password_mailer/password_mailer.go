@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
+	"github.com/pkg/errors"
 )
 
 func Reset(id int64, address string, token string) {
@@ -20,11 +21,11 @@ func Reset(id int64, address string, token string) {
 	resp, err := sendMail(address, title, htmlBody, rawBody)
 
 	if err != nil {
-		logging.SharedInstance().MethodInfo("PasswordMailer", "Reset", true).Errorf("send mail error: %v", err)
+		logging.SharedInstance().MethodInfoWithStacktrace("PasswordMailer", "Reset", err).Error(err)
 		return
 	}
-	logging.SharedInstance().MethodInfo("PasswordMailer", "Reset", false).Debugf("send mail response: %v", resp)
-	logging.SharedInstance().MethodInfo("PasswordMailer", "Reset", false).Info("success to send mail")
+	logging.SharedInstance().MethodInfo("PasswordMailer", "Reset").Debugf("send mail response: %v", resp)
+	logging.SharedInstance().MethodInfo("PasswordMailer", "Reset").Info("success to send mail")
 
 }
 
@@ -36,10 +37,11 @@ func Changed(address string) {
 	resp, err := sendMail(address, title, htmlBody, rawBody)
 
 	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("PasswordMailer", "Changed", err).Error(err)
 		return
 	}
-	logging.SharedInstance().MethodInfo("PasswordMailer", "Changed", false).Debug("send mail response: %v", resp)
-	logging.SharedInstance().MethodInfo("PasswordMailer", "Changed", false).Info("success to send mail")
+	logging.SharedInstance().MethodInfo("PasswordMailer", "Changed").Debug("send mail response: %v", resp)
+	logging.SharedInstance().MethodInfo("PasswordMailer", "Changed").Info("success to send mail")
 }
 
 func production() bool {
@@ -98,5 +100,5 @@ func sendMail(address string, title string, htmlBody string, rawBody string) (r 
 		},
 	}
 	resp, err := svc.SendEmail(params)
-	return resp, err
+	return resp, errors.Wrap(err, "aws api error")
 }

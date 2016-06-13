@@ -7,9 +7,11 @@ import (
 	"../db"
 	"../list_option"
 	"../repository"
+
 	"database/sql"
-	"errors"
 	"runtime"
+
+	"github.com/pkg/errors"
 )
 
 type Task interface {
@@ -48,7 +50,7 @@ func FindTask(listID int64, taskID int64) (*TaskStruct, error) {
 	var htmlURL sql.NullString
 	err := table.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where id = ? AND list_id = ?;", taskID, listID).Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "sql select error")
 	}
 	if id != taskID {
 		return nil, errors.New("cannot find task or list did not contain task")
@@ -70,14 +72,13 @@ func FindByIssueNumber(projectID int64, issueNumber int) (*TaskStruct, error) {
 	var htmlURL sql.NullString
 	err := table.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where issue_number = ? and project_id = ?;", issueNumber, projectID).Scan(&id, &listID, &projectID, &userID, &number, &title, &description, &pullRequest, &htmlURL)
 	if err != nil {
-		return nil, errors.New(err.Error())
+		return nil, errors.Wrap(err, "sql select error")
 	}
 	if !number.Valid || number.Int64 != int64(issueNumber) {
 		return nil, errors.New("task not found")
-	} else {
-		task := NewTask(id, listID, projectID, userID, number, title, description, pullRequest, htmlURL)
-		return task, nil
 	}
+	task := NewTask(id, listID, projectID, userID, number, title, description, pullRequest, htmlURL)
+	return task, nil
 }
 
 func (u *TaskStruct) Initialize() {
@@ -95,7 +96,7 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 			transaction.Rollback()
 			switch ty := err.(type) {
 			case runtime.Error:
-				e = ty
+				e = errors.Wrap(ty, "runtime error")
 			case string:
 				e = errors.New(err.(string))
 			default:
@@ -109,12 +110,12 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	err := transaction.QueryRow("SELECT COUNT(id) FROM tasks WHERE list_id = ?;", u.ListID).Scan(&count)
 	if err != nil {
 		transaction.Rollback()
-		return err
+		return errors.Wrap(err, "sql select error")
 	}
 	result, err := transaction.Exec("insert into tasks (list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index, created_at) values (?,?,?, ?, ?, ?, ?, ?, ?, now());", u.ListID, u.ProjectID, u.UserID, u.IssueNumber, u.Title, u.Description, u.PullRequest, u.HTMLURL, count+1)
 	if err != nil {
 		transaction.Rollback()
-		return err
+		return errors.Wrap(err, "sql execute error")
 	}
 	currentID, _ := result.LastInsertId()
 
@@ -124,7 +125,7 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		err = transaction.QueryRow("select title, color, list_option_id from lists where id = ?;", u.ListID).Scan(&listTitle, &listColor, &listOptionID)
 		if err != nil {
 			transaction.Rollback()
-			return err
+			return errors.Wrap(err, "sql select error")
 		}
 
 		token := OauthToken.String
@@ -153,9 +154,9 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 			// TODO: そもそもこのときはissueを削除しなければいけないのでは？
 			// しかしissueの削除は不可能のはずで，どうするかを考えないといけないが，そもそもここの発生確率って今のところかなり低いはずなので，そこまで気にする必要はないのではないか？
 			transaction.Rollback()
-			return err
+			return errors.Wrap(err, "sql execute error")
 		}
-		logging.SharedInstance().MethodInfo("task", "Save", false).Info("issue number is updated")
+		logging.SharedInstance().MethodInfo("task", "Save").Info("issue number is updated")
 		u.IssueNumber = sql.NullInt64{Int64: int64(*issue.Number), Valid: true}
 		u.HTMLURL = sql.NullString{String: *issue.HTMLURL, Valid: true}
 	}
@@ -163,10 +164,10 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	err = transaction.Commit()
 	if err != nil {
 		transaction.Rollback()
-		return err
+		return errors.Wrap(err, "sql execute error")
 	}
 	u.ID, _ = result.LastInsertId()
-	logging.SharedInstance().MethodInfo("task", "Save", false).Debugf("new task saved: %+v", u)
+	logging.SharedInstance().MethodInfo("task", "Save").Debugf("new task saved: %+v", u)
 	return nil
 }
 
@@ -176,9 +177,9 @@ func (u *TaskStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 
 	_, err := table.Exec("update tasks set list_id = ?, issue_number = ?, title = ?, description = ?, pull_request = ?, html_url = ? where id = ?;", u.ListID, u.IssueNumber, u.Title, u.Description, u.PullRequest, u.HTMLURL, u.ID)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "sql execute error")
 	}
-	logging.SharedInstance().MethodInfo("task", "Update", false).Debugf("task updated: %+v", u)
+	logging.SharedInstance().MethodInfo("task", "Update").Debugf("task updated: %+v", u)
 	return nil
 }
 
@@ -192,7 +193,7 @@ func (u *TaskStruct) ChangeList(listID int64, prevToTaskID *int64, repo *reposit
 			transaction.Rollback()
 			switch ty := err.(type) {
 			case runtime.Error:
-				e = ty
+				e = errors.Wrap(ty, "runtime error")
 			case string:
 				e = errors.New(err.(string))
 			default:
@@ -215,14 +216,14 @@ func (u *TaskStruct) ChangeList(listID int64, prevToTaskID *int64, repo *reposit
 		err := transaction.QueryRow("select display_index from tasks where id = ?;", *prevToTaskID).Scan(&prevToTaskIndex)
 		if err != nil {
 			transaction.Rollback()
-			return err
+			return errors.Wrap(err, "sql select error")
 		}
 		// 先に後ろにいる奴らを押し出しておかないとprevToTaskIndexのg位置が開かない
 		// prevToTaskIndex = nilのときは，末尾挿入なので払い出しは不要
 		_, err = transaction.Exec("update tasks set display_index = display_index + 1 where id in (select id from (select id from tasks where list_id = ? and display_index >= ?) as tmp);", listID, prevToTaskIndex)
 		if err != nil {
 			transaction.Rollback()
-			return err
+			return errors.Wrap(err, "sql execute error")
 		}
 	} else {
 		// 最後尾に入れるパターン
@@ -233,7 +234,7 @@ func (u *TaskStruct) ChangeList(listID int64, prevToTaskID *int64, repo *reposit
 		if err != nil {
 			// 該当するtaskが存在しないとき，indexにはnillが入るが，エラーにはならないので，ここのハンドリングには入らない
 			transaction.Rollback()
-			return err
+			return errors.Wrap(err, "sql select error")
 		}
 		if index == nil {
 			prevToTaskIndex = 1
@@ -245,7 +246,7 @@ func (u *TaskStruct) ChangeList(listID int64, prevToTaskID *int64, repo *reposit
 	_, err := transaction.Exec("update tasks set list_id = ?, display_index = ? where id = ?;", listID, prevToTaskIndex, u.ID)
 	if err != nil {
 		transaction.Rollback()
-		return err
+		return errors.Wrap(err, "sql execute error")
 	}
 
 	// labelの所属を変更する処理
@@ -256,7 +257,7 @@ func (u *TaskStruct) ChangeList(listID int64, prevToTaskID *int64, repo *reposit
 		err = transaction.QueryRow("select title, color, list_option_id from lists where id = ?;", listID).Scan(&listTitle, &listColor, &listOptionID)
 		if err != nil {
 			transaction.Rollback()
-			return err
+			return errors.Wrap(err, "sql select error")
 		}
 
 		// noneListの場合はリストを外す
@@ -294,7 +295,7 @@ func (u *TaskStruct) ChangeList(listID int64, prevToTaskID *int64, repo *reposit
 
 	err = transaction.Commit()
 	if err != nil {
-		panic(err)
+		return errors.Wrap(err, "sql execute error")
 	}
 	u.ListID = listID
 	return nil

@@ -1,17 +1,25 @@
 package logging
 
 import (
-	"github.com/Sirupsen/logrus"
-	"github.com/johntdyer/slackrus"
-	"github.com/zenazn/goji/web"
-	"github.com/zenazn/goji/web/middleware"
+	"fmt"
 	"os"
 	"runtime"
 	"time"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/johntdyer/slackrus"
+	"github.com/pkg/errors"
+	"github.com/zenazn/goji/web"
+	"github.com/zenazn/goji/web/middleware"
 )
 
 type LogStruct struct {
 	Log *logrus.Logger
+}
+
+// Stacktrace provide stacktrace for pkg/errors
+type Stacktrace interface {
+	Stacktrace() []errors.Frame
 }
 
 var sharedInstance *LogStruct = New()
@@ -40,27 +48,43 @@ func SharedInstance() *LogStruct {
 }
 
 // MethodInfo is prepare logrus entry with fields
-func (u *LogStruct) MethodInfo(model string, action string, stack bool, context ...web.C) *logrus.Entry {
+func (u *LogStruct) MethodInfo(model string, action string, context ...web.C) *logrus.Entry {
 	requestID := "null"
 	if len(context) > 0 {
 		requestID = middleware.GetReqID(context[0])
 	}
-	if stack {
-		buf := make([]byte, 1024)
-		runtime.Stack(buf, false)
-		return u.Log.WithFields(logrus.Fields{
-			"time":       time.Now(),
-			"requestID":  requestID,
-			"model":      model,
-			"action":     action,
-			"stacktrace": string(buf),
-		})
-	}
+
 	return u.Log.WithFields(logrus.Fields{
 		"time":      time.Now(),
 		"requestID": requestID,
 		"model":     model,
 		"action":    action,
+	})
+}
+
+// MethodInfoWithStacktrace is prepare logrus entry with fields
+func (u *LogStruct) MethodInfoWithStacktrace(model string, action string, err error, context ...web.C) *logrus.Entry {
+	requestID := "null"
+	if len(context) > 0 {
+		requestID = middleware.GetReqID(context[0])
+	}
+
+	stackErr, ok := err.(Stacktrace)
+	if !ok {
+		panic("oops, err does not implement Stacktrace")
+	}
+	st := stackErr.Stacktrace()
+	traceLength := len(st)
+	if traceLength > 5 {
+		traceLength = 5
+	}
+
+	return u.Log.WithFields(logrus.Fields{
+		"time":       time.Now(),
+		"requestID":  requestID,
+		"model":      model,
+		"action":     action,
+		"stacktrace": fmt.Sprintf("%+v", st[0:traceLength]),
 	})
 }
 
