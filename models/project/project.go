@@ -201,6 +201,7 @@ func (u *ProjectStruct) Update(title string, description string, showIssues bool
 	return nil
 }
 
+// Lists list up lists related a project
 func (u *ProjectStruct) Lists() ([]*list.ListStruct, error) {
 	table := u.database.Init()
 	defer table.Close()

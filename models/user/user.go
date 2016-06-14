@@ -247,6 +247,7 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 
 }
 
+// Projects list up projects related a user
 func (u *UserStruct) Projects() ([]*project.ProjectStruct, error) {
 	table := u.database.Init()
 	defer table.Close()

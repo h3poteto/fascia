@@ -217,6 +217,7 @@ func (u *ListStruct) UpdateColor() error {
 	return nil
 }
 
+// Tasks list up related a list
 func (u *ListStruct) Tasks() ([]*task.TaskStruct, error) {
 	table := u.database.Init()
 	defer table.Close()

@@ -22,6 +22,7 @@ func NewListOption(id int64, action string) *ListOptionStruct {
 	return listOption
 }
 
+// ListOptionAll list up all options
 func ListOptionAll() ([]*ListOptionStruct, error) {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
