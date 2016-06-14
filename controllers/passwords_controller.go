@@ -5,6 +5,7 @@ import (
 	"../models/reset_password"
 	"../models/user"
 	"../modules/logging"
+	"../validators"
 
 	"net/http"
 	"strconv"
@@ -72,6 +73,13 @@ func (u *Passwords) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		err := errors.New("cannot verify CSRF token")
 		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "Create", err, c).Error(err)
 		InternalServerError(w, r)
+		return
+	}
+
+	valid, err := validators.PasswordCreateValidation(newPasswordForm.Email)
+	if err != nil || !valid {
+		logging.SharedInstance().MethodInfo("PasswordsController", "Create", c).Infof("validation failed: %v", err)
+		http.Redirect(w, r, "/passwords/new", 302)
 		return
 	}
 
@@ -150,13 +158,6 @@ func (u *Passwords) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if editPasswordForm.Password != editPasswordForm.PasswordConfirm {
-		err := errors.New("cannot confirm password")
-		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "Update", err, c).Error(err)
-		InternalServerError(w, r)
-		return
-	}
-
 	id, err := strconv.ParseInt(c.URLParams["id"], 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
@@ -164,6 +165,14 @@ func (u *Passwords) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "reset password not found", 404)
 		return
 	}
+
+	valid, err := validators.PasswordUpdateValidation(editPasswordForm.ResetToken, editPasswordForm.Password, editPasswordForm.PasswordConfirm)
+	if err != nil || !valid {
+		logging.SharedInstance().MethodInfo("PasswordController", "Update", c).Infof("validation failed: %v", err)
+		http.Redirect(w, r, "/passwords/"+string(id)+"/edit", 302)
+		return
+	}
+
 	targetUser, err := reset_password.ChangeUserPassword(id, editPasswordForm.ResetToken, editPasswordForm.Password)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Update", c).Info("cannot authenticate reset password")
