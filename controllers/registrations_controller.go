@@ -3,6 +3,7 @@ package controllers
 import (
 	userModel "../models/user"
 	"../modules/logging"
+	"../validators"
 
 	"html/template"
 	"net/http"
@@ -70,8 +71,20 @@ func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	// login
-	_, err = userModel.Registration(template.HTMLEscapeString(signUpForm.Email), template.HTMLEscapeString(signUpForm.Password), template.HTMLEscapeString(signUpForm.PasswordConfirm))
+	// sign up
+	valid, err := validators.UserRegistrationValidation(signUpForm.Email, signUpForm.Password, signUpForm.PasswordConfirm)
+	// TODO: 失敗していることは何かしらの方法で伝えたい
+	if err != nil || !valid {
+		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", c).Infof("validation failed: %v", err)
+		http.Redirect(w, r, "/sign_up", 302)
+		return
+	}
+	// TODO: ここCSRFのmiddlewareとかでなんとかならんかなぁ
+	_, err = userModel.Registration(
+		template.HTMLEscapeString(signUpForm.Email),
+		template.HTMLEscapeString(signUpForm.Password),
+		template.HTMLEscapeString(signUpForm.PasswordConfirm),
+	)
 	if err != nil {
 		// TODO: 登録情報が間違っていることを通知したい
 		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", c).Infof("registration error: %v", err)
@@ -79,6 +92,7 @@ func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	// TODO: 成功していることも伝えたい
 	logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", c).Info("registration success")
 	http.Redirect(w, r, "/sign_in", 302)
 	return
