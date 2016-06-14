@@ -22,8 +22,8 @@ func NewListOption(id int64, action string) *ListOptionStruct {
 	return listOption
 }
 
-// TODO: panicやめたい
-func ListOptionAll() []*ListOptionStruct {
+// ListOptionAll list up all options
+func ListOptionAll() ([]*ListOptionStruct, error) {
 	objectDB := &db.Database{}
 	var interfaceDB db.DB = objectDB
 	table := interfaceDB.Init()
@@ -34,18 +34,17 @@ func ListOptionAll() []*ListOptionStruct {
 	var action string
 	rows, err := table.Query("select id, action from list_options;")
 	if err != nil {
-		panic(err)
-		return slice
+		return slice, errors.Wrap(err, "sql select error")
 	}
 	for rows.Next() {
 		err = rows.Scan(&id, &action)
 		if err != nil {
-			panic(err)
+			return nil, errors.Wrap(err, "sql select error")
 		}
 		l := NewListOption(id, action)
 		slice = append(slice, l)
 	}
-	return slice
+	return slice, nil
 }
 
 func FindByAction(action string) (*ListOptionStruct, error) {

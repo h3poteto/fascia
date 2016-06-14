@@ -201,15 +201,15 @@ func (u *ProjectStruct) Update(title string, description string, showIssues bool
 	return nil
 }
 
-// TODO: panicやめたい
-func (u *ProjectStruct) Lists() []*list.ListStruct {
+// Lists list up lists related a project
+func (u *ProjectStruct) Lists() ([]*list.ListStruct, error) {
 	table := u.database.Init()
 	defer table.Close()
 
 	var slice []*list.ListStruct
 	rows, err := table.Query("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where project_id = ? and title != ?;", u.ID, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
 	if err != nil {
-		panic(err)
+		return nil, errors.Wrap(err, "sql select error")
 	}
 	for rows.Next() {
 		var id, projectID, userID int64
@@ -218,14 +218,14 @@ func (u *ProjectStruct) Lists() []*list.ListStruct {
 		var isHidden bool
 		err = rows.Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
 		if err != nil {
-			panic(err)
+			return nil, errors.Wrap(err, "sql select error")
 		}
 		if projectID == u.ID && title.Valid {
 			l := list.NewList(id, projectID, userID, title.String, color.String, optionID, isHidden)
 			slice = append(slice, l)
 		}
 	}
-	return slice
+	return slice, nil
 }
 
 func (u *ProjectStruct) NoneList() (*list.ListStruct, error) {

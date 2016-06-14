@@ -53,7 +53,12 @@ func (u *Projects) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	encoder := json.NewEncoder(w)
-	projects := currentUser.Projects()
+	projects, err := currentUser.Projects()
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Index", err, c).Error(err)
+		http.Error(w, "cannot find projects", 500)
+		return
+	}
 	jsonProjects := make([]*ProjectJSONFormat, 0)
 	for _, p := range projects {
 		var repositoryID int64
@@ -279,15 +284,30 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 		http.Error(w, err.Error(), 500)
 		return
 	} else {
-		lists := project.Lists()
-		jsonLists := ListsFormatToJSON(lists)
+		lists, err := project.Lists()
+		if err != nil {
+			logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "FetchGithub", err, c).Error(err)
+			http.Error(w, "lists not found", 500)
+			return
+		}
+		jsonLists, err := ListsFormatToJSON(lists)
+		if err != nil {
+			logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "FetchGithub", err, c).Error(err)
+			http.Error(w, "lists format error", 500)
+			return
+		}
 		noneList, err := project.NoneList()
 		if err != nil {
 			logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "FetchGithub", err, c).Error(err)
 			http.Error(w, "none list not found", 500)
 			return
 		}
-		jsonNoneList := ListFormatToJSON(noneList)
+		jsonNoneList, err := ListFormatToJSON(noneList)
+		if err != nil {
+			logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "FetchGithub", err, c).Error(err)
+			http.Error(w, "list format error", 500)
+			return
+		}
 		jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub", c).Info("success to fetch github")
 		encoder.Encode(jsonAllLists)

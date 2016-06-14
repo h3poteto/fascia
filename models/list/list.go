@@ -217,15 +217,15 @@ func (u *ListStruct) UpdateColor() error {
 	return nil
 }
 
-// TODO: この辺，できればpanicさせたくない
-func (u *ListStruct) Tasks() []*task.TaskStruct {
+// Tasks list up related a list
+func (u *ListStruct) Tasks() ([]*task.TaskStruct, error) {
 	table := u.database.Init()
 	defer table.Close()
 
 	var slice []*task.TaskStruct
 	rows, err := table.Query("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where list_id = ? order by display_index;", u.ID)
 	if err != nil {
-		panic(err)
+		return nil, errors.Wrap(err, "sql select error")
 	}
 
 	for rows.Next() {
@@ -236,14 +236,14 @@ func (u *ListStruct) Tasks() []*task.TaskStruct {
 		var htmlURL sql.NullString
 		err := rows.Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
 		if err != nil {
-			panic(err)
+			return nil, errors.Wrap(err, "sql select error")
 		}
 		if listID == u.ID {
 			l := task.NewTask(id, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL)
 			slice = append(slice, l)
 		}
 	}
-	return slice
+	return slice, nil
 }
 
 func (u *ListStruct) IsInitList() bool {

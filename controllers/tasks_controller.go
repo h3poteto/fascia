@@ -73,7 +73,12 @@ func (u *Tasks) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "list not found", 404)
 		return
 	}
-	tasks := parentList.Tasks()
+	tasks, err := parentList.Tasks()
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Index", err, c).Error(err)
+		http.Error(w, "task not found", 500)
+		return
+	}
 	jsonTasks := make([]*TaskJSONFormat, 0)
 	for _, t := range tasks {
 		jsonTasks = append(jsonTasks, &TaskJSONFormat{ID: t.ID, ListID: t.ListID, UserID: t.UserID, IssueNumber: t.IssueNumber.Int64, Title: t.Title, PullRequest: t.PullRequest})
@@ -227,15 +232,30 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed change list", 500)
 		return
 	}
-	allLists := parentProject.Lists()
-	jsonLists := ListsFormatToJSON(allLists)
+	allLists, err := parentProject.Lists()
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Error(err)
+		http.Error(w, "lists not found", 500)
+		return
+	}
+	jsonLists, err := ListsFormatToJSON(allLists)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Error(err)
+		http.Error(w, "lists format error", 500)
+		return
+	}
 	noneList, err := parentProject.NoneList()
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Error(err)
 		http.Error(w, "none list not found", 500)
 		return
 	}
-	jsonNoneList := ListFormatToJSON(noneList)
+	jsonNoneList, err := ListFormatToJSON(noneList)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Error(err)
+		http.Error(w, "list format error", 500)
+		return
+	}
 	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 	logging.SharedInstance().MethodInfo("TasksController", "MoveTask", c).Debugf("move task: %+v", allLists)
 	logging.SharedInstance().MethodInfo("TasksController", "MoveTask", c).Info("success to move task")

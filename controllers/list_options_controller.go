@@ -27,7 +27,13 @@ func (u *ListOptions) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	encoder := json.NewEncoder(w)
 	jsonOptions := make([]*ListOptionJSONFormat, 0)
-	for _, o := range list_option.ListOptionAll() {
+	listOptionAll, err := list_option.ListOptionAll()
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("ListOptionsController", "Index", err, c).Error(err)
+		http.Error(w, "list options error", 500)
+		return
+	}
+	for _, o := range listOptionAll {
 		jsonOptions = append(jsonOptions, &ListOptionJSONFormat{ID: o.ID, Action: o.Action})
 	}
 	encoder.Encode(jsonOptions)
