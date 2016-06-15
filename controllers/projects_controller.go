@@ -3,6 +3,7 @@ package controllers
 import (
 	projectModel "../models/project"
 	"../modules/logging"
+	"../validators"
 
 	"encoding/json"
 	"net/http"
@@ -16,6 +17,7 @@ import (
 type Projects struct {
 }
 
+// TODO: 本来であるならパラメータはスネークケースにしたい
 type NewProjectForm struct {
 	Title           string `param:"title"`
 	Description     string `param:"description"`
@@ -130,7 +132,28 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Create", c).Debugf("post new project parameter: %+v", newProjectForm)
 
-	project, err := projectModel.Create(currentUser.ID, newProjectForm.Title, newProjectForm.Description, newProjectForm.RepositoryID, newProjectForm.RepositoryOwner, newProjectForm.RepositoryName, currentUser.OauthToken)
+	valid, err := validators.ProjectCreateValidation(
+		newProjectForm.Title,
+		newProjectForm.Description,
+		newProjectForm.RepositoryID,
+		newProjectForm.RepositoryOwner,
+		newProjectForm.RepositoryName,
+	)
+	if err != nil || !valid {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Create", c).Infof("validation error: %v", err)
+		http.Error(w, "validation error", 422)
+		return
+	}
+
+	project, err := projectModel.Create(
+		currentUser.ID,
+		newProjectForm.Title,
+		newProjectForm.Description,
+		newProjectForm.RepositoryID,
+		newProjectForm.RepositoryOwner,
+		newProjectForm.RepositoryName,
+		currentUser.OauthToken,
+	)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Create", err, c).Error(err)
 		http.Error(w, "save failed", 500)
@@ -187,6 +210,17 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Update", c).Debug("post edit project parameter: %+v", editProjectForm)
+
+	valid, err := validators.ProjectUpdateValidation(
+		editProjectForm.Title,
+		editProjectForm.Description,
+	)
+	if err != nil || !valid {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Update", c).Infof("validation error: %v", err)
+		http.Error(w, "validation error", 422)
+		return
+	}
+
 	if err := project.Update(editProjectForm.Title, editProjectForm.Description, project.ShowIssues, project.ShowPullRequests); err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Update", err, c).Error(err)
 		http.Error(w, "update failed", 500)
