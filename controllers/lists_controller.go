@@ -4,6 +4,7 @@ import (
 	listModel "../models/list"
 	projectModel "../models/project"
 	"../modules/logging"
+	"../validators"
 
 	"database/sql"
 	"encoding/json"
@@ -137,6 +138,14 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ListsController", "Create", c).Debugf("post new list parameter: %+v", newListForm)
+
+	err = validators.ListCreateValidation(newListForm.Title, newListForm.Color)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Create", c).Infof("validation error: %v", err)
+		http.Error(w, "validation error", 422)
+		return
+	}
+
 	list := listModel.NewList(0, projectID, currentUser.ID, newListForm.Title, newListForm.Color, sql.NullInt64{}, false)
 
 	repo, _ := parentProject.Repository()
@@ -208,6 +217,13 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ListsController", "Update", c).Debugf("post edit list parameter: %+v", editListForm)
+
+	err = validators.ListUpdateValidation(editListForm.Title, editListForm.Color, editListForm.Action)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ListsController", "Create", c).Infof("validation error: %v", err)
+		http.Error(w, "validation error", 422)
+		return
+	}
 
 	repo, _ := parentProject.Repository()
 	if err := targetList.Update(repo, &currentUser.OauthToken, &editListForm.Title, &editListForm.Color, &editListForm.Action); err != nil {
