@@ -1,35 +1,34 @@
 package validators
 
 import (
-	"github.com/asaskevich/govalidator"
 	"github.com/pkg/errors"
 )
 
 type passwordCreate struct {
-	Email string `valid:"email,required"`
+	Email string `valid:"email"`
 }
 
 type passwordUpdate struct {
 	ResetToken      string `valid:"required"`
-	Password        string `valid:"length(4|255)"`
-	PasswordConfirm string `valid:"length(4|255)"`
+	Password        string `valid:"min=6,max=255"`
+	PasswordConfirm string `valid:"min=6,max=255"`
 }
 
-func PasswordCreateValidation(email string) (bool, error) {
+func PasswordCreateValidation(email string) error {
 	form := &passwordCreate{
 		Email: email,
 	}
-	return govalidator.ValidateStruct(form)
+	return validate.Struct(form)
 }
 
-func PasswordUpdateValidation(resetToken string, password string, passwordConfirm string) (bool, error) {
+func PasswordUpdateValidation(resetToken string, password string, passwordConfirm string) error {
 	if password != passwordConfirm {
-		return false, errors.New("password and password confirm did not match")
+		return errors.New("password and password confirm did not match")
 	}
 	form := &passwordUpdate{
 		ResetToken:      resetToken,
 		Password:        password,
 		PasswordConfirm: passwordConfirm,
 	}
-	return govalidator.ValidateStruct(form)
+	return validate.Struct(form)
 }

@@ -76,8 +76,8 @@ func (u *Passwords) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	valid, err := validators.PasswordCreateValidation(newPasswordForm.Email)
-	if err != nil || !valid {
+	err = validators.PasswordCreateValidation(newPasswordForm.Email)
+	if err != nil {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Create", c).Infof("validation failed: %v", err)
 		http.Redirect(w, r, "/passwords/new", 302)
 		return
@@ -166,8 +166,8 @@ func (u *Passwords) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	valid, err := validators.PasswordUpdateValidation(editPasswordForm.ResetToken, editPasswordForm.Password, editPasswordForm.PasswordConfirm)
-	if err != nil || !valid {
+	err = validators.PasswordUpdateValidation(editPasswordForm.ResetToken, editPasswordForm.Password, editPasswordForm.PasswordConfirm)
+	if err != nil {
 		logging.SharedInstance().MethodInfo("PasswordController", "Update", c).Infof("validation failed: %v", err)
 		http.Redirect(w, r, "/passwords/"+string(id)+"/edit", 302)
 		return

@@ -132,14 +132,14 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Create", c).Debugf("post new project parameter: %+v", newProjectForm)
 
-	valid, err := validators.ProjectCreateValidation(
+	err = validators.ProjectCreateValidation(
 		newProjectForm.Title,
 		newProjectForm.Description,
 		newProjectForm.RepositoryID,
 		newProjectForm.RepositoryOwner,
 		newProjectForm.RepositoryName,
 	)
-	if err != nil || !valid {
+	if err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Create", c).Infof("validation error: %v", err)
 		http.Error(w, "validation error", 422)
 		return
@@ -211,11 +211,11 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Update", c).Debug("post edit project parameter: %+v", editProjectForm)
 
-	valid, err := validators.ProjectUpdateValidation(
+	err = validators.ProjectUpdateValidation(
 		editProjectForm.Title,
 		editProjectForm.Description,
 	)
-	if err != nil || !valid {
+	if err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Update", c).Infof("validation error: %v", err)
 		http.Error(w, "validation error", 422)
 		return

@@ -1,23 +1,19 @@
 package validators
 
-import (
-	"github.com/asaskevich/govalidator"
-)
-
 type projectCreate struct {
-	Title           string `valid:"length(0|255)"`
-	Description     string `valid:"length(0|255),optional"`
-	RepositoryID    int64  `valid:"int,optional"`
-	RepositoryOwner string `valid:"-"`
-	RepositoryName  string `valid:"-"`
+	Title           string `valid:"min=1,max=255"`
+	Description     string `valid:"min=0,max=255"`
+	RepositoryID    int64  `valid:""`
+	RepositoryOwner string `valid:""`
+	RepositoryName  string `valid:""`
 }
 
 type projectUpdate struct {
-	Title       string `valid:"length(0|255)"`
-	Description string `valid:"length(0|255),optional"`
+	Title       string `valid:"min=1,max255"`
+	Description string `valid:"min=0,max=255"`
 }
 
-func ProjectCreateValidation(title string, description string, repositoryID int64, repositoryOwner string, repositoryName string) (bool, error) {
+func ProjectCreateValidation(title string, description string, repositoryID int64, repositoryOwner string, repositoryName string) error {
 	form := &projectCreate{
 		Title:           title,
 		Description:     description,
@@ -25,13 +21,13 @@ func ProjectCreateValidation(title string, description string, repositoryID int6
 		RepositoryOwner: repositoryOwner,
 		RepositoryName:  repositoryName,
 	}
-	return govalidator.ValidateStruct(form)
+	return validate.Struct(form)
 }
 
-func ProjectUpdateValidation(title string, description string) (bool, error) {
+func ProjectUpdateValidation(title string, description string) error {
 	form := &projectUpdate{
 		Title:       title,
 		Description: description,
 	}
-	return govalidator.ValidateStruct(form)
+	return validate.Struct(form)
 }
