@@ -57,6 +57,7 @@ var _ = Describe("TasksController", func() {
 
 		// listも作っておく
 		values.Set("title", "listTitle")
+		values.Set("color", "008ed5")
 		res, _ = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists", values)
 		contents, _ = ParseJson(res)
 		parseContents = contents.(map[string]interface{})

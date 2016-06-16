@@ -61,6 +61,7 @@ var _ = Describe("ListsController", func() {
 		JustBeforeEach(func() {
 			values := url.Values{}
 			values.Add("title", "listTitle")
+			values.Add("color", "008ed5")
 			res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists", values)
 		})
 		It("can registration", func() {
@@ -91,6 +92,7 @@ var _ = Describe("ListsController", func() {
 				newList.Save(nil, nil)
 				values := url.Values{}
 				values.Add("title", "newListTitle")
+				values.Add("color", "008ed5")
 				values.Add("action", "null")
 				res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(newList.ID, 10), values)
 			})
@@ -108,6 +110,7 @@ var _ = Describe("ListsController", func() {
 				newList.Save(nil, nil)
 				values := url.Values{}
 				values.Add("title", "newListTitle")
+				values.Add("color", "008ed5")
 				values.Add("action", "close")
 				res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(newList.ID, 10), values)
 			})
@@ -125,8 +128,10 @@ var _ = Describe("ListsController", func() {
 		JustBeforeEach(func() {
 			values := url.Values{}
 			values.Add("title", "list1")
+			values.Add("color", "008ed5")
 			_, _ = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists", values)
 			values.Set("title", "list2")
+			values.Set("color", "008ed5")
 			_, _ = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists", values)
 		})
 		It("should receive lists", func() {
