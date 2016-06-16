@@ -1,12 +1,9 @@
 package validators
 
 import (
-	"gopkg.in/go-playground/validator.v8"
+	"github.com/asaskevich/govalidator"
 )
 
-var validate *validator.Validate
-
 func init() {
-	config := &validator.Config{TagName: "valid"}
-	validate = validator.New(config)
+	govalidator.SetFieldsRequiredByDefault(true)
 }

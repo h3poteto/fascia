@@ -72,9 +72,9 @@ func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Req
 	}
 
 	// sign up
-	err = validators.UserRegistrationValidation(signUpForm.Email, signUpForm.Password, signUpForm.PasswordConfirm)
+	valid, err := validators.UserRegistrationValidation(signUpForm.Email, signUpForm.Password, signUpForm.PasswordConfirm)
 	// TODO: 失敗していることは何かしらの方法で伝えたい
-	if err != nil {
+	if err != nil || !valid {
 		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", c).Infof("validation failed: %v", err)
 		http.Redirect(w, r, "/sign_up", 302)
 		return
