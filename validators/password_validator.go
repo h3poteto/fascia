@@ -11,8 +11,8 @@ type passwordCreate struct {
 
 type passwordUpdate struct {
 	ResetToken      string `valid:"required"`
-	Password        string `valid:"length(4|255)"`
-	PasswordConfirm string `valid:"length(4|255)"`
+	Password        string `valid:"stringlength(6|255)"`
+	PasswordConfirm string `valid:"stringlength(6|255)"`
 }
 
 func PasswordCreateValidation(email string) (bool, error) {

@@ -5,16 +5,16 @@ import (
 )
 
 type projectCreate struct {
-	Title           string `valid:"length(0|255)"`
-	Description     string `valid:"length(0|255),optional"`
+	Title           string `valid:"stringlength(1|255)"`
+	Description     string `valid:"stringlength(0|255),optional"`
 	RepositoryID    int64  `valid:"int,optional"`
 	RepositoryOwner string `valid:"-"`
 	RepositoryName  string `valid:"-"`
 }
 
 type projectUpdate struct {
-	Title       string `valid:"length(0|255)"`
-	Description string `valid:"length(0|255),optional"`
+	Title       string `valid:"stringlength(1|255)"`
+	Description string `valid:"stringlength(0|255),optional"`
 }
 
 func ProjectCreateValidation(title string, description string, repositoryID int64, repositoryOwner string, repositoryName string) (bool, error) {

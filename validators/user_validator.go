@@ -7,8 +7,8 @@ import (
 
 type userRegistration struct {
 	Email           string `valid:"email,required"`
-	Password        string `valid:"length(4|255)"`
-	PasswordConfirm string `valid:"length(4|255)"`
+	Password        string `valid:"stringlength(6|255)"`
+	PasswordConfirm string `valid:"stringlength(6|255)"`
 }
 
 func UserRegistrationValidation(email string, password string, passwordConfirm string) (bool, error) {
