@@ -153,7 +153,7 @@ describe('fetchCreateProject', () => {
         login: "ownerName"
       }
     }
-    const postForm = `title=${title}&description=${description}&repositoryID=${repository.id}&repositoryOwner=${repository.owner.login}&repositoryName=${repository.name}`
+    const postForm = `title=${title}&description=${description}&repository_id=${repository.id}&repository_owner=${repository.owner.login}&repository_name=${repository.name}`
     beforeEach(() => {
       nock('http://localhost')
         .post('/projects', postForm)

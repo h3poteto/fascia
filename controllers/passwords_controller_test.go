@@ -104,8 +104,8 @@ var _ = Describe("PasswordsController", func() {
 			It("should internal server error", func() {
 				values := url.Values{}
 				values.Add("password", "fugafuga")
-				values.Add("password-confirm", "fugafuga")
-				values.Add("reset-token", "sample")
+				values.Add("password_confirm", "fugafuga")
+				values.Add("reset_token", "sample")
 				res, err := http.PostForm(ts.URL+"/passwords/"+strconv.FormatInt(resetPassword.ID, 10)+"/update", values)
 				Expect(err).To(BeNil())
 				doc, _ := goquery.NewDocumentFromResponse(res)
@@ -118,8 +118,8 @@ var _ = Describe("PasswordsController", func() {
 			It("should response is ok", func() {
 				values := url.Values{}
 				values.Add("password", "fugafuga")
-				values.Add("password-confirm", "fugafuga")
-				values.Add("reset-token", resetPassword.Token)
+				values.Add("password_confirm", "fugafuga")
+				values.Add("reset_token", resetPassword.Token)
 				res, err := http.PostForm(ts.URL+"/passwords/"+strconv.FormatInt(resetPassword.ID, 10)+"/update", values)
 				Expect(err).To(BeNil())
 				_, status := ParseResponse(res)
