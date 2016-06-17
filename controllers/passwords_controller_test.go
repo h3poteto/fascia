@@ -60,7 +60,7 @@ var _ = Describe("PasswordsController", func() {
 		})
 		It("should create new reset password", func() {
 			values := url.Values{}
-			values.Add("email", "hogehoge")
+			values.Add("email", "hogehoge@example.com")
 			res, err := http.PostForm(ts.URL+"/passwords/create", values)
 			Expect(err).To(BeNil())
 			Expect(res.Request.URL.Path).To(Equal("/sign_in"))

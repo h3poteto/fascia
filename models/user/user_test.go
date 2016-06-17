@@ -28,58 +28,6 @@ var _ = Describe("User", func() {
 		table.Close()
 	})
 
-	Describe("Validation", func() {
-		Context("when email is empty", func() {
-			email := ""
-			password := "hogehoge"
-			It("should validation failed", func() {
-				result := Validation(email, password, password)
-				Expect(result).To(BeFalse())
-			})
-		})
-		Context("when email does not contain domain", func() {
-			email := "abc@def"
-			password := "hogehoge"
-			It("should validation failed", func() {
-				result := Validation(email, password, password)
-				Expect(result).To(BeFalse())
-			})
-		})
-		Context("when passwod length is less than 8 characters", func() {
-			email := "abc@def.com"
-			password := "hoho"
-			It("should validation failed", func() {
-				result := Validation(email, password, password)
-				Expect(result).To(BeFalse())
-			})
-		})
-		Context("when password is empty", func() {
-			email := "abc@def.com"
-			password := ""
-			It("should validation failed", func() {
-				result := Validation(email, password, password)
-				Expect(result).To(BeFalse())
-			})
-		})
-		Context("when password disagree with password comfirm", func() {
-			email := "abc@def.com"
-			password := "hogehoge"
-			passwordConfirm := "fugafuga"
-			It("should validation failed", func() {
-				result := Validation(email, password, passwordConfirm)
-				Expect(result).To(BeFalse())
-			})
-		})
-		Context("when email and password is right", func() {
-			email := "abc@def.com"
-			password := "hogehoge"
-			It("should validation success", func() {
-				result := Validation(email, password, password)
-				Expect(result).To(BeTrue())
-			})
-		})
-	})
-
 	Describe("Registration", func() {
 		email := "registration@example.com"
 		password := "hogehoge"
