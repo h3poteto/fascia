@@ -28,7 +28,7 @@
               </div>
 
               <div class="pure-control-group control-group fascia-form-icon-wrapper">
-                <input class="form-control" name="password-confirm" type="password" placeholder="password" />
+                <input class="form-control" name="password_confirm" type="password" placeholder="password" />
                 <div class="fascia-form-icon"><i class="fa fa-key" ></i></div>
               </div>
 

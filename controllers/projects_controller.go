@@ -17,13 +17,12 @@ import (
 type Projects struct {
 }
 
-// TODO: 本来であるならパラメータはスネークケースにしたい
 type NewProjectForm struct {
 	Title           string `param:"title"`
 	Description     string `param:"description"`
-	RepositoryID    int64  `param:"repositoryID"`
-	RepositoryOwner string `param:"repositoryOwner"`
-	RepositoryName  string `param:"repositoryName"`
+	RepositoryID    int64  `param:"repository_id"`
+	RepositoryOwner string `param:"repository_owner"`
+	RepositoryName  string `param:"repository_name"`
 }
 
 type EditProjectForm struct {

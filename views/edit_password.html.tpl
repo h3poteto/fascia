@@ -15,13 +15,13 @@
           <form action="/passwords/{{ id }}/update" method="post" role="form" name="create" id="create" class="pure-form pure-form-stacked">
             <fieldset>
               <input name="token" type="hidden" value="{{ token }}" />
-              <input name="reset-token" type="hidden" value="{{ resetToken }}" />
+              <input name="reset_token" type="hidden" value="{{ resetToken }}" />
               <div class="pure-control-group control-group fascia-form-icon-wrapper">
                 <input class="form-control" name="password" type="password" placeholder="pasword" />
                 <div class="fascia-form-icon"><i class="fa fa-key" ></i></div>
               </div>
               <div class="pure-control-group control-group fascia-form-icon-wrapper">
-                <input class="form-control" name="password-confirm" type="password" placeholder="pasword" />
+                <input class="form-control" name="password_confirm" type="password" placeholder="pasword" />
                 <div class="fascia-form-icon"><i class="fa fa-key" ></i></div>
               </div>
               <div class="pure-controls control-group">

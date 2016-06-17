@@ -52,7 +52,7 @@ var _ = Describe("RegistrationsController", func() {
 				values := url.Values{}
 				values.Add("email", "registration@example.com")
 				values.Add("password", "hogehoge")
-				values.Add("password-confirm", "hogehoge")
+				values.Add("password_confirm", "hogehoge")
 				res, err := http.PostForm(ts.URL+"/sign_up", values)
 				Expect(err).To(BeNil())
 				Expect(res.Request.URL.Path).To(Equal("/sign_in"))
@@ -61,7 +61,7 @@ var _ = Describe("RegistrationsController", func() {
 				values := url.Values{}
 				values.Add("email", "registration@example.com")
 				values.Add("password", "hogehoge")
-				values.Add("password-confirm", "hogehoge")
+				values.Add("password_confirm", "hogehoge")
 				http.PostForm(ts.URL+"/sign_up", values)
 				mydb := &db.Database{}
 				var database db.DB = mydb
@@ -82,14 +82,14 @@ var _ = Describe("RegistrationsController", func() {
 				values := url.Values{}
 				values.Add("email", "registration@example.com")
 				values.Add("password", "hogehoge")
-				values.Add("password-confirm", "hogehoge")
+				values.Add("password_confirm", "hogehoge")
 				http.PostForm(ts.URL+"/sign_up", values)
 			})
 			It("エラーになること", func() {
 				values := url.Values{}
 				values.Add("email", "registration@example.com")
 				values.Add("password", "hogehoge")
-				values.Add("password-confirm", "hogehoge")
+				values.Add("password_confirm", "hogehoge")
 				res, err := http.PostForm(ts.URL+"/sign_up", values)
 				Expect(err).To(BeNil())
 				Expect(res.Request.URL.Path).To(Equal("/sign_up"))

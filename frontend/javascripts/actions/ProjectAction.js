@@ -182,7 +182,7 @@ export function fetchCreateProject(title, description, repository) {
     return Request
       .post('/projects')
       .type('form')
-      .send({title: title, description: description, repositoryID: repositoryID, repositoryOwner: repositoryOwner, repositoryName: repositoryName})
+      .send({title: title, description: description, repository_id: repositoryID, repository_owner: repositoryOwner, repository_name: repositoryName})
       .end((err, res)=> {
         if (res.ok) {
           dispatch(receiveCreateProject(res.body.ID, res.body.UserID, res.body.Title, res.body.Description))
