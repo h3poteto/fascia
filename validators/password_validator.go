@@ -15,6 +15,7 @@ type passwordUpdate struct {
 	PasswordConfirm string `valid:"stringlength(6|255)"`
 }
 
+// PasswordCreateValidation check form variable when create reset_passwords
 func PasswordCreateValidation(email string) (bool, error) {
 	form := &passwordCreate{
 		Email: email,
@@ -22,6 +23,7 @@ func PasswordCreateValidation(email string) (bool, error) {
 	return govalidator.ValidateStruct(form)
 }
 
+// PasswordUpdateValidation check form variable when update reset_passwords
 func PasswordUpdateValidation(resetToken string, password string, passwordConfirm string) (bool, error) {
 	if password != passwordConfirm {
 		return false, errors.New("password and password confirm did not match")

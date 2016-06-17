@@ -15,6 +15,7 @@ type listUpdate struct {
 	Action string `valid:"-"`
 }
 
+// ListCreateValidation check form variable when create lists
 func ListCreateValidation(title string, color string) (bool, error) {
 	form := &listCreate{
 		Title: title,
@@ -23,6 +24,7 @@ func ListCreateValidation(title string, color string) (bool, error) {
 	return govalidator.ValidateStruct(form)
 }
 
+// ListUpdateValidation check form variable when update lists
 func ListUpdateValidation(title string, color string, action string) (bool, error) {
 	form := &listUpdate{
 		Title:  title,

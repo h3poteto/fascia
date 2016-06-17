@@ -11,6 +11,7 @@ type userRegistration struct {
 	PasswordConfirm string `valid:"stringlength(6|255)"`
 }
 
+// UserRegistrationValidation check form variable when create user
 func UserRegistrationValidation(email string, password string, passwordConfirm string) (bool, error) {
 	if password != passwordConfirm {
 		return false, errors.New("password and password confirm did not match")

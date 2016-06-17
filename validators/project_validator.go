@@ -17,6 +17,7 @@ type projectUpdate struct {
 	Description string `valid:"stringlength(0|255),optional"`
 }
 
+// ProjectCreateValidation check form variable when create projects
 func ProjectCreateValidation(title string, description string, repositoryID int64, repositoryOwner string, repositoryName string) (bool, error) {
 	form := &projectCreate{
 		Title:           title,
@@ -28,6 +29,7 @@ func ProjectCreateValidation(title string, description string, repositoryID int6
 	return govalidator.ValidateStruct(form)
 }
 
+// ProjectUpdateValidation check form variable when update projects
 func ProjectUpdateValidation(title string, description string) (bool, error) {
 	form := &projectUpdate{
 		Title:       title,
