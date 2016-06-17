@@ -5,6 +5,7 @@ import (
 	projectModel "../models/project"
 	taskModel "../models/task"
 	"../modules/logging"
+	"../validators"
 
 	"database/sql"
 	"encoding/json"
@@ -141,6 +142,13 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	logging.SharedInstance().MethodInfo("TasksController", "Create", c).Debugf("post new task parameter: %+v", newTaskForm)
 
+	valid, err := validators.TaskCreateValidation(newTaskForm.Title, newTaskForm.Description)
+	if err != nil || !valid {
+		logging.SharedInstance().MethodInfo("TasksController", "Create", c).Infof("validation error: %v", err)
+		http.Error(w, "validation error", 422)
+		return
+	}
+
 	task := taskModel.NewTask(0, parentList.ID, parentProject.ID, parentList.UserID, sql.NullInt64{}, newTaskForm.Title, newTaskForm.Description, false, sql.NullString{})
 
 	repo, _ := parentProject.Repository()
@@ -221,6 +229,14 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("TasksController", "MoveTask", c).Debugf("post move taks parameter: %+v", moveTaskFrom)
+
+	valid, err := validators.TaskMoveValidation(moveTaskFrom.ToListID, moveTaskFrom.PrevToTaskID)
+	if err != nil || !valid {
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", c).Infof("validation error: %v", err)
+		http.Error(w, "validation error", 422)
+		return
+	}
+
 	var prevToTaskID *int64
 	if moveTaskFrom.PrevToTaskID != 0 {
 		prevToTaskID = &moveTaskFrom.PrevToTaskID

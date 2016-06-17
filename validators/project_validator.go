@@ -7,7 +7,7 @@ import (
 type projectCreate struct {
 	Title           string `valid:"stringlength(1|255)"`
 	Description     string `valid:"stringlength(0|255),optional"`
-	RepositoryID    int64  `valid:"int,optional"`
+	RepositoryID    int64  `valid:"-"`
 	RepositoryOwner string `valid:"-"`
 	RepositoryName  string `valid:"-"`
 }
