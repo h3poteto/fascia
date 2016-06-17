@@ -27,9 +27,9 @@ type NewPasswordForm struct {
 // TODO: スネークケースにしたい
 type EditPasswordForm struct {
 	Token           string `param:"token"`
-	ResetToken      string `param:"reset-token"`
+	ResetToken      string `param:"reset_token"`
 	Password        string `param:"password"`
-	PasswordConfirm string `param:"password-confirm"`
+	PasswordConfirm string `param:"password_confirm"`
 }
 
 // tokenを発行し，expireと合わせてreset_passwordモデルにDB保存する
