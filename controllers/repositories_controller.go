@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/google/go-github/github"
+	"github.com/pkg/errors"
 	"github.com/zenazn/goji/web"
 )
 
@@ -96,7 +97,7 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 }
 
 func (u *Repositories) includeDuplicateError(err error) bool {
-	if strings.Index(err.Error(), "Error 1062") == 0 {
+	if strings.Index(errors.Cause(err).Error(), "Error 1062") == 0 {
 		return true
 	}
 	return false
