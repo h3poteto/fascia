@@ -21,7 +21,7 @@ type Registrations struct {
 type SignUpForm struct {
 	Email           string `param:"email"`
 	Password        string `param:"password"`
-	PasswordConfirm string `param:"password-confirm"`
+	PasswordConfirm string `param:"password_confirm"`
 	Token           string `param:"token"`
 }
 
