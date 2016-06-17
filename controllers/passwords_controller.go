@@ -24,7 +24,6 @@ type NewPasswordForm struct {
 	Token string `param:"token"`
 }
 
-// TODO: スネークケースにしたい
 type EditPasswordForm struct {
 	Token           string `param:"token"`
 	ResetToken      string `param:"reset_token"`
