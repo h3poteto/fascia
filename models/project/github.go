@@ -131,8 +131,8 @@ func PullRequestEvent(repositoryID int64, body github.PullRequestEvent) error {
 	return err
 }
 
-// GithubLabels get issues which match project's lists from github
-func GithubLabels(issue *github.Issue, projectLists []*list.ListStruct) []list.ListStruct {
+// githubLabels get issues which match project's lists from github
+func githubLabelLists(issue *github.Issue, projectLists []*list.ListStruct) []list.ListStruct {
 	var githubLabels []list.ListStruct
 	for _, label := range issue.Labels {
 		for _, list := range projectLists {
@@ -142,6 +142,19 @@ func GithubLabels(issue *github.Issue, projectLists []*list.ListStruct) []list.L
 		}
 	}
 	return githubLabels
+}
+
+func listsWithCloseAction(lists []list.ListStruct) []list.ListStruct {
+	var closeLists []list.ListStruct
+	for _, list := range lists {
+		result, err := list.HasCloseAction()
+		if err != nil {
+			logging.SharedInstance().MethodInfo("Project", "listsWithCloseAction").Info(err)
+		} else if result {
+			closeLists = append(closeLists, list)
+		}
+	}
+	return closeLists
 }
 
 func (u *ProjectStruct) taskApplyLabel(targetTask *task.TaskStruct, issue *github.Issue) error {
@@ -223,25 +236,30 @@ func (u *ProjectStruct) applyListToTask(issueTask *task.TaskStruct, issue *githu
 		return nil, err
 	}
 
-	githubLabels := GithubLabels(issue, lists)
-	logging.SharedInstance().MethodInfo("Project", "applyListToTask").Debugf("github label: %v", githubLabels)
+	labelLists := githubLabelLists(issue, lists)
+	logging.SharedInstance().MethodInfo("Project", "applyListToTask").Debugf("github label: %+v", labelLists)
 
 	// label所属よりcloseかどうかを優先して判定したい
-	// closeのものはどんなlabelがついていようと，doneに放り込む
 	if *issue.State == "open" {
-		if len(githubLabels) == 1 {
-			// 一つのlistだけが該当するとき
-			issueTask.ListID = githubLabels[0].ID
-		} else if len(githubLabels) > 1 {
-			// 複数のlistが該当するとき
-			issueTask.ListID = githubLabels[0].ID
+		if len(labelLists) >= 1 {
+			// 一以上listだけが該当するとき
+			issueTask.ListID = labelLists[0].ID
 		} else {
 			// listに該当しないlabelしか持っていない
 			// or そもそもlabelがひとつもついていない
 			issueTask.ListID = noneList.ID
 		}
 	} else {
-		issueTask.ListID = closedList.ID
+		// closeのものは，該当するlistがあったとしてもそのまま放り込めない
+		// Because: ToDoがついたままcloseされることはよくある
+		// 該当するlistのlist_optionがcloseのときのみ，そのlistに放り込める
+		listsWithClose := listsWithCloseAction(labelLists)
+		logging.SharedInstance().MethodInfo("Project", "applyListToTask").Debugf("lists with close action: %+v", listsWithClose)
+		if len(listsWithClose) >= 1 {
+			issueTask.ListID = listsWithClose[0].ID
+		} else {
+			issueTask.ListID = closedList.ID
+		}
 	}
 	return issueTask, nil
 }

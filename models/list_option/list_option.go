@@ -85,3 +85,11 @@ func (u *ListOptionStruct) Initialize() {
 	var interfaceDB db.DB = objectDB
 	u.database = interfaceDB
 }
+
+// CloseAction return whether it is close option
+func (u *ListOptionStruct) CloseAction() bool {
+	if u.Action == "close" {
+		return true
+	}
+	return false
+}

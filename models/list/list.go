@@ -280,3 +280,12 @@ func (u *ListStruct) Display() error {
 	u.IsHidden = false
 	return nil
 }
+
+// HasCloseAction check a list has close list_option
+func (u *ListStruct) HasCloseAction() (bool, error) {
+	option, err := list_option.FindByID(u.ListOptionID)
+	if err != nil {
+		return false, err
+	}
+	return option.CloseAction(), nil
+}
