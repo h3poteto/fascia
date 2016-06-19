@@ -86,6 +86,7 @@ func (u *ListOptionStruct) Initialize() {
 	u.database = interfaceDB
 }
 
+// CloseAction return whether it is close option
 func (u *ListOptionStruct) CloseAction() bool {
 	if u.Action == "close" {
 		return true

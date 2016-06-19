@@ -281,6 +281,7 @@ func (u *ListStruct) Display() error {
 	return nil
 }
 
+// HasCloseAction check a list has close list_option
 func (u *ListStruct) HasCloseAction() (bool, error) {
 	option, err := list_option.FindByID(u.ListOptionID)
 	if err != nil {
