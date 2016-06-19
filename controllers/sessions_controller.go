@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/flosch/pongo2"
+	"github.com/goji/csrf"
 	"github.com/goji/param"
 	"github.com/gorilla/sessions"
 	"github.com/pkg/errors"
@@ -22,18 +23,12 @@ type Sessions struct {
 type SignInForm struct {
 	Email    string `param:"email"`
 	Password string `param:"password"`
-	Token    string `param:"token"`
+	Token    string `param:"authenticity_token"`
 }
 
 func (u *Sessions) SignIn(c web.C, w http.ResponseWriter, r *http.Request) {
 	url := githubOauthConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
 
-	token, err := GenerateCSRFToken(c, w, r)
-	if err != nil {
-		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "SignIn", err, c).Errorf("CSRF error: %v", err)
-		InternalServerError(w, r)
-		return
-	}
 	tpl, err := pongo2.DefaultSet.FromFile("sign_in.html.tpl")
 	if err != nil {
 		err := errors.Wrap(err, "template error")
@@ -41,7 +36,7 @@ func (u *Sessions) SignIn(c web.C, w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, r)
 		return
 	}
-	tpl.ExecuteWriter(pongo2.Context{"title": "SignIn", "oauthURL": url, "token": token}, w)
+	tpl.ExecuteWriter(pongo2.Context{"title": "SignIn", "oauthURL": url, csrf.TemplateTag: csrf.TemplateField(c, r)}, w)
 }
 
 func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -72,13 +67,6 @@ func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	err = param.Parse(r.PostForm, &signInForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
-		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "NewSession", err, c).Error(err)
-		InternalServerError(w, r)
-		return
-	}
-
-	if !CheckCSRFToken(r, signInForm.Token) {
-		err := errors.New("cannot verify CSRF token")
 		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "NewSession", err, c).Error(err)
 		InternalServerError(w, r)
 		return

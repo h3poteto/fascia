@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/flosch/pongo2"
+	"github.com/goji/csrf"
 	"github.com/goji/param"
 	"github.com/pkg/errors"
 	"github.com/zenazn/goji/web"
@@ -22,18 +23,11 @@ type SignUpForm struct {
 	Email           string `param:"email"`
 	Password        string `param:"password"`
 	PasswordConfirm string `param:"password_confirm"`
-	Token           string `param:"token"`
+	Token           string `param:"authenticity_token"`
 }
 
 func (u *Registrations) SignUp(c web.C, w http.ResponseWriter, r *http.Request) {
 	url := githubOauthConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
-
-	token, err := GenerateCSRFToken(c, w, r)
-	if err != nil {
-		logging.SharedInstance().MethodInfoWithStacktrace("RegistrationsController", "SignUp", err, c).Errorf("CSRF error: %v", err)
-		InternalServerError(w, r)
-		return
-	}
 
 	tpl, err := pongo2.DefaultSet.FromFile("sign_up.html.tpl")
 	if err != nil {
@@ -42,7 +36,7 @@ func (u *Registrations) SignUp(c web.C, w http.ResponseWriter, r *http.Request) 
 		InternalServerError(w, r)
 		return
 	}
-	tpl.ExecuteWriter(pongo2.Context{"title": "SignUp", "oauthURL": url, "token": token}, w)
+	tpl.ExecuteWriter(pongo2.Context{"title": "SignUp", "oauthURL": url, csrf.TemplateTag: csrf.TemplateField(c, r)}, w)
 }
 
 func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -63,13 +57,6 @@ func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Req
 		return
 	}
 	logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", c).Debugf("post registration form: %+v", signUpForm)
-
-	if !CheckCSRFToken(r, signUpForm.Token) {
-		err := errors.New("cannot verify CSRF token")
-		logging.SharedInstance().MethodInfoWithStacktrace("RegistrationsController", "SignUp", err, c).Error(err)
-		InternalServerError(w, r)
-		return
-	}
 
 	// sign up
 	valid, err := validators.UserRegistrationValidation(signUpForm.Email, signUpForm.Password, signUpForm.PasswordConfirm)

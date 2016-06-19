@@ -11,6 +11,7 @@ import (
 	"strconv"
 
 	"github.com/flosch/pongo2"
+	"github.com/goji/csrf"
 	"github.com/goji/param"
 	"github.com/pkg/errors"
 	"github.com/zenazn/goji/web"
@@ -21,11 +22,11 @@ type Passwords struct {
 
 type NewPasswordForm struct {
 	Email string `param:"email"`
-	Token string `param:"token"`
+	Token string `param:"authenticity_token"`
 }
 
 type EditPasswordForm struct {
-	Token           string `param:"token"`
+	Token           string `param:"authenticity_token"`
 	ResetToken      string `param:"reset_token"`
 	Password        string `param:"password"`
 	PasswordConfirm string `param:"password_confirm"`
@@ -36,12 +37,6 @@ type EditPasswordForm struct {
 // idとtoken, expireがあっていたらpasswordの編集を許可する
 // passwordを新たに保存する
 func (u *Passwords) New(c web.C, w http.ResponseWriter, r *http.Request) {
-	token, err := GenerateCSRFToken(c, w, r)
-	if err != nil {
-		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "New", err, c).Error(err)
-		InternalServerError(w, r)
-		return
-	}
 	tpl, err := pongo2.DefaultSet.FromFile("new_password.html.tpl")
 	if err != nil {
 		err := errors.Wrap(err, "template error")
@@ -49,7 +44,7 @@ func (u *Passwords) New(c web.C, w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, r)
 		return
 	}
-	tpl.ExecuteWriter(pongo2.Context{"title": "PasswordReset", "token": token}, w)
+	tpl.ExecuteWriter(pongo2.Context{"title": "PasswordReset", csrf.TemplateTag: csrf.TemplateField(c, r)}, w)
 }
 
 func (u *Passwords) Create(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -64,13 +59,6 @@ func (u *Passwords) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	err = param.Parse(r.PostForm, &newPasswordForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
-		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "Create", err, c).Error(err)
-		InternalServerError(w, r)
-		return
-	}
-
-	if !CheckCSRFToken(r, newPasswordForm.Token) {
-		err := errors.New("cannot verify CSRF token")
 		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "Create", err, c).Error(err)
 		InternalServerError(w, r)
 		return
@@ -105,12 +93,6 @@ func (u *Passwords) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 }
 
 func (u *Passwords) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
-	token, err := GenerateCSRFToken(c, w, r)
-	if err != nil {
-		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "Edit", err, c).Error(err)
-		InternalServerError(w, r)
-		return
-	}
 	resetToken := r.URL.Query().Get("token")
 	id, err := strconv.ParseInt(c.URLParams["id"], 10, 64)
 	if err != nil {
@@ -131,7 +113,7 @@ func (u *Passwords) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w, r)
 		return
 	}
-	tpl.ExecuteWriter(pongo2.Context{"title": "PasswordReset", "token": token, "id": id, "resetToken": resetToken}, w)
+	tpl.ExecuteWriter(pongo2.Context{"title": "PasswordReset", csrf.TemplateTag: csrf.TemplateField(c, r), "id": id, "resetToken": resetToken}, w)
 }
 
 func (u *Passwords) Update(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -146,13 +128,6 @@ func (u *Passwords) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	err = param.Parse(r.PostForm, &editPasswordForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameters")
-		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "Update", err, c).Error(err)
-		InternalServerError(w, r)
-		return
-	}
-
-	if !CheckCSRFToken(r, editPasswordForm.Token) {
-		err := errors.New("cannot verify CSRF token")
 		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "Update", err, c).Error(err)
 		InternalServerError(w, r)
 		return

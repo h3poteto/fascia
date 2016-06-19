@@ -7,6 +7,7 @@ import (
 	"flag"
 	"github.com/flosch/pongo2"
 	_ "github.com/flosch/pongo2-addons"
+	"github.com/goji/csrf"
 	"github.com/goji/glogrus"
 	"github.com/zenazn/goji"
 	"github.com/zenazn/goji/web"
@@ -92,6 +93,15 @@ func main() {
 
 	goji.Use(glogrus.NewGlogrus(logging.SharedInstance().Log, "fascia"))
 	goji.Abandon(middleware.Logger)
+
+	CSRF := csrf.Protect(
+		[]byte("32-byte-long-auth-key"),
+		csrf.FieldName("authenticity_token"),
+		csrf.HttpOnly(true),
+		csrf.Secure(false),
+	)
+
+	goji.Use(CSRF)
 
 	fd := flag.Uint("fd", 0, "File descriptor to listen and serve.")
 	flag.Parse()

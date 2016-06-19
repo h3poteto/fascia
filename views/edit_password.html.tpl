@@ -14,7 +14,9 @@
         <div class="sign-in-board">
           <form action="/passwords/{{ id }}/update" method="post" role="form" name="create" id="create" class="pure-form pure-form-stacked">
             <fieldset>
-              <input name="token" type="hidden" value="{{ token }}" />
+              {% autoescape off %}
+              {{ csrfField }}
+              {% endautoescape %}
               <input name="reset_token" type="hidden" value="{{ resetToken }}" />
               <div class="pure-control-group control-group fascia-form-icon-wrapper">
                 <input class="form-control" name="password" type="password" placeholder="pasword" />

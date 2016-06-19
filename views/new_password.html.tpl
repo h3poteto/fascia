@@ -14,7 +14,9 @@
         <div class="sign-in-board">
           <form action="/passwords/create" method="post" role="form" name="create" id="create" class="pure-form pure-form-stacked">
             <fieldset>
-              <input name="token" type="hidden" value="{{ token }}" />
+              {% autoescape off %}
+              {{ csrfField }}
+              {% endautoescape %}
               <div class="pure-control-group control-group fascia-form-icon-wrapper">
                 <input class="form-control" name="email" type="email" placeholder="email" />
                 <div class="fascia-form-icon"><i class="fa fa-user" ></i></div>
