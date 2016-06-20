@@ -1,20 +1,24 @@
 package main
 
 import (
+	"./config"
 	"./controllers"
 	"./filters"
 	"./modules/logging"
+
 	"flag"
-	"github.com/flosch/pongo2"
-	_ "github.com/flosch/pongo2-addons"
-	"github.com/goji/glogrus"
-	"github.com/zenazn/goji"
-	"github.com/zenazn/goji/web"
-	"github.com/zenazn/goji/web/middleware"
 	"net"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/flosch/pongo2"
+	_ "github.com/flosch/pongo2-addons"
+	"github.com/goji/glogrus"
+	"github.com/rs/cors"
+	"github.com/zenazn/goji"
+	"github.com/zenazn/goji/web"
+	"github.com/zenazn/goji/web/middleware"
 )
 
 func Routes(m *web.Mux) {
@@ -89,6 +93,16 @@ func main() {
 	mux := goji.DefaultMux
 	mux.Use(PanicRecover)
 	Routes(mux)
+
+	fqdn := config.Element("fqdn").(interface{})
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{
+			"http://" + fqdn.(string) + ":9090",
+			"http://" + fqdn.(string),
+			"https://" + fqdn.(string),
+		},
+	})
+	goji.Use(c.Handler)
 
 	goji.Use(glogrus.NewGlogrus(logging.SharedInstance().Log, "fascia"))
 	goji.Abandon(middleware.Logger)
