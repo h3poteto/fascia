@@ -124,7 +124,7 @@ func GetGithubIssue(token string, repo *repository.RepositoryStruct, number int)
 	return issue, nil
 }
 
-func GetGithubIssues(token string, repo *repository.RepositoryStruct) ([]github.Issue, []github.Issue, error) {
+func GetGithubIssues(token string, repo *repository.RepositoryStruct) ([]*github.Issue, []*github.Issue, error) {
 	client := prepareClient(token)
 
 	openIssueOption := github.IssueListByRepoOptions{
@@ -146,7 +146,7 @@ func GetGithubIssues(token string, repo *repository.RepositoryStruct) ([]github.
 }
 
 // ListLabels list all github labels
-func ListLabels(token string, repo *repository.RepositoryStruct) ([]github.Label, error) {
+func ListLabels(token string, repo *repository.RepositoryStruct) ([]*github.Label, error) {
 	client := prepareClient(token)
 
 	labels, _, err := client.Issues.ListLabels(repo.Owner.String, repo.Name.String, nil)
