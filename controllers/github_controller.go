@@ -36,7 +36,7 @@ func (u *Github) Repositories(c web.C, w http.ResponseWriter, r *http.Request) {
 	client := github.NewClient(tc)
 
 	nextPage := -1
-	var repositories []github.Repository
+	var repositories []*github.Repository
 	for nextPage != 0 {
 		if nextPage < 0 {
 			nextPage = 0

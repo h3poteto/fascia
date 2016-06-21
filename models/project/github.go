@@ -16,7 +16,7 @@ import (
 )
 
 // ListLoadFromGithub load lists from github labels
-func (u *ProjectStruct) ListLoadFromGithub(labels []github.Label) error {
+func (u *ProjectStruct) ListLoadFromGithub(labels []*github.Label) error {
 	lists, err := u.Lists()
 	if err != nil {
 		return err
@@ -29,7 +29,7 @@ func (u *ProjectStruct) ListLoadFromGithub(labels []github.Label) error {
 	return nil
 }
 
-func (u *ProjectStruct) labelUpdate(l *list.ListStruct, labels []github.Label) error {
+func (u *ProjectStruct) labelUpdate(l *list.ListStruct, labels []*github.Label) error {
 	for _, label := range labels {
 		if strings.ToLower(*label.Name) == strings.ToLower(l.Title.String) {
 			l.Color.String = *label.Color
@@ -42,11 +42,11 @@ func (u *ProjectStruct) labelUpdate(l *list.ListStruct, labels []github.Label) e
 }
 
 // TaskLoadFromGithub load tasks from github issues
-func (u *ProjectStruct) TaskLoadFromGithub(issues []github.Issue) error {
+func (u *ProjectStruct) TaskLoadFromGithub(issues []*github.Issue) error {
 	for _, issue := range issues {
 		targetTask, _ := task.FindByIssueNumber(u.ID, *issue.Number)
 
-		err := u.taskApplyLabel(targetTask, &issue)
+		err := u.taskApplyLabel(targetTask, issue)
 		if err != nil {
 			return err
 		}
