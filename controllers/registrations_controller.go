@@ -31,7 +31,8 @@ func (u *Registrations) SignUp(c web.C, w http.ResponseWriter, r *http.Request) 
 	token, err := GenerateCSRFToken(c, w, r)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("RegistrationsController", "SignUp", err, c).Errorf("CSRF error: %v", err)
-		InternalServerError(w, r)
+		errorBody := "Cookie error, please clear your browser cookie."
+		InternalServerError(w, r, &errorBody)
 		return
 	}
 
@@ -39,7 +40,7 @@ func (u *Registrations) SignUp(c web.C, w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		err := errors.Wrap(err, "template error")
 		logging.SharedInstance().MethodInfoWithStacktrace("RegistrationsController", "SignUp", err, c).Error(err)
-		InternalServerError(w, r)
+		InternalServerError(w, r, nil)
 		return
 	}
 	tpl.ExecuteWriter(pongo2.Context{"title": "SignUp", "oauthURL": url, "token": token}, w)
@@ -59,7 +60,7 @@ func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Req
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
 		logging.SharedInstance().MethodInfoWithStacktrace("RegistrationsController", "SignUp", err, c).Error(err)
-		InternalServerError(w, r)
+		InternalServerError(w, r, nil)
 		return
 	}
 	logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", c).Debugf("post registration form: %+v", signUpForm)
@@ -67,7 +68,7 @@ func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Req
 	if !CheckCSRFToken(r, signUpForm.Token) {
 		err := errors.New("cannot verify CSRF token")
 		logging.SharedInstance().MethodInfoWithStacktrace("RegistrationsController", "SignUp", err, c).Error(err)
-		InternalServerError(w, r)
+		InternalServerError(w, r, nil)
 		return
 	}
 

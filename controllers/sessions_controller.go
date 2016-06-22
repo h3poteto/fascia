@@ -31,14 +31,15 @@ func (u *Sessions) SignIn(c web.C, w http.ResponseWriter, r *http.Request) {
 	token, err := GenerateCSRFToken(c, w, r)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "SignIn", err, c).Errorf("CSRF error: %v", err)
-		InternalServerError(w, r)
+		errorBody := "Cookie error, please clear your browser cookie."
+		InternalServerError(w, r, &errorBody)
 		return
 	}
 	tpl, err := pongo2.DefaultSet.FromFile("sign_in.html.tpl")
 	if err != nil {
 		err := errors.Wrap(err, "template error")
 		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "SignIn", err, c).Error(err)
-		InternalServerError(w, r)
+		InternalServerError(w, r, nil)
 		return
 	}
 	tpl.ExecuteWriter(pongo2.Context{"title": "SignIn", "oauthURL": url, "token": token}, w)
@@ -50,7 +51,8 @@ func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "NewSession", err, c).Error(err)
-		InternalServerError(w, r)
+		errorBody := "Cookie error, please clear your browser cookie."
+		InternalServerError(w, r, &errorBody)
 		return
 	}
 	session.Options = &sessions.Options{MaxAge: -1}
@@ -58,7 +60,8 @@ func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "NewSession", err, c).Error(err)
-		InternalServerError(w, r)
+		errorBody := "Cookie error, please clear your browser cookie."
+		InternalServerError(w, r, &errorBody)
 		return
 	}
 	err = r.ParseForm()
@@ -73,14 +76,14 @@ func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
 		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "NewSession", err, c).Error(err)
-		InternalServerError(w, r)
+		InternalServerError(w, r, nil)
 		return
 	}
 
 	if !CheckCSRFToken(r, signInForm.Token) {
 		err := errors.New("cannot verify CSRF token")
 		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "NewSession", err, c).Error(err)
-		InternalServerError(w, r)
+		InternalServerError(w, r, nil)
 		return
 	}
 
@@ -98,7 +101,8 @@ func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "NewSessions", err, c).Error(err)
-		InternalServerError(w, r)
+		errorBody := "Cookie error, please clear your browser cookie."
+		InternalServerError(w, r, &errorBody)
 		return
 	}
 	logging.SharedInstance().MethodInfo("SessionsController", "NewSession", c).Info("login success")
@@ -111,7 +115,8 @@ func (u *Sessions) SignOut(c web.C, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "SignOut", err, c).Error(err)
-		InternalServerError(w, r)
+		errorBody := "Cookie error, please clear your browser cookie."
+		InternalServerError(w, r, &errorBody)
 		return
 	}
 	session.Options = &sessions.Options{MaxAge: -1}
@@ -119,7 +124,8 @@ func (u *Sessions) SignOut(c web.C, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "SignOut", err, c).Error(err)
-		InternalServerError(w, r)
+		errorBody := "Cookie error, please clear your browser cookie."
+		InternalServerError(w, r, &errorBody)
 		return
 	}
 	logging.SharedInstance().MethodInfo("SessionsController", "SignOut", c).Info("logout success")
@@ -145,7 +151,8 @@ func (u *Sessions) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "Update", err, c).Error(err)
-		InternalServerError(w, r)
+		errorBody := "Cookie error, please clear your browser cookie."
+		InternalServerError(w, r, &errorBody)
 		return
 	}
 	logging.SharedInstance().MethodInfo("SessionsController", "Update", c).Info("session update success")

@@ -117,7 +117,8 @@ func NotFound(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func InternalServerError(w http.ResponseWriter, r *http.Request) {
+// InternalServerError render custom 500 error page for normal html pages
+func InternalServerError(w http.ResponseWriter, r *http.Request, customErrorDescription *string) {
 	tpl, err := pongo2.DefaultSet.FromFile("500.html.tpl")
 	if err != nil {
 		err := errors.Wrap(err, "template error")
@@ -125,6 +126,11 @@ func InternalServerError(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "InternalServerError", 500)
 		return
 	}
-	tpl.ExecuteWriter(pongo2.Context{"title": "InternalServerError"}, w)
+	body := "We're sorry, but something went wrong."
+	if customErrorDescription != nil {
+		body = *customErrorDescription
+	}
+
+	tpl.ExecuteWriter(pongo2.Context{"title": "InternalServerError", "body": body}, w)
 	return
 }

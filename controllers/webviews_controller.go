@@ -28,7 +28,8 @@ func (u *Webviews) SignIn(c web.C, w http.ResponseWriter, r *http.Request) {
 	token, err := GenerateCSRFToken(c, w, r)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("WebviewsController", "SignIn", err, c).Errorf("CSRF error: %v", err)
-		InternalServerError(w, r)
+		errorBody := "Cookie error, please clear your browser cookie."
+		InternalServerError(w, r, &errorBody)
 		return
 	}
 
@@ -45,7 +46,7 @@ func (u *Webviews) SignIn(c web.C, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err := errors.Wrap(err, "template error")
 		logging.SharedInstance().MethodInfoWithStacktrace("WebviewsController", "SignIn", err, c).Error(err)
-		InternalServerError(w, r)
+		InternalServerError(w, r, nil)
 		return
 	}
 	tpl.ExecuteWriter(pongo2.Context{"title": "SignIn", "oauthURL": url, "token": token}, w)
@@ -58,7 +59,8 @@ func (u *Webviews) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().MethodInfoWithStacktrace("WebviewsController", "NewSession", err, c).Error(err)
-		InternalServerError(w, r)
+		errorBody := "Cookie error, please clear your browser cookie."
+		InternalServerError(w, r, &errorBody)
 		return
 	}
 	session.Options = &sessions.Options{MaxAge: -1}
@@ -66,7 +68,8 @@ func (u *Webviews) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().MethodInfoWithStacktrace("WebviewsController", "NewSession", err, c).Error(err)
-		InternalServerError(w, r)
+		errorBody := "Cookie error, please clear your browser cookie."
+		InternalServerError(w, r, &errorBody)
 		return
 	}
 	err = r.ParseForm()
@@ -81,14 +84,14 @@ func (u *Webviews) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
 		logging.SharedInstance().MethodInfoWithStacktrace("WebviewsController", "NewSession", err, c).Error(err)
-		InternalServerError(w, r)
+		InternalServerError(w, r, nil)
 		return
 	}
 
 	if !CheckCSRFToken(r, signInForm.Token) {
 		err := errors.New("cannot verify CSRF token")
 		logging.SharedInstance().MethodInfoWithStacktrace("WebviewsController", "NewSession", err, c).Error(err)
-		InternalServerError(w, r)
+		InternalServerError(w, r, nil)
 		return
 	}
 
@@ -106,7 +109,8 @@ func (u *Webviews) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().MethodInfoWithStacktrace("WebviewsController", "NewSessions", err, c).Error(err)
-		InternalServerError(w, r)
+		errorBody := "Cookie error, please clear your browser cookie."
+		InternalServerError(w, r, &errorBody)
 		return
 	}
 	logging.SharedInstance().MethodInfo("WebviewsController", "NewSession", c).Info("login success")

@@ -7,8 +7,8 @@
   <div class="main-board">
     <article>
       <div class="content">
-        <h2>Internal Server Error.</h2>
-        <h3>We're sorry, but something went wrong.</h3>
+        <h2>{{ title }}</h2>
+        <h3>{{ body }}</h3>
       </div>
     </article>
   </div>

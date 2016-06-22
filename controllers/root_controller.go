@@ -40,7 +40,7 @@ func (u *Root) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err := errors.Wrap(err, "template error")
 		logging.SharedInstance().MethodInfoWithStacktrace("RootController", "Index", err, c).Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		InternalServerError(w, r, nil)
 		return
 	}
 	tpl.ExecuteWriter(pongo2.Context{"title": "Fascia"}, w)
@@ -51,14 +51,15 @@ func (u *Root) About(c web.C, w http.ResponseWriter, r *http.Request) {
 	token, err := GenerateCSRFToken(c, w, r)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("RootController", "About", err, c).Error(err)
-		InternalServerError(w, r)
+		errorBody := "Cookie error, please clear your browser cookie."
+		InternalServerError(w, r, &errorBody)
 		return
 	}
 	tpl, err := pongo2.DefaultSet.FromFile("about.html.tpl")
 	if err != nil {
 		err := errors.Wrap(err, "template error")
 		logging.SharedInstance().MethodInfoWithStacktrace("RootController", "About", err, c).Error(err)
-		InternalServerError(w, r)
+		InternalServerError(w, r, nil)
 		return
 	}
 	tpl.ExecuteWriter(pongo2.Context{"title": "Fascia", "oauthURL": url, "token": token}, w)

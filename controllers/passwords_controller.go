@@ -39,14 +39,15 @@ func (u *Passwords) New(c web.C, w http.ResponseWriter, r *http.Request) {
 	token, err := GenerateCSRFToken(c, w, r)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "New", err, c).Error(err)
-		InternalServerError(w, r)
+		errorBody := "Cookie error, please clear your browser cookie."
+		InternalServerError(w, r, &errorBody)
 		return
 	}
 	tpl, err := pongo2.DefaultSet.FromFile("new_password.html.tpl")
 	if err != nil {
 		err := errors.Wrap(err, "template error")
 		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "New", err, c).Error(err)
-		InternalServerError(w, r)
+		InternalServerError(w, r, nil)
 		return
 	}
 	tpl.ExecuteWriter(pongo2.Context{"title": "PasswordReset", "token": token}, w)
@@ -65,14 +66,14 @@ func (u *Passwords) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
 		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "Create", err, c).Error(err)
-		InternalServerError(w, r)
+		InternalServerError(w, r, nil)
 		return
 	}
 
 	if !CheckCSRFToken(r, newPasswordForm.Token) {
 		err := errors.New("cannot verify CSRF token")
 		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "Create", err, c).Error(err)
-		InternalServerError(w, r)
+		InternalServerError(w, r, nil)
 		return
 	}
 
@@ -94,7 +95,7 @@ func (u *Passwords) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	reset := reset_password.GenerateResetPassword(targetUser.ID, targetUser.Email)
 	if err := reset.Save(); err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "Create", err, c).Error(err)
-		InternalServerError(w, r)
+		InternalServerError(w, r, nil)
 		return
 	}
 	// ここでemail送信
@@ -108,7 +109,8 @@ func (u *Passwords) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
 	token, err := GenerateCSRFToken(c, w, r)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "Edit", err, c).Error(err)
-		InternalServerError(w, r)
+		errorBody := "Cookie error, please clear your browser cookie."
+		InternalServerError(w, r, &errorBody)
 		return
 	}
 	resetToken := r.URL.Query().Get("token")
@@ -121,14 +123,14 @@ func (u *Passwords) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	if err := reset_password.Authenticate(id, resetToken); err != nil {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Edit", c).Info("cannot authenticate reset password: %v", err)
-		InternalServerError(w, r)
+		InternalServerError(w, r, nil)
 		return
 	}
 	tpl, err := pongo2.DefaultSet.FromFile("edit_password.html.tpl")
 	if err != nil {
 		err := errors.Wrap(err, "template error")
 		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "Edit", err, c).Error(err)
-		InternalServerError(w, r)
+		InternalServerError(w, r, nil)
 		return
 	}
 	tpl.ExecuteWriter(pongo2.Context{"title": "PasswordReset", "token": token, "id": id, "resetToken": resetToken}, w)
@@ -147,14 +149,14 @@ func (u *Passwords) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameters")
 		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "Update", err, c).Error(err)
-		InternalServerError(w, r)
+		InternalServerError(w, r, nil)
 		return
 	}
 
 	if !CheckCSRFToken(r, editPasswordForm.Token) {
 		err := errors.New("cannot verify CSRF token")
 		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "Update", err, c).Error(err)
-		InternalServerError(w, r)
+		InternalServerError(w, r, nil)
 		return
 	}
 
@@ -176,7 +178,7 @@ func (u *Passwords) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	targetUser, err := reset_password.ChangeUserPassword(id, editPasswordForm.ResetToken, editPasswordForm.Password)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Update", c).Info("cannot authenticate reset password")
-		InternalServerError(w, r)
+		InternalServerError(w, r, nil)
 		return
 	}
 
