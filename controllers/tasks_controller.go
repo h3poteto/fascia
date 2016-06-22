@@ -162,6 +162,65 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder.Encode(jsonTask)
 }
 
+func (u *Tasks) Show(c web.C, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	currentUser, err := LoginRequired(r)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("TasksController", "Show", c).Infof("login error: %v", err)
+		http.Error(w, "not logined", 401)
+		return
+	}
+
+	// TODO: あとでまとめたい
+	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	if err != nil {
+		err := errors.Wrap(err, "parse error")
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Error(err)
+		http.Error(w, "project not found", 404)
+		return
+	}
+	parentProject, err := projectModel.FindProject(projectID)
+	if err != nil || parentProject.UserID != currentUser.ID {
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", c).Warnf("project not found: %v", err)
+		http.Error(w, "project not found", 404)
+		return
+	}
+
+	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
+	if err != nil {
+		err := errors.Wrap(err, "parse error")
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Error(err)
+		http.Error(w, "list not found", 404)
+		return
+	}
+	parentList, err := listModel.FindList(parentProject.ID, listID)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", c).Warnf("list not found: %v", err)
+		http.Error(w, "list not found", 404)
+		return
+	}
+
+	taskID, err := strconv.ParseInt(c.URLParams["task_id"], 10, 64)
+	if err != nil {
+		err := errors.Wrap(err, "parse error")
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Error(err)
+		http.Error(w, "task not found", 404)
+		return
+	}
+	task, err := taskModel.FindTask(parentList.ID, taskID)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Errorf("find task error: %v", err)
+		http.Error(w, "task not find", 500)
+		return
+	}
+
+	encoder := json.NewEncoder(w)
+	jsonTask := TaskJSONFormat{ID: task.ID, ListID: task.ListID, UserID: task.UserID, IssueNumber: task.IssueNumber.Int64, Title: task.Title, PullRequest: task.PullRequest}
+	logging.SharedInstance().MethodInfo("TasksController", "Show", c).Info("success to get task")
+	encoder.Encode(jsonTask)
+	return
+}
+
 func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	currentUser, err := LoginRequired(r)
