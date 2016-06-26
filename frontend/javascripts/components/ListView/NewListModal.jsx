@@ -42,7 +42,7 @@ export default class NewListModal extends React.Component {
               <label htmlFor="color">Color</label>
               <input id="color" name="color" type="text" value={this.props.newList.color} onChange={this.props.updateNewListColor} className="form-control" />
               <div className="form-action">
-                <button onClick={e => this.props.fetchCreateList(this.props.params.projectID, this.props.newList.title, this.props.newList.color)} className="pure-button pure-button-primary" type="button">Create List</button>
+                <button onClick={e => this.props.fetchCreateList(this.props.projectID, this.props.newList.title, this.props.newList.color)} className="pure-button pure-button-primary" type="button">Create List</button>
               </div>
             </fieldset>
           </form>

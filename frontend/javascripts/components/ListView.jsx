@@ -134,6 +134,7 @@ export default class ListView extends React.Component {
         <NewListModal
             isListModalOpen={isListModalOpen}
             newList={newList}
+            projectID={this.props.params.projectID}
             closeNewListModal={this.props.closeNewListModal}
             updateNewListTitle={this.props.updateNewListTitle}
             updateNewListColor={this.props.updateNewListColor}
@@ -143,6 +144,7 @@ export default class ListView extends React.Component {
             isTaskModalOpen={isTaskModalOpen}
             newTask={newTask}
             selectedList={selectedList}
+            projectID={this.props.params.projectID}
             closeNewTaskModal={this.props.closeNewTaskModal}
             updateNewTaskTitle={this.props.updateNewTaskTitle}
             updateNewTaskDescription={this.props.updateNewTaskDescription}
@@ -154,6 +156,7 @@ export default class ListView extends React.Component {
             selectedListOption={selectedListOption}
             project={project}
             listOptions={listOptions}
+            projectID={this.props.params.projectID}
             closeEditListModal={this.props.closeEditListModal}
             updateSelectedListTitle={this.props.updateSelectedListTitle}
             updateSelectedListColor={this.props.updateSelectedListColor}
@@ -164,6 +167,7 @@ export default class ListView extends React.Component {
             isProjectEditModalOpen={isProjectEditModalOpen}
             selectedProject={selectedProject}
             project={project}
+            projectID={this.props.params.projectID}
             closeEditProjectModal={this.props.closeEditProjectModal}
             updateEditProjectTitle={this.props.updateEditProjectTitle}
             updateEditProjectDescription={this.props.updateEditProjectDescription}

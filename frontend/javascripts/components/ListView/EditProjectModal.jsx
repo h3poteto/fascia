@@ -31,7 +31,7 @@ export default class EditProjectModal extends React.Component {
       return null
     } else {
       return (
-        <button onClick={e => this.props.createWebhook(this.props.params.projectID)} className="pure-button button-secondary" type="button">Update Webhook</button>
+        <button onClick={e => this.props.createWebhook(this.props.projectID)} className="pure-button button-secondary" type="button">Update Webhook</button>
       )
     }
   }
@@ -53,7 +53,7 @@ export default class EditProjectModal extends React.Component {
               <textarea id="description" name="description" value={this.props.selectedProject.Description} onChange={this.props.updateEditProjectDescription} className="form-control" />
               <div className="form-action">
                 {this.webhookButton(this.props.project)}&nbsp;
-                <button onClick={e => this.props.fetchUpdateProject(this.props.params.projectID, this.props.selectedProject)} className="pure-button pure-button-primary" type="button">Update Project</button>
+                <button onClick={e => this.props.fetchUpdateProject(this.props.projectID, this.props.selectedProject)} className="pure-button pure-button-primary" type="button">Update Project</button>
               </div>
             </fieldset>
           </form>

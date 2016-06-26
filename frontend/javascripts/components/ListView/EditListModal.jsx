@@ -61,7 +61,7 @@ export default class EditListModal extends React.Component {
               <input id="color" name="color" type="text" value={this.props.selectedList !=null ? this.props.selectedList.Color : ''} onChange={this.props.updateSelectedListColor} className="form-control" />
               {this.listAction(this.props.project, this.props.listOptions, this.props.selectedList, this.props.selectedListOption)}
               <div className="form-action">
-                <button onClick={e => this.props.fetchUpdateList(this.props.params.projectID, this.props.selectedList, this.props.selectedListOption)} className="pure-button pure-button-primary" type="button">Update List</button>
+                <button onClick={e => this.props.fetchUpdateList(this.props.projectID, this.props.selectedList, this.props.selectedListOption)} className="pure-button pure-button-primary" type="button">Update List</button>
               </div>
             </fieldset>
           </form>
