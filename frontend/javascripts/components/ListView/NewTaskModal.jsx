@@ -42,7 +42,7 @@ export default class NewTaskModal extends React.Component {
               <label htmlFor="description">Description</label>
               <textarea id="description" name="description" value={this.props.newTask.description} onChange={this.props.updateNewTaskDescription} placeholder="Task description" className="form-control" />
               <div className="form-action">
-                <button onClick={e => this.props.fetchCreateTask(this.props.projectID, this.props.selectedList.ID,  this.props.newTask.title, this.props.newTask.description)} className="pure-button pure-button-primary" type="button">Create Task</button>
+                <button onClick={e => this.props.fetchCreateTask(this.props.projectID, this.props.selectedList.ID, this.props.newTask.title, this.props.newTask.description)} className="pure-button pure-button-primary" type="button">Create Task</button>
               </div>
             </fieldset>
           </form>

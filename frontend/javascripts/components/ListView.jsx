@@ -123,7 +123,7 @@ export default class ListView extends React.Component {
             closeNewTaskModal={this.props.closeNewTaskModal}
             updateNewTaskTitle={this.props.updateNewTaskTitle}
             updateNewTaskDescription={this.props.updateNewTaskDescription}
-            fetchCreateTask={this.props.fetchCreateList}
+            fetchCreateTask={this.props.fetchCreateTask}
         />
         <EditListModal
             isListEditModalOpen={isListEditModalOpen}
