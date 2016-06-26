@@ -1,10 +1,10 @@
 import React from 'react'
-import Modal from 'react-modal'
 import NewListModal from './ListView/NewListModal.jsx'
 import NewTaskModal from './ListView/NewTaskModal.jsx'
 import EditListModal from './ListView/EditListModal.jsx'
 import EditProjectModal from './ListView/EditProjectModal.jsx'
-
+import WholeLoading from './ListView/WholeLoading.jsx'
+import ListLoading from './ListView/ListLoading.jsx'
 
 export default class ListView extends React.Component {
   constructor(props) {
@@ -33,30 +33,10 @@ export default class ListView extends React.Component {
 
   }
 
-  wholeLoading(isLoading) {
-    if (isLoading) {
-      return (
-        <div className="whole-loading">
-          <div className="whole-circle-wrapper">
-            <div className="whole-circle-body">
-              <div className="whole-spinner"></div>
-            </div>
-          </div>
-        </div>
-      )
+  flash(error) {
+    if (error != null) {
+      return <div className="flash flash-error">{error}</div>
     }
-  }
-
-  listLoading() {
-    return (
-      <div className="list-loading">
-        <div className="list-circle-wrapper">
-          <div className="list-circle-body">
-            <div className="list-spinner"></div>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   projectOperations(project, selectedProject) {
@@ -90,7 +70,7 @@ export default class ListView extends React.Component {
             {this.listEditButton(list)}
           </div>
           <span className="list-title" data-dropped-depth="1">{list.Title}</span>
-          {list.isLoading != undefined && list.isLoading ? this.listLoading() : ''}
+          <ListLoading isLoading={list.isLoading} />
         </div>
       )
     } else {
@@ -113,7 +93,7 @@ export default class ListView extends React.Component {
               <i className="fa fa-plus" data-dropped-depth="3"></i>
             </li>
           </ul>
-          {list.isLoading != undefined && list.isLoading ? this.listLoading() : ''}
+          <ListLoading isLoading={list.isLoading} />
         </div>
       )
     }
@@ -122,15 +102,10 @@ export default class ListView extends React.Component {
   render() {
     const { isLoading, isListModalOpen, newList, lists, listOptions, noneList, project, isTaskModalOpen, newTask, selectedList, selectedListOption, isListEditModalOpen, isProjectEditModalOpen, taskDraggingFrom, taskDraggingTo, selectedProject, error } = this.props.ListReducer
 
-    var flash
-    if (error != null) {
-      flash = <div className="flash flash-error">{error}</div>
-    }
-
     return (
       <div id="lists">
-        {this.wholeLoading(isLoading)}
-        {flash}
+        <WholeLoading isLoading={isLoading} />
+        {this.flash(error)}
         <NewListModal
             isListModalOpen={isListModalOpen}
             newList={newList}
