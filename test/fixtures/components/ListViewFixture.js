@@ -70,15 +70,28 @@ export function initState() {
     params: {
       projectID: 1
     },
-    fetchLists: expect.createSpy(),
-    fetchProject: expect.createSpy(),
-    fetchListOptions: expect.createSpy(),
-    fetchUpdateList: expect.createSpy(),
-    closeFlash: expect.createSpy(),
-    taskDrop: expect.createSpy(),
-    openNewListModal: expect.createSpy(),
-    taskDragStart: expect.createSpy(),
-    openNewTaskModal: expect.createSpy()
+    listActions: {
+      fetchLists: expect.createSpy(),
+      fetchProject: expect.createSpy(),
+      fetchListOptions: expect.createSpy(),
+      closeFlash: expect.createSpy(),
+      taskDrop: expect.createSpy(),
+      openNewListModal: expect.createSpy(),
+      taskDragStart: expect.createSpy(),
+      openNewTaskModal: expect.createSpy()
+    },
+    newListModalActions: {
+      closeNewListModal: expect.createSpy()
+    },
+    newTaskModalActions: {
+      closeNewTaskModal: expect.createSpy()
+    },
+    editListModalActions: {
+      closeEditListModal: expect.createSpy()
+    },
+    editProjectModalActions: {
+      closeEditProjectModal: expect.createSpy()
+    }
   }
 }
 
@@ -89,41 +102,9 @@ export function errorState() {
   return state
 }
 
-export function wholeLoadingState() {
-  let state = initState()
-  state["ListReducer"]["isLoading"] = true
-  return state
-}
 
-export function listModalState() {
+export function noRepositoryProjectState() {
   let state = initState()
-  state["ListReducer"]["isListModalOpen"] = true
-  return state
-}
-
-export function taskModalState() {
-  let state = initState()
-  state["ListReducer"]["isTaskModalOpen"] = true
-  return state
-}
-
-export function listEditModalState() {
-  let state = initState()
-  state["ListReducer"]["isListEditModalOpen"] = true
-  state["ListReducer"]["selectedListOption"] = {
-    ID: 1,
-    Action: "close"
-  }
-  return state
-}
-
-export function noRepositoryProjectState(defaultState) {
-  let state
-  if (defaultState == null) {
-    state = initState()
-  } else {
-    state = defaultState
-  }
   state["ListReducer"]["project"] = {
     Title: "testProject",
     Description: "description",
@@ -135,12 +116,7 @@ export function noRepositoryProjectState(defaultState) {
 }
 
 export function repositoryProjectState(defaultState) {
-  let state
-  if (defaultState == null) {
-    state = initState()
-  } else {
-    state = defaultState
-  }
+  let state = initState()
   state["ListReducer"]["project"] = {
     Title: "testProject",
     Description: "description",

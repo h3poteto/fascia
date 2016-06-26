@@ -26,15 +26,6 @@ describe('openNewListModal', () => {
   })
 })
 
-describe('closeNewListModal', () => {
-  it('should close new list modal', () => {
-    const expectedAction = {
-      type: listActions.CLOSE_NEW_LIST,
-      isListModalOpen: false
-    }
-    expect(listActions.closeNewListModal()).toEqual(expectedAction)
-  })
-})
 
 describe('openNewTaskModal', () => {
   it('should open new task modal', () => {
@@ -51,16 +42,6 @@ describe('openNewTaskModal', () => {
   })
 })
 
-describe('closeNewTaskModal', () => {
-  it('should close new task modal', () => {
-    const expectedAction = {
-      type: listActions.CLOSE_NEW_TASK,
-      isTaskModalOpen: false
-    }
-    expect(listActions.closeNewTaskModal()).toEqual(expectedAction)
-  })
-})
-
 describe('openEditListModal', () => {
   it('should open edit list modal', () => {
     const list = {
@@ -73,48 +54,6 @@ describe('openEditListModal', () => {
       list: list
     }
     expect(listActions.openEditListModal(list)).toEqual(expectedAction)
-  })
-})
-
-describe('closeEditListModal', () => {
-  it('should close edit list modal', () => {
-    const expectedAction = {
-      type: listActions.CLOSE_EDIT_LIST,
-      isListEditModalOpen: false
-    }
-    expect(listActions.closeEditListModal()).toEqual(expectedAction)
-  })
-})
-
-describe('updateNewListTitle', () => {
-  it('should update new list title', () => {
-    const title = "newTitle"
-    const ev = {
-      target: {
-        value: title
-      }
-    }
-    const expectedAction = {
-      type: listActions.UPDATE_NEW_LIST_TITLE,
-      title: title
-    }
-    expect(listActions.updateNewListTitle(ev)).toEqual(expectedAction)
-  })
-})
-
-describe('updateNewListColor', () => {
-  it('should update new list color', () => {
-    const color = "ffffff"
-    const ev = {
-      target: {
-        value: color
-      }
-    }
-    const expectedAction = {
-      type: listActions.UPDATE_NEW_LIST_COLOR,
-      color: color
-    }
-    expect(listActions.updateNewListColor(ev)).toEqual(expectedAction)
   })
 })
 
@@ -166,110 +105,6 @@ describe('fetchProject', () => {
   })
 })
 
-describe('fetchCreateList', () => {
-  afterEach(() => {
-    nock.cleanAll()
-  })
-  context('when response is right', () => {
-    const projectID = 1
-    const title = "listTitle"
-    const color = "ffffff"
-    const postForm = `title=${title}&color=${color}`
-    beforeEach(() => {
-      nock('http://localhost')
-        .post(`/projects/${projectID}/lists`, postForm)
-        .reply(200, {
-          ID: 1,
-          ProjectID: projectID,
-          Title: title,
-          Color: color,
-          ListTasks: ["task1"]
-        })
-    })
-
-    it('call RECEIVE_CREATE_LIST and get list', (done) => {
-      const expectedActions = [
-        { type: listActions.REQUEST_CREATE_LIST },
-        { type: listActions.RECEIVE_CREATE_LIST, list: { ID: 1, ProjectID: projectID, Title: title, Color: color, ListTasks: ["task1"] } }
-      ]
-      const store = mockStore({ list: null }, expectedActions, done)
-      store.dispatch(listActions.fetchCreateList(projectID, title, color))
-    })
-  })
-})
-
-describe('fetchCreateTask', () => {
-  afterEach(() => {
-    nock.cleanAll()
-  })
-  context('when response is right', () => {
-    const projectID = 1
-    const listID = 2
-    const title = "taskTitle"
-    const description = "taskDescription"
-    const postForm = `title=${title}&description=${description}`
-    beforeEach(() => {
-      nock('http://localhost')
-        .post(`/projects/${projectID}/lists/${listID}/tasks`, postForm)
-        .reply(200, {
-          ID: 1,
-          ListID: listID,
-          Title: title,
-          Description: description
-        })
-    })
-
-    it('call RECEIVE_CREATE_TASK and get task', (done) => {
-      const expectedActions = [
-        { type: listActions.REQUEST_CREATE_TASK },
-        { type: listActions.RECEIVE_CREATE_TASK, task: { ID: 1, ListID: listID, Title: title, Description: description } }
-      ]
-      const store = mockStore({ task: null }, expectedActions, done)
-      store.dispatch(listActions.fetchCreateTask(projectID, listID, title, description))
-    })
-  })
-})
-
-describe('fetchUpdateList', () => {
-  afterEach(() => {
-    nock.cleanAll()
-  })
-  context('when response is right', () => {
-    const projectID = 1
-    const option = {
-      ID: 1,
-      Action: "close"
-    }
-    const list = {
-      ID: 2,
-      Title: "listTitle",
-      Color: "ffffff",
-      ProjectID: projectID,
-      ListOptionID: option.ID
-    }
-    const postForm = `title=${list.Title}&color=${list.Color}&action=${option.Action}`
-    beforeEach(() => {
-      nock('http://localhost')
-        .post(`/projects/${projectID}/lists/${list.ID}`, postForm)
-        .reply(200, {
-          ID: list.ID,
-          ProjectID: list.ProjectID,
-          Title: list.Title,
-          Color: list.Color,
-          ListTasks: [],
-          ListOptionID: option.ID
-        })
-    })
-    it('call RECEIVE_UPDATE_LIST and get list', (done) => {
-      const expectedActions = [
-        { type: listActions.REQUEST_UPDATE_LIST },
-        { type: listActions.RECEIVE_UPDATE_LIST, list: { ID: list.ID, ProjectID: list.ProjectID, Title: list.Title, Color: list.Color, ListTasks: [], ListOptionID: option.ID } }
-      ]
-      const store = mockStore({ list: null }, expectedActions, done)
-      store.dispatch(listActions.fetchUpdateList(projectID, list, option))
-    })
-  })
-})
 
 describe('fetchPorjectGithub', () => {
   afterEach(() => {
