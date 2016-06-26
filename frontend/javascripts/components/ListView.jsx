@@ -1,25 +1,10 @@
 import React from 'react'
 import Modal from 'react-modal'
+import NewListModal from './ListView/NewListModal.jsx'
+import NewTaskModal from './ListView/NewTaskModal.jsx'
+import EditListModal from './ListView/EditListModal.jsx'
+import EditProjectModal from './ListView/EditProjectModal.jsx'
 
-const customStyles = {
-  overlay : {
-    position          : 'fixed',
-    top               : 0,
-    left              : 0,
-    right             : 0,
-    bottom            : 0,
-    backgroundColor   : 'rgba(255, 255, 255, 0.5)'
-  },
-  content : {
-    position : 'fixed',
-    top : '50%',
-    left : '50%',
-    right : 'auto',
-    bottom : 'auto',
-    marginRight : '-50%',
-    transform : 'translate(-50%, -50%)'
-  }
-}
 
 export default class ListView extends React.Component {
   constructor(props) {
@@ -41,10 +26,10 @@ export default class ListView extends React.Component {
   }
 
   componentDidMount() {
-    let maxHeight = window.innerHeight * 0.7;
-    let stylesheet = document.styleSheets.item(4);
-    var idx = document.styleSheets[4].cssRules.length;
-    stylesheet.insertRule("#lists .fascia-list { max-height: " + maxHeight + "px; }", idx);
+    let maxHeight = window.innerHeight * 0.7
+    let stylesheet = document.styleSheets.item(4)
+    var idx = document.styleSheets[4].cssRules.length
+    stylesheet.insertRule("#lists .fascia-list { max-height: " + maxHeight + "px; }", idx)
 
   }
 
@@ -74,24 +59,6 @@ export default class ListView extends React.Component {
     )
   }
 
-  listAction(project, listOptions, selectedList, selectedListOption) {
-    if (project == null || project.RepositoryID == undefined || project.RepositoryID == null || project.RepositoryID == 0) {
-      return null
-    } else {
-      return (
-        <div>
-          <label htmlFor="action">action</label>
-          <select id="action" name="action" type="text" onChange={this.props.changeSelectedListOption} className="form-control" value={selectedListOption ? selectedListOption.ID : (selectedList ? selectedList.ListOptionID : 0)}>
-            <option value="0">nothing</option>
-            {listOptions.map(function(option, index) {
-               return <option key={index} value={option.ID}>{option.Action}</option>
-             }, this)}
-          </select>
-        </div>
-      )
-    }
-  }
-
   projectOperations(project, selectedProject) {
     if (project == null || project.RepositoryID == undefined || project.RepositoryID == null || project.RepositoryID == 0) {
       return <span></span>
@@ -102,16 +69,6 @@ export default class ListView extends React.Component {
           <span className={project.ShowIssues ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.showIssues(this.props.params.projectID, selectedProject.ShowIssues, selectedProject.ShowPullRequests)}><i className="octicon octicon-issue-opened"></i></span>
           <i className="fa fa-repeat" onClick={e => this.props.fetchProjectGithub(this.props.params.projectID)}></i>
         </span>
-      )
-    }
-  }
-
-  webhookButton(project) {
-    if (project == null || project.RepositoryID == undefined || project.RepositoryID == null || project.RepositoryID == 0) {
-      return null
-    } else {
-      return (
-        <button onClick={e => this.props.createWebhook(this.props.params.projectID)} className="pure-button button-secondary" type="button">Update Webhook</button>
       )
     }
   }
@@ -165,97 +122,54 @@ export default class ListView extends React.Component {
   render() {
     const { isLoading, isListModalOpen, newList, lists, listOptions, noneList, project, isTaskModalOpen, newTask, selectedList, selectedListOption, isListEditModalOpen, isProjectEditModalOpen, taskDraggingFrom, taskDraggingTo, selectedProject, error } = this.props.ListReducer
 
-    var flash;
+    var flash
     if (error != null) {
-      flash = <div className="flash flash-error">{error}</div>;
+      flash = <div className="flash flash-error">{error}</div>
     }
 
     return (
       <div id="lists">
         {this.wholeLoading(isLoading)}
         {flash}
-        <Modal
-          isOpen={isListModalOpen}
-          onRequestClose={this.props.closeNewListModal}
-          style={customStyles}
-        >
-          <div className="list-form">
-            <form className="pure-form pure-form-stacked">
-              <fieldset>
-                <legend>Create List</legend>
-                <label htmlFor="title">Title</label>
-                <input id="title" name="title" type="text" value={newList.title} onChange={this.props.updateNewListTitle} placeholder="List Name" className="form-control" />
-                <label htmlFor="color">Color</label>
-                <input id="color" name="color" type="text" value={newList.color} onChange={this.props.updateNewListColor} className="form-control" />
-                <div className="form-action">
-                  <button onClick={e => this.props.fetchCreateList(this.props.params.projectID, newList.title, newList.color)} className="pure-button pure-button-primary" type="button">Create List</button>
-                </div>
-              </fieldset>
-            </form>
-          </div>
-        </Modal>
-        <Modal
-          isOpen={isTaskModalOpen}
-          onRequestClose={this.props.closeNewTaskModal}
-          style={customStyles}
-        >
-          <div className="task-form">
-            <form className="pure-form pure-form-stacked">
-              <fieldset>
-                <legend>Create Task</legend>
-                <label htmlFor="title">Title</label>
-                <input id="title" name="title" type="text" value={newTask.title} onChange={this.props.updateNewTaskTitle} placeholder="Task Name" className="form-control" />
-                <label htmlFor="description">Description</label>
-                <textarea id="description" name="description" value={newTask.description} onChange={this.props.updateNewTaskDescription} placeholder="Task description" className="form-control" />
-                <div className="form-action">
-                  <button onClick={e => this.props.fetchCreateTask(this.props.params.projectID, selectedList.ID,  newTask.title, newTask.description)} className="pure-button pure-button-primary" type="button">Create Task</button>
-                </div>
-              </fieldset>
-            </form>
-          </div>
-        </Modal>
-        <Modal
-          isOpen={isListEditModalOpen}
-          onRequestClose={this.props.closeEditListModal}
-          style={customStyles}
-        >
-          <div className="list-form">
-            <form className="pure-form pure-form-stacked">
-              <fieldset>
-                <legend>Edit List</legend>
-                <label htmlFor="title">Title</label>
-                <input id="title" name="title" type="text" value={selectedList !=null ? selectedList.Title : ''} onChange={this.props.updateSelectedListTitle} className="form-control" />
-                <label htmlFor="color">Color</label>
-                <input id="color" name="color" type="text" value={selectedList !=null ? selectedList.Color : ''} onChange={this.props.updateSelectedListColor} className="form-control" />
-                {this.listAction(project, listOptions, selectedList, selectedListOption)}
-                <div className="form-action">
-                  <button onClick={e => this.props.fetchUpdateList(this.props.params.projectID, selectedList, selectedListOption)} className="pure-button pure-button-primary" type="button">Update List</button>
-                </div>
-              </fieldset>
-            </form>
-          </div>
-        </Modal>
-        <Modal
-          isOpen={isProjectEditModalOpen}
-          onRequestClose={this.props.closeEditProjectModal}
-          style={customStyles}
-        >
-          <div className="project-form">
-            <form className="pure-form pure-form-stacked">
-              <fieldset>
-                <legend>Edit Project</legend>
-                <label htmlFor="title">Title</label>
-                <input id="title" name="title" type="text" value={selectedProject.Title} onChange={this.props.updateEditProjectTitle} className="form-control" />
-                <label htmlFor="description">Description</label>
-                <textarea id="description" name="description" value={selectedProject.Description} onChange={this.props.updateEditProjectDescription} className="form-control" />
-                <div className="form-action">
-                  {this.webhookButton(project)}&nbsp;
-                  <button onClick={e => this.props.fetchUpdateProject(this.props.params.projectID, selectedProject)} className="pure-button pure-button-primary" type="button">Update Project</button>
-                </div>
-              </fieldset>
-            </form>
-          </div>
-        </Modal>
+        <NewListModal
+            isListModalOpen={isListModalOpen}
+            newList={newList}
+            closeNewListModal={this.props.closeNewListModal}
+            updateNewListTitle={this.props.updateNewListTitle}
+            updateNewListColor={this.props.updateNewListColor}
+            fetchCreateList={this.props.fetchCreateList}
+        />
+        <NewTaskModal
+            isTaskModalOpen={isTaskModalOpen}
+            newTask={newTask}
+            selectedList={selectedList}
+            closeNewTaskModal={this.props.closeNewTaskModal}
+            updateNewTaskTitle={this.props.updateNewTaskTitle}
+            updateNewTaskDescription={this.props.updateNewTaskDescription}
+            fetchCreateList={this.props.fetchCreateList}
+        />
+        <EditListModal
+            isListEditModalOpen={isListEditModalOpen}
+            selectedList={selectedList}
+            selectedListOption={selectedListOption}
+            project={project}
+            listOptions={listOptions}
+            closeEditListModal={this.props.closeEditListModal}
+            updateSelectedListTitle={this.props.updateSelectedListTitle}
+            updateSelectedListColor={this.props.updateSelectedListColor}
+            changeSelectedListOption={this.props.changeSelectedListOption}
+            fetchUpdateList={this.props.fetchUpdateList}
+        />
+        <EditProjectModal
+            isProjectEditModalOpen={isProjectEditModalOpen}
+            selectedProject={selectedProject}
+            project={project}
+            closeEditProjectModal={this.props.closeEditProjectModal}
+            updateEditProjectTitle={this.props.updateEditProjectTitle}
+            updateEditProjectDescription={this.props.updateEditProjectDescription}
+            fetchUpdateProject={this.props.fetchUpdateProject}
+            createWebhook={this.props.createWebhook}
+        />
         <div className="title-wrapper">
           <div className="project-operation">
             {this.projectOperations(project, selectedProject)}
@@ -284,6 +198,6 @@ export default class ListView extends React.Component {
           </ul>
         </div>
       </div>
-    );
+    )
   }
 }
