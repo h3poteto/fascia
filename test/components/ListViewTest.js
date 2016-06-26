@@ -37,10 +37,10 @@ describe('ListView', () => {
       expect(list[1].props['data-id']).toBe(2)
 
       list[0].props.onDrop()
-      expect(props.taskDrop.calls.length).toBe(1)
+      expect(props.listActions.taskDrop.calls.length).toBe(1)
 
       button.props.onClick()
-      expect(props.openNewListModal.calls.length).toBe(1)
+      expect(props.listActions.openNewListModal.calls.length).toBe(1)
 
       // list which have tasks
       let [ firstListMenu, firstListTitle, firstTasks ] = list[0].props.children
@@ -52,7 +52,7 @@ describe('ListView', () => {
       expect(task2.props.children).toBe('task2')
 
       task2.props.onDragStart()
-      expect(props.taskDragStart.calls.length).toBe(1)
+      expect(props.listActions.taskDragStart.calls.length).toBe(1)
 
       // list which do not have tasks
       let [ secondListMenu, secondListTitle, secondTasks ] = list[1].props.children
@@ -60,14 +60,14 @@ describe('ListView', () => {
       expect(secondNewTask.props.className).toBe('new-task')
 
       secondNewTask.props.onClick()
-      expect(props.openNewTaskModal.calls.length).toBe(1)
+      expect(props.listActions.openNewTaskModal.calls.length).toBe(1)
 
       let [ tasks, newTask ] = noneList.props.children.props.children
       expect(tasks[0].props['data-id']).toBe(3)
       expect(newTask.props.className).toBe('new-task pure-button button-blue')
 
       newTask.props.onClick()
-      expect(props.openNewTaskModal.calls.length).toBe(2)
+      expect(props.listActions.openNewTaskModal.calls.length).toBe(2)
     })
   })
 

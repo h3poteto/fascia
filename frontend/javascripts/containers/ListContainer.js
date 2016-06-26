@@ -9,14 +9,13 @@ import ListView from '../components/ListView.jsx'
 import mapStateToProps from './mapStateToProps'
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(Object.assign(
-    {},
-    listActions,
-    newListModalActions,
-    editListModalActions,
-    newTaskModalActions,
-    editProjectModalActions
-  ), dispatch)
+  return {
+    listActions: bindActionCreators(listActions, dispatch),
+    newListModalActions: bindActionCreators(newListModalActions, dispatch),
+    editListModalActions: bindActionCreators(editListModalActions, dispatch),
+    newTaskModalActions: bindActionCreators(newTaskModalActions, dispatch),
+    editProjectModalActions: bindActionCreators(editProjectModalActions, dispatch)
+  }
 }
 
 

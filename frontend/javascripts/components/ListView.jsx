@@ -12,15 +12,15 @@ export default class ListView extends React.Component {
   }
 
   componentWillMount() {
-    this.props.fetchLists(this.props.params.projectID)
-    this.props.fetchProject(this.props.params.projectID)
-    this.props.fetchListOptions()
+    this.props.listActions.fetchLists(this.props.params.projectID)
+    this.props.listActions.fetchProject(this.props.params.projectID)
+    this.props.listActions.fetchListOptions()
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.ListReducer.error != null || nextProps.ListReducer.error != null) {
       setTimeout(() => {
-        this.props.closeFlash()
+        this.props.listActions.closeFlash()
       }, 3000)
     }
   }
@@ -45,9 +45,9 @@ export default class ListView extends React.Component {
     } else {
       return (
         <span>
-          <span className={project.ShowPullRequests ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.showPullRequests(this.props.params.projectID, selectedProject.ShowIssues, selectedProject.ShowPullRequests)}><i className="octicon octicon-git-pull-request"></i></span>
-          <span className={project.ShowIssues ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.showIssues(this.props.params.projectID, selectedProject.ShowIssues, selectedProject.ShowPullRequests)}><i className="octicon octicon-issue-opened"></i></span>
-          <i className="fa fa-repeat" onClick={e => this.props.fetchProjectGithub(this.props.params.projectID)}></i>
+          <span className={project.ShowPullRequests ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.listActions.showPullRequests(this.props.params.projectID, selectedProject.ShowIssues, selectedProject.ShowPullRequests)}><i className="octicon octicon-git-pull-request"></i></span>
+          <span className={project.ShowIssues ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.listActions.showIssues(this.props.params.projectID, selectedProject.ShowIssues, selectedProject.ShowPullRequests)}><i className="octicon octicon-issue-opened"></i></span>
+          <i className="fa fa-repeat" onClick={e => this.props.listActions.fetchProjectGithub(this.props.params.projectID)}></i>
         </span>
       )
     }
@@ -57,16 +57,16 @@ export default class ListView extends React.Component {
     if (list.IsInitList) {
       return null
     } else {
-      return <i className="fa fa-pencil" onClick={e => this.props.openEditListModal(list)} data-dropped-depth="2"></i>
+      return <i className="fa fa-pencil" onClick={e => this.props.listActions.openEditListModal(list)} data-dropped-depth="2"></i>
     }
   }
 
   listItem(index, list, project, taskDraggingFrom, taskDraggingTo) {
     if (list.IsHidden) {
       return (
-        <div key={index} className="fascia-list fascia-list-hidden" data-dropped-depth="0" data-id={list.ID} onDragOver={this.props.taskDragOver} onDrop={e=> this.props.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.taskDragLeave}>
+        <div key={index} className="fascia-list fascia-list-hidden" data-dropped-depth="0" data-id={list.ID} onDragOver={this.props.listActions.taskDragOver} onDrop={e=> this.props.listActions.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.listActions.taskDragLeave}>
           <div className="fascia-list-menu" data-dropped-depth="1">
-            <i className="fa fa-eye" onClick={e => this.props.displayList(project.ID, list.ID)} data-dropped-depth="2"></i>
+            <i className="fa fa-eye" onClick={e => this.props.listActions.displayList(project.ID, list.ID)} data-dropped-depth="2"></i>
             {this.listEditButton(list)}
           </div>
           <span className="list-title" data-dropped-depth="1">{list.Title}</span>
@@ -75,9 +75,9 @@ export default class ListView extends React.Component {
       )
     } else {
       return (
-        <div key={index} className="fascia-list" data-dropped-depth="0" data-id={list.ID} onDragOver={this.props.taskDragOver} onDrop={e=> this.props.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.taskDragLeave}>
+        <div key={index} className="fascia-list" data-dropped-depth="0" data-id={list.ID} onDragOver={this.props.listActions.taskDragOver} onDrop={e=> this.props.listActions.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.listActions.taskDragLeave}>
           <div className="fascia-list-menu" data-dropped-depth="1">
-            <i className="fa fa-eye-slash" onClick={e => this.props.hideList(project.ID, list.ID)} data-dropped-depth="2"></i>
+            <i className="fa fa-eye-slash" onClick={e => this.props.listActions.hideList(project.ID, list.ID)} data-dropped-depth="2"></i>
             {this.listEditButton(list)}
           </div>
           <span className="list-title" data-dropped-depth="1">{list.Title}</span>
@@ -86,10 +86,10 @@ export default class ListView extends React.Component {
                if (task.draggedOn) {
                  return <li key={index} className="arrow"></li>
                } else if(project != null && project.ShowIssues && !task.PullRequest || project != null && project.ShowPullRequests && task.PullRequest) {
-                 return <li key={index} style={{"borderLeft": `solid 6px #${list.Color}`}} className="task" draggable="true" data-dropped-depth="2" data-id={task.ID} onDragStart={this.props.taskDragStart}>{task.Title}</li>
+                 return <li key={index} style={{"borderLeft": `solid 6px #${list.Color}`}} className="task" draggable="true" data-dropped-depth="2" data-id={task.ID} onDragStart={this.props.listActions.taskDragStart}>{task.Title}</li>
                }
              }, this)}
-            <li className="new-task" data-dropped-depth="2" style={{"borderLeft": `solid 6px #${list.Color}`}} onClick={e => this.props.openNewTaskModal(list)}>
+            <li className="new-task" data-dropped-depth="2" style={{"borderLeft": `solid 6px #${list.Color}`}} onClick={e => this.props.listActions.openNewTaskModal(list)}>
               <i className="fa fa-plus" data-dropped-depth="3"></i>
             </li>
           </ul>
@@ -110,20 +110,20 @@ export default class ListView extends React.Component {
             isListModalOpen={isListModalOpen}
             newList={newList}
             projectID={this.props.params.projectID}
-            closeNewListModal={this.props.closeNewListModal}
-            updateNewListTitle={this.props.updateNewListTitle}
-            updateNewListColor={this.props.updateNewListColor}
-            fetchCreateList={this.props.fetchCreateList}
+            closeNewListModal={this.props.newListModalActions.closeNewListModal}
+            updateNewListTitle={this.props.newListModalActions.updateNewListTitle}
+            updateNewListColor={this.props.newListModalActions.updateNewListColor}
+            fetchCreateList={this.props.newListModalActions.fetchCreateList}
         />
         <NewTaskModal
             isTaskModalOpen={isTaskModalOpen}
             newTask={newTask}
             selectedList={selectedList}
             projectID={this.props.params.projectID}
-            closeNewTaskModal={this.props.closeNewTaskModal}
-            updateNewTaskTitle={this.props.updateNewTaskTitle}
-            updateNewTaskDescription={this.props.updateNewTaskDescription}
-            fetchCreateTask={this.props.fetchCreateTask}
+            closeNewTaskModal={this.props.newTaskModalActions.closeNewTaskModal}
+            updateNewTaskTitle={this.props.newTaskModalActions.updateNewTaskTitle}
+            updateNewTaskDescription={this.props.newTaskModalActions.updateNewTaskDescription}
+            fetchCreateTask={this.props.newTaskModalActions.fetchCreateTask}
         />
         <EditListModal
             isListEditModalOpen={isListEditModalOpen}
@@ -132,46 +132,46 @@ export default class ListView extends React.Component {
             project={project}
             listOptions={listOptions}
             projectID={this.props.params.projectID}
-            closeEditListModal={this.props.closeEditListModal}
-            updateSelectedListTitle={this.props.updateSelectedListTitle}
-            updateSelectedListColor={this.props.updateSelectedListColor}
-            changeSelectedListOption={this.props.changeSelectedListOption}
-            fetchUpdateList={this.props.fetchUpdateList}
+            closeEditListModal={this.props.editListModalActions.closeEditListModal}
+            updateSelectedListTitle={this.props.editListModalActions.updateSelectedListTitle}
+            updateSelectedListColor={this.props.editListModalActions.updateSelectedListColor}
+            changeSelectedListOption={this.props.editListModalActions.changeSelectedListOption}
+            fetchUpdateList={this.props.editListModalActions.fetchUpdateList}
         />
         <EditProjectModal
             isProjectEditModalOpen={isProjectEditModalOpen}
             selectedProject={selectedProject}
             project={project}
             projectID={this.props.params.projectID}
-            closeEditProjectModal={this.props.closeEditProjectModal}
-            updateEditProjectTitle={this.props.updateEditProjectTitle}
-            updateEditProjectDescription={this.props.updateEditProjectDescription}
-            fetchUpdateProject={this.props.fetchUpdateProject}
-            createWebhook={this.props.createWebhook}
+            closeEditProjectModal={this.props.editProjectModalActions.closeEditProjectModal}
+            updateEditProjectTitle={this.props.editProjectModalActions.updateEditProjectTitle}
+            updateEditProjectDescription={this.props.editProjectModalActions.updateEditProjectDescription}
+            fetchUpdateProject={this.props.editProjectModalActions.fetchUpdateProject}
+            createWebhook={this.props.editProjectModalActions.createWebhook}
         />
         <div className="title-wrapper">
           <div className="project-operation">
             {this.projectOperations(project, selectedProject)}
           </div>
-          <h3 className="project-title">{project != null ? project.Title : ''}<span className="fascia-project-menu" onClick={e => this.props.openEditProjectModal(project)}><i className="fa fa-pencil"></i></span></h3>
+          <h3 className="project-title">{project != null ? project.Title : ''}<span className="fascia-project-menu" onClick={e => this.props.listActions.openEditProjectModal(project)}><i className="fa fa-pencil"></i></span></h3>
         </div>
         <div className="items">
           {lists.map(function(list, index) {
             return this.listItem(index, list, project, taskDraggingFrom, taskDraggingTo)
            }, this)}
-           <button onClick={this.props.openNewListModal} className="pure-button button-large fascia-new-list pure-button-primary" type="button">New</button>
+           <button onClick={this.props.listActions.openNewListModal} className="pure-button button-large fascia-new-list pure-button-primary" type="button">New</button>
            <div className="clearfix"></div>
         </div>
-        <div className="none-list-tasks" data-dropped-depth="0" data-id={noneList.ID} onDragOver={this.props.taskDragOver} onDrop={e => this.props.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.taskDragLeave}>
+        <div className="none-list-tasks" data-dropped-depth="0" data-id={noneList.ID} onDragOver={this.props.listActions.taskDragOver} onDrop={e => this.props.listActions.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.listActions.taskDragLeave}>
           <ul className="fascia-none-list-tasks" data-dropped-depth="1">
             {noneList.ListTasks.map(function(task, index) {
                if (task.draggedOn) {
                  return <li key={index} className="arrow"></li>
                } else if( project != null && project.ShowIssues && !task.PullRequest || project != null && project.ShowPullRequests && task.PullRequest) {
-                 return <li key={index} className="button-green task" draggable="true" data-dropped-depth="2" data-id={task.ID} onDragStart={this.props.taskDragStart}>{task.Title}</li>
+                 return <li key={index} className="button-green task" draggable="true" data-dropped-depth="2" data-id={task.ID} onDragStart={this.props.listActions.taskDragStart}>{task.Title}</li>
                }
              }, this)}
-            <li onClick={e => this.props.openNewTaskModal(noneList)} className="new-task pure-button button-blue" data-dropped-depth="2">
+            <li onClick={e => this.props.listActions.openNewTaskModal(noneList)} className="new-task pure-button button-blue" data-dropped-depth="2">
               <i className="fa fa-plus" data-dropped-depth="3"></i>
             </li>
           </ul>

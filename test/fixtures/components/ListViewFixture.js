@@ -70,15 +70,28 @@ export function initState() {
     params: {
       projectID: 1
     },
-    fetchLists: expect.createSpy(),
-    fetchProject: expect.createSpy(),
-    fetchListOptions: expect.createSpy(),
-    fetchUpdateList: expect.createSpy(),
-    closeFlash: expect.createSpy(),
-    taskDrop: expect.createSpy(),
-    openNewListModal: expect.createSpy(),
-    taskDragStart: expect.createSpy(),
-    openNewTaskModal: expect.createSpy()
+    listActions: {
+      fetchLists: expect.createSpy(),
+      fetchProject: expect.createSpy(),
+      fetchListOptions: expect.createSpy(),
+      closeFlash: expect.createSpy(),
+      taskDrop: expect.createSpy(),
+      openNewListModal: expect.createSpy(),
+      taskDragStart: expect.createSpy(),
+      openNewTaskModal: expect.createSpy()
+    },
+    newListModalActions: {
+      closeNewListModal: expect.createSpy()
+    },
+    newTaskModalActions: {
+      closeNewTaskModal: expect.createSpy()
+    },
+    editListModalActions: {
+      closeEditListModal: expect.createSpy()
+    },
+    editProjectModalActions: {
+      closeEditProjectModal: expect.createSpy()
+    }
   }
 }
 
