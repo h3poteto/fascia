@@ -79,64 +79,7 @@ describe('ListView', () => {
       expect(flash.props.children).toBe('Server Error')
     })
   })
-  context('when whole loading is open', () => {
-    let state = ListViewFixture.wholeLoadingState()
-    it('should render loading window', () => {
-      const { output } = setup(state)
-      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
-      expect(wholeLoading.type).toBe('div')
-      expect(wholeLoading.props.className).toBe('whole-loading')
-    })
-  })
 
-  context('when list modal open', () => {
-    let state = ListViewFixture.listModalState()
-    it('should render modal', () => {
-      const { output, props } = setup(state)
-      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
-      expect(listModal.props.isOpen).toBe(true)
-    })
-  })
-  context('when task modal open', () => {
-    let state = ListViewFixture.taskModalState()
-    it('should render task modal', () => {
-      const { output } = setup(state)
-      let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
-      expect(taskModal.props.isOpen).toBe(true)
-    })
-  })
-  context('when list edit modal open', () => {
-    context('when project does not have repository', () => {
-      let state = ListViewFixture.noRepositoryProjectState(ListViewFixture.listEditModalState())
-      it('should render list edit modal without action', () => {
-        const { output, props } = setup(state)
-        let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
-        expect(listEditModal.props.isOpen).toBe(true)
-
-        let listForm = listEditModal.props.children
-        let form = listForm.props.children
-        let fieldset = form.props.children
-        let [ legend, titleLabel, titleInput, colorLabel, colorInput, nil, formAction ] = fieldset.props.children
-        formAction.props.children.props.onClick()
-        expect(props.fetchUpdateList.calls.length).toBe(1)
-      })
-    })
-    context('when project has repository', () => {
-      let state = ListViewFixture.repositoryProjectState(ListViewFixture.listEditModalState())
-      it('should render list edit modal with action', () => {
-        const { output, props } = setup(state)
-        let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
-        expect(listEditModal.props.isOpen).toBe(true)
-
-        let listForm = listEditModal.props.children
-        let form = listForm.props.children
-        let fieldset = form.props.children
-        let [ legend, titleLabel, titleInput, colorLabel, colorInput, actionWrapper, formAction ] = fieldset.props.children
-        let [ actionLabel, actionSelect ] = actionWrapper.props.children
-        expect(actionSelect.props.value).toBe(state.ListReducer.selectedListOption.ID)
-      })
-    })
-  })
 
   context('when showIssue is false', () => {
     let state = ListViewFixture.hideIssueState()
@@ -207,9 +150,11 @@ describe('ListView', () => {
 
         let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
         let [ list, button ] = items.props.children
-        let [ listMenu, listTitle, tasks ] = list[0].props.children
+        let [ listMenu, listTitle, listLoading ] = list[0].props.children
 
-        expect(tasks).toBe('')
+        expect(listMenu.props.className).toBe('fascia-list-menu')
+        expect(listTitle.props.className).toBe('list-title')
+        expect(listLoading.props.type).toNotBe('ul')
       })
     })
     context('when a list is displeyd', () => {
@@ -219,8 +164,10 @@ describe('ListView', () => {
 
         let [ wholeLoading, flash, listModal, taskModal, listEditModal, projectEditModal, projectTitleWrapper, items, noneList ] = output.props.children
         let [ list, button ] = items.props.children
-        let [ listMenu, listTitle, tasks ] = list[0].props.children
-
+        let [ listMenu, listTitle, tasks, listLoading ] = list[0].props.children
+        expect(listMenu.props.className).toBe('fascia-list-menu')
+        expect(listTitle.props.className).toBe('list-title')
+        expect(tasks.type).toBe('ul')
         expect(tasks.props.children.length).toNotBe(0)
       })
     })

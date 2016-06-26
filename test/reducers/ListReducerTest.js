@@ -1,6 +1,10 @@
 import expect from 'expect'
 import ListReducer from '../../frontend/javascripts/reducers/ListReducer'
 import * as listActions from '../../frontend/javascripts/actions/ListAction'
+import * as newListModalActions from '../../frontend/javascripts/actions/ListAction/NewListModalAction'
+import * as editListModalActions from '../../frontend/javascripts/actions/ListAction/EditListModalAction'
+import * as newTaskModalActions from '../../frontend/javascripts/actions/ListAction/NewTaskModalAction'
+import * as editProjectModalActions from '../../frontend/javascripts/actions/ListAction/EditProjectModalAction'
 import 'babel-polyfill'
 
 // shared examples
@@ -130,7 +134,7 @@ describe('ListReducer', () => {
           isTaskModalOpen: true,
           selectedList: "newList"
         }, {
-          type: listActions.CLOSE_NEW_TASK,
+          type: newTaskModalActions.CLOSE_NEW_TASK,
           isTaskModalOpen: false
         })
       ).toEqual({
@@ -171,7 +175,7 @@ describe('ListReducer', () => {
           isListEditModalOpen: true,
           selectedList: "editList"
         }, {
-          type: listActions.CLOSE_EDIT_LIST,
+          type: editListModalActions.CLOSE_EDIT_LIST,
           isListEditModalOpen: false
         })
       ).toEqual({
@@ -187,7 +191,7 @@ describe('ListReducer', () => {
         ListReducer({
           newList: { title: "newL", color: "" }
         }, {
-          type: listActions.UPDATE_NEW_LIST_TITLE,
+          type: newListModalActions.UPDATE_NEW_LIST_TITLE,
           title: "newList"
         })
       ).toEqual({
@@ -201,7 +205,7 @@ describe('ListReducer', () => {
         ListReducer({
           newList: { title: "newList", color: "30b" }
         }, {
-          type: listActions.UPDATE_NEW_LIST_COLOR,
+          type: newListModalActions.UPDATE_NEW_LIST_COLOR,
           color: "30bfe"
         })
       ).toEqual({
@@ -215,7 +219,7 @@ describe('ListReducer', () => {
         ListReducer({
           selectedList: { Title: "selectedL", Color: "" }
         }, {
-          type: listActions.UPDATE_SELECTED_LIST_TITLE,
+          type: editListModalActions.UPDATE_SELECTED_LIST_TITLE,
           title: "selectedList"
         })
       ).toEqual({
@@ -229,7 +233,7 @@ describe('ListReducer', () => {
         ListReducer({
           selectedList: { Title: "selectedList", Color: "30b" }
         }, {
-          type: listActions.UPDATE_SELECTED_LIST_COLOR,
+          type: editListModalActions.UPDATE_SELECTED_LIST_COLOR,
           color: "30bef"
         })
       ).toEqual({
@@ -243,7 +247,7 @@ describe('ListReducer', () => {
         ListReducer({
           newTask: { title: "" }
         }, {
-          type: listActions.UPDATE_NEW_TASK_TITLE,
+          type: newTaskModalActions.UPDATE_NEW_TASK_TITLE,
           title: "newTask"
         })
       ).toEqual({
@@ -332,7 +336,7 @@ describe('ListReducer', () => {
               ListTasks: [
                 { title: "task2" }
               ]
-            },
+            }
           ],
           noneList: {ID: 0, ListTasks: []},
           isLoading: false
@@ -346,7 +350,7 @@ describe('ListReducer', () => {
         ListReducer({
           isLoading: false
         }, {
-          type: listActions.REQUEST_CREATE_LIST
+          type: newListModalActions.REQUEST_CREATE_LIST
         })
       ).toEqual({
         isLoading: true
@@ -373,7 +377,7 @@ describe('ListReducer', () => {
             newList: { title: "list3", color: "ffffff" },
             isLoading: true
           }, {
-            type: listActions.RECEIVE_CREATE_LIST,
+            type: newListModalActions.RECEIVE_CREATE_LIST,
             list: { title: "list3", ListTasks: null }
           })
         ).toEqual({
@@ -416,7 +420,7 @@ describe('ListReducer', () => {
             newList: { title: "", color: "ffffff" },
             isLoading: true
           }, {
-            type: listActions.RECEIVE_CREATE_LIST,
+            type: newListModalActions.RECEIVE_CREATE_LIST,
             list: { title: "list3", ListTasks: [ { title: "task3" } ] }
           })
         ).toEqual({
@@ -449,7 +453,7 @@ describe('ListReducer', () => {
         ListReducer({
           isLoading: false
         }, {
-          type: listActions.REQUEST_CREATE_TASK
+          type: newTaskModalActions.REQUEST_CREATE_TASK
         })
       ).toEqual({
         isLoading: true
@@ -476,7 +480,7 @@ describe('ListReducer', () => {
           isTaskModalOpen: true,
           isLoading: true
         }, {
-          type: listActions.RECEIVE_CREATE_TASK,
+          type: newTaskModalActions.RECEIVE_CREATE_TASK,
           task: { ListID: 1, Title: "task2", Description: "hogehoge" }
         })
       ).toEqual({
@@ -505,7 +509,7 @@ describe('ListReducer', () => {
         ListReducer({
           isLoading: false
         }, {
-          type: listActions.REQUEST_UPDATE_LIST
+          type: editListModalActions.REQUEST_UPDATE_LIST
         })
       ).toEqual({
         isLoading: true
@@ -530,7 +534,7 @@ describe('ListReducer', () => {
           isListEditModalOpen: true,
           isLoading: true
         }, {
-          type: listActions.RECEIVE_UPDATE_LIST,
+          type: editListModalActions.RECEIVE_UPDATE_LIST,
           list: {
             ID: 1,
             Title: "updateList1",
@@ -1504,7 +1508,7 @@ describe('ListReducer', () => {
           ],
           selectedListOption: null
         }, {
-          type: listActions.CHANGE_SELECTED_LIST_OPTION,
+          type: editListModalActions.CHANGE_SELECTED_LIST_OPTION,
           selectEvent: {
             value: 1
           }
