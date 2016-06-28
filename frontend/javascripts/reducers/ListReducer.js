@@ -76,6 +76,16 @@ export default function ListReducer(state = initState, action) {
     //------------------------------------
     // editListModalActions
     //------------------------------------
+  case editListModalActions.NOT_FOUND:
+    return Object.assign({}, state, {
+      error: "Error Not Found",
+      isLoading: false
+    })
+  case editListModalActions.SERVER_ERROR:
+    return Object.assign({}, state, {
+      error: "Internal Server Error",
+      isLoading: false
+    })
   case editListModalActions.CLOSE_EDIT_LIST:
     return Object.assign({}, state, {
       isListEditModalOpen: action.isListEditModalOpen,
@@ -131,6 +141,16 @@ export default function ListReducer(state = initState, action) {
     //------------------------------------
     // newTaskModalActions
     //------------------------------------
+  case newTaskModalActions.NOT_FOUND:
+    return Object.assign({}, state, {
+      error: "Error Not Found",
+      isLoading: false
+    })
+  case newTaskModalActions.SERVER_ERROR:
+    return Object.assign({}, state, {
+      error: "Internal Server Error",
+      isLoading: false
+    })
   case newTaskModalActions.CLOSE_NEW_TASK:
     return Object.assign({}, state, {
       isTaskModalOpen: action.isTaskModalOpen,
@@ -176,6 +196,16 @@ export default function ListReducer(state = initState, action) {
     //------------------------------------
     // editProjectModalActions
     //------------------------------------
+  case editProjectModalActions.NOT_FOUND:
+    return Object.assign({}, state, {
+      error: "Error Not Found",
+      isLoading: false
+    })
+  case editProjectModalActions.SERVER_ERROR:
+    return Object.assign({}, state, {
+      error: "Internal Server Error",
+      isLoading: false
+    })
   case editProjectModalActions.REQUEST_CREATE_WEBHOOK:
     return Object.assign({}, state, {
       isProjectEditModalOpen: false

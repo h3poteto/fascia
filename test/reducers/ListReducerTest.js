@@ -54,6 +54,19 @@ describe('ListReducer', () => {
         })
       })
     })
+    describe('NOT_FOUND', () => {
+      it('should return not found error', () => {
+        expect(
+          ListReducer(null, {
+            type: listActions.NOT_FOUND
+          })
+        ).toEqual({
+          error: "Error Not Found",
+          isLoading: false
+        })
+      })
+    })
+
     describe('CLOSE_FLASH', () => {
       it('should close flash', () => {
         expect(
@@ -1184,6 +1197,31 @@ describe('ListReducer', () => {
 
 
   context('newTaskModalActions', () => {
+    describe('SERVER_ERROR', () => {
+      it('should return server error', () => {
+        expect(
+          ListReducer(null, {
+            type: newTaskModalActions.SERVER_ERROR
+          })
+        ).toEqual({
+          error: "Internal Server Error",
+          isLoading: false
+        })
+      })
+    })
+    describe('NOT_FOUND', () => {
+      it('should return not found error', () => {
+        expect(
+          ListReducer(null, {
+            type: newTaskModalActions.NOT_FOUND
+          })
+        ).toEqual({
+          error: "Error Not Found",
+          isLoading: false
+        })
+      })
+    })
+
     describe('CLOSE_NEW_TASK', () => {
       it('should close new task modal', () => {
         expect(
@@ -1274,6 +1312,31 @@ describe('ListReducer', () => {
   })
 
   context('editListModalActions', () => {
+    describe('SERVER_ERROR', () => {
+      it('should return server error', () => {
+        expect(
+          ListReducer(null, {
+            type: editListModalActions.SERVER_ERROR
+          })
+        ).toEqual({
+          error: "Internal Server Error",
+          isLoading: false
+        })
+      })
+    })
+    describe('NOT_FOUND', () => {
+      it('should return not found error', () => {
+        expect(
+          ListReducer(null, {
+            type: editListModalActions.NOT_FOUND
+          })
+        ).toEqual({
+          error: "Error Not Found",
+          isLoading: false
+        })
+      })
+    })
+
     describe('CLOSE_EDIT_LIST', () => {
       it('should close edit list modal', () => {
         expect(
@@ -1418,6 +1481,31 @@ describe('ListReducer', () => {
   })
 
   context('newListModalActions', () => {
+    describe('SERVER_ERROR', () => {
+      it('should return server error', () => {
+        expect(
+          ListReducer(null, {
+            type: newListModalActions.SERVER_ERROR
+          })
+        ).toEqual({
+          error: "Internal Server Error",
+          isLoading: false
+        })
+      })
+    })
+    describe('NOT_FOUND', () => {
+      it('should return not found error', () => {
+        expect(
+          ListReducer(null, {
+            type: newListModalActions.NOT_FOUND
+          })
+        ).toEqual({
+          error: "Error Not Found",
+          isLoading: false
+        })
+      })
+    })
+
     describe('UPDATE_NEW_LIST_TITLE', () => {
       it('should update list title', () => {
         expect(
