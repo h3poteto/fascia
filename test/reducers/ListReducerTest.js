@@ -1448,7 +1448,7 @@ describe('ListReducer', () => {
             listOptions: [
               {
                 ID: 1,
-                Action: "close",
+                Action: "close"
               }, {
                 ID: 2,
                 Action: "open"
