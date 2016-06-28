@@ -5,8 +5,11 @@
         "es6": true,
         "mocha": true
     },
-    "ecmaFeatures": {
-        "jsx": true
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "ecmaFeatures": {
+            "jsx": true
+        },
     },
     "parser": "babel-eslint",
     "rules": {
