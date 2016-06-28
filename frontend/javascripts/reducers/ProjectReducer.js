@@ -1,4 +1,5 @@
-import * as projectActions from '../actions/ProjectAction';
+import * as projectActions from '../actions/ProjectAction'
+import * as newProjectModalActions from '../actions/ProjectAction/NewProjectModalAction'
 
 const initState = {
   isModalOpen: false,
@@ -8,10 +9,69 @@ const initState = {
   selectedRepository: null,
   isLoading: false,
   error: null
-};
+}
 
 export default function ProjectReducer(state = initState, action) {
   switch(action.type) {
+    //-----------------------------------
+    // newProjectModalActions
+    //-----------------------------------
+  case newProjectModalActions.NOT_FOUND:
+    return Object.assign({}, state, {
+      isLoading: false,
+      error: "Error Not Found"
+    })
+  case newProjectModalActions.SERVER_ERROR:
+    return Object.assign({}, state, {
+      isLoading: false,
+      error: "Internal Server Error"
+    })
+  case newProjectModalActions.CLOSE_NEW_PROJECT:
+    return Object.assign({}, state, {
+      isModalOpen: action.isModalOpen
+    })
+  case newProjectModalActions.CHANGE_SELECT_REPOSITORY:
+    var newProject = state.newProject
+    newProject.title = action.selectEvent.options[action.selectEvent.selectedIndex].text
+    // repositoryはオブジェクトを渡したい
+    var repository
+    state.repositories.map(function(repo, index) {
+      if (repo.id == action.selectEvent.value) {
+        repository = repo
+      }
+    })
+    return Object.assign({}, state, {
+      selectedRepository: repository,
+      newProject: newProject
+    })
+  case newProjectModalActions.REQUEST_CREATE_PROJECT:
+    return Object.assign({}, state, {
+      isModalOpen: false,
+      isLoading: true
+    })
+  case newProjectModalActions.RECEIVE_CREATE_PROJECT:
+    const projects = state.projects.concat([action.project])
+    return Object.assign({}, state, {
+      newProject: {title: "", description: ""},
+      projects: projects,
+      isLoading: false
+    })
+  case newProjectModalActions.UPDATE_NEW_PROJECT_TITLE:
+    var newProject = state.newProject
+    newProject.title = action.title
+    return Object.assign({}, state, {
+      newProject: newProject
+    })
+  case newProjectModalActions.UPDATE_NEW_PROJECT_DESCRIPTION:
+    var newProject = state.newProject
+    newProject.description = action.description
+    return Object.assign({}, state, {
+      newProject: newProject
+    })
+
+    //-----------------------------------
+    // projectActions
+    //-----------------------------------
   case projectActions.NOT_FOUND:
     return Object.assign({}, state, {
       isLoading: false,
@@ -21,74 +81,32 @@ export default function ProjectReducer(state = initState, action) {
     return Object.assign({}, state, {
       isLoading: false,
       error: "Internal Server Error"
-    });
+    })
   case projectActions.CLOSE_FLASH:
     return Object.assign({}, state, {
       error: null
-    });
+    })
   case projectActions.RECEIVE_POSTS:
-    var prj;
+    var prj
     if (action.projects == null) {
-      prj = [];
+      prj = []
     } else {
-      prj = action.projects;
+      prj = action.projects
     }
     return Object.assign({}, state, {
       projects: prj
-    });
+    })
   case projectActions.OPEN_NEW_PROJECT:
     return Object.assign({}, state, {
       isModalOpen: action.isModalOpen
-    });
-  case projectActions.CLOSE_NEW_PROJECT:
-    return Object.assign({}, state, {
-      isModalOpen: action.isModalOpen
-    });
+    })
   case projectActions.REQUEST_REPOSITORIES:
-    return state;
+    return state
   case projectActions.RECEIVE_REPOSITORIES:
     return Object.assign({}, state, {
       repositories: action.repositories
-    });
-  case projectActions.CHANGE_SELECT_REPOSITORY:
-    var newProject = state.newProject;
-    newProject.title = action.selectEvent.options[action.selectEvent.selectedIndex].text;
-    // repositoryはオブジェクトを渡したい
-    var repository;
-    state.repositories.map(function(repo, index) {
-      if (repo.id == action.selectEvent.value) {
-        repository = repo;
-      }
-    });
-    return Object.assign({}, state, {
-      selectedRepository: repository,
-      newProject: newProject
-    });
-  case projectActions.REQUEST_CREATE_PROJECT:
-    return Object.assign({}, state, {
-      isModalOpen: false,
-      isLoading: true
     })
-  case projectActions.RECEIVE_CREATE_PROJECT:
-    const projects = state.projects.concat([action.project]);
-    return Object.assign({}, state, {
-      newProject: {title: "", description: ""},
-      projects: projects,
-      isLoading: false
-    });
-  case projectActions.UPDATE_NEW_PROJECT_TITLE:
-    var newProject = state.newProject;
-    newProject.title = action.title;
-    return Object.assign({}, state, {
-      newProject: newProject
-    });
-  case projectActions.UPDATE_NEW_PROJECT_DESCRIPTION:
-    var newProject = state.newProject;
-    newProject.description = action.description;
-    return Object.assign({}, state, {
-      newProject: newProject
-    });
   default:
-    return state;
+    return state
   }
 }
