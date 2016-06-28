@@ -25,7 +25,7 @@ describe('ProjectView', () => {
       expect(output.type).toBe('div')
       expect(output.props.id).toBe('projects')
 
-      let [ wholeLoading, flash, modal, items ] = output.props.children
+      let [ , , , items ] = output.props.children
       expect(items.props.className).toBe('items')
 
       let [ link, button ] = items.props.children
@@ -39,7 +39,7 @@ describe('ProjectView', () => {
     let state = ProjectViewFixture.errorState()
     it('should render error', () => {
       const { output } = setup(state)
-      let [ wholeLoading, flash, modal, items ] = output.props.children
+      let [ , flash, , ] = output.props.children
       expect(flash.props.children).toBe('Server Error')
     })
   })

@@ -36,8 +36,8 @@ describe('ProjectView::NewProjectModal', () => {
         let formWrapper = output.props.children
         let form = formWrapper.props.children
         let field = form.props.children
-        let [ legend, titileLabel, titleInput, descriptionLabel, descriptionInput, repositoryLabel, repositorySelect, action ] = field.props.children
-        let [ option1, repos ] = repositorySelect.props.children
+        let [ , , , , , , repositorySelect ] = field.props.children
+        let [ , repos ] = repositorySelect.props.children
         let [ repo1, repo2 ] = repos
         expect(repo1.props.children).toBe('repo1')
         expect(repo2.props.children).toBe('repo2')
@@ -52,8 +52,8 @@ describe('ProjectView::NewProjectModal', () => {
         let formWrapper = output.props.children
         let form = formWrapper.props.children
         let field = form.props.children
-        let [ legend, titileLabel, titleInput, descriptionLabel, descriptionInput, repositoryLabel, repositorySelect, action ] = field.props.children
-        let [ option1, repos ] = repositorySelect.props.children
+        let [ , , , , , , repositorySelect ] = field.props.children
+        let [ , repos ] = repositorySelect.props.children
         let [ repo1, repo2 ] = repos
         expect(repo1.props.children).toBe('repo1')
         expect(repo1.props.selected).toBe(true)
