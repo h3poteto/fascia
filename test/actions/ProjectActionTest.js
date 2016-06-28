@@ -24,59 +24,6 @@ describe('openNewProjectModal', () => {
   })
 })
 
-describe('closeNewProjectModal', () => {
-  it('should close new project modal', () => {
-    const expectedAction = {
-      type: projectActions.CLOSE_NEW_PROJECT,
-      isModalOpen: false
-    }
-    expect(projectActions.closeNewProjectModal()).toEqual(expectedAction)
-  })
-})
-
-describe('changeSelectedRepository', () => {
-  it('should change selected repository', () => {
-    const expectedAction = {
-      type: projectActions.CHANGE_SELECT_REPOSITORY,
-      selectEvent: "<element>"
-    }
-    const event = {
-      target: "<element>"
-    }
-    expect(projectActions.changeSelectedRepository(event)).toEqual(expectedAction)
-  })
-})
-
-describe('updateNewProjectTitle', () => {
-  it('should update new project title', () => {
-    const expectedAction = {
-      type: projectActions.UPDATE_NEW_PROJECT_TITLE,
-      title: "projectTitle"
-    }
-    const event = {
-      target: {
-        value: "projectTitle"
-      }
-    }
-    expect(projectActions.updateNewProjectTitle(event)).toEqual(expectedAction)
-  })
-})
-
-describe('updateNewProjectDescription', () => {
-  it('should update new project description', () => {
-    const expectedAction = {
-      type: projectActions.UPDATE_NEW_PROJECT_DESCRIPTION,
-      description: "projectDescription"
-    }
-    const event = {
-      target: {
-        value: "projectDescription"
-      }
-    }
-    expect(projectActions.updateNewProjectDescription(event)).toEqual(expectedAction)
-  })
-})
-
 // async tests
 describe('fetchProjects', () => {
   afterEach(() => {
@@ -139,43 +86,6 @@ describe('fetchRepositories', () => {
   })
 })
 
-describe('fetchCreateProject', () => {
-  afterEach(() => {
-    nock.cleanAll()
-  })
-  context('when response is right', () => {
-    const title = "projectTitle"
-    const description = "projectDescription"
-    const repository = {
-      id: 1,
-      name: "repo1",
-      owner: {
-        login: "ownerName"
-      }
-    }
-    const postForm = `title=${title}&description=${description}&repository_id=${repository.id}&repository_owner=${repository.owner.login}&repository_name=${repository.name}`
-    beforeEach(() => {
-      nock('http://localhost')
-        .post('/projects', postForm)
-        .reply(201, {
-          ok: true,
-          ID: 1,
-          UserID: 12,
-          Title: title,
-          Description: description
-        })
-    })
-
-    it('call RECEIVE_CREATE_PROJECT and get project', (done) => {
-      const expectedActions = [
-        { type: projectActions.REQUEST_CREATE_PROJECT },
-        { type: projectActions.RECEIVE_CREATE_PROJECT, project: {ID: 1, UserID: 12, Title: title, Description: description } }
-      ]
-      const store = mockStore({ project: null }, expectedActions, done)
-      store.dispatch(projectActions.fetchCreateProject(title, description, repository))
-    })
-  })
-})
 
 describe('fetchSession', () => {
   afterEach(() => {
