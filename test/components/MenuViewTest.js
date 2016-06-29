@@ -29,8 +29,8 @@ describe('MenuView', () => {
     expect(mainBoard.props.id).toBe('main_board')
 
     let menuHorizontal = header.props.children
-    let [ heading, menuList, controlList ] = menuHorizontal.props.children
-    let [ settings, settingsList ] = controlList.props.children.props.children
+    let [ , , controlList ] = menuHorizontal.props.children
+    let [ , settingsList ] = controlList.props.children.props.children
     let logout = settingsList.props.children
     let logoutLink = logout.props.children.props.children
 
