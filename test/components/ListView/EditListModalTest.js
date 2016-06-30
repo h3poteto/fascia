@@ -17,6 +17,14 @@ function setup(props) {
 }
 
 describe('ListView::EditListModal', () => {
+  context('when list edit modal close', () => {
+    let state = EditListModalFixture.initState()
+    it('should not render list edit modal', () => {
+      const { output } = setup(state)
+      expect(output.props.isOpen).toBe(false)
+    })
+  })
+
   context('when list edit modal open', () => {
     context('when project does not have repository', () => {
       let state = EditListModalFixture.noRepositoryState(EditListModalFixture.openEditListModalState())
