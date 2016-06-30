@@ -1,7 +1,7 @@
-import { applyMiddleware } from 'redux';
+import { applyMiddleware } from 'redux'
 import expect from 'expect'
-import thunk from 'redux-thunk';
-const middlewares = [ thunk ];
+import thunk from 'redux-thunk'
+const middlewares = [ thunk ]
 
 // mock for async
 export default function mockStore(getState, expectedActions, done) {
