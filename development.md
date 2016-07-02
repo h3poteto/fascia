@@ -7,15 +7,15 @@ Create file `.docker-env`, and write follwing environments:
 
 ```
 DATABASE_URL=$MYSQL_PORT_3306_TCP_ADDR  ## This will receive from mysql docker
-DB_USER="root"
-DB_PASSWORD="mysql"                     ## This is specified by docker-compose.yml
-DB_NAME="fascia"
-DB_TEST_NAME="fascia_test"
-GOJIENV="development"
-CLIENT_ID="hogehoge"                    ## GitHub application client id
-CLIENT_SECRET="fugafuga"                ## GitHub application client secret key
-TEST_TOKEN="testhoge"                   ## GitHub access token for test environments
-SLACK_URL="https://hooks.slack.com/services/hogehoge/fugafuga"
+DB_USER=root
+DB_PASSWORD=mysql                       ## This is specified by docker-compose.yml
+DB_NAME=fascia
+DB_TEST_NAME=fascia_test
+GOJIENV=development
+CLIENT_ID=hogehoge                      ## GitHub application client id
+CLIENT_SECRET=fugafuga                  ## GitHub application client secret key
+TEST_TOKEN=testhoge                     ## GitHub access token for test environments
+SLACK_URL=https://hooks.slack.com/services/hogehoge/fugafuga
 AWS_ACCESS_KEY_ID=hogehoge              ## These will use AWS SES in mailer
 AWS_SECRET_ACCESS_KEY=fugafuga
 AWS_REGION=region
