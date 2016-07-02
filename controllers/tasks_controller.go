@@ -162,6 +162,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder.Encode(jsonTask)
 }
 
+// Show render json with task detail
 func (u *Tasks) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	currentUser, err := LoginRequired(r)
