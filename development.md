@@ -3,29 +3,41 @@ This document explain how to develop fascia.
 
 ## Environment Variables
 
-I recommend to use `direnv` for environment variables, so please install.
-For example,
+Create file `.docker-env`, and write follwing environments:
 
 ```
-export DATABASE_URL=$MYSQL_PORT_3306_TCP_ADDR  ## This will receive from mysql docker
-export DB_USER="root"
-export DB_PASSWORD="mysql"  ## This is specified by docker-compose.yml
-export DB_NAME="fascia"
-export DB_TEST_NAME="fascia_test"
-export GOJIENV="development"
-export CLIENT_ID="hogehoge"
-export CLIENT_SECRET="fugafuga"
-export TEST_TOKEN="testhoge"
-export SLACK_URL="https://hooks.slack.com/services/hogehoge/fugafuga"
-export AWS_ACCESS_KEY_ID=hogehoge   ## These will use AWS SES in mailer
-export AWS_SECRET_ACCESS_KEY=fugafuga
-export AWS_REGION=region
+DATABASE_URL=$MYSQL_PORT_3306_TCP_ADDR  ## This will receive from mysql docker
+DB_USER="root"
+DB_PASSWORD="mysql"                     ## This is specified by docker-compose.yml
+DB_NAME="fascia"
+DB_TEST_NAME="fascia_test"
+GOJIENV="development"
+CLIENT_ID="hogehoge"                    ## GitHub application client id
+CLIENT_SECRET="fugafuga"                ## GitHub application client secret key
+TEST_TOKEN="testhoge"                   ## GitHub access token for test environments
+SLACK_URL="https://hooks.slack.com/services/hogehoge/fugafuga"
+AWS_ACCESS_KEY_ID=hogehoge              ## These will use AWS SES in mailer
+AWS_SECRET_ACCESS_KEY=fugafuga
+AWS_REGION=region
+GO15VENDOREXPERIMENT=0                  ## for Go 1.6 with Gom: https://github.com/mattn/gom/issues/80
 ```
 
-## Server Application
+## Docker
 
 Development environment for fascia require Docker and Docker Compose, so you will need them.
 Please install [Docker](https://docs.docker.com/mac/) and [Docker Compose](https://docs.docker.com/compose/).
+
+
+## JavaScript
+
+It's necessary to prepare node packages, so please run npm install in docker container.
+
+```
+$ docker-compose run --rm node /bin/bash
+node@b8446c2db58c:/var/opt/app$ npm install
+```
+
+## Server Application
 
 Then, you can run docker container.
 
@@ -61,4 +73,3 @@ $ gom run server.go
 ```
 
 Please open browser and access `localhost:9090`, you can access fascia on localhost.
-
