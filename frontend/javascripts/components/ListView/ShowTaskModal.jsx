@@ -35,7 +35,11 @@ export default class ShowTaskModal extends React.Component {
       >
         <div className="task-detail">
           <div className="task-title">
-            {this.props.task.Title}<span className="task-issue-number">#{this.props.task.IssueNumber}</span>
+            <span className="octicon octicon-mark-github task-icon"></span>
+            {this.props.task.Title}
+            <span className="task-issue-number">
+              {this.props.task.IssueNumber == 0 ? "":"#" + this.props.task.IssueNumber}
+            </span>
           </div>
           <div className="task-description">
             {this.props.task.Description}
