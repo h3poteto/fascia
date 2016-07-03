@@ -5,6 +5,7 @@ import * as newListModalActions from '../../frontend/javascripts/actions/ListAct
 import * as editListModalActions from '../../frontend/javascripts/actions/ListAction/EditListModalAction'
 import * as newTaskModalActions from '../../frontend/javascripts/actions/ListAction/NewTaskModalAction'
 import * as editProjectModalActions from '../../frontend/javascripts/actions/ListAction/EditProjectModalAction'
+import * as showTaskModalActions from '../../frontend/javascripts/actions/ListAction/ShowTaskModalAction'
 import 'babel-polyfill'
 
 // shared examples
@@ -1198,7 +1199,7 @@ describe('ListReducer', () => {
 
 
 
-  context('newTaskModalActions', () => {
+context('newTaskModalActions', () => {
     describe('SERVER_ERROR', () => {
       it('should return server error', () => {
         expect(
@@ -1636,6 +1637,25 @@ describe('ListReducer', () => {
             newList: { title: "", color: "008ed4" },
             isLoading: false
           })
+        })
+      })
+    })
+  })
+
+  context('editProjectModalActions', () => {
+  })
+
+  context('showTaskModalActions', () => {
+    describe('CLOSE_SHOW_TASK', () => {
+      it('should close show task modal', () => {
+        expect(
+          ListReducer({
+            isTaskShowModalOpen: true
+          }, {
+            type: showTaskModalActions.CLOSE_SHOW_TASK
+          })
+        ).toEqual({
+          isTaskShowModalOpen: false
         })
       })
     })
