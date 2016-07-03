@@ -1643,6 +1643,117 @@ context('newTaskModalActions', () => {
   })
 
   context('editProjectModalActions', () => {
+    describe('SERVER_ERROR', () => {
+      it('should return server error', () => {
+        expect(
+          ListReducer(null, {
+            type: editProjectModalActions.SERVER_ERROR
+          })
+        ).toEqual({
+          error: "Internal Server Error",
+          isLoading: false
+        })
+      })
+    })
+    describe('NOT_FOUND', () => {
+      it('should return not found error', () => {
+        expect(
+          ListReducer(null, {
+            type: editProjectModalActions.NOT_FOUND
+          })
+        ).toEqual({
+          error: "Error Not Found",
+          isLoading: false
+        })
+      })
+    })
+    describe('REQUEST_CREATE_WEBHOOK', () => {
+      it('should close edit project modal', () => {
+        expect(
+          ListReducer(null, {
+            type: editProjectModalActions.REQUEST_CREATE_WEBHOOK
+          })
+        ).toEqual({
+          isProjectEditModalOpen: false
+        })
+      })
+    })
+    describe('CLOSE_EDIT_PROJECT', () => {
+      it('should close edit project modal', () => {
+        expect(
+          ListReducer(null, {
+            type: editProjectModalActions.CLOSE_EDIT_PROJECT
+          })
+        ).toEqual({
+          isProjectEditModalOpen: false
+        })
+      })
+    })
+    describe('UPDATE_EDIT_PROJECT_TITLE', () => {
+      it('should update project title', () => {
+        expect(
+          ListReducer({
+            selectedProject: {
+              Title: "title",
+              Description: "description"
+            }
+          }, {
+            type: editProjectModalActions.UPDATE_EDIT_PROJECT_TITLE,
+            title: "title samp"
+          })
+        ).toEqual({
+          selectedProject: {
+            Title: "title samp",
+            Description: "description"
+          }
+        })
+      })
+    })
+    describe('UPDATE_EDIT_PROJECT_DESCRIPTION', () => {
+      it('should update project description', () => {
+        expect(
+          ListReducer({
+            selectedProject: {
+              Title: "title",
+              Description: "description"
+            }
+          }, {
+            type: editProjectModalActions.UPDATE_EDIT_PROJECT_DESCRIPTION,
+            description: "description samp"
+          })
+        ).toEqual({
+          selectedProject: {
+            Title: "title",
+            Description: "description samp"
+          }
+        })
+      })
+    })
+    describe('RECEIVE_UPDATE_PROJECT', () => {
+      it('should return updated project', () => {
+        expect(
+          ListReducer({
+            project: {
+              Title: "title",
+              Description: "description"
+            },
+            isProjectEditModalOpen: true
+          }, {
+            type: editProjectModalActions.RECEIVE_UPDATE_PROJECT,
+            project: {
+              Title: "title sample",
+              Description: "description sample"
+            }
+          })
+        ).toEqual({
+          project: {
+            Title: "title sample",
+            Description: "description sample"
+          },
+          isProjectEditModalOpen: false
+        })
+      })
+    })
   })
 
   context('showTaskModalActions', () => {
