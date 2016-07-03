@@ -434,3 +434,11 @@ export function displayList(projectID, listID) {
       })
   }
 }
+
+export const OPEN_SHOW_TASK = 'OPEN_SHOW_TASK'
+export function openShowTaskModal(task) {
+  return {
+    type: OPEN_SHOW_TASK,
+    task: task
+  }
+}

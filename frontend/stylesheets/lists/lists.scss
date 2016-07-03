@@ -206,3 +206,19 @@
     width: 298px;
   }
 }
+
+.task-detail {
+  width: 700px;
+  color: rgb(119, 119, 119);
+  .task-title {
+    color: rgb(50, 50, 50);
+    border-bottom: 1px solid #e5e5e5;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 34px;
+    .task-issue-number {
+      color: rgb(162, 162, 162);
+      padding-left: 12px;
+    }
+  }
+}
