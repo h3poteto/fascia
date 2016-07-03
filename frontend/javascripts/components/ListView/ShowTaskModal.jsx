@@ -26,6 +26,20 @@ export default class ShowTaskModal extends React.Component {
     super(props)
   }
 
+  issueNumber(task) {
+    if (task.IssueNumber == 0) {
+      return <span></span>
+    } else {
+      return (
+        <a href={task.HTMLURL} target="_blank">
+          <span className="task-issue-number">
+            #{task.IssueNumber}
+          </span>
+        </a>
+      )
+    }
+  }
+
   render() {
     return (
       <Modal
@@ -37,9 +51,7 @@ export default class ShowTaskModal extends React.Component {
           <div className="task-title">
             <span className="octicon octicon-mark-github task-icon"></span>
             {this.props.task.Title}
-            <span className="task-issue-number">
-              {this.props.task.IssueNumber == 0 ? "":"#" + this.props.task.IssueNumber}
-            </span>
+            {this.issueNumber(this.props.task)}
           </div>
           <div className="task-description">
             {this.props.task.Description}
