@@ -5,6 +5,7 @@ import EditListModal from './ListView/EditListModal.jsx'
 import EditProjectModal from './ListView/EditProjectModal.jsx'
 import WholeLoading from './ListView/WholeLoading.jsx'
 import ListLoading from './ListView/ListLoading.jsx'
+import ShowTaskModal from './ListView/ShowTaskModal.jsx'
 
 export default class ListView extends React.Component {
   constructor(props) {
@@ -86,7 +87,7 @@ export default class ListView extends React.Component {
                if (task.draggedOn) {
                  return <li key={index} className="arrow"></li>
                } else if(project != null && project.ShowIssues && !task.PullRequest || project != null && project.ShowPullRequests && task.PullRequest) {
-                 return <li key={index} style={{"borderLeft": `solid 6px #${list.Color}`}} className="task" draggable="true" data-dropped-depth="2" data-id={task.ID} onDragStart={this.props.listActions.taskDragStart}>{task.Title}</li>
+                 return <li key={index} style={{"borderLeft": `solid 6px #${list.Color}`}} className="task" draggable="true" data-dropped-depth="2" data-id={task.ID} onDragStart={this.props.listActions.taskDragStart} onClick={e => this.props.listActions.openShowTaskModal(task)} >{task.Title}</li>
                }
              }, this)}
             <li className="new-task" data-dropped-depth="2" style={{"borderLeft": `solid 6px #${list.Color}`}} onClick={e => this.props.listActions.openNewTaskModal(list)}>
@@ -100,7 +101,7 @@ export default class ListView extends React.Component {
   }
 
   render() {
-    const { isLoading, isListModalOpen, newList, lists, listOptions, noneList, project, isTaskModalOpen, newTask, selectedList, selectedListOption, isListEditModalOpen, isProjectEditModalOpen, taskDraggingFrom, taskDraggingTo, selectedProject, error } = this.props.ListReducer
+    const { isLoading, isListModalOpen, newList, lists, listOptions, noneList, project, isTaskModalOpen, newTask, selectedList, selectedListOption, isListEditModalOpen, isProjectEditModalOpen, taskDraggingFrom, taskDraggingTo, selectedProject, isTaskShowModalOpen, selectedTask, error } = this.props.ListReducer
 
     return (
       <div id="lists">
@@ -148,6 +149,11 @@ export default class ListView extends React.Component {
             updateEditProjectDescription={this.props.editProjectModalActions.updateEditProjectDescription}
             fetchUpdateProject={this.props.editProjectModalActions.fetchUpdateProject}
             createWebhook={this.props.editProjectModalActions.createWebhook}
+        />
+        <ShowTaskModal
+            isShowTaskModalOpen={isTaskShowModalOpen}
+            task={selectedTask}
+            closeShowTaskModal={this.props.showTaskModalActions.closeShowTaskModal}
         />
         <div className="title-wrapper">
           <div className="project-operation">

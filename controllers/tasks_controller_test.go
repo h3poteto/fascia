@@ -111,6 +111,23 @@ var _ = Describe("TasksController", func() {
 		})
 	})
 
+	Describe("Show", func() {
+		var newTask *task.TaskStruct
+		JustBeforeEach(func() {
+			newTask = task.NewTask(0, listID, projectID, userID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
+			newTask.Save(nil, nil)
+		})
+		It("should receive a task", func() {
+			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(projectID, 10) + "/lists/" + strconv.FormatInt(listID, 10) + "/tasks/" + strconv.FormatInt(newTask.ID, 10))
+			Expect(err).To(BeNil())
+			var contents controllers.TaskJSONFormat
+			con, _ := ioutil.ReadAll(res.Body)
+			json.Unmarshal(con, &contents)
+			Expect(res.StatusCode).To(Equal(http.StatusOK))
+			Expect(contents.Title).To(Equal(newTask.Title))
+		})
+	})
+
 	Describe("MoveTask", func() {
 		var (
 			newTask *task.TaskStruct

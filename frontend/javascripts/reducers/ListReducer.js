@@ -3,12 +3,14 @@ import * as newListModalActions from '../actions/ListAction/NewListModalAction.j
 import * as editListModalActions from '../actions/ListAction/EditListModalAction.js'
 import * as newTaskModalActions from '../actions/ListAction/NewTaskModalAction.js'
 import * as editProjectModalActions from '../actions/ListAction/EditProjectModalAction.js'
+import * as showTaskModalActions from '../actions/ListAction/ShowTaskModalAction.js'
 
 const initState = {
   isListModalOpen: false,
   isTaskModalOpen: false,
   isListEditModalOpen: false,
   isProjectEditModalOpen: false,
+  isTaskShowModalOpen: false,
   newList: {title: "", color: "008ed4"},
   newTask: {title: "", description: ""},
   lists: [],
@@ -18,6 +20,7 @@ const initState = {
   selectedListOption: null,
   project: null,
   selectedProject: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
+  selectedTask: {Title: "", IssueNumber: 0, Description: "description"},
   isTaskDraggingOver: false,
   taskDraggingFrom: null,
   taskDraggingTo: null,
@@ -233,6 +236,24 @@ export default function ListReducer(state = initState, action) {
     })
 
     //------------------------------------
+    // showTaskModalActions
+    //------------------------------------
+  case showTaskModalActions.NOT_FOUND:
+    return Object.assign({}, state, {
+      error: "Error Not Found",
+      isLoading: false
+    })
+  case showTaskModalActions.SERVER_ERROR:
+    return Object.assign({}, state, {
+      error: "Internal Server Error",
+      isLoading: false
+    })
+  case showTaskModalActions.CLOSE_SHOW_TASK:
+    return Object.assign({}, state, {
+      isTaskShowModalOpen: false
+    })
+
+    //------------------------------------
     // listActions
     //------------------------------------
   case listActions.NOT_FOUND:
@@ -273,6 +294,11 @@ export default function ListReducer(state = initState, action) {
       isListEditModalOpen: action.isListEditModalOpen,
       selectedList: Object.assign({}, action.list),
       selectedListOption: selectedListOption
+    })
+  case listActions.OPEN_SHOW_TASK:
+    return Object.assign({}, state, {
+      isTaskShowModalOpen: true,
+      selectedTask: Object.assign({}, action.task)
     })
   case listActions.RECEIVE_LISTS:
   case listActions.RECEIVE_FETCH_GITHUB:

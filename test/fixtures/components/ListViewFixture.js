@@ -7,6 +7,7 @@ export function initState() {
       isTaskModalOpen: false,
       isListEditModalOpen: false,
       isProjectEditModalOpen: false,
+      isTaskShowModalOpen: false,
       isLoading: false,
       newList: {title: "", color: "0effff"},
       newTask: {title: ""},
@@ -62,6 +63,7 @@ export function initState() {
         ShowPullRequests: true
       },
       selectedProject: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
+      selectedTask: {Title: "", Description: "", IssueNumber: 0},
       isTaskDraggingOver: false,
       taskDraggingFrom: null,
       taskDraggingTo: null,
@@ -91,6 +93,9 @@ export function initState() {
     },
     editProjectModalActions: {
       closeEditProjectModal: expect.createSpy()
+    },
+    showTaskModalActions: {
+      closeShowTaskModal: expect.createSpy()
     }
   }
 }

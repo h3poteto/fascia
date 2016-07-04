@@ -70,6 +70,7 @@ func Routes(m *web.Mux) {
 
 	m.Get("/projects/:project_id/lists/:list_id/tasks", controllers.CallController(&controllers.Tasks{}, "Index"))
 	m.Post("/projects/:project_id/lists/:list_id/tasks", controllers.CallController(&controllers.Tasks{}, "Create"))
+	m.Get("/projects/:project_id/lists/:list_id/tasks/:task_id", controllers.CallController(&controllers.Tasks{}, "Show"))
 	m.Post("/projects/:project_id/lists/:list_id/tasks/:task_id/move_task", controllers.CallController(&controllers.Tasks{}, "MoveTask"))
 
 	m.Get("/list_options", controllers.CallController(&controllers.ListOptions{}, "Index"))
