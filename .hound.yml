@@ -2,7 +2,7 @@ go:
   enabled: true
 scss:
   enabled: true
-  config_file: .scss-style.yml
+  config_file: .scss-lint.yml
 javascript:
   enabled: false
 eslint:
