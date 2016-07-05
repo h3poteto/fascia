@@ -43,7 +43,7 @@
     color: rgb(0, 0, 0);
     width: 250px;
     min-height: 50px;
-    padding: 5px 0px 15px 0px;
+    padding: 5px 0 15px;
     margin: 10px 20px;
     border-radius: 8px;
     box-sizing: border-box;
@@ -53,7 +53,7 @@
     position: relative;
 
     .fascia-list-menu {
-      margin: 0 15px 0 15px;
+      margin: 0 15px;
       text-align: right;
       font-size: 80%;
       cursor: pointer;
@@ -72,7 +72,7 @@
 
     ul.fascia-task {
       list-style: none;
-      padding: 0 15px 0 15px;
+      padding: 0 15px;
       overflow: auto;
       height: 100%;
       margin-bottom: 16px;
