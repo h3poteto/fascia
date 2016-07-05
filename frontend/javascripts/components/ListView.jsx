@@ -174,7 +174,7 @@ export default class ListView extends React.Component {
                if (task.draggedOn) {
                  return <li key={index} className="arrow"></li>
                } else if( project != null && project.ShowIssues && !task.PullRequest || project != null && project.ShowPullRequests && task.PullRequest) {
-                 return <li key={index} className="button-green task" draggable="true" data-dropped-depth="2" data-id={task.ID} onDragStart={this.props.listActions.taskDragStart}>{task.Title}</li>
+                 return <li key={index} className="button-green task" draggable="true" data-dropped-depth="2" data-id={task.ID} onDragStart={this.props.listActions.taskDragStart} onClick={e => this.props.listActions.openShowTaskModal(task)}>{task.Title}</li>
                }
              }, this)}
             <li onClick={e => this.props.listActions.openNewTaskModal(noneList)} className="new-task pure-button button-blue" data-dropped-depth="2">

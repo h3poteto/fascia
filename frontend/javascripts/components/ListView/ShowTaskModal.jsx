@@ -40,6 +40,14 @@ export default class ShowTaskModal extends React.Component {
     }
   }
 
+  description(task) {
+    if (task.Description.length > 0) {
+      return task.Description
+    } else {
+      return "Description"
+    }
+  }
+
   render() {
     return (
       <Modal
@@ -54,7 +62,7 @@ export default class ShowTaskModal extends React.Component {
             {this.issueNumber(this.props.task)}
           </div>
           <div className="task-description">
-            {this.props.task.Description}
+            {this.description(this.props.task)}
           </div>
         </div>
       </Modal>
