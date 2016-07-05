@@ -193,7 +193,7 @@
   }
 }
 .task-form {
-  width: 300px;
+  width: 700px;
   color: rgb(119, 119, 119);
   label {
     line-height: 25.6px;
@@ -203,7 +203,10 @@
     text-align: right;
   }
   input, select, textarea {
-    width: 298px;
+    width: 698px;
+  }
+  textarea {
+    height: 100px;
   }
 }
 
