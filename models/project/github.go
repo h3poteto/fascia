@@ -80,7 +80,7 @@ func IssuesEvent(repositoryID int64, body github.IssuesEvent) error {
 		} else {
 			err = parentProject.reopenTask(targetTask, body.Issue)
 		}
-	case "closed", "labeled", "unlabeled":
+	case "closed", "labeled", "unlabeled", "edited":
 		err = parentProject.taskApplyLabel(targetTask, body.Issue)
 	}
 	return err
