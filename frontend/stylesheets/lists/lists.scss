@@ -38,13 +38,12 @@
   .items {
     vertical-align: top;
   }
+
   .fascia-list {
     color: rgb(0, 0, 0);
     width: 250px;
-    hegiht: 50%;
-    overflow: auto;
     min-height: 50px;
-    padding: 5px 15px 15px 15px;
+    padding: 5px 0 15px;
     margin: 10px 20px;
     border-radius: 8px;
     box-sizing: border-box;
@@ -52,7 +51,9 @@
     float: left;
     background: rgb(230, 230, 230);
     position: relative;
+
     .fascia-list-menu {
+      margin: 0 15px;
       text-align: right;
       font-size: 80%;
       cursor: pointer;
@@ -61,19 +62,25 @@
         margin-left: 8px;
       }
     }
+
     .list-title {
       color: rgb(0, 0, 0);
       display: block;
       font-size: 110%;
       text-align: center;
     }
+
     ul.fascia-task {
       list-style: none;
-      padding: 0;
+      padding: 0 15px;
+      overflow: auto;
+      height: 100%;
       margin-bottom: 16px;
+
       li {
         cursor: pointer;
       }
+
       li.task{
         background: rgb(255, 255, 255);
         color: rgb(77, 77, 77);
@@ -82,6 +89,7 @@
         padding: 4px;
         margin-bottom: 8px;
       }
+
       li.new-task {
         background: rgb(255, 255, 255);
         color: rgb(150, 150, 150);
@@ -89,6 +97,7 @@
         box-sizing: border-box;
         padding: 4px;
       }
+
       li.arrow {
         background: rgb(100, 100, 100);
         box-sizing: border-box;
@@ -99,6 +108,7 @@
       }
     }
   }
+
   .fascia-new-list {
     width: 250px;
     height: 50px;

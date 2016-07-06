@@ -30,7 +30,7 @@ export default class ListView extends React.Component {
     let maxHeight = window.innerHeight * 0.7
     let stylesheet = document.styleSheets.item(4)
     var idx = document.styleSheets[4].cssRules.length
-    stylesheet.insertRule("#lists .fascia-list { max-height: " + maxHeight + "px; }", idx)
+    stylesheet.insertRule("#lists .fascia-task { max-height: " + maxHeight + "px; }", idx)
 
   }
 
