@@ -75,10 +75,16 @@ func IssuesEvent(repositoryID int64, body github.IssuesEvent) error {
 
 	switch *body.Action {
 	case "opened", "reopened":
+		// create時点ではlabelsが空の状態でhookが飛んできている場合がある
+		// そのためlabelsが空だった場合には，一度labelsを取得しなおす処理を呼んでおく
+		issue, err := parentProject.reacquireIssue(body.Issue)
+		if err != nil {
+			return err
+		}
 		if targetTask == nil {
-			err = parentProject.createNewTask(body.Issue)
+			err = parentProject.createNewTask(issue)
 		} else {
-			err = parentProject.reopenTask(targetTask, body.Issue)
+			err = parentProject.reopenTask(targetTask, issue)
 		}
 	case "closed", "labeled", "unlabeled", "edited":
 		err = parentProject.taskApplyLabel(targetTask, body.Issue)
@@ -157,6 +163,22 @@ func listsWithCloseAction(lists []list.ListStruct) []list.ListStruct {
 	return closeLists
 }
 
+func (u *ProjectStruct) reacquireIssue(issue *github.Issue) (*github.Issue, error) {
+	if len(issue.Labels) > 0 {
+		return issue, nil
+	}
+	oauthToken, err := u.OauthToken()
+	if err != nil {
+		return nil, err
+	}
+
+	repo, err := u.Repository()
+	if err != nil {
+		return nil, err
+	}
+	return hub.GetGithubIssue(oauthToken, repo, *issue.Number)
+}
+
 func (u *ProjectStruct) taskApplyLabel(targetTask *task.TaskStruct, issue *github.Issue) error {
 	if targetTask == nil {
 		err := u.createNewTask(issue)
@@ -191,7 +213,6 @@ func (u *ProjectStruct) reopenTask(targetTask *task.TaskStruct, issue *github.Is
 }
 
 func (u *ProjectStruct) createNewTask(issue *github.Issue) error {
-
 	issueTask := task.NewTask(
 		0,
 		0,
