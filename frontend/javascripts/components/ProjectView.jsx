@@ -52,6 +52,7 @@ class ProjectView extends React.Component {
             closeNewProjectModal={this.props.newProjectModalActions.closeNewProjectModal}
             updateNewProjectTitle={this.props.newProjectModalActions.updateNewProjectTitle}
             updateNewProjectDescription={this.props.newProjectModalActions.updateNewProjectDescription}
+            changeSelectedRepository={this.props.newProjectModalActions.changeSelectedRepository}
             fetchCreateProject={this.props.newProjectModalActions.fetchCreateProject}
         />
         <div className="items">
