@@ -131,7 +131,7 @@ func PullRequestEvent(repositoryID int64, body github.PullRequestEvent) error {
 		} else {
 			err = parentProject.reopenTask(targetTask, issue)
 		}
-	case "closed", "labeled", "unlabeled":
+	case "closed", "labeled", "unlabeled", "edited":
 		err = parentProject.taskApplyLabel(targetTask, issue)
 	}
 	return err
