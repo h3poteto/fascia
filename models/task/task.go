@@ -129,21 +129,15 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 		}
 
 		token := OauthToken.String
-		label, err := hub.CheckLabelPresent(token, repo, &listTitle.String)
-		// もしラベルがなかった場合は作っておく
-		// 色が違っていてもアップデートは不要，それは編集でやってくれ
+
+		labelName, err := u.syncLabel(listTitle.String, listColor.String, token, repo)
 		if err != nil {
 			transaction.Rollback()
 			return err
-		} else if label == nil {
-			label, err = hub.CreateGithubLabel(token, repo, &listTitle.String, &listColor.String)
-			if err != nil {
-				transaction.Rollback()
-				return err
-			}
 		}
+
 		// issueを作る
-		issue, err := hub.CreateGithubIssue(token, repo, []string{*label.Name}, &u.Title, &u.Description)
+		issue, err := hub.CreateGithubIssue(token, repo, labelName, &u.Title, &u.Description)
 		if err != nil {
 			transaction.Rollback()
 			return err
@@ -260,25 +254,8 @@ func (u *TaskStruct) ChangeList(listID int64, prevToTaskID *int64, repo *reposit
 			return errors.Wrap(err, "sql select error")
 		}
 
-		// noneListの場合はリストを外す
-		var labelName []string
-		if listTitle.String == config.Element("init_list").(map[interface{}]interface{})["none"].(string) {
-			labelName = []string{}
-		} else {
-			label, err := hub.CheckLabelPresent(token, repo, &listTitle.String)
-			if err != nil {
-				transaction.Rollback()
-				return err
-			} else if label == nil {
-				// 移動先がない場合はつくろう
-				label, err = hub.CreateGithubLabel(token, repo, &listTitle.String, &listColor.String)
-				if label == nil {
-					transaction.Rollback()
-					return err
-				}
-			}
-			labelName = []string{*label.Name}
-		}
+		labelName, err := u.syncLabel(listTitle.String, listColor.String, token, repo)
+
 		// list_option
 		var issueAction *string
 		listOption, err := list_option.FindByID(listOptionID)
@@ -299,4 +276,21 @@ func (u *TaskStruct) ChangeList(listID int64, prevToTaskID *int64, repo *reposit
 	}
 	u.ListID = listID
 	return nil
+}
+
+func (u *TaskStruct) syncLabel(listTitle string, listColor string, token string, repo *repository.RepositoryStruct) ([]string, error) {
+	if listTitle == config.Element("init_list").(map[interface{}]interface{})["none"].(string) {
+		return []string{}, nil
+	}
+	label, err := hub.CheckLabelPresent(token, repo, &listTitle)
+	if err != nil {
+		return nil, err
+	} else if label == nil {
+		// 移動先がない場合はつくろう
+		label, err = hub.CreateGithubLabel(token, repo, &listTitle, &listColor)
+		if label == nil {
+			return nil, err
+		}
+	}
+	return []string{*label.Name}, nil
 }
