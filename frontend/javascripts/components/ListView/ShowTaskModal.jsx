@@ -44,7 +44,12 @@ export default class ShowTaskModal extends React.Component {
 
   description(task) {
     if (task.Description.length > 0) {
-      let rawMarkup = MarkdownIt()
+      let rawMarkup = MarkdownIt({
+        html: true,
+        linkify: true,
+        breaks: true,
+        typographer: true
+      })
         .use(MarkdownItCheckbox)
         .render(task.Description)
       return <span dangerouslySetInnerHTML={{__html: rawMarkup}} />
