@@ -6,7 +6,7 @@ import (
 
 type taskCreate struct {
 	Title       string `valid:"stringlength(1|255)"`
-	Description string `valid:"stringlength(0|255),optional"`
+	Description string `valid:"stringlength(0|21845),optional"`
 }
 
 type taskMove struct {
