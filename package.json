@@ -48,6 +48,8 @@
     "gulp-util": "~3.0.7",
     "html-truncate": "^1.2.1",
     "jsdom": "~8.1.0",
+    "markdown-it": "^7.0.0",
+    "markdown-it-checkbox": "^1.1.0",
     "mocha": "~2.4.5",
     "nock": "~7.2.2",
     "react": "~0.14.7",

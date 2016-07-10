@@ -1,5 +1,7 @@
 import React from 'react'
 import Modal from 'react-modal'
+import MarkdownIt from 'markdown-it'
+import MarkdownItCheckbox from 'markdown-it-checkbox'
 
 const customStyles = {
   overlay : {
@@ -42,7 +44,15 @@ export default class ShowTaskModal extends React.Component {
 
   description(task) {
     if (task.Description.length > 0) {
-      return task.Description
+      let rawMarkup = MarkdownIt({
+        html: true,
+        linkify: true,
+        breaks: true,
+        typographer: true
+      })
+        .use(MarkdownItCheckbox)
+        .render(task.Description)
+      return <span dangerouslySetInnerHTML={{__html: rawMarkup}} />
     } else {
       return "Description"
     }
