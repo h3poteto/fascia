@@ -46,9 +46,9 @@ export default class ListView extends React.Component {
     } else {
       return (
         <span>
-          <span className={project.ShowPullRequests ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.listActions.showPullRequests(this.props.params.projectID, selectedProject.ShowIssues, selectedProject.ShowPullRequests)}><i className="octicon octicon-git-pull-request"></i></span>
-          <span className={project.ShowIssues ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.listActions.showIssues(this.props.params.projectID, selectedProject.ShowIssues, selectedProject.ShowPullRequests)}><i className="octicon octicon-issue-opened"></i></span>
-          <i className="fa fa-repeat" onClick={e => this.props.listActions.fetchProjectGithub(this.props.params.projectID)}></i>
+          <span className={project.ShowPullRequests ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.listActions.showPullRequests(this.props.params.projectID, selectedProject.ShowIssues, selectedProject.ShowPullRequests)}><i title="Switch visibility of pull requests" className="octicon octicon-git-pull-request"></i></span>
+          <span className={project.ShowIssues ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.listActions.showIssues(this.props.params.projectID, selectedProject.ShowIssues, selectedProject.ShowPullRequests)}><i title="Switch visibility of issues" className="octicon octicon-issue-opened"></i></span>
+          <i title="Reload all lists and tasks from github" className="fa fa-repeat" onClick={e => this.props.listActions.fetchProjectGithub(this.props.params.projectID)}></i>
         </span>
       )
     }
@@ -58,7 +58,7 @@ export default class ListView extends React.Component {
     if (list.IsInitList) {
       return null
     } else {
-      return <i className="fa fa-pencil" onClick={e => this.props.listActions.openEditListModal(list)} data-dropped-depth="2"></i>
+      return <i title="Edit list" className="fa fa-pencil" onClick={e => this.props.listActions.openEditListModal(list)} data-dropped-depth="2"></i>
     }
   }
 
@@ -67,7 +67,7 @@ export default class ListView extends React.Component {
       return (
         <div key={index} className="fascia-list fascia-list-hidden" data-dropped-depth="0" data-id={list.ID} onDragOver={this.props.listActions.taskDragOver} onDrop={e=> this.props.listActions.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.listActions.taskDragLeave}>
           <div className="fascia-list-menu" data-dropped-depth="1">
-            <i className="fa fa-eye" onClick={e => this.props.listActions.displayList(project.ID, list.ID)} data-dropped-depth="2"></i>
+            <i title="Show tasks" className="fa fa-eye" onClick={e => this.props.listActions.displayList(project.ID, list.ID)} data-dropped-depth="2"></i>
             {this.listEditButton(list)}
           </div>
           <span className="list-title" data-dropped-depth="1">{list.Title}</span>
@@ -78,7 +78,7 @@ export default class ListView extends React.Component {
       return (
         <div key={index} className="fascia-list" data-dropped-depth="0" data-id={list.ID} onDragOver={this.props.listActions.taskDragOver} onDrop={e=> this.props.listActions.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.listActions.taskDragLeave}>
           <div className="fascia-list-menu" data-dropped-depth="1">
-            <i className="fa fa-eye-slash" onClick={e => this.props.listActions.hideList(project.ID, list.ID)} data-dropped-depth="2"></i>
+            <i title="Hide tasks" className="fa fa-eye-slash" onClick={e => this.props.listActions.hideList(project.ID, list.ID)} data-dropped-depth="2"></i>
             {this.listEditButton(list)}
           </div>
           <span className="list-title" data-dropped-depth="1">{list.Title}</span>
@@ -159,7 +159,7 @@ export default class ListView extends React.Component {
           <div className="project-operation">
             {this.projectOperations(project, selectedProject)}
           </div>
-          <h3 className="project-title">{project != null ? project.Title : ''}<span className="fascia-project-menu" onClick={e => this.props.listActions.openEditProjectModal(project)}><i className="fa fa-pencil"></i></span></h3>
+          <h3 className="project-title">{project != null ? project.Title : ''}<span className="fascia-project-menu" onClick={e => this.props.listActions.openEditProjectModal(project)}><i title="Edit project" className="fa fa-pencil"></i></span></h3>
         </div>
         <div className="items">
           {lists.map(function(list, index) {
