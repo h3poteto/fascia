@@ -88,6 +88,7 @@
         box-sizing: border-box;
         padding: 4px;
         margin-bottom: 8px;
+        word-wrap: break-word;
       }
 
       li.new-task {
@@ -130,19 +131,24 @@
       padding: 0;
       margin-bottom: 0;
       width: 220px;
+
       li {
         cursor: pointer;
         border-radius: 8px;
       }
-      li.task {;
+
+      li.task {
         text-align: center;
         box-sizing: border-box;
         padding: 4px;
         margin-bottom: 8px;
+        word-wrap: break-word;
       }
+
       li.new-task {
         display: block;
       }
+
       li.arrow {
         background: rgb(100, 100, 100);
         box-sizing: border-box;
