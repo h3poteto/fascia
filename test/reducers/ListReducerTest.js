@@ -424,7 +424,8 @@ describe('ListReducer', () => {
                     { ID: 3, ListID: 2, Title: "task3", Description: "hogehoge" },
                     { ID: 4, ListID: 2, Title: "task4", Description: "hogehoge" },
                     { draggedOn: true }
-                  ]
+                  ],
+                  isDraggingOver: true
                 },
                 prevToTask: null
               },
@@ -442,7 +443,8 @@ describe('ListReducer', () => {
                   { ID: 3, ListID: 2, Title: "task3", Description: "hogehoge" },
                   { ID: 4, ListID: 2, Title: "task4", Description: "hogehoge" },
                   { draggedOn: true }
-                ]
+                ],
+                isDraggingOver: true
               }],
               noneList: {ID: 0, ListTasks: [] },
               taskDraggingFrom: {
@@ -632,7 +634,8 @@ describe('ListReducer', () => {
                     { ID: 3, ListID: 2, Title: "task3", Description: "hogehoge" },
                     { draggedOn: true },
                     { ID: 4, ListID: 2, Title: "task4", Description: "hogehoge" }
-                  ]
+                  ],
+                  isDraggingOver: true
                 },
                 prevToTask: { ID: 4, ListID: 2, Title: "task4", Description: "hogehoge" }
               },
@@ -650,7 +653,8 @@ describe('ListReducer', () => {
                   { ID: 3, ListID: 2, Title: "task3", Description: "hogehoge" },
                   { draggedOn: true },
                   { ID: 4, ListID: 2, Title: "task4", Description: "hogehoge" }
-                ]
+                ],
+                isDraggingOver: true
               }],
               noneList: {ID: 0, ListTasks: [] },
               taskDraggingFrom: {
@@ -883,7 +887,8 @@ describe('ListReducer', () => {
               }, {
                 ID: 2,
                 Title: "list2",
-                ListTasks: [ { draggedOn: true } ]
+                ListTasks: [ { draggedOn: true } ],
+                isDraggingOver: true
               }],
               noneList: {ID: 0, ListTasks: [] },
               isTaskDraggingOver: true,
@@ -911,7 +916,8 @@ describe('ListReducer', () => {
             }, {
               ID: 2,
               Title: "list2",
-              ListTasks: []
+              ListTasks: [],
+              isDraggingOver: false
             }],
             noneList: {ID: 0, ListTasks: [] }
           })
@@ -1004,7 +1010,8 @@ describe('ListReducer', () => {
               }, {
                 ID: 2,
                 Title: "list2",
-                ListTasks: [ { draggedOn: true } ]
+                ListTasks: [ { draggedOn: true } ],
+                isDraggingOver: true
               }],
               noneList: {ID: 0, ListTasks: [] },
               isTaskDraggingOver: true,
@@ -1051,7 +1058,8 @@ describe('ListReducer', () => {
               ID: 2,
               Title: "list2",
               ListTasks: [],
-              isLoading: true
+              isLoading: true,
+              isDraggingOver: false
             }],
             noneList: {ID: 0, ListTasks: [] }
           })
@@ -1143,7 +1151,8 @@ describe('ListReducer', () => {
               }, {
                 ID: 2,
                 Title: "list2",
-                ListTasks: [ { draggedOn: true } ]
+                ListTasks: [ { draggedOn: true } ],
+                isDraggingOver: true
               }],
               noneList: {ID: 0, ListTasks: [] },
               isTaskDraggingOver: true,
@@ -1188,7 +1197,8 @@ describe('ListReducer', () => {
             }, {
               ID: 2,
               Title: "list2",
-              ListTasks: []
+              ListTasks: [],
+              isDraggingOver: false
             }],
             noneList: {ID: 0, ListTasks: [] }
           })
