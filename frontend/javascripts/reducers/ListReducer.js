@@ -365,6 +365,7 @@ export default function ListReducer(state = initState, action) {
       })
       if (taskIndex != null) {
         list.ListTasks.splice(taskIndex, 1)
+        list.isDraggingOver = false
       }
       return list
     })
@@ -395,6 +396,7 @@ export default function ListReducer(state = initState, action) {
       })
       if (taskIndex != null) {
         list.ListTasks.splice(taskIndex, 1)
+        list.isDraggingOver = false
       }
       return list
     })
@@ -426,6 +428,7 @@ export default function ListReducer(state = initState, action) {
       })
       if (taskIndex != null) {
         list.ListTasks.splice(taskIndex, 1)
+        list.isDraggingOver = false
       }
       // loadingを表示する
       if (list.ID == state.taskDraggingFrom.fromList.ID || list.ID == state.taskDraggingTo.toList.ID) {
@@ -479,6 +482,7 @@ export default function ListReducer(state = initState, action) {
               }
             })
             list.ListTasks.splice(taskIndex, 0, {draggedOn: true})
+            list.isDraggingOver = true
             return list
           } else {
             return list
@@ -500,6 +504,7 @@ export default function ListReducer(state = initState, action) {
         lists = state.lists.map(function(list, i) {
           if (list.ID == toList.ID) {
             list.ListTasks.push({draggedOn: true})
+            list.isDraggingOver = true
             taskDraggingTo = {toList: list, prevToTask: null}
             return list
           } else {
