@@ -28,3 +28,10 @@ export function closeShowTaskModal() {
     type: CLOSE_SHOW_TASK
   }
 }
+
+export const CHANGE_EDIT_MODE = 'CHANGE_EDIT_MODE'
+export function changeEditMode() {
+  return {
+    type: CHANGE_EDIT_MODE
+  }
+}

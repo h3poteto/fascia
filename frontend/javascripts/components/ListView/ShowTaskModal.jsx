@@ -59,6 +59,21 @@ export default class ShowTaskModal extends React.Component {
     }
   }
 
+  taskForm(task) {
+    return (
+      <div className="task-body">
+        <div className="task-title">
+          <span className="octicon octicon-mark-github task-icon"></span>
+          {task.Title}
+          {this.issueNumber(task)}
+        </div>
+        <div className="task-description">
+          {this.markdownDescription(task)}
+        </div>
+      </div>
+    )
+  }
+
   render() {
     return (
       <Modal
@@ -68,16 +83,9 @@ export default class ShowTaskModal extends React.Component {
       >
         <div className="task-detail">
           <div className="task-controll">
-            <i title="Edit task" className="fa fa-pencil"></i>
+            <i title="Edit task" className="fa fa-pencil" onClick={this.props.changeEditMode}></i>
           </div>
-          <div className="task-title">
-            <span className="octicon octicon-mark-github task-icon"></span>
-            {this.props.task.Title}
-            {this.issueNumber(this.props.task)}
-          </div>
-          <div className="task-description">
-            {this.markdownDescription(this.props.task)}
-          </div>
+          {this.taskForm(this.props.task)}
         </div>
       </Modal>
     )

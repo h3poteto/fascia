@@ -11,6 +11,7 @@ const initState = {
   isListEditModalOpen: false,
   isProjectEditModalOpen: false,
   isTaskShowModalOpen: false,
+  isEditTaskModalVisible: false,
   newList: {title: "", color: "008ed4"},
   newTask: {title: "", description: ""},
   lists: [],
@@ -250,7 +251,12 @@ export default function ListReducer(state = initState, action) {
     })
   case showTaskModalActions.CLOSE_SHOW_TASK:
     return Object.assign({}, state, {
-      isTaskShowModalOpen: false
+      isTaskShowModalOpen: false,
+      isEditTaskModalVisible: false
+    })
+  case showTaskModalActions.CHANGE_EDIT_MODE:
+    return Object.assign({}, state, {
+      isEditTaskModalVisible: true
     })
 
     //------------------------------------

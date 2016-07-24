@@ -101,7 +101,7 @@ export default class ListView extends React.Component {
   }
 
   render() {
-    const { isLoading, isListModalOpen, newList, lists, listOptions, noneList, project, isTaskModalOpen, newTask, selectedList, selectedListOption, isListEditModalOpen, isProjectEditModalOpen, taskDraggingFrom, taskDraggingTo, selectedProject, isTaskShowModalOpen, selectedTask, error } = this.props.ListReducer
+    const { isLoading, isListModalOpen, newList, lists, listOptions, noneList, project, isTaskModalOpen, newTask, selectedList, selectedListOption, isListEditModalOpen, isProjectEditModalOpen, taskDraggingFrom, taskDraggingTo, selectedProject, isTaskShowModalOpen, isEditTaskModalVisible, selectedTask, error } = this.props.ListReducer
 
     return (
       <div id="lists">
@@ -152,8 +152,10 @@ export default class ListView extends React.Component {
         />
         <ShowTaskModal
             isShowTaskModalOpen={isTaskShowModalOpen}
+            isEditTaskModalVisible={isEditTaskModalVisible}
             task={selectedTask}
             closeShowTaskModal={this.props.showTaskModalActions.closeShowTaskModal}
+            changeEditMode={this.props.showTaskModalActions.changeEditMode}
         />
         <div className="title-wrapper">
           <div className="project-operation">
