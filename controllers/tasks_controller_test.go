@@ -153,4 +153,25 @@ var _ = Describe("TasksController", func() {
 			Expect(contents.Lists[4].ListTasks[0].ID).To(Equal(newTask.ID))
 		})
 	})
+
+	Describe("Update", func() {
+		var newTask *task.TaskStruct
+		JustBeforeEach(func() {
+			newTask = task.NewTask(0, listID, projectID, userID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
+			newTask.Save(nil, nil)
+		})
+		It("should update a task", func() {
+			values := url.Values{}
+			values.Add("title", "updateTitle")
+			values.Add("description", "updateDescription")
+			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(listID, 10)+"/tasks/"+strconv.FormatInt(newTask.ID, 10), values)
+			Expect(err).To(BeNil())
+			var contents controllers.AllListJSONFormat
+			con, _ := ioutil.ReadAll(res.Body)
+			json.Unmarshal(con, &contents)
+			Expect(res.StatusCode).To(Equal(http.StatusOK))
+			Expect(contents.Lists[3].ListTasks[0].Title).To(Equal("updateTitle"))
+			Expect(contents.Lists[3].ListTasks[0].Description).To(Equal("updateDescription"))
+		})
+	})
 })
