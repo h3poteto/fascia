@@ -18,9 +18,11 @@ function sharedExampleInitState(action) {
     isListEditModalOpen: false,
     isProjectEditModalOpen: false,
     isTaskShowModalOpen: false,
+    isEditTaskModalVisible: false,
     isLoading: false,
     newList: {title: "", color: "008ed4"},
     newTask: {title: "", description: ""},
+    editTask: {Title: "", Description: ""},
     lists: [],
     noneList: {ID: 0, ListTasks: []},
     listOptions: [],
@@ -1761,12 +1763,14 @@ context('newTaskModalActions', () => {
       it('should close show task modal', () => {
         expect(
           ListReducer({
-            isTaskShowModalOpen: true
+            isTaskShowModalOpen: true,
+            isEditTaskModalVisible: false
           }, {
             type: showTaskModalActions.CLOSE_SHOW_TASK
           })
         ).toEqual({
-          isTaskShowModalOpen: false
+          isTaskShowModalOpen: false,
+          isEditTaskModalVisible: false
         })
       })
     })
