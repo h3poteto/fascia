@@ -231,6 +231,11 @@
   width: 700px;
   max-height: 500px;
   color: rgb(119, 119, 119);
+
+  .task-controll {
+    text-align: right;
+  }
+
   .task-title {
     padding-left: 8px;
     color: rgb(50, 50, 50);

@@ -43,7 +43,7 @@ export default class ShowTaskModal extends React.Component {
     }
   }
 
-  description(task) {
+  markdownDescription(task) {
     if (task.Description.length > 0) {
       let rawMarkup = MarkdownIt({
         html: true,
@@ -67,13 +67,16 @@ export default class ShowTaskModal extends React.Component {
           style={customStyles}
       >
         <div className="task-detail">
+          <div className="task-controll">
+            <i title="Edit task" className="fa fa-pencil"></i>
+          </div>
           <div className="task-title">
             <span className="octicon octicon-mark-github task-icon"></span>
             {this.props.task.Title}
             {this.issueNumber(this.props.task)}
           </div>
           <div className="task-description">
-            {this.description(this.props.task)}
+            {this.markdownDescription(this.props.task)}
           </div>
         </div>
       </Modal>
