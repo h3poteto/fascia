@@ -180,11 +180,15 @@ func (u *TaskStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 
 	// github側へ同期
 	if repo != nil && OauthToken != nil && OauthToken.Valid {
-		_, err = u.syncIssue(repo, OauthToken)
-		if err != nil {
-			return err
-		}
-		logging.SharedInstance().MethodInfo("task", "Update").Debugf("task synced to github: %+v", u)
+		go func() {
+			_, err = u.syncIssue(repo, OauthToken)
+			if err != nil {
+				logging.SharedInstance().MethodInfo("task", "Update").Error(err)
+				return
+			}
+			logging.SharedInstance().MethodInfo("task", "Update").Debugf("task synced to github: %+v", u)
+			return
+		}()
 	}
 	return nil
 }
