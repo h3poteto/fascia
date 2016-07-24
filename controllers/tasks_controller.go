@@ -26,6 +26,7 @@ type NewTaskForm struct {
 	Description string `param:"description"`
 }
 
+// EditTaskFrom is struct for move task
 type MoveTaskForm struct {
 	ToListID     int64 `param:"to_list_id"`
 	PrevToTaskID int64 `param:"prev_to_task_id"`
@@ -37,7 +38,6 @@ type EditTaskForm struct {
 	Description string `param:"description"`
 }
 
-// EditTaskFrom is struct for move task
 type TaskJSONFormat struct {
 	ID          int64
 	ListID      int64
