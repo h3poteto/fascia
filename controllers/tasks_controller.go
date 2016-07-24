@@ -397,7 +397,12 @@ func (u *Tasks) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	logging.SharedInstance().MethodInfo("TasksController", "Update", c).Debugf("post update parameter: %+v", editTaskForm)
 
-	// TODO: validation
+	valid, err := validators.TaskUpdateValidation(editTaskForm.Title, editTaskForm.Description)
+	if err != nil || !valid {
+		logging.SharedInstance().MethodInfo("TasksController", "Update", c).Infof("validation error: %v", err)
+		http.Error(w, "validation error", 422)
+		return
+	}
 
 	task.Title = editTaskForm.Title
 	task.Description = editTaskForm.Description
