@@ -93,6 +93,7 @@ func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels [
 	return githubIssue, nil
 }
 
+// EditGithubIssue get a issue information from github
 func EditGithubIssue(token string, repo *repository.RepositoryStruct, issueNumber int, labels []string, title *string, description *string, state *string) (bool, error) {
 	client := prepareClient(token)
 

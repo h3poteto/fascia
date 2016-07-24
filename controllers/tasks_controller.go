@@ -356,7 +356,7 @@ func (u *Tasks) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	parentProject, parentList, err, statusCode := setProjectAndList(c, w, currentUser)
+	parentProject, parentList, statusCode, err := setProjectAndList(c, w, currentUser)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Update", err, c).Error(err)
 		switch statusCode {
@@ -368,7 +368,7 @@ func (u *Tasks) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err, statusCode := setTask(c, w, parentList)
+	task, statusCode, err := setTask(c, w, parentList)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Update", err, c).Error(err)
 		switch statusCode {
@@ -447,40 +447,40 @@ func (u *Tasks) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func setProjectAndList(c web.C, w http.ResponseWriter, currentUser *userModel.UserStruct) (*projectModel.ProjectStruct, *listModel.ListStruct, error, int) {
+func setProjectAndList(c web.C, w http.ResponseWriter, currentUser *userModel.UserStruct) (*projectModel.ProjectStruct, *listModel.ListStruct, int, error) {
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
-		return nil, nil, err, 404
+		return nil, nil, 404, err
 	}
 	parentProject, err := projectModel.FindProject(projectID)
 	if err != nil || parentProject.UserID != currentUser.ID {
-		return nil, nil, err, 404
+		return nil, nil, 404, err
 	}
 	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
-		return nil, nil, err, 404
+		return nil, nil, 404, err
 	}
 	parentList, err := listModel.FindList(projectID, listID)
 	if err != nil {
-		return nil, nil, err, 404
+		return nil, nil, 404, err
 	}
-	return parentProject, parentList, nil, 200
+	return parentProject, parentList, 200, nil
 }
 
-func setTask(c web.C, w http.ResponseWriter, list *listModel.ListStruct) (*taskModel.TaskStruct, error, int) {
+func setTask(c web.C, w http.ResponseWriter, list *listModel.ListStruct) (*taskModel.TaskStruct, int, error) {
 	taskID, err := strconv.ParseInt(c.URLParams["task_id"], 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
-		return nil, err, 404
+		return nil, 404, err
 	}
 	task, err := taskModel.FindTask(list.ID, taskID)
 	if err != nil {
-		return nil, err, 404
+		return nil, 404, err
 	}
 
-	return task, nil, 200
+	return task, 200, nil
 }
 
 // TaskFormatToJSON convert task model's array to json
