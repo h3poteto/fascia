@@ -62,10 +62,18 @@ export default class ListView extends React.Component {
     }
   }
 
+  listClass(list) {
+    if (list.isDraggingOver === true) {
+      return "fascia-list fascia-list-dragging-over"
+    } else {
+      return "fascia-list"
+    }
+  }
+
   listItem(index, list, project, taskDraggingFrom, taskDraggingTo) {
     if (list.IsHidden) {
       return (
-        <div key={index} className="fascia-list fascia-list-hidden" data-dropped-depth="0" data-id={list.ID} onDragOver={this.props.listActions.taskDragOver} onDrop={e=> this.props.listActions.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.listActions.taskDragLeave}>
+        <div key={index} className={this.listClass(list)} data-dropped-depth="0" data-id={list.ID} onDragOver={this.props.listActions.taskDragOver} onDrop={e=> this.props.listActions.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.listActions.taskDragLeave}>
           <div className="fascia-list-menu" data-dropped-depth="1">
             <i title="Show tasks" className="fa fa-eye" onClick={e => this.props.listActions.displayList(project.ID, list.ID)} data-dropped-depth="2"></i>
             {this.listEditButton(list)}
@@ -76,7 +84,7 @@ export default class ListView extends React.Component {
       )
     } else {
       return (
-        <div key={index} className="fascia-list" data-dropped-depth="0" data-id={list.ID} onDragOver={this.props.listActions.taskDragOver} onDrop={e=> this.props.listActions.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.listActions.taskDragLeave}>
+        <div key={index} className={this.listClass(list)} data-dropped-depth="0" data-id={list.ID} onDragOver={this.props.listActions.taskDragOver} onDrop={e=> this.props.listActions.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.listActions.taskDragLeave}>
           <div className="fascia-list-menu" data-dropped-depth="1">
             <i title="Hide tasks" className="fa fa-eye-slash" onClick={e => this.props.listActions.hideList(project.ID, list.ID)} data-dropped-depth="2"></i>
             {this.listEditButton(list)}
