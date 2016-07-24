@@ -11,6 +11,7 @@ import (
 	"database/sql"
 	"runtime"
 
+	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
 )
 
@@ -119,6 +120,7 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	}
 	currentID, _ := result.LastInsertId()
 
+	// TODO: ここもsyncIssueを使いたい
 	if OauthToken != nil && OauthToken.Valid && repo != nil {
 		var listTitle, listColor sql.NullString
 		var listOptionID sql.NullInt64
@@ -162,6 +164,29 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	}
 	u.ID, _ = result.LastInsertId()
 	logging.SharedInstance().MethodInfo("task", "Save").Debugf("new task saved: %+v", u)
+	return nil
+}
+
+// Updateの代わりにこちらを使うようにしよう
+// Updateの引数を変えてみて，コンパイルエラーになるところを全部チェック
+func (u *TaskStruct) UpdateWithGithub(repo *repository.RepositoryStruct, OauthToken *sql.NullString) error {
+	table := u.database.Init()
+	defer table.Close()
+
+	_, err := table.Exec("update tasks set list_id = ?, issue_number = ?, title = ?, description = ?, pull_request = ?, html_url = ? where id = ?;", u.ListID, u.IssueNumber, u.Title, u.Description, u.PullRequest, u.HTMLURL, u.ID)
+	if err != nil {
+		return errors.Wrap(err, "sql execute error")
+	}
+	logging.SharedInstance().MethodInfo("task", "Update").Debugf("task updated: %+v", u)
+
+	// github側へ同期
+	if repo != nil && OauthToken != nil && OauthToken.Valid {
+		_, err = u.syncIssue(repo, OauthToken)
+		if err != nil {
+			return err
+		}
+		logging.SharedInstance().MethodInfo("task", "Update").Debugf("task synced to github: %+v", u)
+	}
 	return nil
 }
 
@@ -244,6 +269,7 @@ func (u *TaskStruct) ChangeList(listID int64, prevToTaskID *int64, repo *reposit
 	}
 
 	// labelの所属を変更する処理
+	// TODO: ここもsyncIssueでいけないかなぁ
 	if !isReorder && OauthToken != nil && OauthToken.Valid && repo != nil && u.IssueNumber.Valid {
 		token := OauthToken.String
 		var listTitle, listColor sql.NullString
@@ -263,7 +289,7 @@ func (u *TaskStruct) ChangeList(listID int64, prevToTaskID *int64, repo *reposit
 			issueAction = &listOption.Action
 		}
 		// issueを移動
-		result, err := hub.EditGithubIssue(token, repo, u.IssueNumber.Int64, labelName, &u.Title, &u.Description, issueAction)
+		result, err := hub.EditGithubIssue(token, repo, int(u.IssueNumber.Int64), labelName, &u.Title, &u.Description, issueAction)
 		if err != nil || !result {
 			transaction.Rollback()
 			return err
@@ -286,11 +312,62 @@ func (u *TaskStruct) syncLabel(listTitle string, listColor string, token string,
 	if err != nil {
 		return nil, err
 	} else if label == nil {
-		// 移動先がない場合はつくろう
+		// 対象のラベルがない場合には新規作成する
 		label, err = hub.CreateGithubLabel(token, repo, &listTitle, &listColor)
 		if label == nil {
 			return nil, err
 		}
 	}
 	return []string{*label.Name}, nil
+}
+
+func (u *TaskStruct) syncIssue(repo *repository.RepositoryStruct, OauthToken *sql.NullString) (*int, error) {
+	table := u.database.Init()
+	defer table.Close()
+
+	var listTitle, listColor sql.NullString
+	var listOptionID sql.NullInt64
+	err := table.QueryRow("select title, color, list_option_id from lists where id = ?;", u.ListID).Scan(&listTitle, &listColor, &listOptionID)
+	if err != nil {
+		return nil, errors.Wrap(err, "sql select error")
+	}
+
+	token := OauthToken.String
+
+	labelName, err := u.syncLabel(listTitle.String, listColor.String, token, repo)
+	if err != nil {
+		return nil, err
+	}
+
+	var issue *github.Issue
+	// issueを確認する
+	if u.IssueNumber.Valid {
+		issue, err = hub.GetGithubIssue(token, repo, int(u.IssueNumber.Int64))
+		if err != nil {
+			return nil, err
+		}
+	}
+	// issueがない場合には作成する
+	if issue == nil {
+		issue, err = hub.CreateGithubIssue(token, repo, labelName, &u.Title, &u.Description)
+		if err != nil {
+			return nil, err
+		}
+	}
+	// issueがある場合には更新する
+	// list_optionに応じてopen, closeを更新する
+	var issueAction *string
+	listOption, err := list_option.FindByID(listOptionID)
+	if err == nil {
+		issueAction = &listOption.Action
+	}
+
+	result, err := hub.EditGithubIssue(token, repo, *issue.Number, labelName, &u.Title, &u.Description, issueAction)
+	if err != nil {
+		return nil, err
+	}
+	if !result {
+		return nil, errors.New("unexpected error")
+	}
+	return issue.Number, nil
 }
