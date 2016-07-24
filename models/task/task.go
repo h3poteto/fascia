@@ -167,9 +167,8 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	return nil
 }
 
-// Updateの代わりにこちらを使うようにしよう
-// Updateの引数を変えてみて，コンパイルエラーになるところを全部チェック
-func (u *TaskStruct) UpdateWithGithub(repo *repository.RepositoryStruct, OauthToken *sql.NullString) error {
+// Update is update task in db and sync github issue
+func (u *TaskStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.NullString) error {
 	table := u.database.Init()
 	defer table.Close()
 
@@ -187,18 +186,6 @@ func (u *TaskStruct) UpdateWithGithub(repo *repository.RepositoryStruct, OauthTo
 		}
 		logging.SharedInstance().MethodInfo("task", "Update").Debugf("task synced to github: %+v", u)
 	}
-	return nil
-}
-
-func (u *TaskStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.NullString) error {
-	table := u.database.Init()
-	defer table.Close()
-
-	_, err := table.Exec("update tasks set list_id = ?, issue_number = ?, title = ?, description = ?, pull_request = ?, html_url = ? where id = ?;", u.ListID, u.IssueNumber, u.Title, u.Description, u.PullRequest, u.HTMLURL, u.ID)
-	if err != nil {
-		return errors.Wrap(err, "sql execute error")
-	}
-	logging.SharedInstance().MethodInfo("task", "Update").Debugf("task updated: %+v", u)
 	return nil
 }
 

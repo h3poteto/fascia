@@ -403,7 +403,7 @@ func (u *Tasks) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	task.Description = editTaskForm.Description
 
 	repo, _ := parentProject.Repository()
-	if err := task.UpdateWithGithub(repo, &currentUser.OauthToken); err != nil {
+	if err := task.Update(repo, &currentUser.OauthToken); err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Update", err, c).Error(err)
 		http.Error(w, "update error", 500)
 		return
