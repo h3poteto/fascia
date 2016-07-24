@@ -31,11 +31,13 @@ type MoveTaskForm struct {
 	PrevToTaskID int64 `param:"prev_to_task_id"`
 }
 
+// EditTaskForm is struct for edit task
 type EditTaskForm struct {
 	Title       string `param:"title"`
 	Description string `param:"description"`
 }
 
+// EditTaskFrom is struct for move task
 type TaskJSONFormat struct {
 	ID          int64
 	ListID      int64
@@ -347,6 +349,7 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+// Update a task
 func (u *Tasks) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	currentUser, err := LoginRequired(r)
