@@ -14,6 +14,7 @@ const initState = {
   isEditTaskModalVisible: false,
   newList: {title: "", color: "008ed4"},
   newTask: {title: "", description: ""},
+  editTask: {Title: "", Description: ""},
   lists: [],
   listOptions: [],
   noneList: {ID: 0, ListTasks: []},
@@ -256,7 +257,49 @@ export default function ListReducer(state = initState, action) {
     })
   case showTaskModalActions.CHANGE_EDIT_MODE:
     return Object.assign({}, state, {
-      isEditTaskModalVisible: true
+      isEditTaskModalVisible: true,
+      editTask: action.task
+    })
+  case showTaskModalActions.UPDATE_EDIT_TASK_TITLE:
+    var editTask = state.editTask
+    editTask.Title = action.title
+    return Object.assign({}, state, {
+      editTask: editTask
+    })
+  case showTaskModalActions.UPDATE_EDIT_TASK_DESCRIPTION:
+    var editTask = state.editTask
+    editTask.Description = action.description
+    return Object.assign({}, state, {
+      editTask: editTask
+    })
+  case showTaskModalActions.REQUEST_UPDATE_TASK:
+    return Object.assign({}, state, {
+      isLoading: true
+    })
+  case showTaskModalActions.RECEIVE_UPDATE_TASK:
+    var lists
+    if (action.lists == null) {
+      lists = []
+    } else {
+      lists = action.lists.map(function(list, index) {
+        if (list.ListTasks == null) {
+          list.ListTasks = []
+          return list
+        } else {
+          return list
+        }
+      })
+    }
+    var noneList = state.noneList
+    if (action.noneList != null) {
+      noneList = action.noneList
+    }
+    return Object.assign({}, state, {
+      lists: lists,
+      noneList: noneList,
+      isLoading: false,
+      isEditTaskModalVisible: false,
+      isTaskShowModalOpen: false
     })
 
     //------------------------------------

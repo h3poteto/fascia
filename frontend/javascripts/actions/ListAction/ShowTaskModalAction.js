@@ -30,8 +30,62 @@ export function closeShowTaskModal() {
 }
 
 export const CHANGE_EDIT_MODE = 'CHANGE_EDIT_MODE'
-export function changeEditMode() {
+export function changeEditMode(task) {
   return {
-    type: CHANGE_EDIT_MODE
+    type: CHANGE_EDIT_MODE,
+    task: task
+  }
+}
+
+export const UPDATE_EDIT_TASK_TITLE = 'UPDATE_EDIT_TASK_TITLE'
+export function updateEditTaskTitle(ev) {
+  return {
+    type: UPDATE_EDIT_TASK_TITLE,
+    title: ev.target.value
+  }
+}
+
+export const UPDATE_EDIT_TASK_DESCRIPTION = 'UPDATE_EDIT_TASK_DESCRIPTION'
+export function updateEditTaskDescription(ev) {
+  return {
+    type: UPDATE_EDIT_TASK_DESCRIPTION,
+    description: ev.target.value
+  }
+}
+
+export const REQUEST_UPDATE_TASK = 'REQUEST_UPDATE_TASK'
+function requestUpdateTask() {
+  return {
+    type: REQUEST_UPDATE_TASK
+  }
+}
+
+export const RECEIVE_UPDATE_TASK = 'RECEIVE_UPDATE_TASK'
+function receiveUpdateTask(lists) {
+  return {
+    type: RECEIVE_UPDATE_TASK,
+    lists: lists.Lists,
+    noneList: lists.NoneList
+  }
+}
+
+export function fetchUpdateTask(projectID, listID, taskID, title, description) {
+  return dispatch => {
+    dispatch(requestUpdateTask())
+    return Request
+      .post(`/projects/${projectID}/lists/${listID}/tasks/${taskID}`)
+      .type('form')
+      .send({title: title, description: description})
+      .end((err, res)=> {
+        if(res.ok) {
+          dispatch(receiveUpdateTask(res.body))
+        } else if (res.unauthorized) {
+          dispatch(unauthorized())
+        } else if (res.notFound) {
+          dispatch(notFound())
+        } else {
+          dispatch(serverError())
+        }
+      })
   }
 }

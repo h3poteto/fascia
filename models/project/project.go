@@ -325,7 +325,7 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 			}
 		}
 		// ここcreateだけでなくupdateも考慮したほうが良いのではと思ったが，そもそも現状fasciaにはtaskのupdateアクションがないので，updateされることはありえない．そのため，未実装でも問題はない．
-		// note: task#update実装時にはここも実装すること
+		// TODO: task#update実装時にはここも実装すること
 		_, err = hub.CreateGithubIssue(oauthToken, repo, []string{*label.Name}, &title, &description)
 		if err != nil {
 			return false, err
