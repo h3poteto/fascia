@@ -96,31 +96,16 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "not logined", 401)
 		return
 	}
-	encoder := json.NewEncoder(w)
-	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+
+	parentProject, parentList, statusCode, err := setProjectAndList(c, w, currentUser)
 	if err != nil {
-		err := errors.Wrap(err, "parse error")
 		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Create", err, c).Error(err)
-		http.Error(w, "project not found", 404)
-		return
-	}
-	parentProject, err := projectModel.FindProject(projectID)
-	if err != nil || parentProject.UserID != currentUser.ID {
-		logging.SharedInstance().MethodInfo("TasksController", "Create", c).Warnf("project not found: %v", err)
-		http.Error(w, "project not found", 404)
-		return
-	}
-	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
-	if err != nil {
-		err := errors.Wrap(err, "parse error")
-		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Create", err, c).Error(err)
-		http.Error(w, "list not found", 404)
-		return
-	}
-	parentList, err := listModel.FindList(projectID, listID)
-	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Create", c).Warnf("list not found: %v", err)
-		http.Error(w, "list not found", 404)
+		switch statusCode {
+		case 404:
+			http.Error(w, "Not Found", 404)
+		default:
+			http.Error(w, "Internal Server Error", 500)
+		}
 		return
 	}
 
@@ -156,6 +141,9 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "save failed", 500)
 		return
 	}
+
+	encoder := json.NewEncoder(w)
+
 	jsonTask := TaskJSONFormat{ID: task.ID, ListID: task.ListID, UserID: task.UserID, IssueNumber: task.IssueNumber.Int64, Title: task.Title, Description: task.Description, HTMLURL: task.HTMLURL.String, PullRequest: task.PullRequest}
 	logging.SharedInstance().MethodInfo("TasksController", "Create", c).Info("success to create task")
 	encoder.Encode(jsonTask)
