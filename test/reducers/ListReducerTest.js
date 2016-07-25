@@ -18,9 +18,11 @@ function sharedExampleInitState(action) {
     isListEditModalOpen: false,
     isProjectEditModalOpen: false,
     isTaskShowModalOpen: false,
+    isEditTaskModalVisible: false,
     isLoading: false,
     newList: {title: "", color: "008ed4"},
     newTask: {title: "", description: ""},
+    editTask: {Title: "", Description: ""},
     lists: [],
     noneList: {ID: 0, ListTasks: []},
     listOptions: [],
@@ -1209,7 +1211,7 @@ describe('ListReducer', () => {
 
 
 
-context('newTaskModalActions', () => {
+  context('newTaskModalActions', () => {
     describe('SERVER_ERROR', () => {
       it('should return server error', () => {
         expect(
@@ -1771,12 +1773,120 @@ context('newTaskModalActions', () => {
       it('should close show task modal', () => {
         expect(
           ListReducer({
-            isTaskShowModalOpen: true
+            isTaskShowModalOpen: true,
+            isEditTaskModalVisible: false
           }, {
             type: showTaskModalActions.CLOSE_SHOW_TASK
           })
         ).toEqual({
-          isTaskShowModalOpen: false
+          isTaskShowModalOpen: false,
+          isEditTaskModalVisible: false
+        })
+      })
+    })
+    describe('CHANGE_EDIT_MODE', () => {
+      it('should visible edit mode', () => {
+        expect(
+          ListReducer({
+            isTaskShowModalOpen: true,
+            isEditTaskModalVisible: false,
+            editTask: {
+              Title: "",
+              Description: ""
+            }
+          }, {
+            type: showTaskModalActions.CHANGE_EDIT_MODE,
+            task: {
+              Title: "",
+              Description: ""
+            }
+          })
+        ).toEqual({
+          isTaskShowModalOpen: true,
+          isEditTaskModalVisible: true,
+          editTask: {
+            Title: "",
+            Description: ""
+          }
+        })
+      })
+    })
+    describe('UPDATE_EDIT_TASK_TITLE', () => {
+      it('should update task title', () => {
+        expect(
+          ListReducer({
+            editTask: {
+              Title: "task",
+              Description: "description"
+            }
+          }, {
+            type: showTaskModalActions.UPDATE_EDIT_TASK_TITLE,
+            title: "task title"
+          })
+        ).toEqual({
+          editTask: {
+            Title: "task title",
+            Description: "description"
+          }
+        })
+      })
+    })
+    describe('UPDATE_EDIT_TASK_DESCRIPTION', () => {
+      it('should update task description', () => {
+        expect(
+          ListReducer({
+            editTask: {
+              Title: "task",
+              Description: "description"
+            }
+          }, {
+            type: showTaskModalActions.UPDATE_EDIT_TASK_DESCRIPTION,
+            description: "task description"
+          })
+        ).toEqual({
+          editTask: {
+            Title: "task",
+            Description: "task description"
+          }
+        })
+      })
+    })
+    describe('RECEIVE_UPDATE_TASK', () => {
+      it('should return all lists', () => {
+        expect(
+          ListReducer({
+            isTaskShowModalOpen: true,
+            isEditTaskModalVisible: true,
+            isLoading: true,
+            lists: [
+              {
+                Title: "task1",
+                Description: "hoge"
+              }
+            ]
+          }, {
+            type: showTaskModalActions.RECEIVE_UPDATE_TASK,
+            lists: [
+              {
+                Title: "task updated",
+                Description: "fuga",
+                ListTasks: []
+              }
+            ],
+            noneList: []
+          })
+        ).toEqual({
+          isTaskShowModalOpen: false,
+          isEditTaskModalVisible: false,
+          isLoading: false,
+          lists: [
+            {
+              Title: "task updated",
+              Description: "fuga",
+              ListTasks: []
+            }
+          ],
+          noneList: []
         })
       })
     })

@@ -93,7 +93,8 @@ func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels [
 	return githubIssue, nil
 }
 
-func EditGithubIssue(token string, repo *repository.RepositoryStruct, number int64, labels []string, title *string, description *string, state *string) (bool, error) {
+// EditGithubIssue get a issue information from github
+func EditGithubIssue(token string, repo *repository.RepositoryStruct, issueNumber int, labels []string, title *string, description *string, state *string) (bool, error) {
 	client := prepareClient(token)
 
 	issueRequest := &github.IssueRequest{
@@ -103,7 +104,6 @@ func EditGithubIssue(token string, repo *repository.RepositoryStruct, number int
 		Labels: &labels,
 	}
 
-	issueNumber := int(number)
 	issue, response, err := client.Issues.Edit(repo.Owner.String, repo.Name.String, issueNumber, issueRequest)
 	logging.SharedInstance().MethodInfo("hub", "EditGithubIssue").Debugf("response of edit github issue: %+v", response)
 	if err != nil {

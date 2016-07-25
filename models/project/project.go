@@ -302,6 +302,7 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 	}
 
 	// github側へ同期
+	// github側に存在するissueについては，#299でDB内に新規作成されるため，ここではgithub側に存在せず，DB内にのみ存在するタスクをissue化すれば良い
 	// ここではprojectとlist両方考慮する必要がある
 	rows, err := table.Query("select tasks.title, tasks.description, lists.title, lists.color from tasks left join lists on lists.id = tasks.list_id where tasks.project_id = ? and tasks.user_id = ? and tasks.issue_number IS NULL;", u.ID, u.UserID)
 	if err != nil {
@@ -324,8 +325,7 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 				return false, err
 			}
 		}
-		// ここcreateだけでなくupdateも考慮したほうが良いのではと思ったが，そもそも現状fasciaにはtaskのupdateアクションがないので，updateされることはありえない．そのため，未実装でも問題はない．
-		// note: task#update実装時にはここも実装すること
+
 		_, err = hub.CreateGithubIssue(oauthToken, repo, []string{*label.Name}, &title, &description)
 		if err != nil {
 			return false, err

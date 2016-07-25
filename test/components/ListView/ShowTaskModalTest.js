@@ -31,5 +31,17 @@ describe('ListView::ShowTaskModal', () => {
       expect(output.props.isOpen).toBe(true)
     })
   })
-}
-)
+
+  context('when edit task modal visible', () => {
+    let state = ShowTaskModalFixture.visibleEditTaskModalState()
+    it('should render edit task form', () => {
+      const { output } = setup(state)
+      expect(output.props.isOpen).toBe(true)
+
+      let taskDetail = output.props.children
+      let [ , body ]  = taskDetail.props.children
+      expect(body.props.children.type).toBe('form')
+    })
+  })
+})
+

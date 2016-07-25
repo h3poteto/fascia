@@ -43,7 +43,7 @@ export default class ShowTaskModal extends React.Component {
     }
   }
 
-  description(task) {
+  markdownDescription(task) {
     if (task.Description.length > 0) {
       let rawMarkup = MarkdownIt({
         html: true,
@@ -59,6 +59,40 @@ export default class ShowTaskModal extends React.Component {
     }
   }
 
+  taskForm(projectID, task, isEditTaskModalVisible, editTask, updateEditTaskTitle, updateEditTaskDescription, fetchUpdateTask) {
+    if (isEditTaskModalVisible) {
+      return (
+        <div className="task-body task-form">
+          <form className="pure-form pure-form-stacked">
+            <fieldset>
+              <legend>Edit Task</legend>
+              <label htmlFor="title">Title</label>
+              <input id="title" name="title" type="text" value={editTask.Title} onChange={updateEditTaskTitle} placeholder="Title title" className="form-control" />
+              <label htmlFor="description">Description</label>
+              <textarea id="description" name="description" value={editTask.Description} onChange={updateEditTaskDescription} placeholder="Task description" className="form-control" />
+              <div className="form-action">
+                <button onClick={e => fetchUpdateTask(projectID, task.ListID, task.ID, editTask.Title, editTask.Description)} className="pure-button pure-button-primary" type="button">Update Task</button>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+      )
+    } else {
+      return (
+        <div className="task-body">
+          <div className="task-title">
+            <span className="octicon octicon-mark-github task-icon"></span>
+            {task.Title}
+            {this.issueNumber(task)}
+          </div>
+          <div className="task-description">
+            {this.markdownDescription(task)}
+          </div>
+        </div>
+      )
+    }
+  }
+
   render() {
     return (
       <Modal
@@ -67,14 +101,10 @@ export default class ShowTaskModal extends React.Component {
           style={customStyles}
       >
         <div className="task-detail">
-          <div className="task-title">
-            <span className="octicon octicon-mark-github task-icon"></span>
-            {this.props.task.Title}
-            {this.issueNumber(this.props.task)}
+          <div className="task-controll">
+            <i title="Edit task" className="fa fa-pencil" onClick={e => this.props.changeEditMode(this.props.task)}></i>
           </div>
-          <div className="task-description">
-            {this.description(this.props.task)}
-          </div>
+          {this.taskForm(this.props.projectID, this.props.task, this.props.isEditTaskModalVisible, this.props.editTask, this.props.updateEditTaskTitle, this.props.updateEditTaskDescription, this.props.fetchUpdateTask)}
         </div>
       </Modal>
     )

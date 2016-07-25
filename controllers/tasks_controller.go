@@ -4,6 +4,7 @@ import (
 	listModel "../models/list"
 	projectModel "../models/project"
 	taskModel "../models/task"
+	userModel "../models/user"
 	"../modules/logging"
 	"../validators"
 
@@ -25,9 +26,16 @@ type NewTaskForm struct {
 	Description string `param:"description"`
 }
 
-type MoveTaskFrom struct {
+// EditTaskFrom is struct for move task
+type MoveTaskForm struct {
 	ToListID     int64 `param:"to_list_id"`
 	PrevToTaskID int64 `param:"prev_to_task_id"`
+}
+
+// EditTaskForm is struct for edit task
+type EditTaskForm struct {
+	Title       string `param:"title"`
+	Description string `param:"description"`
 }
 
 type TaskJSONFormat struct {
@@ -178,13 +186,13 @@ func (u *Tasks) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
-		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Error(err)
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Show", err, c).Error(err)
 		http.Error(w, "project not found", 404)
 		return
 	}
 	parentProject, err := projectModel.FindProject(projectID)
 	if err != nil || parentProject.UserID != currentUser.ID {
-		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", c).Warnf("project not found: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "Show", c).Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
@@ -192,13 +200,13 @@ func (u *Tasks) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
-		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Error(err)
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Show", err, c).Error(err)
 		http.Error(w, "list not found", 404)
 		return
 	}
 	parentList, err := listModel.FindList(parentProject.ID, listID)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "MoveTask", c).Warnf("list not found: %v", err)
+		logging.SharedInstance().MethodInfo("TasksController", "Show", c).Warnf("list not found: %v", err)
 		http.Error(w, "list not found", 404)
 		return
 	}
@@ -206,13 +214,13 @@ func (u *Tasks) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 	taskID, err := strconv.ParseInt(c.URLParams["task_id"], 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
-		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Error(err)
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Show", err, c).Error(err)
 		http.Error(w, "task not found", 404)
 		return
 	}
 	task, err := taskModel.FindTask(parentList.ID, taskID)
 	if err != nil {
-		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Errorf("find task error: %v", err)
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Show", err, c).Errorf("find task error: %v", err)
 		http.Error(w, "task not find", 500)
 		return
 	}
@@ -282,7 +290,7 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Wrong Form", 400)
 		return
 	}
-	var moveTaskFrom MoveTaskFrom
+	var moveTaskFrom MoveTaskForm
 	err = param.Parse(r.PostForm, &moveTaskFrom)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
@@ -339,6 +347,143 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 	logging.SharedInstance().MethodInfo("TasksController", "MoveTask", c).Info("success to move task")
 	encoder.Encode(jsonAllLists)
 	return
+}
+
+// Update a task
+func (u *Tasks) Update(c web.C, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	currentUser, err := LoginRequired(r)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("TasksController", "Update", c).Infof("loging error: %v", err)
+		http.Error(w, "not logined", 401)
+		return
+	}
+
+	parentProject, parentList, statusCode, err := setProjectAndList(c, w, currentUser)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Update", err, c).Error(err)
+		switch statusCode {
+		case 404:
+			http.Error(w, "Not Found", 404)
+		default:
+			http.Error(w, "Internal Server Error", 500)
+		}
+		return
+	}
+
+	task, statusCode, err := setTask(c, w, parentList)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Update", err, c).Error(err)
+		switch statusCode {
+		case 404:
+			http.Error(w, "Not Found", 404)
+		default:
+			http.Error(w, "Internal Server Error", 500)
+		}
+		return
+	}
+
+	err = r.ParseForm()
+	if err != nil {
+		err := errors.Wrap(err, "wrong form")
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Update", err, c).Error(err)
+		http.Error(w, "Wrong Form", 400)
+		return
+	}
+	var editTaskForm EditTaskForm
+	err = param.Parse(r.PostForm, &editTaskForm)
+	if err != nil {
+		err := errors.Wrap(err, "wrong parameter")
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Update", err, c).Error(err)
+		http.Error(w, "Wrong parameter", 500)
+		return
+	}
+	logging.SharedInstance().MethodInfo("TasksController", "Update", c).Debugf("post update parameter: %+v", editTaskForm)
+
+	valid, err := validators.TaskUpdateValidation(editTaskForm.Title, editTaskForm.Description)
+	if err != nil || !valid {
+		logging.SharedInstance().MethodInfo("TasksController", "Update", c).Infof("validation error: %v", err)
+		http.Error(w, "validation error", 422)
+		return
+	}
+
+	task.Title = editTaskForm.Title
+	task.Description = editTaskForm.Description
+
+	repo, _ := parentProject.Repository()
+	if err := task.Update(repo, &currentUser.OauthToken); err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Update", err, c).Error(err)
+		http.Error(w, "update error", 500)
+		return
+	}
+
+	encoder := json.NewEncoder(w)
+
+	allLists, err := parentProject.Lists()
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Update", err, c).Error(err)
+		http.Error(w, "lists not found", 500)
+		return
+	}
+	jsonLists, err := ListsFormatToJSON(allLists)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Update", err, c).Error(err)
+		http.Error(w, "lists format error", 500)
+		return
+	}
+	noneList, err := parentProject.NoneList()
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Update", err, c).Error(err)
+		http.Error(w, "none list not found", 500)
+		return
+	}
+	jsonNoneList, err := ListFormatToJSON(noneList)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Update", err, c).Error(err)
+		http.Error(w, "list format error", 500)
+		return
+	}
+	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
+	logging.SharedInstance().MethodInfo("TasksController", "Update", c).Debugf("update task: %+v", allLists)
+	logging.SharedInstance().MethodInfo("TasksController", "Update", c).Info("success to update task")
+	encoder.Encode(jsonAllLists)
+	return
+}
+
+func setProjectAndList(c web.C, w http.ResponseWriter, currentUser *userModel.UserStruct) (*projectModel.ProjectStruct, *listModel.ListStruct, int, error) {
+	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	if err != nil {
+		err := errors.Wrap(err, "parse error")
+		return nil, nil, 404, err
+	}
+	parentProject, err := projectModel.FindProject(projectID)
+	if err != nil || parentProject.UserID != currentUser.ID {
+		return nil, nil, 404, err
+	}
+	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
+	if err != nil {
+		err := errors.Wrap(err, "parse error")
+		return nil, nil, 404, err
+	}
+	parentList, err := listModel.FindList(projectID, listID)
+	if err != nil {
+		return nil, nil, 404, err
+	}
+	return parentProject, parentList, 200, nil
+}
+
+func setTask(c web.C, w http.ResponseWriter, list *listModel.ListStruct) (*taskModel.TaskStruct, int, error) {
+	taskID, err := strconv.ParseInt(c.URLParams["task_id"], 10, 64)
+	if err != nil {
+		err := errors.Wrap(err, "parse error")
+		return nil, 404, err
+	}
+	task, err := taskModel.FindTask(list.ID, taskID)
+	if err != nil {
+		return nil, 404, err
+	}
+
+	return task, 200, nil
 }
 
 // TaskFormatToJSON convert task model's array to json

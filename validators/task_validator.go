@@ -9,6 +9,11 @@ type taskCreate struct {
 	Description string `valid:"stringlength(0|21845),optional"`
 }
 
+type taskUpdate struct {
+	Title       string `valid:"stringlength(1|255)"`
+	Description string `valid:"stringlength(0|21845),optional"`
+}
+
 type taskMove struct {
 	ToListID     int64 `valid:"required"`
 	PrevToTaskID int64 `valid:"-"`
@@ -28,6 +33,15 @@ func TaskMoveValidation(toListID int64, prevToTaskID int64) (bool, error) {
 	form := &taskMove{
 		ToListID:     toListID,
 		PrevToTaskID: prevToTaskID,
+	}
+	return govalidator.ValidateStruct(form)
+}
+
+// TaskUpdateValidation check form variable when update a task
+func TaskUpdateValidation(title string, description string) (bool, error) {
+	form := &taskUpdate{
+		Title:       title,
+		Description: description,
 	}
 	return govalidator.ValidateStruct(form)
 }
