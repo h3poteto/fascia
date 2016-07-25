@@ -159,46 +159,27 @@ func (u *Tasks) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: あとでまとめたい
-	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	_, parentList, statusCode, err := setProjectAndList(c, w, currentUser)
 	if err != nil {
-		err := errors.Wrap(err, "parse error")
 		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Show", err, c).Error(err)
-		http.Error(w, "project not found", 404)
-		return
-	}
-	parentProject, err := projectModel.FindProject(projectID)
-	if err != nil || parentProject.UserID != currentUser.ID {
-		logging.SharedInstance().MethodInfo("TasksController", "Show", c).Warnf("project not found: %v", err)
-		http.Error(w, "project not found", 404)
+		switch statusCode {
+		case 404:
+			http.Error(w, "Not Found", 404)
+		default:
+			http.Error(w, "Internal Server Error", 500)
+		}
 		return
 	}
 
-	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
+	task, statusCode, err := setTask(c, w, parentList)
 	if err != nil {
-		err := errors.Wrap(err, "parse error")
 		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Show", err, c).Error(err)
-		http.Error(w, "list not found", 404)
-		return
-	}
-	parentList, err := listModel.FindList(parentProject.ID, listID)
-	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Show", c).Warnf("list not found: %v", err)
-		http.Error(w, "list not found", 404)
-		return
-	}
-
-	taskID, err := strconv.ParseInt(c.URLParams["task_id"], 10, 64)
-	if err != nil {
-		err := errors.Wrap(err, "parse error")
-		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Show", err, c).Error(err)
-		http.Error(w, "task not found", 404)
-		return
-	}
-	task, err := taskModel.FindTask(parentList.ID, taskID)
-	if err != nil {
-		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Show", err, c).Errorf("find task error: %v", err)
-		http.Error(w, "task not find", 500)
+		switch statusCode {
+		case 404:
+			http.Error(w, "Not Found", 404)
+		default:
+			http.Error(w, "Internal Server Error", 500)
+		}
 		return
 	}
 
