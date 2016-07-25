@@ -26,7 +26,7 @@ type NewTaskForm struct {
 	Description string `param:"description"`
 }
 
-// EditTaskFrom is struct for move task
+// MoveTaskFrom is struct for move task
 type MoveTaskForm struct {
 	ToListID     int64 `param:"to_list_id"`
 	PrevToTaskID int64 `param:"prev_to_task_id"`
@@ -57,39 +57,28 @@ func (u *Tasks) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "not logined", 401)
 		return
 	}
-	encoder := json.NewEncoder(w)
-	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+
+	_, parentList, statusCode, err := setProjectAndList(c, w, currentUser)
 	if err != nil {
-		err := errors.Wrap(err, "parse error")
 		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Index", err, c).Error(err)
-		http.Error(w, "project not found", 404)
+		switch statusCode {
+		case 404:
+			http.Error(w, "Not Found", 404)
+		default:
+			http.Error(w, "Internal Server Error", 500)
+		}
 		return
 	}
-	parentProject, err := projectModel.FindProject(projectID)
-	if err != nil || parentProject.UserID != currentUser.ID {
-		logging.SharedInstance().MethodInfo("TasksController", "Index", c).Warnf("project not found: %v", err)
-		http.Error(w, "project not found", 404)
-		return
-	}
-	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
-	if err != nil {
-		err := errors.Wrap(err, "parse error")
-		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Index", err, c).Error(err)
-		http.Error(w, "list not found", 404)
-		return
-	}
-	parentList, err := listModel.FindList(projectID, listID)
-	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Index", c).Warnf("list not found: %v", err)
-		http.Error(w, "list not found", 404)
-		return
-	}
+
 	tasks, err := parentList.Tasks()
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Index", err, c).Error(err)
 		http.Error(w, "task not found", 500)
 		return
 	}
+
+	encoder := json.NewEncoder(w)
+
 	jsonTasks := make([]*TaskJSONFormat, 0)
 	for _, t := range tasks {
 		jsonTasks = append(jsonTasks, &TaskJSONFormat{ID: t.ID, ListID: t.ListID, UserID: t.UserID, IssueNumber: t.IssueNumber.Int64, Title: t.Title, Description: t.Description, HTMLURL: t.HTMLURL.String, PullRequest: t.PullRequest})
