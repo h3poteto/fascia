@@ -181,7 +181,7 @@ func (u *TaskStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	// github側へ同期
 	if repo != nil && OauthToken != nil && OauthToken.Valid {
 		go func() {
-			_, err = u.syncIssue(repo, OauthToken)
+			_, err := u.syncIssue(repo, OauthToken)
 			if err != nil {
 				logging.SharedInstance().MethodInfo("task", "Update").Error(err)
 				return
@@ -259,39 +259,24 @@ func (u *TaskStruct) ChangeList(listID int64, prevToTaskID *int64, repo *reposit
 		return errors.Wrap(err, "sql execute error")
 	}
 
-	// labelの所属を変更する処理
-	// TODO: ここもsyncIssueでいけないかなぁ
-	if !isReorder && OauthToken != nil && OauthToken.Valid && repo != nil && u.IssueNumber.Valid {
-		token := OauthToken.String
-		var listTitle, listColor sql.NullString
-		var listOptionID sql.NullInt64
-		err = transaction.QueryRow("select title, color, list_option_id from lists where id = ?;", listID).Scan(&listTitle, &listColor, &listOptionID)
-		if err != nil {
-			transaction.Rollback()
-			return errors.Wrap(err, "sql select error")
-		}
-
-		labelName, err := u.syncLabel(listTitle.String, listColor.String, token, repo)
-
-		// list_option
-		var issueAction *string
-		listOption, err := list_option.FindByID(listOptionID)
-		if err == nil {
-			issueAction = &listOption.Action
-		}
-		// issueを移動
-		result, err := hub.EditGithubIssue(token, repo, int(u.IssueNumber.Int64), labelName, &u.Title, &u.Description, issueAction)
-		if err != nil || !result {
-			transaction.Rollback()
-			return err
-		}
-	}
-
 	err = transaction.Commit()
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
 	u.ListID = listID
+
+	if !isReorder && OauthToken != nil && OauthToken.Valid && repo != nil {
+		go func() {
+			_, err := u.syncIssue(repo, OauthToken)
+			if err != nil {
+				logging.SharedInstance().MethodInfo("task", "ChangeList").Error(err)
+				return
+			}
+			logging.SharedInstance().MethodInfo("Task", "Update").Debugf("task synced to github: %+v", u)
+			return
+		}()
+	}
+
 	return nil
 }
 
