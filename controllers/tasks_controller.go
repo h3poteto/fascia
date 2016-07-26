@@ -26,7 +26,7 @@ type NewTaskForm struct {
 	Description string `param:"description"`
 }
 
-// MoveTaskFrom is struct for move task
+// MoveTaskForm is struct for move task
 type MoveTaskForm struct {
 	ToListID     int64 `param:"to_list_id"`
 	PrevToTaskID int64 `param:"prev_to_task_id"`
