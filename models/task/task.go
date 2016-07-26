@@ -120,35 +120,21 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	}
 	currentID, _ := result.LastInsertId()
 
-	// TODO: ここもsyncIssueを使いたい
 	if OauthToken != nil && OauthToken.Valid && repo != nil {
-		var listTitle, listColor sql.NullString
-		var listOptionID sql.NullInt64
-		err = transaction.QueryRow("select title, color, list_option_id from lists where id = ?;", u.ListID).Scan(&listTitle, &listColor, &listOptionID)
+
+		issue, err := u.syncIssue(repo, OauthToken)
 		if err != nil {
 			transaction.Rollback()
-			return errors.Wrap(err, "sql select error")
-		}
-
-		token := OauthToken.String
-
-		labelName, err := u.syncLabel(listTitle.String, listColor.String, token, repo)
-		if err != nil {
-			transaction.Rollback()
-			return err
-		}
-
-		// issueを作る
-		issue, err := hub.CreateGithubIssue(token, repo, labelName, &u.Title, &u.Description)
-		if err != nil {
-			transaction.Rollback()
-			return err
+			return errors.Wrap(err, "sync github error")
 		}
 
 		_, err = transaction.Exec("update tasks set issue_number = ?, pull_request = false, html_url = ? where id = ?;", *issue.Number, *issue.HTMLURL, currentID)
 		if err != nil {
-			// TODO: そもそもこのときはissueを削除しなければいけないのでは？
-			// しかしissueの削除は不可能のはずで，どうするかを考えないといけないが，そもそもここの発生確率って今のところかなり低いはずなので，そこまで気にする必要はないのではないか？
+			// note: この時にはすでにissueが作られてしまっているが，DBへの保存には失敗したということ
+			// 本来であれば，issueを削除しなければならない
+			// しかし，githubにはissue削除APIがない
+			// 運がいいことに，Webhookが正常に動作していれば，作られたissueに応じてDBにタスクを作ってくれる
+			// そちらに任せることにしよう
 			transaction.Rollback()
 			return errors.Wrap(err, "sql execute error")
 		}
