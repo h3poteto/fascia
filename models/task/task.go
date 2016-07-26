@@ -297,7 +297,7 @@ func (u *TaskStruct) syncLabel(listTitle string, listColor string, token string,
 	return []string{*label.Name}, nil
 }
 
-func (u *TaskStruct) syncIssue(repo *repository.RepositoryStruct, OauthToken *sql.NullString) (*int, error) {
+func (u *TaskStruct) syncIssue(repo *repository.RepositoryStruct, OauthToken *sql.NullString) (*github.Issue, error) {
 	table := u.database.Init()
 	defer table.Close()
 
@@ -345,5 +345,5 @@ func (u *TaskStruct) syncIssue(repo *repository.RepositoryStruct, OauthToken *sq
 	if !result {
 		return nil, errors.New("unexpected error")
 	}
-	return issue.Number, nil
+	return issue, nil
 }
