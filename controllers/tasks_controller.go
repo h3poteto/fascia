@@ -49,45 +49,6 @@ type TaskJSONFormat struct {
 	PullRequest bool
 }
 
-func (u *Tasks) Index(c web.C, w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	currentUser, err := LoginRequired(r)
-	if err != nil {
-		logging.SharedInstance().MethodInfo("TasksController", "Index", c).Infof("login error: %v", err)
-		http.Error(w, "not logined", 401)
-		return
-	}
-
-	_, parentList, statusCode, err := setProjectAndList(c, w, currentUser)
-	if err != nil {
-		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Index", err, c).Error(err)
-		switch statusCode {
-		case 404:
-			http.Error(w, "Not Found", 404)
-		default:
-			http.Error(w, "Internal Server Error", 500)
-		}
-		return
-	}
-
-	tasks, err := parentList.Tasks()
-	if err != nil {
-		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Index", err, c).Error(err)
-		http.Error(w, "task not found", 500)
-		return
-	}
-
-	encoder := json.NewEncoder(w)
-
-	jsonTasks := make([]*TaskJSONFormat, 0)
-	for _, t := range tasks {
-		jsonTasks = append(jsonTasks, &TaskJSONFormat{ID: t.ID, ListID: t.ListID, UserID: t.UserID, IssueNumber: t.IssueNumber.Int64, Title: t.Title, Description: t.Description, HTMLURL: t.HTMLURL.String, PullRequest: t.PullRequest})
-	}
-	encoder.Encode(jsonTasks)
-	logging.SharedInstance().MethodInfo("TasksController", "Index", c).Info("success to get tasks")
-	return
-}
-
 func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	currentUser, err := LoginRequired(r)
