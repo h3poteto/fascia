@@ -1302,7 +1302,19 @@ describe('ListReducer', () => {
             isLoading: true
           }, {
             type: newTaskModalActions.RECEIVE_CREATE_TASK,
-            task: { ListID: 1, Title: "task2", Description: "hogehoge" }
+            lists: [{
+              ID: 1,
+              Title: "list1",
+              ListTasks: [
+                { ListID: 1, Title: "task1", Description: "fugafuga" },
+                { ListID: 1, Title: "task2", Description: "hogehoge" }
+              ]
+            }, {
+              ID: 2,
+              Title: "list2",
+              ListTasks: []
+            }],
+            noneList: []
           })
         ).toEqual({
           lists: [{
@@ -1317,7 +1329,7 @@ describe('ListReducer', () => {
             Title: "list2",
             ListTasks: []
           }],
-          noneList: {ID: 0, ListTasks: [] },
+          noneList: [],
           newTask: { title: "", description: "" },
           isTaskModalOpen: false,
           isLoading: false
