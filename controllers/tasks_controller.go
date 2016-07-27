@@ -228,34 +228,15 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	encoder := json.NewEncoder(w)
 
-	allLists, err := parentProject.Lists()
+	jsonAllLists, err := allListsResponse(parentProject)
 	if err != nil {
-		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Error(err)
-		http.Error(w, "lists not found", 500)
+		http.Error(w, "Internal Server Error", 500)
 		return
 	}
-	jsonLists, err := ListsFormatToJSON(allLists)
-	if err != nil {
-		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Error(err)
-		http.Error(w, "lists format error", 500)
-		return
-	}
-	noneList, err := parentProject.NoneList()
-	if err != nil {
-		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Error(err)
-		http.Error(w, "none list not found", 500)
-		return
-	}
-	jsonNoneList, err := ListFormatToJSON(noneList)
-	if err != nil {
-		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Error(err)
-		http.Error(w, "list format error", 500)
-		return
-	}
-	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
-	logging.SharedInstance().MethodInfo("TasksController", "MoveTask", c).Debugf("move task: %+v", allLists)
-	logging.SharedInstance().MethodInfo("TasksController", "MoveTask", c).Info("success to move task")
 	encoder.Encode(jsonAllLists)
+
+	logging.SharedInstance().MethodInfo("TasksController", "MoveTask", c).Debugf("move task: %+v", task)
+	logging.SharedInstance().MethodInfo("TasksController", "MoveTask", c).Info("success to move task")
 	return
 }
 
