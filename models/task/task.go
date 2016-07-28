@@ -301,6 +301,13 @@ func (u *TaskStruct) syncIssue(repo *repository.RepositoryStruct, OauthToken *sq
 		return nil, err
 	}
 
+	// list_optionが定義しているactionを先に出しておく
+	var issueAction *string
+	listOption, err := list_option.FindByID(listOptionID)
+	if err == nil {
+		issueAction = &listOption.Action
+	}
+
 	var issue *github.Issue
 	// issueを確認する
 	if u.IssueNumber.Valid {
@@ -309,21 +316,24 @@ func (u *TaskStruct) syncIssue(repo *repository.RepositoryStruct, OauthToken *sq
 			return nil, err
 		}
 	}
+
 	// issueがない場合には作成する
 	if issue == nil {
 		issue, err = hub.CreateGithubIssue(token, repo, labelName, &u.Title, &u.Description)
 		if err != nil {
 			return nil, err
 		}
-	}
-	// issueがある場合には更新する
-	// list_optionに応じてopen, closeを更新する
-	var issueAction *string
-	listOption, err := list_option.FindByID(listOptionID)
-	if err == nil {
-		issueAction = &listOption.Action
+		// もしlist_optionがopenだった場合には，これ以上更新する必要がない
+		// むしろこれ以上処理を続けさせると，Createした直後にUpdateがかかってしまい，github側に編集履歴が残ってしまう
+		// そのため，ここで終わりにする
+		// listOptionは特に指定しない場合にはnilになっているので，nilのパターンも除外しなければならない
+		if listOption == nil || !listOption.CloseAction() {
+			return issue, nil
+		}
 	}
 
+	// issueがある場合には更新する
+	// このときにlist_optionが定義するaction通りにissueを更新する
 	result, err := hub.EditGithubIssue(token, repo, *issue.Number, labelName, &u.Title, &u.Description, issueAction)
 	if err != nil {
 		return nil, err
