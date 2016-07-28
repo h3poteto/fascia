@@ -54,10 +54,11 @@ function requestCreateTask() {
 }
 
 export const RECEIVE_CREATE_TASK = 'RECEIVE_CREATE_TASK'
-function receiveCreateTask(task) {
+function receiveCreateTask(lists) {
   return {
     type: RECEIVE_CREATE_TASK,
-    task: task
+    lists: lists.Lists,
+    noneList: lists.NoneList
   }
 }
 

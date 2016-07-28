@@ -76,38 +76,20 @@ var _ = Describe("TasksController", func() {
 		})
 		It("can registration", func() {
 			Expect(err).To(BeNil())
-			contents, status := ParseJson(res)
-			Expect(status).To(Equal(http.StatusOK))
-			Expect(contents).NotTo(BeNil())
-			Expect(contents).To(HaveKey("ID"))
-		})
-		It("should exist in database", func() {
-			contents, _ := ParseJson(res)
-			parseContents := contents.(map[string]interface{})
-			newTask, _ := task.FindTask(listID, int64(parseContents["ID"].(float64)))
-			Expect(newTask.ID).To(BeEquivalentTo(parseContents["ID"]))
-			Expect(newTask.Title).To(Equal("taskTitle"))
-		})
-	})
-
-	Describe("Index", func() {
-		JustBeforeEach(func() {
-			values := url.Values{}
-			values.Add("title", "task1")
-			http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(listID, 10)+"/tasks", values)
-			values = url.Values{}
-			values.Add("title", "task2")
-			http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(listID, 10)+"/tasks", values)
-		})
-		It("should receive tasks", func() {
-			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(projectID, 10) + "/lists/" + strconv.FormatInt(listID, 10) + "/tasks")
-			Expect(err).To(BeNil())
-			var contents []controllers.TaskJSONFormat
+			var contents controllers.AllListJSONFormat
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
-			Expect(contents[0].Title).To(Equal("task1"))
-			Expect(contents[1].Title).To(Equal("task2"))
+			Expect(contents).NotTo(BeNil())
+			Expect(contents.Lists[3].ListTasks[0].Title).To(Equal("taskTitle"))
+		})
+		It("should exist in database", func() {
+			var contents controllers.AllListJSONFormat
+			con, _ := ioutil.ReadAll(res.Body)
+			json.Unmarshal(con, &contents)
+			newTask, _ := task.FindTask(listID, int64(contents.Lists[3].ListTasks[0].ID))
+			Expect(newTask.ID).To(BeEquivalentTo(int64(contents.Lists[3].ListTasks[0].ID)))
+			Expect(newTask.Title).To(Equal("taskTitle"))
 		})
 	})
 

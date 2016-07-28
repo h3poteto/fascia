@@ -29,10 +29,16 @@ describe('fetchUpdateTask', () => {
         .reply(200, {
           Lists: [
             {
-              ID: taskID,
-              ListID: listID,
+              ID: listID,
               Title: title,
-              Description: description
+              ListTasks: [
+                {
+                  ID: taskID,
+                  ListID: listID,
+                  Title: title,
+                  Description: description
+                }
+              ]
             }
           ],
           NoneList: []
@@ -44,10 +50,16 @@ describe('fetchUpdateTask', () => {
         { type: showTaskModalActions.RECEIVE_UPDATE_TASK,
           lists: [
             {
-              ID: taskID,
-              ListID: listID,
+              ID: listID,
               Title: title,
-              Description: description
+              ListTasks: [
+                {
+                  ID: taskID,
+                  ListID: listID,
+                  Title: title,
+                  Description: description
+                }
+              ]
             }
           ],
           noneList: []

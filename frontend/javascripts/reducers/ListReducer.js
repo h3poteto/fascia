@@ -178,17 +178,22 @@ export default function ListReducer(state = initState, action) {
       isLoading: true
     })
   case newTaskModalActions.RECEIVE_CREATE_TASK:
-    var lists = state.lists.map(function(l, index) {
-      if (l.ID == action.task.ListID) {
-        l.ListTasks = l.ListTasks.concat([action.task])
-        return l
-      } else {
-        return l
-      }
-    })
+    var lists
+    if (action.lists == null) {
+      lists = []
+    } else {
+      lists = action.lists.map(function(list, index) {
+        if (list.ListTasks == null) {
+          list.ListTasks = []
+          return list
+        } else {
+          return list
+        }
+      })
+    }
     var noneList = state.noneList
-    if (action.task.ListID == noneList.ID) {
-      noneList.ListTasks = noneList.ListTasks.concat([action.task])
+    if (action.noneList != null) {
+      noneList = action.noneList
     }
     return Object.assign({}, state, {
       newTask: {title: "", description: ""},

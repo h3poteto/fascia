@@ -27,17 +27,44 @@ describe('fetchCreateTask', () => {
       nock('http://localhost')
         .post(`/projects/${projectID}/lists/${listID}/tasks`, postForm)
         .reply(200, {
-          ID: 1,
-          ListID: listID,
-          Title: title,
-          Description: description
+          Lists: [
+            {
+              ID: listID,
+              Title: title,
+              ListTasks: [
+                {
+                  ID: 1,
+                  ListID: listID,
+                  Title: title,
+                  Description: description
+                }
+              ]
+            }
+          ],
+          NoneList: []
         })
     })
 
     it('call RECEIVE_CREATE_TASK and get task', (done) => {
       const expectedActions = [
         { type: newTaskModalActions.REQUEST_CREATE_TASK },
-        { type: newTaskModalActions.RECEIVE_CREATE_TASK, task: { ID: 1, ListID: listID, Title: title, Description: description } }
+        { type: newTaskModalActions.RECEIVE_CREATE_TASK,
+          lists: [
+            {
+              ID: listID,
+              Title: title,
+              ListTasks: [
+                {
+                  ID: 1,
+                  ListID: listID,
+                  Title: title,
+                  Description: description
+                }
+              ]
+            }
+          ],
+          noneList: []
+        }
       ]
       const store = mockStore({ task: null }, expectedActions, done)
       store.dispatch(newTaskModalActions.fetchCreateTask(projectID, listID, title, description))
