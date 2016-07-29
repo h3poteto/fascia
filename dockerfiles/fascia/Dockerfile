@@ -1,6 +1,6 @@
-FROM golang:1.6.2
+FROM golang:1.6.2-alpine
 
-RUN apt-get update && apt-get -y install git mysql-client
+RUN apk add --no-cache git
 
 RUN mkdir -p /go
 RUN mkdir -p /root/fascia
@@ -17,5 +17,5 @@ EXPOSE 9090:9090
 
 WORKDIR /root/fascia
 
-CMD ["/bin/bash"]
+CMD ["/bin/sh"]
 
