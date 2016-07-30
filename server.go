@@ -83,7 +83,7 @@ func Routes(m *web.Mux) {
 	m.Get("/500", controllers.InternalServerError)
 
 	// 任意のファイルも一応ホスティングできるようにしておく
-	m.Get("/*", http.FileServer(http.Dir(filepath.Join(root, "public/"))))
+	m.Get("/*", http.FileServer(http.Dir(filepath.Join(root, "public/statics/"))))
 }
 
 func main() {
