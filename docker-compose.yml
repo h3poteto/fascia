@@ -13,12 +13,12 @@ services:
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "true"
   node:
-    build: dockerfiles/node
+    build: dockerfiles/development/node
     volumes:
       - .:/var/opt/app
     command: npm run-script watch
   fascia:
-    build: dockerfiles/fascia
+    build: dockerfiles/development/fascia
     env_file: .docker-env
     volumes:
       - ~/.ssh:/root/.ssh
