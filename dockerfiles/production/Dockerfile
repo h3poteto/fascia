@@ -2,9 +2,11 @@ FROM node:5.9.1-slim
 
 ENV GOVERSION 1.6.3
 
-RUN apt-get update -y \
+RUN echo "deb http://ftp.jp.debian.org/debian/ jessie main contrib non-free" > /etc/apt/sources.list \
+    && apt-get update -y \
     && apt-get install -y git mysql-client build-essential \
     && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/cache/apt/archives/* \
     && curl -O https://storage.googleapis.com/golang/go${GOVERSION}.linux-amd64.tar.gz \
     && tar -C /usr/local -xzf go${GOVERSION}.linux-amd64.tar.gz \
     && rm go${GOVERSION}.linux-amd64.tar.gz \
@@ -22,7 +24,10 @@ ENV GOJIENV production
 WORKDIR ${GOJIROOT}
 
 RUN go get github.com/mattn/gom \
-    && gom install
+    && gom install \
+    && npm install \
+    && npm run-script js-release \
+    && npm run-script sass-release
 
 EXPOSE 9090:9090
 
