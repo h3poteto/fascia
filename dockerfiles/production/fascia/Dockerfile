@@ -1,27 +1,28 @@
-FROM golang:1.6.2-alpine
+FROM node:5.9.1-slim
 
-RUN apk add --no-cache git mysql-client build-base
+ENV GOVERSION 1.6.3
 
-RUN mkdir -p /go && mkdir -p /root/github.com
-
-WORKDIR /root/github.com
-
-RUN git clone https://github.com/h3poteto/fascia.git
+RUN apt-get update -y \
+    && apt-get install -y git mysql-client build-essential \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -O https://storage.googleapis.com/golang/go${GOVERSION}.linux-amd64.tar.gz \
+    && tar -C /usr/local -xzf go${GOVERSION}.linux-amd64.tar.gz \
+    && rm go${GOVERSION}.linux-amd64.tar.gz \
+    && mkdir -p /go \
+    && mkdir -p /root/github.com \
+    && cd /root/github.com \
+    && git clone https://github.com/h3poteto/fascia.git
 
 ENV GOPATH /go
+ENV GOROOT /usr/local/go
+ENV PATH ${GOPATH}/bin:${GOROOT}/bin:$PATH
 ENV GOJIROOT /root/github.com/fascia
-
-ENV HOME /root
-WORKDIR ${HOME}
-
-RUN go get github.com/mattn/gom
-
-WORKDIR ${GOJIROOT}
-
 ENV GO15VENDOREXPERIMENT 0
 ENV GOJIENV production
+WORKDIR ${GOJIROOT}
 
-RUN gom install
+RUN go get github.com/mattn/gom \
+    && gom install
 
 EXPOSE 9090:9090
 
