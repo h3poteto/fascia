@@ -1,16 +1,19 @@
 machine:
+  services:
+    - docker
   node:
     version: 5.7.0
 dependencies:
   pre:
     - go get github.com/mattn/gom
   override:
-    - gom install
     - npm install
-  post:
-    - gom build server.go
     - npm run-script js-release
     - npm run-script sass-release
+    - docker build -f dockerfiles/production/Dockerfile -t h3poteto/fascia .
+  post:
+    - gom install
+    - gom build server.go
 database:
   pre:
     - mysql -u $DB_USER -e "CREATE DATABASE $DB_TEST_NAME;"
@@ -21,3 +24,10 @@ test:
   override:
     - export GOJIENV=test; gom exec ginkgo -r ./
     - npm test
+
+deployment:
+  hub:
+    branch: master
+    commands:
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - docker push h3poteto/fascia
