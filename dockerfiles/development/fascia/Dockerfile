@@ -1,9 +1,12 @@
 FROM golang:1.6.2-alpine
 
-RUN apk add --no-cache git build-base
+RUN apk add --no-cache \
+    git \
+    build-base \
+    openssh
 
-RUN mkdir -p /go
-RUN mkdir -p /root/fascia
+RUN mkdir -p /go && \
+    mkdir -p /root/fascia
 
 ENV GOPATH /go
 ENV GOJIROOT /root/fascia
