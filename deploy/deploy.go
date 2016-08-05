@@ -31,6 +31,8 @@ type deploy struct {
 
 	SharedDirectory string
 
+	HostName string
+
 	client *ssh.Client
 }
 
@@ -39,7 +41,8 @@ type deploy struct {
 // 新しいdockerを起動する
 // db:migrate
 // confdがwatchしているredisのキーを変更し，新しいコンテナのホストとポートを送る
-// confdのwatch intervalだけ待つ
+// confdのwatch interval+バッファ分だけだけ待つ
+// curlしてみて通信できることを確認する
 // 古いdockerをstopする
 // 古いdockerコンテナを削除する
 // 古いdocker imageを削除する
@@ -95,12 +98,18 @@ func main() {
 		panic(err)
 	}
 
-	err = d.refreshRedis(9091)
+	err = d.refreshRedis(newPort)
 	if err != nil {
 		panic(err)
 	}
-	// confdのrefresh intervalを10[s]にしているので，10[s]だけ待つ
-	time.Sleep(10 * time.Second)
+	// confdのrefresh intervalを10[s]にしているので，10[s]以上待つ必要がある
+	time.Sleep(20 * time.Second)
+
+	// 一応curlが通ることを確認してから進めたい
+	_, err = d.checkServiceLiving()
+	if err != nil {
+		panic(err)
+	}
 
 	if len(oldContainer) > 0 {
 		err = d.stopOldContainer(oldContainer)
@@ -145,6 +154,7 @@ func initialize() (d *deploy, e error) {
 		FirstContainerPort:  m["first_container_port"].(int),
 		SecondContainerPort: m["second_container_port"].(int),
 		SharedDirectory:     m["shared_directory"].(string),
+		HostName:            m["host_name"].(string),
 	}
 	return d, nil
 }
@@ -206,7 +216,7 @@ func (d *deploy) checkRunningPort() (int, error) {
 
 	// 両方コンテナが起動している場合は想定外ななのでエラーにする
 	if firstContainerPort != 0 && secondContainerPort != 0 {
-		return 0, errors.New("Both container are running")
+		return 0, errors.New("Both containers are running")
 	} else if firstContainerPort != 0 {
 		return firstContainerPort, nil
 	} else if secondContainerPort != 0 {
@@ -303,6 +313,33 @@ func (d *deploy) stopOldContainer(name string) error {
 		return err
 	}
 	return nil
+}
+
+func (d *deploy) checkServiceLiving() (int, error) {
+	session := d.getSession()
+	defer session.Close()
+
+	session.Stdout = nil
+	session.Stderr = nil
+
+	log.Println("Check service is living")
+	command := fmt.Sprintf("curl --insecure -H '%v' https://127.0.0.1 -o /dev/null -w '%%{http_code}' -s", d.HostName)
+	log.Println(command)
+	result, err := session.CombinedOutput(command)
+	if err != nil {
+		return 0, err
+	}
+	if len(result) <= 0 {
+		return 0, errors.New("Can not get HTTP status code")
+	}
+	statusCode, err := strconv.Atoi(string(result))
+	if err != nil {
+		return 0, err
+	}
+	if statusCode != 200 {
+		return statusCode, errors.New("HTTP status code is not 200")
+	}
+	return statusCode, nil
 }
 
 func (d *deploy) removeOldContainer() error {
