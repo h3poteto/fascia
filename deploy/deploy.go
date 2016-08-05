@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -8,6 +9,9 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strconv"
+	"time"
 
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
@@ -18,28 +22,103 @@ type deploy struct {
 	Host string
 	Port string
 
-	Repository string
-	Branch     string
-	Name       string
-	SourceFile string
+	DockerImageName     string
+	DockerImageTag      string
+	FirstContainerName  string
+	SecondContainerName string
+	FirstContainerPort  int
+	SecondContainerPort int
 
-	DeployTo string
+	SharedDirectory string
 
 	client *ssh.Client
 }
+
+// 新しいdocker imageをpullする
+// 現在動いているdockerのポートを確認する
+// 新しいdockerを起動する
+// db:migrate
+// confdがwatchしているredisのキーを変更し，新しいコンテナのホストとポートを送る
+// confdのwatch intervalだけ待つ
+// 古いdockerをstopする
+// 古いdockerコンテナを削除する
+// 古いdocker imageを削除する
 
 func main() {
 	d, err := initialize()
 	if err != nil {
 		panic(err)
 	}
-	d.checkParentDirectory()
-	d.createSrcDirectory()
-	d.createBinDirectory()
-	d.cloneSourceCode()
-	d.build()
-	d.migration()
-	d.restart()
+	err = d.prepareDockerImage()
+	if err != nil {
+		panic(err)
+	}
+
+	port, err := d.checkRunningPort()
+	if err != nil {
+		panic(err)
+	}
+
+	var newPort int
+	var newContainer, oldContainer string
+	switch port {
+	case d.FirstContainerPort:
+		newPort = d.SecondContainerPort
+		newContainer = d.SecondContainerName
+		oldContainer = d.FirstContainerName
+	case d.SecondContainerPort:
+		newPort = d.FirstContainerPort
+		newContainer = d.FirstContainerName
+		oldContainer = d.SecondContainerName
+	case 0:
+		// どちらのコンテナも起動していないパターン
+		newPort = d.FirstContainerPort
+		newContainer = d.FirstContainerName
+	default:
+		panic("Container is running unexpected port")
+	}
+
+	err = d.removeOldContainer()
+	// 起動中のコンテナを消そうとした場合にはエラーが帰ってくるが，特に問題はないので表示するだけ
+	if err != nil {
+		log.Println(err)
+	}
+
+	// migration
+	err = d.migration()
+	if err != nil {
+		panic(err)
+	}
+
+	err = d.startNewContainer(newContainer, newPort)
+	if err != nil {
+		panic(err)
+	}
+
+	err = d.refreshRedis(9091)
+	if err != nil {
+		panic(err)
+	}
+	// confdのrefresh intervalを10[s]にしているので，10[s]だけ待つ
+	time.Sleep(10 * time.Second)
+
+	if len(oldContainer) > 0 {
+		err = d.stopOldContainer(oldContainer)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	err = d.removeOldContainer()
+	if err != nil {
+		log.Println(err)
+	}
+
+	err = d.removeOldImages()
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println("Deploy success!")
 }
 
 func initialize() (d *deploy, e error) {
@@ -56,14 +135,16 @@ func initialize() (d *deploy, e error) {
 		panic(err)
 	}
 	d = &deploy{
-		User:       m["user"].(string),
-		Host:       m["host"].(string),
-		Port:       m["port"].(string),
-		Repository: m["repository"].(string),
-		Branch:     m["branch"].(string),
-		Name:       m["name"].(string),
-		SourceFile: m["sourcefile"].(string),
-		DeployTo:   m["deployto"].(string),
+		User:                m["user"].(string),
+		Host:                m["host"].(string),
+		Port:                m["port"].(string),
+		DockerImageName:     m["docker_image_name"].(string),
+		DockerImageTag:      m["docker_image_tag"].(string),
+		FirstContainerName:  m["first_container_name"].(string),
+		SecondContainerName: m["second_container_name"].(string),
+		FirstContainerPort:  m["first_container_port"].(int),
+		SecondContainerPort: m["second_container_port"].(int),
+		SharedDirectory:     m["shared_directory"].(string),
 	}
 	return d, nil
 }
@@ -105,120 +186,148 @@ func (d *deploy) getSession() *ssh.Session {
 	return session
 }
 
-func (d *deploy) checkParentDirectory() {
+func (d *deploy) prepareDockerImage() error {
 	session := d.getSession()
 	defer session.Close()
 
-	log.Printf("Check directory deploy to: %v", d.DeployTo)
-	command := fmt.Sprintf("if ! [ -d %v ]; then echo 'cloud not found %v'; fi", d.DeployTo, d.DeployTo)
+	log.Println("Docker pull")
+	command := fmt.Sprintf("docker pull %v:%v", d.DockerImageName, d.DockerImageTag)
 	log.Println(command)
 	if err := session.Run(command); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
-func (d *deploy) createSrcDirectory() {
+func (d *deploy) checkRunningPort() (int, error) {
+
+	firstContainerPort, _ := d.runningPort(d.FirstContainerName, d.FirstContainerPort)
+	secondContainerPort, _ := d.runningPort(d.SecondContainerName, d.SecondContainerPort)
+
+	// 両方コンテナが起動している場合は想定外ななのでエラーにする
+	if firstContainerPort != 0 && secondContainerPort != 0 {
+		return 0, errors.New("Both container are running")
+	} else if firstContainerPort != 0 {
+		return firstContainerPort, nil
+	} else if secondContainerPort != 0 {
+		return secondContainerPort, nil
+	}
+
+	// 両方共起動していない場合は，あらたに起動すればいいだけなので，エラーにはしない
+	return 0, nil
+}
+
+func (d *deploy) runningPort(name string, reservedPort int) (int, error) {
 	session := d.getSession()
 	defer session.Close()
 
-	log.Printf("Create src directoy in deploy to: %v", d.DeployTo)
-	command := fmt.Sprintf("if ! [ -d %v/src ]; then mkdir -p %v/src; fi", d.DeployTo, d.DeployTo)
+	session.Stdout = nil
+	session.Stderr = nil
+
+	log.Println("Check running docker port")
+	command := fmt.Sprintf("docker port %v", name)
 	log.Println(command)
-	if err := session.Run(command); err != nil {
-		panic(err)
+	result, err := session.CombinedOutput(command)
+	log.Println(string(result))
+	if err != nil {
+		return 0, err
 	}
+	if len(result) <= 0 {
+		return 0, errors.New("Can not find docker port")
+	}
+	port, err := pickupPortNumber(string(result), reservedPort)
+	if err != nil {
+		return 0, err
+	}
+	return port, nil
 }
 
-func (d *deploy) createBinDirectory() {
+func pickupPortNumber(dockerPort string, reservedPort int) (int, error) {
+	regEx := `0.0.0.0:` + strconv.Itoa(reservedPort)
+	r := regexp.MustCompile(regEx)
+	match := r.FindAllStringSubmatch(dockerPort, -1)
+	if len(match) != 1 {
+		return 0, errors.New("Cannot find port")
+	}
+	if len(match[0]) != 1 {
+		return 0, errors.New("Cannot find port")
+	}
+	return reservedPort, nil
+}
+
+func (d *deploy) startNewContainer(name string, port int) error {
 	session := d.getSession()
 	defer session.Close()
 
-	log.Printf("Create bin directoy in deploy to: %v", d.DeployTo)
-	command := fmt.Sprintf("if ! [ -d %v/bin ]; then mkdir -p %v/bin; fi", d.DeployTo, d.DeployTo)
+	log.Println("Start new container")
+	command := fmt.Sprintf("docker run -d -v %v:/root/fascia/public/statics --env-file /home/ubuntu/.docker-env --name %v -p %v:9090 %v", d.SharedDirectory, name, port, d.DockerImageName)
 	log.Println(command)
 	if err := session.Run(command); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
-func (d *deploy) cloneSourceCode() {
-	session := d.getSession()
-	defer session.Close()
-
-	log.Printf("Clone source codes from github: %v", d.Repository)
-	command := fmt.Sprintf("if ! [ -d %v/src/%v ]; then cd %v/src && git clone -b %v %v; else cd %v/src/%v && git pull origin %v; fi", d.DeployTo, d.Name, d.DeployTo, d.Branch, d.Repository, d.DeployTo, d.Name, d.Branch)
-	log.Println(command)
-	if err := session.Run(command); err != nil {
-		panic(err)
-	}
-}
-
-func (d *deploy) setEnvironments() {
-	session := d.getSession()
-	defer session.Close()
-}
-
-func (d *deploy) beforeBuild() {
-	session := d.getSession()
-	defer session.Close()
-
-	log.Print("Prepare build")
-	command := fmt.Sprintf("source $HOME/.bash_profile; cd %v/src/%v && gom install", d.DeployTo, d.Name)
-	log.Println(command)
-	if err := session.Run(command); err != nil {
-		panic(err)
-	}
-}
-
-func (d *deploy) build() {
-	d.beforeBuild()
-	session := d.getSession()
-	defer func() {
-		session.Close()
-		d.afterBuild()
-	}()
-
-	log.Print("Build go source")
-	command := fmt.Sprintf("source $HOME/.bash_profile; cd %v/src/%v && gom build -o %v/bin/%v %v", d.DeployTo, d.Name, d.DeployTo, d.Name, d.SourceFile)
-	log.Println(command)
-	if err := session.Run(command); err != nil {
-		panic(err)
-	}
-}
-
-func (d *deploy) afterBuild() {
-	session := d.getSession()
-	defer session.Close()
-
-	log.Println("After build")
-	command := fmt.Sprintf("source $HOME/.bash_profile; cd %v/src/%v; npm install; npm run-script js-release; npm run-script sass-release", d.DeployTo, d.Name)
-	log.Println(command)
-	if err := session.Run(command); err != nil {
-		panic(err)
-	}
-}
-
-// db migrate
-func (d *deploy) migration() {
+func (d *deploy) migration() error {
 	session := d.getSession()
 	defer session.Close()
 
 	log.Println("db migration")
-	command := fmt.Sprintf("source $HOME/.bash_profile; cd %v/src/%v && gom exec goose -env production up", d.DeployTo, d.Name)
-	log.Println(command)
+	command := fmt.Sprintf("docker run --rm --env-file /home/ubuntu/.docker-env %v gom exec goose -env production up", d.DockerImageName)
 	if err := session.Run(command); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
-func (d *deploy) restart() {
+func (d *deploy) refreshRedis(port int) error {
 	session := d.getSession()
 	defer session.Close()
 
-	log.Println("restart application")
-	command := fmt.Sprint("circusctl reload")
+	command := fmt.Sprintf("bash -l -c 'redis-cli -h $REDIS_HOST -p $REDIS_PORT set /app/upstream 127.0.0.1:%v'", port)
 	log.Println(command)
 	if err := session.Run(command); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
+}
+
+func (d *deploy) stopOldContainer(name string) error {
+	session := d.getSession()
+	defer session.Close()
+
+	log.Println("Stop old container")
+	command := fmt.Sprintf("docker stop %v", name)
+	log.Println(command)
+	if err := session.Run(command); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (d *deploy) removeOldContainer() error {
+	session := d.getSession()
+	defer session.Close()
+
+	log.Println("Remove old docker container")
+	command := "docker rm `docker ps -a -q`"
+	log.Println(command)
+	if err := session.Run(command); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (d *deploy) removeOldImages() error {
+	session := d.getSession()
+	defer session.Close()
+
+	log.Println("Remove old docker images")
+	command := fmt.Sprintf("docker rmi -f $(docker images | awk '/<none>/ { print $3 }')")
+	log.Println(command)
+	if err := session.Run(command); err != nil {
+		return err
+	}
+	return nil
 }
