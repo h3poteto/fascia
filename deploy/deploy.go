@@ -44,6 +44,7 @@ type deploy struct {
 // confdのwatch interval+バッファ分だけだけ待つ
 // curlしてみて通信できることを確認する
 // 古いdockerをstopする
+// 80番にcurlしてみて通信できることを確認する
 // 古いdockerコンテナを削除する
 // 古いdocker imageを削除する
 
@@ -113,6 +114,11 @@ func main() {
 
 	if len(oldContainer) > 0 {
 		err = d.stopOldContainer(oldContainer)
+		if err != nil {
+			panic(err)
+		}
+		// 古いコンテナを停止した段階で，もう一度curlしたい
+		_, err = d.checkServiceLiving()
 		if err != nil {
 			panic(err)
 		}
