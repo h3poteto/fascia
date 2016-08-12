@@ -268,7 +268,7 @@ func (u *TaskStruct) ChangeList(listID int64, prevToTaskID *int64, repo *reposit
 
 // Delete is delete a task in db
 func (u *TaskStruct) Delete() error {
-	if !u.IssueNumber.Valid {
+	if u.IssueNumber.Valid {
 		return errors.New("cannot delete")
 	}
 
@@ -279,7 +279,7 @@ func (u *TaskStruct) Delete() error {
 	if err != nil {
 		return errors.Wrap(err, "sql delelet error")
 	}
-	u = nil
+	u.ID = 0
 	return nil
 }
 

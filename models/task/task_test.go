@@ -250,4 +250,23 @@ var _ = Describe("Task", func() {
 			})
 		})
 	})
+
+	Describe("Delete", func() {
+		Context("when a task does not relate issue", func() {
+			It("can delete task", func() {
+				newTask.Save(nil, nil)
+				err := newTask.Delete()
+				Expect(err).To(BeNil())
+				Expect(newTask.ID).To(BeEquivalentTo(int64(0)))
+			})
+		})
+		Context("when a task relate issue", func() {
+			It("cannot delete task", func() {
+				newIssueTask := NewTask(0, newList.ID, newProject.ID, newList.UserID, sql.NullInt64{Int64: 1, Valid: true}, "issue title", "issue description", false, sql.NullString{})
+				newIssueTask.Save(nil, nil)
+				err := newIssueTask.Delete()
+				Expect(err).NotTo(BeNil())
+			})
+		})
+	})
 })
