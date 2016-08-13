@@ -321,6 +321,7 @@ func (u *Tasks) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+// Delete a task
 func (u *Tasks) Delete(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	currentUser, err := LoginRequired(r)
