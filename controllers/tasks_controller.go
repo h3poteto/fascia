@@ -321,6 +321,56 @@ func (u *Tasks) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func (u *Tasks) Delete(c web.C, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	currentUser, err := LoginRequired(r)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("TasksController", "Delete", c).Infof("loging error: %v", err)
+		http.Error(w, "not logined", 401)
+		return
+	}
+
+	parentProject, parentList, statusCode, err := setProjectAndList(c, w, currentUser)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Delete", err, c).Error(err)
+		switch statusCode {
+		case 404:
+			http.Error(w, "Not Found", 404)
+		default:
+			http.Error(w, "Internal Server Error", 500)
+		}
+		return
+	}
+
+	task, statusCode, err := setTask(c, w, parentList)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Delete", err, c).Error(err)
+		switch statusCode {
+		case 404:
+			http.Error(w, "Not Found", 404)
+		default:
+			http.Error(w, "Internal Server Error", 500)
+		}
+		return
+	}
+
+	err = task.Delete()
+	if err != nil {
+		logging.SharedInstance().MethodInfo("TasksController", "Delete", c).Info(err)
+		http.Error(w, "Bad Request", 400)
+		return
+	}
+	encoder := json.NewEncoder(w)
+	jsonAllLists, err := allListsResponse(parentProject)
+	if err != nil {
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+	encoder.Encode(jsonAllLists)
+	logging.SharedInstance().MethodInfo("TasksController", "Delete", c).Info("success to delete a task")
+	return
+}
+
 func setProjectAndList(c web.C, w http.ResponseWriter, currentUser *userModel.UserStruct) (*projectModel.ProjectStruct, *listModel.ListStruct, int, error) {
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {

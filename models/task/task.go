@@ -279,6 +279,7 @@ func (u *TaskStruct) Delete() error {
 	if err != nil {
 		return errors.Wrap(err, "sql delelet error")
 	}
+	logging.SharedInstance().MethodInfo("task", "Delete").Infof("task deleted: %v", u.ID)
 	u.ID = 0
 	return nil
 }
