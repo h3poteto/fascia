@@ -169,6 +169,7 @@ export default class ListView extends React.Component {
             updateEditTaskTitle={this.props.showTaskModalActions.updateEditTaskTitle}
             updateEditTaskDescription={this.props.showTaskModalActions.updateEditTaskDescription}
             fetchUpdateTask={this.props.showTaskModalActions.fetchUpdateTask}
+            fetchDeleteTask={this.props.showTaskModalActions.fetchDeleteTask}
         />
         <div className="title-wrapper">
           <div className="project-operation">

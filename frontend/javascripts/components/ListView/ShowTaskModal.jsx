@@ -93,6 +93,14 @@ export default class ShowTaskModal extends React.Component {
     }
   }
 
+  deleteTask(projectID, task, fetchDeleteTask) {
+    if (task.IssueNumber === 0) {
+      return <i title="Delete task" className="fa fa-trash" onClick={e => fetchDeleteTask(projectID, task.ListID, task.ID)}></i>
+    } else {
+      return
+    }
+  }
+
   render() {
     return (
       <Modal
@@ -102,6 +110,7 @@ export default class ShowTaskModal extends React.Component {
       >
         <div className="task-detail">
           <div className="task-controll">
+            {this.deleteTask(this.props.projectID, this.props.task, this.props.fetchDeleteTask)}
             <i title="Edit task" className="fa fa-pencil" onClick={e => this.props.changeEditMode(this.props.task)}></i>
           </div>
           {this.taskForm(this.props.projectID, this.props.task, this.props.isEditTaskModalVisible, this.props.editTask, this.props.updateEditTaskTitle, this.props.updateEditTaskDescription, this.props.fetchUpdateTask)}

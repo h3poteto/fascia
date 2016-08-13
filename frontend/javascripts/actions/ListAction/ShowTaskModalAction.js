@@ -89,3 +89,38 @@ export function fetchUpdateTask(projectID, listID, taskID, title, description) {
       })
   }
 }
+
+export const REQUEST_DELETE_TASK = 'REQUEST_DELETE_TASK'
+function requestDeleteTask() {
+  return {
+    type: REQUEST_DELETE_TASK
+  }
+}
+
+export const RECEIVE_DELETE_TASK = 'RECEIVE_DELETE_TASK'
+function receiveDeleteTask(lists) {
+  return {
+    type: RECEIVE_DELETE_TASK,
+    lists: lists.Lists,
+    noneList: lists.NoneList
+  }
+}
+
+export function fetchDeleteTask(projectID, listID, taskID) {
+  return dispatch => {
+    dispatch(requestDeleteTask())
+    return Request
+      .del(`/projects/${projectID}/lists/${listID}/tasks/${taskID}`)
+      .end((err, res)=> {
+        if (res.ok) {
+          dispatch(receiveDeleteTask(res.body))
+        } else if (res.unauthorized) {
+          dispatch(unauthorized())
+        } else if (res.notFound) {
+          dispatch(notFound())
+        } else {
+          dispatch(serverError())
+        }
+      })
+  }
+}
