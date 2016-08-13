@@ -239,6 +239,10 @@
   .task-controll {
     cursor: pointer;
     text-align: right;
+
+    i {
+      margin-left: 12px;
+    }
   }
 
   .task-title {

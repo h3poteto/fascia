@@ -266,6 +266,24 @@ func (u *TaskStruct) ChangeList(listID int64, prevToTaskID *int64, repo *reposit
 	return nil
 }
 
+// Delete is delete a task in db
+func (u *TaskStruct) Delete() error {
+	if u.IssueNumber.Valid {
+		return errors.New("cannot delete")
+	}
+
+	table := u.database.Init()
+	defer table.Close()
+
+	_, err := table.Exec("delete from tasks where id = ?;", u.ID)
+	if err != nil {
+		return errors.Wrap(err, "sql delelet error")
+	}
+	logging.SharedInstance().MethodInfo("task", "Delete").Infof("task deleted: %v", u.ID)
+	u.ID = 0
+	return nil
+}
+
 func (u *TaskStruct) syncLabel(listTitle string, listColor string, token string, repo *repository.RepositoryStruct) ([]string, error) {
 	if listTitle == config.Element("init_list").(map[interface{}]interface{})["none"].(string) {
 		return []string{}, nil

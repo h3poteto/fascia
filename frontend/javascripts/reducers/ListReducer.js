@@ -306,6 +306,36 @@ export default function ListReducer(state = initState, action) {
       isEditTaskModalVisible: false,
       isTaskShowModalOpen: false
     })
+  case showTaskModalActions.REQUEST_DELETE_TASK:
+    return Object.assign({}, state, {
+      isLoading: true
+    })
+  case showTaskModalActions.RECEIVE_DELETE_TASK:
+    var lists
+    if (action.lists == null) {
+      lists = []
+    } else {
+      lists = action.lists.map(function(list, index) {
+        if (list.ListTasks == null) {
+          list.ListTasks = []
+          return list
+        } else {
+          return list
+        }
+      })
+    }
+    var noneList = state.noneList
+    if (action.noneList != null) {
+      noneList = action.noneList
+    }
+    return Object.assign({}, state, {
+      lists: lists,
+      noneList: noneList,
+      isLoading: false,
+      isEditTaskModalVisible: false,
+      isTaskShowModalOpen: false
+    })
+
 
     //------------------------------------
     // listActions

@@ -156,4 +156,32 @@ var _ = Describe("TasksController", func() {
 			Expect(contents.Lists[3].ListTasks[0].Description).To(Equal("updateDescription"))
 		})
 	})
+
+	Describe("Delete", func() {
+		var newTask *task.TaskStruct
+		Context("When a task does not relate issue", func() {
+			JustBeforeEach(func() {
+				newTask = task.NewTask(0, listID, projectID, userID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
+				newTask.Save(nil, nil)
+			})
+			It("should delete a task", func() {
+				req, err := http.NewRequest(http.MethodDelete, ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(listID, 10)+"/tasks/"+strconv.FormatInt(newTask.ID, 10), nil)
+				res, err := http.DefaultClient.Do(req)
+				Expect(err).To(BeNil())
+				Expect(res.StatusCode).To(Equal(http.StatusOK))
+			})
+		})
+		Context("When a task relate issue", func() {
+			JustBeforeEach(func() {
+				newTask = task.NewTask(0, listID, projectID, userID, sql.NullInt64{Int64: 1, Valid: true}, "sampleTask", "sampleDescription", false, sql.NullString{})
+				newTask.Save(nil, nil)
+			})
+			It("should not delete a task", func() {
+				req, err := http.NewRequest(http.MethodDelete, ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(listID, 10)+"/tasks/"+strconv.FormatInt(newTask.ID, 10), nil)
+				res, err := http.DefaultClient.Do(req)
+				Expect(err).To(BeNil())
+				Expect(res.StatusCode).To(Equal(http.StatusBadRequest))
+			})
+		})
+	})
 })
