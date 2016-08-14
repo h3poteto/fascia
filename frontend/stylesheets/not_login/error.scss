@@ -9,5 +9,9 @@
   .main-board {
     padding-top: 100px;
     text-align: center;
+
+    @media (max-width: 980px) {
+      font-size: 36px;
+    }
   }
 }
