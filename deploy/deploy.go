@@ -41,7 +41,7 @@ type deploy struct {
 // 新しいdockerを起動する
 // db:migrate
 // confdがwatchしているredisのキーを変更し，新しいコンテナのホストとポートを送る
-// confdのwatch interval+バッファ分だけだけ待つ
+// confdのinterval分だけ待つ
 // curlしてみて通信できることを確認する
 // 古いdockerをstopする
 // 80番にcurlしてみて通信できることを確認する
@@ -103,8 +103,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	// confdのrefresh intervalを10[s]にしているので，10[s]以上待つ必要がある
-	time.Sleep(20 * time.Second)
+
+	// confdのintervalを30[s]に設定したため，それ以上の秒数だけ待つ
+	time.Sleep(35 * time.Second)
 
 	// 一応curlが通ることを確認してから進めたい
 	_, err = d.checkServiceLiving()
@@ -300,7 +301,21 @@ func (d *deploy) refreshRedis(port int) error {
 	session := d.getSession()
 	defer session.Close()
 
+	log.Println("Refresh redis port")
 	command := fmt.Sprintf("bash -l -c 'redis-cli -h $REDIS_HOST -p $REDIS_PORT set /app/upstream 127.0.0.1:%v'", port)
+	log.Println(command)
+	if err := session.Run(command); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (d *deploy) refreshNginx() error {
+	session := d.getSession()
+	defer session.Close()
+
+	log.Println("Call confd to refresh nginx")
+	command := "bash -l -c 'sudo confd -onetime -backend redis -node $REDIS_HOST:$REDIS_PORT'"
 	log.Println(command)
 	if err := session.Run(command); err != nil {
 		return err
