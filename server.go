@@ -22,61 +22,77 @@ import (
 )
 
 func Routes(m *web.Mux) {
-	root := os.Getenv("GOJIROOT")
+	rootDir := os.Getenv("GOJIROOT")
 	// robots
-	m.Get("/robots.txt", http.FileServer(http.Dir(filepath.Join(root, "public/"))))
+	m.Get("/robots.txt", http.FileServer(http.Dir(filepath.Join(rootDir, "public/"))))
 
 	// assets
-	m.Get("/stylesheets/*", http.FileServer(http.Dir(filepath.Join(root, "public/assets/"))))
-	m.Get("/javascripts/*", http.FileServer(http.Dir(filepath.Join(root, "public/assets/"))))
-	m.Get("/images/*", http.FileServer(http.Dir(filepath.Join(root, "frontend/"))))
-	m.Get("/fonts/*", http.FileServer(http.Dir(filepath.Join(root, "public/assets/"))))
+	m.Get("/stylesheets/*", http.FileServer(http.Dir(filepath.Join(rootDir, "public/assets/"))))
+	m.Get("/javascripts/*", http.FileServer(http.Dir(filepath.Join(rootDir, "public/assets/"))))
+	m.Get("/images/*", http.FileServer(http.Dir(filepath.Join(rootDir, "frontend/"))))
+	m.Get("/fonts/*", http.FileServer(http.Dir(filepath.Join(rootDir, "public/assets/"))))
 	// routing
-	m.Get("/about", controllers.CallController(&controllers.Root{}, "About"))
-	m.Get("/", controllers.CallController(&controllers.Root{}, "Index"))
-	m.Get("/projects/:project_id", controllers.CallController(&controllers.Root{}, "Index"))
-	m.Get("/sign_in", controllers.CallController(&controllers.Sessions{}, "SignIn"))
-	m.Post("/sign_in", controllers.CallController(&controllers.Sessions{}, "NewSession"))
-	m.Post("/session", controllers.CallController(&controllers.Sessions{}, "Update"))
-	m.Post("/sign_out", controllers.CallController(&controllers.Sessions{}, "SignOut"))
-	m.Get("/sign_up", controllers.CallController(&controllers.Registrations{}, "SignUp"))
-	m.Post("/sign_up", controllers.CallController(&controllers.Registrations{}, "Registration"))
-	m.Get("/auth/github", controllers.CallController(&controllers.Oauth{}, "Github"))
-	m.Get("/passwords/new", controllers.CallController(&controllers.Passwords{}, "New"))
-	m.Post("/passwords/create", controllers.CallController(&controllers.Passwords{}, "Create"))
-	m.Get("/passwords/:id/edit", controllers.CallController(&controllers.Passwords{}, "Edit"))
-	m.Post("/passwords/:id/update", controllers.CallController(&controllers.Passwords{}, "Update"))
+	root := &controllers.Root{}
+	m.Get("/about", root.About)
+	m.Get("/", root.Index)
+	m.Get("/projects/:project_id", root.Index)
+
+	sessions := &controllers.Sessions{}
+	m.Get("/sign_in", sessions.SignIn)
+	m.Post("/sign_in", sessions.NewSession)
+	m.Post("/session", sessions.Update)
+	m.Post("/sign_out", sessions.SignOut)
+
+	registrations := &controllers.Registrations{}
+	m.Get("/sign_up", registrations.SignUp)
+	m.Post("/sign_up", registrations.Registration)
+
+	oauth := &controllers.Oauth{}
+	m.Get("/auth/github", oauth.Github)
+
+	passwords := &controllers.Passwords{}
+	m.Get("/passwords/new", passwords.New)
+	m.Post("/passwords/create", passwords.Create)
+	m.Get("/passwords/:id/edit", passwords.Edit)
+	m.Post("/passwords/:id/update", passwords.Update)
 
 	// webview
-	m.Get("/webviews/sign_in", controllers.CallController(&controllers.Webviews{}, "SignIn"))
-	m.Post("/webviews/sign_in", controllers.CallController(&controllers.Webviews{}, "NewSession"))
-	m.Get("/webviews/callback", controllers.CallController(&controllers.Webviews{}, "Callback"))
+	webviews := &controllers.Webviews{}
+	m.Get("/webviews/sign_in", webviews.SignIn)
+	m.Post("/webviews/sign_in", webviews.NewSession)
+	m.Get("/webviews/callback", webviews.Callback)
 
-	m.Post("/projects", controllers.CallController(&controllers.Projects{}, "Create"))
-	m.Get("/projects", controllers.CallController(&controllers.Projects{}, "Index"))
-	m.Post("/projects/:project_id", controllers.CallController(&controllers.Projects{}, "Update"))
-	m.Get("/projects/:project_id/show", controllers.CallController(&controllers.Projects{}, "Show"))
-	m.Post("/projects/:project_id/fetch_github", controllers.CallController(&controllers.Projects{}, "FetchGithub"))
-	m.Post("/projects/:project_id/settings", controllers.CallController(&controllers.Projects{}, "Settings"))
-	m.Post("/projects/:project_id/webhook", controllers.CallController(&controllers.Projects{}, "Webhook"))
+	projects := &controllers.Projects{}
+	m.Post("/projects", projects.Create)
+	m.Get("/projects", projects.Index)
+	m.Post("/projects/:project_id", projects.Update)
+	m.Get("/projects/:project_id/show", projects.Show)
+	m.Post("/projects/:project_id/fetch_github", projects.FetchGithub)
+	m.Post("/projects/:project_id/settings", projects.Settings)
+	m.Post("/projects/:project_id/webhook", projects.Webhook)
 
-	m.Get("/github/repositories", controllers.CallController(&controllers.Github{}, "Repositories"))
+	github := &controllers.Github{}
+	m.Get("/github/repositories", github.Repositories)
 
-	m.Get("/projects/:project_id/lists", controllers.CallController(&controllers.Lists{}, "Index"))
-	m.Post("/projects/:project_id/lists", controllers.CallController(&controllers.Lists{}, "Create"))
-	m.Post("/projects/:project_id/lists/:list_id", controllers.CallController(&controllers.Lists{}, "Update"))
-	m.Post("/projects/:project_id/lists/:list_id/hide", controllers.CallController(&controllers.Lists{}, "Hide"))
-	m.Post("/projects/:project_id/lists/:list_id/display", controllers.CallController(&controllers.Lists{}, "Display"))
+	lists := &controllers.Lists{}
+	m.Get("/projects/:project_id/lists", lists.Index)
+	m.Post("/projects/:project_id/lists", lists.Create)
+	m.Post("/projects/:project_id/lists/:list_id", lists.Update)
+	m.Post("/projects/:project_id/lists/:list_id/hide", lists.Hide)
+	m.Post("/projects/:project_id/lists/:list_id/display", lists.Display)
 
-	m.Post("/projects/:project_id/lists/:list_id/tasks", controllers.CallController(&controllers.Tasks{}, "Create"))
-	m.Get("/projects/:project_id/lists/:list_id/tasks/:task_id", controllers.CallController(&controllers.Tasks{}, "Show"))
-	m.Post("/projects/:project_id/lists/:list_id/tasks/:task_id/move_task", controllers.CallController(&controllers.Tasks{}, "MoveTask"))
-	m.Post("/projects/:project_id/lists/:list_id/tasks/:task_id", controllers.CallController(&controllers.Tasks{}, "Update"))
-	m.Delete("/projects/:project_id/lists/:list_id/tasks/:task_id", controllers.CallController(&controllers.Tasks{}, "Delete"))
+	tasks := &controllers.Tasks{}
+	m.Post("/projects/:project_id/lists/:list_id/tasks", tasks.Create)
+	m.Get("/projects/:project_id/lists/:list_id/tasks/:task_id", tasks.Show)
+	m.Post("/projects/:project_id/lists/:list_id/tasks/:task_id/move_task", tasks.MoveTask)
+	m.Post("/projects/:project_id/lists/:list_id/tasks/:task_id", tasks.Update)
+	m.Delete("/projects/:project_id/lists/:list_id/tasks/:task_id", tasks.Delete)
 
-	m.Get("/list_options", controllers.CallController(&controllers.ListOptions{}, "Index"))
+	listOptions := &controllers.ListOptions{}
+	m.Get("/list_options", listOptions.Index)
 
-	m.Post("/repositories/hooks/github", controllers.CallController(&controllers.Repositories{}, "Hook"))
+	repositories := &controllers.Repositories{}
+	m.Post("/repositories/hooks/github", repositories.Hook)
 
 	// errors
 	m.Get("/400", controllers.BadRequest)
@@ -84,7 +100,7 @@ func Routes(m *web.Mux) {
 	m.Get("/500", controllers.InternalServerError)
 
 	// 任意のファイルも一応ホスティングできるようにしておく
-	m.Get("/*", http.FileServer(http.Dir(filepath.Join(root, "public/statics/"))))
+	m.Get("/*", http.FileServer(http.Dir(filepath.Join(rootDir, "public/statics/"))))
 }
 
 func main() {

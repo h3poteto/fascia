@@ -9,7 +9,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"reflect"
 	"strconv"
 	"time"
 
@@ -39,11 +38,6 @@ var cookieStore = sessions.NewCookieStore([]byte("session-keys"))
 // ここテストでstubするために関数ポインタをグローバル変数に代入しておきます．もしインスタンスメソッドではない関数をstubする方法があれば，書き換えて構わない．
 var CheckCSRFToken = checkCSRF
 var LoginRequired = CheckLogin
-
-func CallController(controller interface{}, action string) interface{} {
-	method := reflect.ValueOf(controller).MethodByName(action)
-	return method.Interface()
-}
 
 func CheckLogin(r *http.Request) (*userModel.UserStruct, error) {
 	session, err := cookieStore.Get(r, Key)
