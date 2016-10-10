@@ -2,16 +2,12 @@ package config
 
 import (
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
 	"os"
-	"path/filepath"
 )
 
 func Element(elem string) interface{} {
 	env := os.Getenv("GOJIENV")
-	root := os.Getenv("GOJIROOT")
-	path := filepath.Join(root, "config/settings.yml")
-	buf, err := ioutil.ReadFile(path)
+	buf, err := Asset("settings.yml")
 	if err != nil {
 		panic(err)
 	}

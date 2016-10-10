@@ -5,3 +5,4 @@ frontend/javascripts/build/
 deploy/setting.yml
 bin
 .docker-env
+config/bindata.go
