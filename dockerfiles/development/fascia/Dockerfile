@@ -15,6 +15,7 @@ ENV HOME /root
 WORKDIR ${HOME}
 
 RUN go get github.com/mattn/gom
+RUN go get -u github.com/jteeuwen/go-bindata/...
 
 ENV GO15VENDOREXPERIMENT 0
 ENV GOJIENV development

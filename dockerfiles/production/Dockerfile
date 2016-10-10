@@ -15,8 +15,10 @@ COPY . ${GOJIROOT}
 WORKDIR ${GOJIROOT}
 
 RUN set -x \
+   && go get -u github.com/jteeuwen/go-bindata/... \
    && go get github.com/mattn/gom \
    && gom install \
+   && go generate \
    && gom build -o bin/fascia server.go
 
 EXPOSE 9090:9090

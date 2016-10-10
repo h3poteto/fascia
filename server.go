@@ -21,6 +21,8 @@ import (
 	"github.com/zenazn/goji/web/middleware"
 )
 
+//go:generate go-bindata -ignore=\\.go -o=config/bindata.go -pkg=config -prefix=config/ config/
+
 func Routes(m *web.Mux) {
 	rootDir := os.Getenv("GOJIROOT")
 	// robots
