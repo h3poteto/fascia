@@ -1,4 +1,4 @@
-FROM node:6.7-slim
+FROM node:5.9.1-slim
 
 RUN useradd -m -s /bin/bash node
 RUN echo 'node:password' | chpasswd

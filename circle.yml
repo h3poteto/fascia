@@ -2,7 +2,7 @@ machine:
   services:
     - docker
   node:
-    version: 6.1.0
+    version: 5.7.0
 dependencies:
   pre:
     - go get github.com/mattn/gom
