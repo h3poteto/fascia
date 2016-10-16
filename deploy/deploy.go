@@ -81,10 +81,10 @@ func main() {
 		time.Sleep(5 * time.Second)
 	}
 
-	// _, err = d.checkServiceLiving()
-	// if err != nil {
-	// 	panic(err)
-	// }
+	_, err = d.checkServiceLiving()
+	if err != nil {
+		panic(err)
+	}
 
 	err = d.removeOldContainer()
 	if err != nil {
@@ -322,115 +322,3 @@ func (d *deploy) parseEnvfile() (*[]string, error) {
 	}
 	return &environments, err
 }
-
-//ここから古いデプロイ
-
-/*
-func (d *deploy) checkRunningPort() (int, error) {
-
-	firstContainerPort, _ := d.runningPort(d.FirstContainerName, d.FirstContainerPort)
-	secondContainerPort, _ := d.runningPort(d.SecondContainerName, d.SecondContainerPort)
-
-	// 両方コンテナが起動している場合は想定外ななのでエラーにする
-	if firstContainerPort != 0 && secondContainerPort != 0 {
-		return 0, errors.New("Both containers are running")
-	} else if firstContainerPort != 0 {
-		return firstContainerPort, nil
-	} else if secondContainerPort != 0 {
-		return secondContainerPort, nil
-	}
-
-	// 両方共起動していない場合は，あらたに起動すればいいだけなので，エラーにはしない
-	return 0, nil
-}
-
-func (d *deploy) runningPort(name string, reservedPort int) (int, error) {
-	session := d.getSession()
-	defer session.Close()
-
-	session.Stdout = nil
-	session.Stderr = nil
-
-	log.Println("Check running docker port")
-	command := fmt.Sprintf("docker port %v", name)
-	log.Println(command)
-	result, err := session.CombinedOutput(command)
-	log.Println(string(result))
-	if err != nil {
-		return 0, err
-	}
-	if len(result) <= 0 {
-		return 0, errors.New("Can not find docker port")
-	}
-	port, err := pickupPortNumber(string(result), reservedPort)
-	if err != nil {
-		return 0, err
-	}
-	return port, nil
-}
-
-func pickupPortNumber(dockerPort string, reservedPort int) (int, error) {
-	regEx := `0.0.0.0:` + strconv.Itoa(reservedPort)
-	r := regexp.MustCompile(regEx)
-	match := r.FindAllStringSubmatch(dockerPort, -1)
-	if len(match) != 1 {
-		return 0, errors.New("Cannot find port")
-	}
-	if len(match[0]) != 1 {
-		return 0, errors.New("Cannot find port")
-	}
-	return reservedPort, nil
-}
-
-func (d *deploy) startNewContainer(name string, port int) error {
-	session := d.getSession()
-	defer session.Close()
-
-	log.Println("Start new container")
-	command := fmt.Sprintf("docker run -d -v %v:/root/fascia/public/statics --env-file /home/ubuntu/.docker-env --name %v -p %v:9090 %v", d.SharedDirectory, name, port, d.DockerImageName)
-	log.Println(command)
-	if err := session.Run(command); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (d *deploy) refreshRedis(port int) error {
-	session := d.getSession()
-	defer session.Close()
-
-	log.Println("Refresh redis port")
-	command := fmt.Sprintf("bash -l -c 'redis-cli -h $REDIS_HOST -p $REDIS_PORT set /app/upstream 127.0.0.1:%v'", port)
-	log.Println(command)
-	if err := session.Run(command); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (d *deploy) refreshNginx() error {
-	session := d.getSession()
-	defer session.Close()
-
-	log.Println("Call confd to refresh nginx")
-	command := "bash -l -c 'sudo confd -onetime -backend redis -node $REDIS_HOST:$REDIS_PORT'"
-	log.Println(command)
-	if err := session.Run(command); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (d *deploy) stopOldContainer(name string) error {
-	session := d.getSession()
-	defer session.Close()
-
-	log.Println("Stop old container")
-	command := fmt.Sprintf("docker stop %v", name)
-	log.Println(command)
-	if err := session.Run(command); err != nil {
-		return err
-	}
-	return nil
-}
-*/
