@@ -9,8 +9,8 @@ import (
 	"net"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"golang.org/x/crypto/ssh"
@@ -22,12 +22,10 @@ type deploy struct {
 	Host string
 	Port string
 
-	DockerImageName     string
-	DockerImageTag      string
-	FirstContainerName  string
-	SecondContainerName string
-	FirstContainerPort  int
-	SecondContainerPort int
+	DockerImageName string
+	DockerImageTag  string
+	ContainerName   string
+	ContainerPort   int
 
 	SharedDirectory string
 
@@ -37,14 +35,12 @@ type deploy struct {
 }
 
 // 新しいdocker imageをpullする
-// 現在動いているdockerのポートを確認する
-// 新しいdockerを起動する
 // db:migrate
-// confdがwatchしているredisのキーを変更し，新しいコンテナのホストとポートを送る
-// confdのinterval分だけ待つ
-// curlしてみて通信できることを確認する
-// 古いdockerをstopする
-// 80番にcurlしてみて通信できることを確認する
+// serviceが生きているか確認する
+// 既に動いている場合には，service updateをかける
+// 動いていなかった場合には新規に立ち上げる
+// 待つ
+// 念の為curlする
 // 古いdockerコンテナを削除する
 // 古いdocker imageを削除する
 
@@ -53,76 +49,41 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	err = d.prepareDockerImage()
 	if err != nil {
 		panic(err)
 	}
 
-	port, err := d.checkRunningPort()
-	if err != nil {
-		panic(err)
-	}
-
-	var newPort int
-	var newContainer, oldContainer string
-	switch port {
-	case d.FirstContainerPort:
-		newPort = d.SecondContainerPort
-		newContainer = d.SecondContainerName
-		oldContainer = d.FirstContainerName
-	case d.SecondContainerPort:
-		newPort = d.FirstContainerPort
-		newContainer = d.FirstContainerName
-		oldContainer = d.SecondContainerName
-	case 0:
-		// どちらのコンテナも起動していないパターン
-		newPort = d.FirstContainerPort
-		newContainer = d.FirstContainerName
-	default:
-		panic("Container is running unexpected port")
-	}
-
-	err = d.removeOldContainer()
-	// 起動中のコンテナを消そうとした場合にはエラーが帰ってくるが，特に問題はないので表示するだけ
-	if err != nil {
-		log.Println(err)
-	}
-
-	// migration
 	err = d.migration()
 	if err != nil {
 		panic(err)
 	}
 
-	err = d.startNewContainer(newContainer, newPort)
-	if err != nil {
-		panic(err)
+	alive, err := d.checkRunningService()
+	if alive {
+		err = d.serviceUpdate()
+		if err != nil {
+			panic(err)
+		}
+
+		// update-dely + stop-grace-period分だけ待つ
+		log.Println("Waiting service update...")
+		time.Sleep((30 + 20) * time.Second)
+	} else {
+		log.Println(err)
+		err = d.serviceCreate()
+		if err != nil {
+			panic(err)
+		}
+
+		log.Println("Waiting service create...")
+		time.Sleep(5 * time.Second)
 	}
 
-	err = d.refreshRedis(newPort)
-	if err != nil {
-		panic(err)
-	}
-
-	// confdのintervalを30[s]に設定したため，それ以上の秒数だけ待つ
-	time.Sleep(35 * time.Second)
-
-	// 一応curlが通ることを確認してから進めたい
 	_, err = d.checkServiceLiving()
 	if err != nil {
 		panic(err)
-	}
-
-	if len(oldContainer) > 0 {
-		err = d.stopOldContainer(oldContainer)
-		if err != nil {
-			panic(err)
-		}
-		// 古いコンテナを停止した段階で，もう一度curlしたい
-		_, err = d.checkServiceLiving()
-		if err != nil {
-			panic(err)
-		}
 	}
 
 	err = d.removeOldContainer()
@@ -151,17 +112,15 @@ func initialize() (d *deploy, e error) {
 		panic(err)
 	}
 	d = &deploy{
-		User:                m["user"].(string),
-		Host:                m["host"].(string),
-		Port:                m["port"].(string),
-		DockerImageName:     m["docker_image_name"].(string),
-		DockerImageTag:      m["docker_image_tag"].(string),
-		FirstContainerName:  m["first_container_name"].(string),
-		SecondContainerName: m["second_container_name"].(string),
-		FirstContainerPort:  m["first_container_port"].(int),
-		SecondContainerPort: m["second_container_port"].(int),
-		SharedDirectory:     m["shared_directory"].(string),
-		HostName:            m["host_name"].(string),
+		User:            m["user"].(string),
+		Host:            m["host"].(string),
+		Port:            m["port"].(string),
+		DockerImageName: m["docker_image_name"].(string),
+		DockerImageTag:  m["docker_image_tag"].(string),
+		ContainerName:   m["container_name"].(string),
+		ContainerPort:   m["container_port"].(int),
+		SharedDirectory: m["shared_directory"].(string),
+		HostName:        m["host_name"].(string),
 	}
 	return d, nil
 }
@@ -207,77 +166,8 @@ func (d *deploy) prepareDockerImage() error {
 	session := d.getSession()
 	defer session.Close()
 
-	log.Println("Docker pull")
+	log.Println("Docker pull...")
 	command := fmt.Sprintf("docker pull %v:%v", d.DockerImageName, d.DockerImageTag)
-	log.Println(command)
-	if err := session.Run(command); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (d *deploy) checkRunningPort() (int, error) {
-
-	firstContainerPort, _ := d.runningPort(d.FirstContainerName, d.FirstContainerPort)
-	secondContainerPort, _ := d.runningPort(d.SecondContainerName, d.SecondContainerPort)
-
-	// 両方コンテナが起動している場合は想定外ななのでエラーにする
-	if firstContainerPort != 0 && secondContainerPort != 0 {
-		return 0, errors.New("Both containers are running")
-	} else if firstContainerPort != 0 {
-		return firstContainerPort, nil
-	} else if secondContainerPort != 0 {
-		return secondContainerPort, nil
-	}
-
-	// 両方共起動していない場合は，あらたに起動すればいいだけなので，エラーにはしない
-	return 0, nil
-}
-
-func (d *deploy) runningPort(name string, reservedPort int) (int, error) {
-	session := d.getSession()
-	defer session.Close()
-
-	session.Stdout = nil
-	session.Stderr = nil
-
-	log.Println("Check running docker port")
-	command := fmt.Sprintf("docker port %v", name)
-	log.Println(command)
-	result, err := session.CombinedOutput(command)
-	log.Println(string(result))
-	if err != nil {
-		return 0, err
-	}
-	if len(result) <= 0 {
-		return 0, errors.New("Can not find docker port")
-	}
-	port, err := pickupPortNumber(string(result), reservedPort)
-	if err != nil {
-		return 0, err
-	}
-	return port, nil
-}
-
-func pickupPortNumber(dockerPort string, reservedPort int) (int, error) {
-	regEx := `0.0.0.0:` + strconv.Itoa(reservedPort)
-	r := regexp.MustCompile(regEx)
-	match := r.FindAllStringSubmatch(dockerPort, -1)
-	if len(match) != 1 {
-		return 0, errors.New("Cannot find port")
-	}
-	if len(match[0]) != 1 {
-		return 0, errors.New("Cannot find port")
-	}
-	return reservedPort, nil
-}
-
-func (d *deploy) startNewContainer(name string, port int) error {
-	session := d.getSession()
-	defer session.Close()
-
-	log.Println("Start new container")
-	command := fmt.Sprintf("docker run -d -v %v:/root/fascia/public/statics --env-file /home/ubuntu/.docker-env --name %v -p %v:9090 %v", d.SharedDirectory, name, port, d.DockerImageName)
 	log.Println(command)
 	if err := session.Run(command); err != nil {
 		return err
@@ -289,7 +179,7 @@ func (d *deploy) migration() error {
 	session := d.getSession()
 	defer session.Close()
 
-	log.Println("db migration")
+	log.Println("db migration...")
 	command := fmt.Sprintf("docker run --rm --env-file /home/ubuntu/.docker-env %v gom exec goose -env production up", d.DockerImageName)
 	if err := session.Run(command); err != nil {
 		return err
@@ -297,12 +187,45 @@ func (d *deploy) migration() error {
 	return nil
 }
 
-func (d *deploy) refreshRedis(port int) error {
+func (d *deploy) checkRunningService() (bool, error) {
 	session := d.getSession()
 	defer session.Close()
 
-	log.Println("Refresh redis port")
-	command := fmt.Sprintf("bash -l -c 'redis-cli -h $REDIS_HOST -p $REDIS_PORT set /app/upstream 127.0.0.1:%v'", port)
+	session.Stdout = nil
+	session.Stderr = nil
+
+	log.Println("Check running docker service...")
+	command := fmt.Sprintf("docker service ls -q --filter name=%s", d.ContainerName)
+	log.Println(command)
+	result, err := session.CombinedOutput(command)
+	log.Println(string(result))
+	if err != nil {
+		return false, err
+	}
+	if len(result) > 0 {
+		return true, nil
+	}
+	return false, errors.New("Service is not alive")
+}
+
+func (d *deploy) serviceCreate() error {
+	// memo: 現状docker service createにはenf-file指定ができないので，サーバ内のenvfileをparseしてenvとして渡す
+	environments, err := d.parseEnvfile()
+	if err != nil {
+		return err
+	}
+
+	envOptions := ""
+	for _, e := range *environments {
+		option := "--env " + e + " "
+		envOptions += option
+	}
+
+	session := d.getSession()
+	defer session.Close()
+
+	log.Println("Service create...")
+	command := fmt.Sprintf("docker service create --publish %d:9090 --name %s --replicas 2 --update-delay 20s --stop-grace-period 10s --mount type=bind,source=%s,target=/root/fascia/public/statics,readonly=false %s %s:%s", d.ContainerPort, d.ContainerName, d.SharedDirectory, envOptions, d.DockerImageName, d.DockerImageTag)
 	log.Println(command)
 	if err := session.Run(command); err != nil {
 		return err
@@ -310,25 +233,12 @@ func (d *deploy) refreshRedis(port int) error {
 	return nil
 }
 
-func (d *deploy) refreshNginx() error {
+func (d *deploy) serviceUpdate() error {
 	session := d.getSession()
 	defer session.Close()
 
-	log.Println("Call confd to refresh nginx")
-	command := "bash -l -c 'sudo confd -onetime -backend redis -node $REDIS_HOST:$REDIS_PORT'"
-	log.Println(command)
-	if err := session.Run(command); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (d *deploy) stopOldContainer(name string) error {
-	session := d.getSession()
-	defer session.Close()
-
-	log.Println("Stop old container")
-	command := fmt.Sprintf("docker stop %v", name)
+	log.Println("Service update...")
+	command := fmt.Sprintf("docker service update --image %s:%s %s", d.DockerImageName, d.DockerImageTag, d.ContainerName)
 	log.Println(command)
 	if err := session.Run(command); err != nil {
 		return err
@@ -343,7 +253,7 @@ func (d *deploy) checkServiceLiving() (int, error) {
 	session.Stdout = nil
 	session.Stderr = nil
 
-	log.Println("Check service is living")
+	log.Println("Check service is living...")
 	command := fmt.Sprintf("curl --insecure -H '%v' https://127.0.0.1 -o /dev/null -w '%%{http_code}' -s", d.HostName)
 	log.Println(command)
 	result, err := session.CombinedOutput(command)
@@ -388,4 +298,27 @@ func (d *deploy) removeOldImages() error {
 		return err
 	}
 	return nil
+}
+
+func (d *deploy) parseEnvfile() (*[]string, error) {
+	session := d.getSession()
+	defer session.Close()
+
+	session.Stdout = nil
+	session.Stderr = nil
+
+	command := fmt.Sprintf("cat /home/ubuntu/.docker-env")
+	log.Println(command)
+	result, err := session.CombinedOutput(command)
+	if err != nil {
+		return nil, err
+	}
+
+	var environments []string
+	for _, s := range strings.Split(string(result), "\n") {
+		if len(s) > 1 {
+			environments = append(environments, s)
+		}
+	}
+	return &environments, err
 }

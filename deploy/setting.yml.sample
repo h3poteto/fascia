@@ -3,9 +3,7 @@ host: # remote server host
 port: # remote server port for ssh
 docker_image_name: "h3poteto/fascia"
 docker_image_tag: "latest"
-first_container_name: "fascia_1"
-second_container_name: "fascia_2"
-first_container_port: 9091
-second_container_port: 9092
-shared_directory: "/srv/www/fascia/public/static" # for static file host
+container_name: "fascia"
+container_port: 9090
+shared_directory: "/srv/www/fascia/public/statics" # for static file host
 host_name: "fascia.io"
