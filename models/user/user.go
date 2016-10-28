@@ -29,7 +29,7 @@ type UserStruct struct {
 	Uuid       sql.NullInt64
 	UserName   sql.NullString
 	Avatar     sql.NullString
-	database   db.DB
+	database   *sql.DB
 }
 
 func randomString() string {
@@ -59,23 +59,18 @@ func NewUser(id int64, email string, provider sql.NullString, oauthToken sql.Nul
 }
 
 func (u *UserStruct) Initialize() {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	u.database = interfaceDB
+	u.database = db.SharedInstance().Connection
 }
 
 func CurrentUser(userID int64) (*UserStruct, error) {
 	user := UserStruct{}
 	user.Initialize()
 
-	table := user.database.Init()
-	defer table.Close()
-
 	var id int64
 	var uuid sql.NullInt64
 	var email string
 	var provider, oauthToken, userName, avatarURL sql.NullString
-	err := table.QueryRow("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where id = ?;", userID).Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
+	err := user.database.QueryRow("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where id = ?;", userID).Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -91,11 +86,6 @@ func CurrentUser(userID int64) (*UserStruct, error) {
 
 // Registration is create new user through validation
 func Registration(email string, password string, passwordConfirm string) (int64, error) {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	table := interfaceDB.Init()
-	defer table.Close()
-
 	hashPassword, err := HashPassword(password)
 	if err != nil {
 		return 0, err
@@ -109,16 +99,12 @@ func Registration(email string, password string, passwordConfirm string) (int64,
 }
 
 func Login(userEmail string, userPassword string) (*UserStruct, error) {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	table := interfaceDB.Init()
-	defer table.Close()
-
+	database := db.SharedInstance().Connection
 	var id int64
 	var uuid sql.NullInt64
 	var email, password string
 	var provider, oauthToken, userName, avatarURL sql.NullString
-	err := table.QueryRow("select id, email, password, provider, oauth_token, user_name, uuid, avatar_url from users where email = ?;", userEmail).Scan(&id, &email, &password, &provider, &oauthToken, &userName, &uuid, &avatarURL)
+	err := database.QueryRow("select id, email, password, provider, oauth_token, user_name, uuid, avatar_url from users where email = ?;", userEmail).Scan(&id, &email, &password, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -133,15 +119,12 @@ func Login(userEmail string, userPassword string) (*UserStruct, error) {
 }
 
 func FindUser(id int64) (*UserStruct, error) {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	table := interfaceDB.Init()
-	defer table.Close()
+	database := db.SharedInstance().Connection
 
 	var uuid sql.NullInt64
 	var email string
 	var provider, oauthToken, userName, avatarURL sql.NullString
-	err := table.QueryRow("select email, provider, oauth_token, user_name, uuid, avatar_url from users where id = ?;", id).Scan(&email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
+	err := database.QueryRow("select email, provider, oauth_token, user_name, uuid, avatar_url from users where id = ?;", id).Scan(&email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -149,15 +132,11 @@ func FindUser(id int64) (*UserStruct, error) {
 }
 
 func FindByEmail(email string) (*UserStruct, error) {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	table := interfaceDB.Init()
-	defer table.Close()
-
+	database := db.SharedInstance().Connection
 	var id int64
 	var uuid sql.NullInt64
 	var provider, oauthToken, userName, avatarURL sql.NullString
-	err := table.QueryRow("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where email = ?;", email).Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
+	err := database.QueryRow("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where email = ?;", email).Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -166,11 +145,6 @@ func FindByEmail(email string) (*UserStruct, error) {
 
 // 認証時にもう一度githubアクセスしてidを取ってくるのが無駄なので，できればoauthのcallbakcでidを受け取りたい
 func FindOrCreateGithub(token string) (*UserStruct, error) {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	table := interfaceDB.Init()
-	defer table.Close()
-
 	// github認証
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
@@ -191,11 +165,12 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 		}
 	}
 
+	database := db.SharedInstance().Connection
 	var id int64
 	var uuid sql.NullInt64
 	var email string
 	var provider, oauthToken, userName, avatarURL sql.NullString
-	rows, err := table.Query("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where uuid = ? or email = ?;", *githubUser.ID, primaryEmail)
+	rows, err := database.Query("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where uuid = ? or email = ?;", *githubUser.ID, primaryEmail)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -225,11 +200,8 @@ func FindOrCreateGithub(token string) (*UserStruct, error) {
 
 // Projects list up projects related a user
 func (u *UserStruct) Projects() ([]*project.ProjectStruct, error) {
-	table := u.database.Init()
-	defer table.Close()
-
 	var slice []*project.ProjectStruct
-	rows, err := table.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where user_id = ?;", u.ID)
+	rows, err := u.database.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where user_id = ?;", u.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -252,11 +224,8 @@ func (u *UserStruct) Projects() ([]*project.ProjectStruct, error) {
 }
 
 func (u *UserStruct) Save() error {
-	table := u.database.Init()
-	defer table.Close()
-
 	// TODO: この前にvalidationを入れたい
-	result, err := table.Exec("insert into users (email, password, provider, oauth_token, uuid, user_name, avatar_url, created_at) values (?, ?, ?, ?, ?, ?, ?, now());", u.Email, u.Password, u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar)
+	result, err := u.database.Exec("insert into users (email, password, provider, oauth_token, uuid, user_name, avatar_url, created_at) values (?, ?, ?, ?, ?, ?, ?, now());", u.Email, u.Password, u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar)
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
@@ -266,10 +235,7 @@ func (u *UserStruct) Save() error {
 }
 
 func (u *UserStruct) Update() error {
-	table := u.database.Init()
-	defer table.Close()
-
-	_, err := table.Exec("update users set provider = ?, oauth_token = ?, uuid = ?, user_name = ?, avatar_url = ? where email = ?;", u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar, u.Email)
+	_, err := u.database.Exec("update users set provider = ?, oauth_token = ?, uuid = ?, user_name = ?, avatar_url = ? where email = ?;", u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar, u.Email)
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}

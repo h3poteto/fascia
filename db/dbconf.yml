@@ -4,6 +4,7 @@ test:
     name: $DB_TEST_NAME
     user: $DB_USER
     password: $DB_PASSWORD
+    pool: 5
     open: tcp:$DATABASE_URL:3306*$DB_TEST_NAME/$DB_USER/$DB_PASSWORD
 
 development:
@@ -12,6 +13,7 @@ development:
     name: $DB_NAME
     user: $DB_USER
     password: $DB_PASSWORD
+    pool: 5
     open: tcp:$DATABASE_URL:3306*$DB_NAME/$DB_USER/$DB_PASSWORD
 
 production:
@@ -20,6 +22,7 @@ production:
     name: $DB_NAME
     user: $DB_USER
     password: $DB_PASSWORD
+    pool: 5
     open: tcp:$DATABASE_URL:3306*$DB_NAME/$DB_USER/$DB_PASSWORD
 
 environment_variable_config:

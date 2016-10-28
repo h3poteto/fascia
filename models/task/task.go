@@ -29,7 +29,7 @@ type TaskStruct struct {
 	Description string
 	PullRequest bool
 	HTMLURL     sql.NullString
-	database    db.DB
+	database    *sql.DB
 }
 
 func NewTask(id int64, listID int64, projectID int64, userID int64, issueNumber sql.NullInt64, title string, description string, pullRequest bool, htmlURL sql.NullString) *TaskStruct {
@@ -39,17 +39,14 @@ func NewTask(id int64, listID int64, projectID int64, userID int64, issueNumber 
 }
 
 func FindTask(listID int64, taskID int64) (*TaskStruct, error) {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	table := interfaceDB.Init()
-	defer table.Close()
+	database := db.SharedInstance().Connection
 
 	var id, userID, projectID int64
 	var title, description string
 	var issueNumber sql.NullInt64
 	var pullRequest bool
 	var htmlURL sql.NullString
-	err := table.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where id = ? AND list_id = ?;", taskID, listID).Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
+	err := database.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where id = ? AND list_id = ?;", taskID, listID).Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -61,17 +58,14 @@ func FindTask(listID int64, taskID int64) (*TaskStruct, error) {
 }
 
 func FindByIssueNumber(projectID int64, issueNumber int) (*TaskStruct, error) {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	table := interfaceDB.Init()
-	defer table.Close()
+	database := db.SharedInstance().Connection
 
 	var id, listID, userID int64
 	var title, description string
 	var number sql.NullInt64
 	var pullRequest bool
 	var htmlURL sql.NullString
-	err := table.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where issue_number = ? and project_id = ?;", issueNumber, projectID).Scan(&id, &listID, &projectID, &userID, &number, &title, &description, &pullRequest, &htmlURL)
+	err := database.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where issue_number = ? and project_id = ?;", issueNumber, projectID).Scan(&id, &listID, &projectID, &userID, &number, &title, &description, &pullRequest, &htmlURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -83,15 +77,11 @@ func FindByIssueNumber(projectID int64, issueNumber int) (*TaskStruct, error) {
 }
 
 func (u *TaskStruct) Initialize() {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	u.database = interfaceDB
+	u.database = db.SharedInstance().Connection
 }
 
 func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.NullString) (e error) {
-	table := u.database.Init()
-	defer table.Close()
-	transaction, _ := table.Begin()
+	transaction, _ := u.database.Begin()
 	defer func() {
 		if err := recover(); err != nil {
 			transaction.Rollback()
@@ -155,10 +145,7 @@ func (u *TaskStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 
 // Update is update task in db and sync github issue
 func (u *TaskStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.NullString) error {
-	table := u.database.Init()
-	defer table.Close()
-
-	_, err := table.Exec("update tasks set list_id = ?, issue_number = ?, title = ?, description = ?, pull_request = ?, html_url = ? where id = ?;", u.ListID, u.IssueNumber, u.Title, u.Description, u.PullRequest, u.HTMLURL, u.ID)
+	_, err := u.database.Exec("update tasks set list_id = ?, issue_number = ?, title = ?, description = ?, pull_request = ?, html_url = ? where id = ?;", u.ListID, u.IssueNumber, u.Title, u.Description, u.PullRequest, u.HTMLURL, u.ID)
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
@@ -181,9 +168,7 @@ func (u *TaskStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 
 // lastに追加する場合にはprevToTaskIDをnullで渡す
 func (u *TaskStruct) ChangeList(listID int64, prevToTaskID *int64, repo *repository.RepositoryStruct, OauthToken *sql.NullString) (e error) {
-	table := u.database.Init()
-	defer table.Close()
-	transaction, _ := table.Begin()
+	transaction, _ := u.database.Begin()
 	defer func() {
 		if err := recover(); err != nil {
 			transaction.Rollback()
@@ -272,10 +257,7 @@ func (u *TaskStruct) Delete() error {
 		return errors.New("cannot delete")
 	}
 
-	table := u.database.Init()
-	defer table.Close()
-
-	_, err := table.Exec("delete from tasks where id = ?;", u.ID)
+	_, err := u.database.Exec("delete from tasks where id = ?;", u.ID)
 	if err != nil {
 		return errors.Wrap(err, "sql delelet error")
 	}
@@ -302,12 +284,9 @@ func (u *TaskStruct) syncLabel(listTitle string, listColor string, token string,
 }
 
 func (u *TaskStruct) syncIssue(repo *repository.RepositoryStruct, OauthToken *sql.NullString) (*github.Issue, error) {
-	table := u.database.Init()
-	defer table.Close()
-
 	var listTitle, listColor sql.NullString
 	var listOptionID sql.NullInt64
-	err := table.QueryRow("select title, color, list_option_id from lists where id = ?;", u.ListID).Scan(&listTitle, &listColor, &listOptionID)
+	err := u.database.QueryRow("select title, color, list_option_id from lists where id = ?;", u.ListID).Scan(&listTitle, &listColor, &listOptionID)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}

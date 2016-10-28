@@ -26,7 +26,7 @@ type RepositoryStruct struct {
 	Owner        sql.NullString
 	Name         sql.NullString
 	WebhookKey   string
-	database     db.DB
+	database     *sql.DB
 }
 
 // GenerateWebhookKey is create new md5 hash
@@ -51,14 +51,10 @@ func NewRepository(id int64, repositoryID int64, owner string, name string, webh
 
 // FindRepositoryByRepositoryID is return a Repository struct from repository_id
 func FindRepositoryByRepositoryID(repositoryID int64) (*RepositoryStruct, error) {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	table := interfaceDB.Init()
-	defer table.Close()
-
+	database := db.SharedInstance().Connection
 	var id int64
 	var owner, name, webhookKey string
-	err := table.QueryRow("select id, repository_id, owner, name, webhook_key from repositories where repository_id = ?;", repositoryID).Scan(&id, &repositoryID, &owner, &name, &webhookKey)
+	err := database.QueryRow("select id, repository_id, owner, name, webhook_key from repositories where repository_id = ?;", repositoryID).Scan(&id, &repositoryID, &owner, &name, &webhookKey)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -66,16 +62,11 @@ func FindRepositoryByRepositoryID(repositoryID int64) (*RepositoryStruct, error)
 }
 
 func (u *RepositoryStruct) Initialize() {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	u.database = interfaceDB
+	u.database = db.SharedInstance().Connection
 }
 
 func (u *RepositoryStruct) Save() error {
-	table := u.database.Init()
-	defer table.Close()
-
-	result, err := table.Exec("insert into repositories (repository_id, owner, name, webhook_key, created_at) values (?, ?, ?, ?, now());", u.RepositoryID, u.Owner, u.Name, u.WebhookKey)
+	result, err := u.database.Exec("insert into repositories (repository_id, owner, name, webhook_key, created_at) values (?, ?, ?, ?, now());", u.RepositoryID, u.Owner, u.Name, u.WebhookKey)
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
@@ -85,11 +76,8 @@ func (u *RepositoryStruct) Save() error {
 
 // Authenticate is check token and webhookKey with response
 func (u *RepositoryStruct) Authenticate(token string, response []byte) error {
-	table := u.database.Init()
-	defer table.Close()
-
 	var webhookKey string
-	err := table.QueryRow("select webhook_key from repositories where id = ?;", u.ID).Scan(&webhookKey)
+	err := u.database.QueryRow("select webhook_key from repositories where id = ?;", u.ID).Scan(&webhookKey)
 	if err != nil {
 		return errors.Wrap(err, "sql select error")
 	}

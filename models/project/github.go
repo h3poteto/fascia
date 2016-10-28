@@ -56,13 +56,9 @@ func (u *ProjectStruct) TaskLoadFromGithub(issues []*github.Issue) error {
 
 // IssuesEvent apply issue changes to task
 func IssuesEvent(repositoryID int64, body github.IssuesEvent) error {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	table := interfaceDB.Init()
-	defer table.Close()
-
+	database := db.SharedInstance().Connection
 	var projectID int64
-	err := table.QueryRow("select id from projects where repository_id = ?;", repositoryID).Scan(&projectID)
+	err := database.QueryRow("select id from projects where repository_id = ?;", repositoryID).Scan(&projectID)
 	if err != nil {
 		return errors.Wrap(err, "sql select error")
 	}
@@ -94,13 +90,10 @@ func IssuesEvent(repositoryID int64, body github.IssuesEvent) error {
 
 // PullRequestEvent apply issue changes to task
 func PullRequestEvent(repositoryID int64, body github.PullRequestEvent) error {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	table := interfaceDB.Init()
-	defer table.Close()
+	database := db.SharedInstance().Connection
 
 	var projectID int64
-	err := table.QueryRow("select id from projects where repository_id = ?;", repositoryID).Scan(&projectID)
+	err := database.QueryRow("select id from projects where repository_id = ?;", repositoryID).Scan(&projectID)
 	if err != nil {
 		return errors.Wrap(err, "sql select error")
 	}

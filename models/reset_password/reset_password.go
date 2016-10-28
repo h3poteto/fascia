@@ -5,6 +5,7 @@ import (
 	"../user"
 
 	"crypto/md5"
+	"database/sql"
 	"fmt"
 	"io"
 	"runtime"
@@ -22,7 +23,7 @@ type ResetPasswordStruct struct {
 	UserID    int64
 	Token     string
 	ExpiresAt time.Time
-	database  db.DB
+	database  *sql.DB
 }
 
 func NewResetPassword(id int64, userID int64, token string, expiresAt time.Time) *ResetPasswordStruct {
@@ -42,13 +43,10 @@ func GenerateResetPassword(userID int64, email string) *ResetPasswordStruct {
 }
 
 func Authenticate(id int64, token string) error {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	table := interfaceDB.Init()
-	defer table.Close()
+	database := db.SharedInstance().Connection
 
 	var targetID int64
-	err := table.QueryRow("select id from reset_passwords where id = ? and token = ? and expires_at > now();", id, token).Scan(&targetID)
+	err := database.QueryRow("select id from reset_passwords where id = ? and token = ? and expires_at > now();", id, token).Scan(&targetID)
 	if err != nil {
 		return errors.Wrap(err, "sql select error")
 	}
@@ -57,12 +55,8 @@ func Authenticate(id int64, token string) error {
 }
 
 func ChangeUserPassword(id int64, token string, password string) (u *user.UserStruct, e error) {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	table := interfaceDB.Init()
-	defer table.Close()
-
-	tx, _ := table.Begin()
+	database := db.SharedInstance().Connection
+	tx, _ := database.Begin()
 	defer func() {
 		if err := recover(); err != nil {
 			tx.Rollback()
@@ -112,16 +106,11 @@ func ChangeUserPassword(id int64, token string, password string) (u *user.UserSt
 }
 
 func (u *ResetPasswordStruct) Initialize() {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	u.database = interfaceDB
+	u.database = db.SharedInstance().Connection
 }
 
 func (u *ResetPasswordStruct) Save() error {
-	table := u.database.Init()
-	defer table.Close()
-
-	result, err := table.Exec("insert into reset_passwords (user_id, token, expires_at, created_at) values (?, ?, ?, now());", u.UserID, u.Token, u.ExpiresAt)
+	result, err := u.database.Exec("insert into reset_passwords (user_id, token, expires_at, created_at) values (?, ?, ?, now());", u.UserID, u.Token, u.ExpiresAt)
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
