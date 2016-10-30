@@ -13,8 +13,9 @@ type Database struct {
 	Connection *sql.DB
 }
 
-var sharedInstance *Database = New()
+var sharedInstance = New()
 
+// New is create Database object with connection pool
 func New() *Database {
 	env := os.Getenv("GOJIENV")
 	root := os.Getenv("GOJIROOT")
@@ -52,10 +53,12 @@ func New() *Database {
 	}
 }
 
+// SharedInstance return database connection object
 func SharedInstance() *Database {
 	return sharedInstance
 }
 
+// Close database connection
 func (d *Database) Close() error {
 	return d.Connection.Close()
 }
