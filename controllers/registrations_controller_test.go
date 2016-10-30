@@ -4,6 +4,8 @@ import (
 	. "../../fascia"
 	. "../controllers"
 	"../models/db"
+
+	"database/sql"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -15,7 +17,8 @@ import (
 
 var _ = Describe("RegistrationsController", func() {
 	var (
-		ts *httptest.Server
+		ts       *httptest.Server
+		database *sql.DB
 	)
 	BeforeEach(func() {
 		m := web.New()
@@ -24,11 +27,10 @@ var _ = Describe("RegistrationsController", func() {
 	})
 	AfterEach(func() {
 		ts.Close()
-		mydb := &db.Database{}
-		var database db.DB = mydb
-		table := database.Init()
-		table.Exec("truncate table users;")
-		table.Close()
+		database.Exec("truncate table users;")
+	})
+	JustBeforeEach(func() {
+		database = db.SharedInstance().Connection
 	})
 
 	Describe("SignUp", func() {
@@ -63,11 +65,8 @@ var _ = Describe("RegistrationsController", func() {
 				values.Add("password", "hogehoge")
 				values.Add("password_confirm", "hogehoge")
 				http.PostForm(ts.URL+"/sign_up", values)
-				mydb := &db.Database{}
-				var database db.DB = mydb
-				table := database.Init()
 				var id int64
-				rows, _ := table.Query("select id from users where email = ?;", "registration@example.com")
+				rows, _ := database.Query("select id from users where email = ?;", "registration@example.com")
 				for rows.Next() {
 					err := rows.Scan(&id)
 					if err != nil {

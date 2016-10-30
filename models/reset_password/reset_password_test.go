@@ -13,25 +13,19 @@ import (
 var _ = Describe("ResetPassword", func() {
 	var (
 		resetPassword *ResetPasswordStruct
-		table         *sql.DB
+		database      *sql.DB
 		password      string
 		email         string
 	)
 	AfterEach(func() {
-		mydb := &db.Database{}
-		var database db.DB = mydb
-		sql := database.Init()
-		sql.Exec("truncate table users;")
-		sql.Exec("truncate table reset_passwords;")
-		sql.Close()
+		database.Exec("truncate table users;")
+		database.Exec("truncate table reset_passwords;")
 	})
 	JustBeforeEach(func() {
 		email = "hoge@example.com"
 		password = "hogehoge"
 		uid, _ := user.Registration(email, password, password)
-		mydb := &db.Database{}
-		var database db.DB = mydb
-		table = database.Init()
+		database = db.SharedInstance().Connection
 		resetPassword = GenerateResetPassword(uid, email)
 		resetPassword.Save()
 	})

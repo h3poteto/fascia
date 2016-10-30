@@ -18,18 +18,14 @@ var _ = Describe("List", func() {
 	var (
 		newList    *ListStruct
 		newProject *project.ProjectStruct
-		table      *sql.DB
+		database   *sql.DB
 	)
 	AfterEach(func() {
-		mydb := &db.Database{}
-		var database db.DB = mydb
-		sql := database.Init()
-		sql.Exec("truncate table users;")
-		sql.Exec("truncate table projects;")
-		sql.Exec("truncate table lists;")
-		sql.Exec("truncate table tasks;")
-		sql.Exec("truncate table list_options;")
-		sql.Close()
+		database.Exec("truncate table users;")
+		database.Exec("truncate table projects;")
+		database.Exec("truncate table lists;")
+		database.Exec("truncate table tasks;")
+		database.Exec("truncate table list_options;")
 	})
 
 	JustBeforeEach(func() {
@@ -37,9 +33,7 @@ var _ = Describe("List", func() {
 		email := "save@example.com"
 		password := "hogehoge"
 		uid, _ := user.Registration(email, password, password)
-		mydb := &db.Database{}
-		var database db.DB = mydb
-		table = database.Init()
+		database = db.SharedInstance().Connection
 		newProject, _ = project.Create(uid, "title", "desc", 0, "", "", sql.NullString{})
 		newList = NewList(0, newProject.ID, newProject.UserID, "list title", "", sql.NullInt64{}, false)
 	})
@@ -52,7 +46,7 @@ var _ = Describe("List", func() {
 		})
 		It("should relate list to project", func() {
 			_ = newList.Save(nil, nil)
-			rows, _ := table.Query("select id, project_id, title from lists where id = ?;", newList.ID)
+			rows, _ := database.Query("select id, project_id, title from lists where id = ?;", newList.ID)
 			var id int64
 			var project_id int64
 			var title sql.NullString

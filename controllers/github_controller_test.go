@@ -3,6 +3,8 @@ package controllers_test
 import (
 	. "../../fascia"
 	"../models/db"
+
+	"database/sql"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -16,7 +18,8 @@ import (
 
 var _ = Describe("GithubController", func() {
 	var (
-		ts *httptest.Server
+		ts       *httptest.Server
+		database *sql.DB
 	)
 	userEmail := "github@example.com"
 	BeforeEach(func() {
@@ -26,18 +29,12 @@ var _ = Describe("GithubController", func() {
 	})
 	AfterEach(func() {
 		ts.Close()
-		mydb := &db.Database{}
-		var database db.DB = mydb
-		table := database.Init()
-		table.Exec("truncate table users;")
-		table.Close()
+		database.Exec("truncate table users;")
 	})
 	JustBeforeEach(func() {
 		LoginFaker(ts, userEmail, "hogehoge")
 		// Oauthのログインテストはリダイレクトまでしか実行できないため，OauthTokenは偽装しておくしかない
-		mydb := &db.Database{}
-		var database db.DB = mydb
-		table := database.Init()
+		database = db.SharedInstance().Connection
 
 		token := os.Getenv("TEST_TOKEN")
 		// github認証
@@ -48,7 +45,7 @@ var _ = Describe("GithubController", func() {
 		client := github.NewClient(tc)
 		githubUser, _, _ := client.Users.Get("")
 
-		table.Exec("update users set provider = ?, oauth_token =?, user_name = ?, uuid = ?, avatar_url = ? where email = ?;", "github", token, *githubUser.Login, *githubUser.ID, *githubUser.AvatarURL, userEmail)
+		database.Exec("update users set provider = ?, oauth_token =?, user_name = ?, uuid = ?, avatar_url = ? where email = ?;", "github", token, *githubUser.Login, *githubUser.ID, *githubUser.AvatarURL, userEmail)
 
 	})
 	Describe("Repositories", func() {

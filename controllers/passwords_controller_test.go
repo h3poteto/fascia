@@ -6,6 +6,7 @@ import (
 	"../models/db"
 	"../models/reset_password"
 	"../models/user"
+
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -31,12 +32,9 @@ var _ = Describe("PasswordsController", func() {
 	})
 	AfterEach(func() {
 		ts.Close()
-		mydb := &db.Database{}
-		var database db.DB = mydb
-		table := database.Init()
-		table.Exec("truncate table users;")
-		table.Exec("truncate table reset_passwords;")
-		table.Close()
+		database := db.SharedInstance().Connection
+		database.Exec("truncate table users;")
+		database.Exec("truncate table reset_passwords;")
 	})
 	JustBeforeEach(func() {
 		email = "hoge@example.com"

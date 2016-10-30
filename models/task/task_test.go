@@ -18,29 +18,23 @@ var _ = Describe("Task", func() {
 		newList    *list.ListStruct
 		newTask    *TaskStruct
 		newProject *project.ProjectStruct
-		table      *sql.DB
+		database   *sql.DB
 	)
 	BeforeEach(func() {
 		seed.ListOptions()
 	})
 	AfterEach(func() {
-		mydb := &db.Database{}
-		var database db.DB = mydb
-		sql := database.Init()
-		sql.Exec("truncate table users;")
-		sql.Exec("truncate table projects;")
-		sql.Exec("truncate table lists;")
-		sql.Exec("truncate table tasks;")
-		sql.Exec("truncate table list_options;")
-		sql.Close()
+		database.Exec("truncate table users;")
+		database.Exec("truncate table projects;")
+		database.Exec("truncate table lists;")
+		database.Exec("truncate table tasks;")
+		database.Exec("truncate table list_options;")
 	})
 	JustBeforeEach(func() {
 		email := "save@example.com"
 		password := "hogehoge"
 		uid, _ := user.Registration(email, password, password)
-		mydb := &db.Database{}
-		var database db.DB = mydb
-		table = database.Init()
+		database = db.SharedInstance().Connection
 		newProject, _ = project.Create(uid, "title", "desc", 0, "", "", sql.NullString{})
 		newList = list.NewList(0, newProject.ID, newProject.UserID, "list title", "", sql.NullInt64{}, false)
 		newList.Save(nil, nil)
@@ -55,7 +49,7 @@ var _ = Describe("Task", func() {
 		})
 		It("should relate taks to list", func() {
 			_ = newTask.Save(nil, nil)
-			rows, _ := table.Query("select id, list_id, title from tasks where id = ?;", newTask.ID)
+			rows, _ := database.Query("select id, list_id, title from tasks where id = ?;", newTask.ID)
 			var id, list_id int64
 			var title sql.NullString
 			for rows.Next() {
@@ -70,7 +64,7 @@ var _ = Describe("Task", func() {
 			It("should add display_index to task", func() {
 				err := newTask.Save(nil, nil)
 				Expect(err).To(BeNil())
-				rows, _ := table.Query("select id, list_id, title, display_index from tasks where id = ?;", newTask.ID)
+				rows, _ := database.Query("select id, list_id, title, display_index from tasks where id = ?;", newTask.ID)
 				var id, list_id int64
 				var display_index int
 				var title sql.NullString
@@ -91,7 +85,7 @@ var _ = Describe("Task", func() {
 			It("should set last display_index to task", func() {
 				err := newTask.Save(nil, nil)
 				Expect(err).To(BeNil())
-				rows, _ := table.Query("select id, list_id, title, display_index from tasks where id = ?;", newTask.ID)
+				rows, _ := database.Query("select id, list_id, title, display_index from tasks where id = ?;", newTask.ID)
 				var id, list_id int64
 				var display_index int
 				var title sql.NullString
@@ -119,7 +113,7 @@ var _ = Describe("Task", func() {
 			It("can move task", func() {
 				err := newTask.ChangeList(list2.ID, nil, nil, nil)
 				Expect(err).To(BeNil())
-				rows, _ := table.Query("select id, list_id, title from tasks where id = ?;", newTask.ID)
+				rows, _ := database.Query("select id, list_id, title from tasks where id = ?;", newTask.ID)
 				var id, list_id int64
 				var title sql.NullString
 				for rows.Next() {
@@ -143,7 +137,7 @@ var _ = Describe("Task", func() {
 				It("should add task to end of list", func() {
 					err := newTask.ChangeList(list2.ID, nil, nil, nil)
 					Expect(err).To(BeNil())
-					rows, _ := table.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.ID, newTask.ID)
+					rows, _ := database.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.ID, newTask.ID)
 					var id int64
 					var displayIndex int
 					var title sql.NullString
@@ -160,7 +154,7 @@ var _ = Describe("Task", func() {
 				It("should add task to top of list", func() {
 					err := newTask.ChangeList(list2.ID, &existTask.ID, nil, nil)
 					Expect(err).To(BeNil())
-					rows, _ := table.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.ID, newTask.ID)
+					rows, _ := database.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.ID, newTask.ID)
 					var id int64
 					var displayIndex int
 					var title sql.NullString
@@ -186,7 +180,7 @@ var _ = Describe("Task", func() {
 				It("should add task to end of list", func() {
 					err := newTask.ChangeList(list2.ID, nil, nil, nil)
 					Expect(err).To(BeNil())
-					rows, _ := table.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.ID, newTask.ID)
+					rows, _ := database.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.ID, newTask.ID)
 					var id int64
 					var displayIndex int
 					var title sql.NullString
@@ -203,7 +197,7 @@ var _ = Describe("Task", func() {
 				It("should add task to top of list", func() {
 					err := newTask.ChangeList(list2.ID, &existTask1.ID, nil, nil)
 					Expect(err).To(BeNil())
-					rows, _ := table.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.ID, newTask.ID)
+					rows, _ := database.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.ID, newTask.ID)
 					var id int64
 					var displayIndex int
 					var title sql.NullString
@@ -220,7 +214,7 @@ var _ = Describe("Task", func() {
 				It("should add task to mid-flow", func() {
 					err := newTask.ChangeList(list2.ID, &existTask2.ID, nil, nil)
 					Expect(err).To(BeNil())
-					rows, _ := table.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.ID, newTask.ID)
+					rows, _ := database.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.ID, newTask.ID)
 					var id int64
 					var displayIndex int
 					var title sql.NullString
@@ -235,7 +229,7 @@ var _ = Describe("Task", func() {
 				It("other tasks should be pushed out", func() {
 					err := newTask.ChangeList(list2.ID, &existTask2.ID, nil, nil)
 					Expect(err).To(BeNil())
-					rows, _ := table.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.ID, existTask2.ID)
+					rows, _ := database.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", list2.ID, existTask2.ID)
 					var id int64
 					var displayIndex int
 					var title sql.NullString
