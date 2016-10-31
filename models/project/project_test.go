@@ -17,31 +17,25 @@ var _ = Describe("Project", func() {
 	var (
 		newProject *ProjectStruct
 		uid        int64
-		table      *sql.DB
+		database   *sql.DB
 	)
 
 	BeforeEach(func() {
 		seed.ListOptions()
 	})
 	AfterEach(func() {
-		mydb := &db.Database{}
-		var database db.DB = mydb
-		sql := database.Init()
-		sql.Exec("truncate table users;")
-		sql.Exec("truncate table projects;")
-		sql.Exec("truncate table repositories;")
-		sql.Exec("truncate table lists;")
-		sql.Exec("truncate table list_options;")
-		sql.Close()
+		database.Exec("truncate table users;")
+		database.Exec("truncate table projects;")
+		database.Exec("truncate table repositories;")
+		database.Exec("truncate table lists;")
+		database.Exec("truncate table list_options;")
 	})
 
 	JustBeforeEach(func() {
 		email := "save@example.com"
 		password := "hogehoge"
 		uid, _ = user.Registration(email, password, password)
-		mydb := &db.Database{}
-		var database db.DB = mydb
-		table = database.Init()
+		database = db.SharedInstance().Connection
 	})
 
 	Describe("Create", func() {
@@ -57,7 +51,7 @@ var _ = Describe("Project", func() {
 			})
 			It("should relate user and project", func() {
 				newProject, _ = Create(uid, "new project", "description", 0, "", "", sql.NullString{})
-				rows, _ := table.Query("select id, user_id, title, description from projects where id = ?;", newProject.ID)
+				rows, _ := database.Query("select id, user_id, title, description from projects where id = ?;", newProject.ID)
 
 				var id int64
 				var userID sql.NullInt64

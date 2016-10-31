@@ -29,7 +29,7 @@ type ProjectStruct struct {
 	RepositoryID     sql.NullInt64
 	ShowIssues       bool
 	ShowPullRequests bool
-	database         db.DB
+	database         *sql.DB
 }
 
 func NewProject(id int64, userID int64, title string, description string, repositoryID sql.NullInt64, showIssues bool, showPullRequests bool) *ProjectStruct {
@@ -43,17 +43,14 @@ func NewProject(id int64, userID int64, title string, description string, reposi
 }
 
 func FindProject(projectID int64) (*ProjectStruct, error) {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	table := interfaceDB.Init()
-	defer table.Close()
+	database := db.SharedInstance().Connection
 
 	var id, userID int64
 	var repositoryID sql.NullInt64
 	var title string
 	var description string
 	var showIssues, showPullRequests bool
-	err := table.QueryRow("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where id = ?;", projectID).Scan(&id, &userID, &repositoryID, &title, &description, &showIssues, &showPullRequests)
+	err := database.QueryRow("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where id = ?;", projectID).Scan(&id, &userID, &repositoryID, &title, &description, &showIssues, &showPullRequests)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -62,11 +59,8 @@ func FindProject(projectID int64) (*ProjectStruct, error) {
 }
 
 func Create(userID int64, title string, description string, repositoryID int64, repositoryOwner string, repositoryName string, oauthToken sql.NullString) (p *ProjectStruct, e error) {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	table := interfaceDB.Init()
-	defer table.Close()
-	tx, _ := table.Begin()
+	database := db.SharedInstance().Connection
+	tx, _ := database.Begin()
 	defer func() {
 		if err := recover(); err != nil {
 			tx.Rollback()
@@ -168,16 +162,11 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 }
 
 func (u *ProjectStruct) Initialize() {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	u.database = interfaceDB
+	u.database = db.SharedInstance().Connection
 }
 
 func (u *ProjectStruct) save() error {
-	table := u.database.Init()
-	defer table.Close()
-
-	result, err := table.Exec("insert into projects (user_id, repository_id, title, description, show_issues, show_pull_requests, created_at) values (?, ?, ?, ?, ?, ?, now());", u.UserID, u.RepositoryID, u.Title, u.Description, u.ShowIssues, u.ShowPullRequests)
+	result, err := u.database.Exec("insert into projects (user_id, repository_id, title, description, show_issues, show_pull_requests, created_at) values (?, ?, ?, ?, ?, ?, now());", u.UserID, u.RepositoryID, u.Title, u.Description, u.ShowIssues, u.ShowPullRequests)
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
@@ -186,14 +175,11 @@ func (u *ProjectStruct) save() error {
 }
 
 func (u *ProjectStruct) Update(title string, description string, showIssues bool, showPullRequests bool) error {
-	table := u.database.Init()
-	defer table.Close()
-
 	u.Title = title
 	u.Description = description
 	u.ShowIssues = showIssues
 	u.ShowPullRequests = showPullRequests
-	_, err := table.Exec("update projects set title = ?, description = ?, show_issues = ?, show_pull_requests = ? where id = ?;", u.Title, u.Description, u.ShowIssues, u.ShowPullRequests, u.ID)
+	_, err := u.database.Exec("update projects set title = ?, description = ?, show_issues = ?, show_pull_requests = ? where id = ?;", u.Title, u.Description, u.ShowIssues, u.ShowPullRequests, u.ID)
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
@@ -203,11 +189,8 @@ func (u *ProjectStruct) Update(title string, description string, showIssues bool
 
 // Lists list up lists related a project
 func (u *ProjectStruct) Lists() ([]*list.ListStruct, error) {
-	table := u.database.Init()
-	defer table.Close()
-
 	var slice []*list.ListStruct
-	rows, err := table.Query("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where project_id = ? and title != ?;", u.ID, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
+	rows, err := u.database.Query("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where project_id = ? and title != ?;", u.ID, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -229,14 +212,11 @@ func (u *ProjectStruct) Lists() ([]*list.ListStruct, error) {
 }
 
 func (u *ProjectStruct) NoneList() (*list.ListStruct, error) {
-	table := u.database.Init()
-	defer table.Close()
-
 	var id, projectID, userID int64
 	var title, color sql.NullString
 	var optionID sql.NullInt64
 	var isHidden bool
-	err := table.QueryRow("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where project_id = ? and title = ?;", u.ID, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
+	err := u.database.QueryRow("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where project_id = ? and title = ?;", u.ID, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
 	if err != nil {
 		// noneが存在しないということはProjectsController#Createがうまく行ってないので，そっちでエラーハンドリングしてほしい
 		return nil, errors.Wrap(err, "sql select error")
@@ -248,13 +228,10 @@ func (u *ProjectStruct) NoneList() (*list.ListStruct, error) {
 }
 
 func (u *ProjectStruct) Repository() (*repository.RepositoryStruct, error) {
-	table := u.database.Init()
-	defer table.Close()
-
 	var id, repositoryID int64
 	var owner, name sql.NullString
 	var webhookKey string
-	err := table.QueryRow("select repositories.id, repositories.repository_id, repositories.owner, repositories.name, repositories.webhook_key from projects inner join repositories on repositories.id = projects.repository_id where projects.id = ?;", u.ID).Scan(&id, &repositoryID, &owner, &name, &webhookKey)
+	err := u.database.QueryRow("select repositories.id, repositories.repository_id, repositories.owner, repositories.name, repositories.webhook_key from projects inner join repositories on repositories.id = projects.repository_id where projects.id = ?;", u.ID).Scan(&id, &repositoryID, &owner, &name, &webhookKey)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -266,9 +243,6 @@ func (u *ProjectStruct) Repository() (*repository.RepositoryStruct, error) {
 }
 
 func (u *ProjectStruct) FetchGithub() (bool, error) {
-	table := u.database.Init()
-	defer table.Close()
-
 	repo, err := u.Repository()
 	// user自体はgithub連携していても，projectが連携していない可能性もあるのでチェック
 	if err != nil {
@@ -304,7 +278,7 @@ func (u *ProjectStruct) FetchGithub() (bool, error) {
 	// github側へ同期
 	// github側に存在するissueについては，#299でDB内に新規作成されるため，ここではgithub側に存在せず，DB内にのみ存在するタスクをissue化すれば良い
 	// ここではprojectとlist両方考慮する必要がある
-	rows, err := table.Query("select tasks.title, tasks.description, lists.title, lists.color from tasks left join lists on lists.id = tasks.list_id where tasks.project_id = ? and tasks.user_id = ? and tasks.issue_number IS NULL;", u.ID, u.UserID)
+	rows, err := u.database.Query("select tasks.title, tasks.description, lists.title, lists.color from tasks left join lists on lists.id = tasks.list_id where tasks.project_id = ? and tasks.user_id = ? and tasks.issue_number IS NULL;", u.ID, u.UserID)
 	if err != nil {
 		return false, errors.Wrap(err, "sql select error")
 	}
@@ -353,11 +327,8 @@ func (u *ProjectStruct) CreateWebhook() error {
 
 // OauthToken get oauth token in users
 func (u *ProjectStruct) OauthToken() (string, error) {
-	table := u.database.Init()
-	defer table.Close()
-
 	var oauthToken sql.NullString
-	err := table.QueryRow("select users.oauth_token from projects left join users on users.id = projects.user_id where projects.id = ?;", u.ID).Scan(&oauthToken)
+	err := u.database.QueryRow("select users.oauth_token from projects left join users on users.id = projects.user_id where projects.id = ?;", u.ID).Scan(&oauthToken)
 	if err != nil {
 		return "", errors.Wrap(err, "sql select error")
 	}

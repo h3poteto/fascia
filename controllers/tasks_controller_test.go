@@ -7,6 +7,7 @@ import (
 	"../models/db"
 	"../models/list"
 	"../models/task"
+
 	"database/sql"
 	"encoding/json"
 	"io/ioutil"
@@ -34,15 +35,12 @@ var _ = Describe("TasksController", func() {
 	})
 	AfterEach(func() {
 		ts.Close()
-		mydb := &db.Database{}
-		var database db.DB = mydb
-		table := database.Init()
-		table.Exec("truncate table users;")
-		table.Exec("truncate table projects;")
-		table.Exec("truncate table lists;")
-		table.Exec("truncate table tasks;")
-		table.Exec("truncate table list_options;")
-		table.Close()
+		database := db.SharedInstance().Connection
+		database.Exec("truncate table users;")
+		database.Exec("truncate table projects;")
+		database.Exec("truncate table lists;")
+		database.Exec("truncate table tasks;")
+		database.Exec("truncate table list_options;")
 	})
 	JustBeforeEach(func() {
 		seed.ListOptions()

@@ -15,17 +15,19 @@ import (
 )
 
 var _ = Describe("User", func() {
+	var (
+		database *sql.DB
+	)
 	BeforeEach(func() {
 		seed.ListOptions()
 	})
 	AfterEach(func() {
-		mydb := &db.Database{}
-		var database db.DB = mydb
-		table := database.Init()
-		table.Exec("truncate table users;")
-		table.Exec("truncate table projects;")
-		table.Exec("truncate table list_options;")
-		table.Close()
+		database.Exec("truncate table users;")
+		database.Exec("truncate table projects;")
+		database.Exec("truncate table list_options;")
+	})
+	JustBeforeEach(func() {
+		database = db.SharedInstance().Connection
 	})
 
 	Describe("Registration", func() {
@@ -41,10 +43,7 @@ var _ = Describe("User", func() {
 				_, _ = Registration(email, password, password)
 			})
 			It("should save user in database", func() {
-				mydb := &db.Database{}
-				var database db.DB = mydb
-				table := database.Init()
-				rows, _ := table.Query("select id, email from users where email = ?;", email)
+				rows, _ := database.Query("select id, email from users where email = ?;", email)
 
 				var id int64
 				var dbemail string
@@ -141,10 +140,7 @@ var _ = Describe("User", func() {
 			email := "project@example.com"
 			password := "hogehoge"
 			_, _ = Registration(email, password, password)
-			mydb := &db.Database{}
-			var database db.DB = mydb
-			table := database.Init()
-			rows, _ := table.Query("select id, email from users where email = ?;", email)
+			rows, _ := database.Query("select id, email from users where email = ?;", email)
 
 			var userid int64
 			var dbemail string
@@ -183,10 +179,7 @@ var _ = Describe("User", func() {
 			result = newUser.CreateGithubUser(token, githubUser, "create_github_user@example.com")
 		})
 		It("ユーザが登録されること", func() {
-			mydb := &db.Database{}
-			var database db.DB = mydb
-			table := database.Init()
-			rows, err := table.Query("select id, oauth_token from users where oauth_token = ?;", token)
+			rows, err := database.Query("select id, oauth_token from users where oauth_token = ?;", token)
 			Expect(err).To(BeNil())
 			var id int64
 			var oauthToken sql.NullString
@@ -219,10 +212,7 @@ var _ = Describe("User", func() {
 			result = currentUser.UpdateGithubUserInfo(token, githubUser)
 		})
 		It("ユーザ情報がアップデートされること", func() {
-			mydb := &db.Database{}
-			var database db.DB = mydb
-			table := database.Init()
-			rows, err := table.Query("select id, uuid, oauth_token from users where email = ?;", email)
+			rows, err := database.Query("select id, uuid, oauth_token from users where email = ?;", email)
 			Expect(err).To(BeNil())
 			var id int64
 			var oauthToken sql.NullString

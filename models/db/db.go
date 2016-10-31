@@ -9,14 +9,14 @@ import (
 	"path/filepath"
 )
 
-type DB interface {
-	Init() *sql.DB
-}
-
 type Database struct {
+	Connection *sql.DB
 }
 
-func (u *Database) Init() *sql.DB {
+var sharedInstance = New()
+
+// New is create Database object with connection pool
+func New() *Database {
 	env := os.Getenv("GOJIENV")
 	root := os.Getenv("GOJIROOT")
 	path := filepath.Join(root, "db/dbconf.yml")
@@ -33,6 +33,7 @@ func (u *Database) Init() *sql.DB {
 	password := m[env].(map[interface{}]interface{})["password"].(string)
 	database := m[env].(map[interface{}]interface{})["name"].(string)
 	host := m[env].(map[interface{}]interface{})["host"].(string)
+	pool := m[env].(map[interface{}]interface{})["pool"].(int)
 	username = os.ExpandEnv(username)
 	password = os.ExpandEnv(password)
 	database = os.ExpandEnv(database)
@@ -41,5 +42,23 @@ func (u *Database) Init() *sql.DB {
 	if err != nil {
 		panic(err)
 	}
-	return db
+
+	// MaxIdle: mysqlへのアクセスがないときにも保持しておくconnection poolの上限
+	// MaxOpen: idle + activeなconnection poolの上限数
+	db.SetMaxIdleConns(pool)
+	db.SetMaxOpenConns(pool)
+
+	return &Database{
+		Connection: db,
+	}
+}
+
+// SharedInstance return database connection object
+func SharedInstance() *Database {
+	return sharedInstance
+}
+
+// Close database connection
+func (d *Database) Close() error {
+	return d.Connection.Close()
 }

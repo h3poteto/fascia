@@ -14,11 +14,8 @@ var _ = Describe("ListOption", func() {
 		seed.ListOptions()
 	})
 	AfterEach(func() {
-		mydb := &db.Database{}
-		var database db.DB = mydb
-		sql := database.Init()
-		sql.Exec("truncate table list_options;")
-		sql.Close()
+		database := db.SharedInstance().Connection
+		database.Exec("truncate table list_options;")
 	})
 	Describe("ListOptionAll", func() {
 		It("should list up all list_options", func() {

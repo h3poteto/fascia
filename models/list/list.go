@@ -28,7 +28,7 @@ type ListStruct struct {
 	Color        sql.NullString
 	ListOptionID sql.NullInt64
 	IsHidden     bool
-	database     db.DB
+	database     *sql.DB
 }
 
 func NewList(id int64, projectID int64, userID int64, title string, color string, optionID sql.NullInt64, isHidden bool) *ListStruct {
@@ -44,16 +44,12 @@ func NewList(id int64, projectID int64, userID int64, title string, color string
 }
 
 func FindList(projectID int64, listID int64) (*ListStruct, error) {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	table := interfaceDB.Init()
-	defer table.Close()
-
+	database := db.SharedInstance().Connection
 	var id, userID int64
 	var title, color sql.NullString
 	var optionID sql.NullInt64
 	var isHidden bool
-	rows, err := table.Query("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where id = ? AND project_id = ?;", listID, projectID)
+	rows, err := database.Query("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where id = ? AND project_id = ?;", listID, projectID)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -72,15 +68,11 @@ func FindList(projectID int64, listID int64) (*ListStruct, error) {
 }
 
 func (u *ListStruct) Initialize() {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	u.database = interfaceDB
+	u.database = db.SharedInstance().Connection
 }
 
 func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.NullString) (e error) {
-	table := u.database.Init()
-	defer table.Close()
-	tx, _ := table.Begin()
+	tx, _ := u.database.Begin()
 	defer func() {
 		if err := recover(); err != nil {
 			tx.Rollback()
@@ -129,9 +121,6 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 }
 
 func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.NullString, title *string, color *string, action *string) (e error) {
-	table := u.database.Init()
-	defer table.Close()
-
 	// 初期リストに関しては一切編集を許可しない
 	// 色は変えられても良いが，titleとactionは変えられては困る
 	// 第一段階では色も含めてすべて固定とする
@@ -150,7 +139,7 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 		listOptionID.Valid = true
 	}
 
-	tx, _ := table.Begin()
+	tx, _ := u.database.Begin()
 	defer func() {
 		if err := recover(); err != nil {
 			tx.Rollback()
@@ -207,10 +196,7 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 
 // UpdateColor sync list color to github
 func (u *ListStruct) UpdateColor() error {
-	table := u.database.Init()
-	defer table.Close()
-
-	_, err := table.Exec("update lists set color = ? where id = ?;", u.Color.String, u.ID)
+	_, err := u.database.Exec("update lists set color = ? where id = ?;", u.Color.String, u.ID)
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
@@ -219,11 +205,8 @@ func (u *ListStruct) UpdateColor() error {
 
 // Tasks list up related a list
 func (u *ListStruct) Tasks() ([]*task.TaskStruct, error) {
-	table := u.database.Init()
-	defer table.Close()
-
 	var slice []*task.TaskStruct
-	rows, err := table.Query("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where list_id = ? order by display_index;", u.ID)
+	rows, err := u.database.Query("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where list_id = ? order by display_index;", u.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -257,10 +240,7 @@ func (u *ListStruct) IsInitList() bool {
 
 // Hide can hide a list, it change is_hidden field
 func (u *ListStruct) Hide() error {
-	table := u.database.Init()
-	defer table.Close()
-
-	_, err := table.Exec("update lists set is_hidden = true where id = ?;", u.ID)
+	_, err := u.database.Exec("update lists set is_hidden = true where id = ?;", u.ID)
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
@@ -270,10 +250,7 @@ func (u *ListStruct) Hide() error {
 
 // Display can display a list, it change is_hidden filed
 func (u *ListStruct) Display() error {
-	table := u.database.Init()
-	defer table.Close()
-
-	_, err := table.Exec("update lists set is_hidden = false where id = ?;", u.ID)
+	_, err := u.database.Exec("update lists set is_hidden = false where id = ?;", u.ID)
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}

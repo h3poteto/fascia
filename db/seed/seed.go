@@ -9,15 +9,13 @@ func main() {
 }
 
 func ListOptions() {
-	objectDB := &db.Database{}
-	var interfaceDB db.DB = objectDB
-	table := interfaceDB.Init()
+	database := db.SharedInstance().Connection
 
-	_, err := table.Exec("TRUNCATE TABLE list_options;")
+	_, err := database.Exec("TRUNCATE TABLE list_options;")
 	if err != nil {
 		panic(err)
 	}
-	_, err = table.Exec("INSERT INTO list_options (action, created_at) values (?, now()), (?, now())",
+	_, err = database.Exec("INSERT INTO list_options (action, created_at) values (?, now()), (?, now())",
 		"open",
 		"close")
 	if err != nil {

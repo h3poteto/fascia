@@ -14,20 +14,14 @@ import (
 
 var _ = Describe("Repository", func() {
 	var (
-		table *sql.DB
+		database *sql.DB
 	)
 	AfterEach(func() {
-		mydb := &db.Database{}
-		var database db.DB = mydb
-		sql := database.Init()
-		sql.Exec("truncate table users;")
-		sql.Exec("truncate table repositories;")
-		sql.Close()
+		database.Exec("truncate table users;")
+		database.Exec("truncate table repositories;")
 	})
 	JustBeforeEach(func() {
-		mydb := &db.Database{}
-		var database db.DB = mydb
-		table = database.Init()
+		database = db.SharedInstance().Connection
 	})
 
 	Describe("Save", func() {

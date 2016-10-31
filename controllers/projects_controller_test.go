@@ -7,6 +7,7 @@ import (
 	"../models/db"
 	"../models/list_option"
 	"../models/project"
+
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -33,14 +34,11 @@ var _ = Describe("ProjectsController", func() {
 	})
 	AfterEach(func() {
 		ts.Close()
-		mydb := &db.Database{}
-		var database db.DB = mydb
-		table := database.Init()
-		table.Exec("truncate table users;")
-		table.Exec("truncate table projects;")
-		table.Exec("truncate table list_options;")
-		table.Exec("truncate table lists;")
-		table.Close()
+		database := db.SharedInstance().Connection
+		database.Exec("truncate table users;")
+		database.Exec("truncate table projects;")
+		database.Exec("truncate table list_options;")
+		database.Exec("truncate table lists;")
 	})
 	JustBeforeEach(func() {
 		seed.ListOptions()
