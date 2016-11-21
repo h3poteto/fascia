@@ -1,10 +1,10 @@
 package main
 
 import (
-	"./config"
-	"./controllers"
-	"./filters"
-	"./modules/logging"
+	"github.com/h3poteto/fascia/config"
+	"github.com/h3poteto/fascia/controllers"
+	"github.com/h3poteto/fascia/filters"
+	"github.com/h3poteto/fascia/modules/logging"
 
 	"flag"
 	"net"

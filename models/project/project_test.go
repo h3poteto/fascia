@@ -1,12 +1,13 @@
 package project_test
 
 import (
-	"../../config"
-	seed "../../db/seed"
-	"../db"
-	"../list"
-	. "../project"
-	"../user"
+	"github.com/h3poteto/fascia//db"
+	"github.com/h3poteto/fascia/config"
+	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/list"
+	. "github.com/h3poteto/fascia/project"
+	"github.com/h3poteto/fascia/user"
+
 	"database/sql"
 
 	. "github.com/onsi/ginkgo"

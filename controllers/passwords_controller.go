@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"../mailers/password_mailer"
-	"../models/reset_password"
-	"../models/user"
-	"../modules/logging"
-	"../validators"
+	"github.com/h3poteto/fascia/mailers/password_mailer"
+	"github.com/h3poteto/fascia/models/reset_password"
+	"github.com/h3poteto/fascia/models/user"
+	"github.com/h3poteto/fascia/modules/logging"
+	"github.com/h3poteto/fascia/validators"
 
 	"net/http"
 	"strconv"

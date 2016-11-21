@@ -1,13 +1,13 @@
 package task_test
 
 import (
-	seed "../../db/seed"
-	"../db"
-	"../list"
-	"../project"
-	. "../task"
-	"../user"
 	"database/sql"
+	"github.com/h3poteto/fascia/db"
+	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/list"
+	"github.com/h3poteto/fascia/project"
+	. "github.com/h3poteto/fascia/task"
+	"github.com/h3poteto/fascia/user"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

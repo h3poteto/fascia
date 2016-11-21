@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"../models/project"
-	"../models/repository"
-	"../modules/logging"
+	"github.com/h3poteto/fascia/models/project"
+	"github.com/h3poteto/fascia/models/repository"
+	"github.com/h3poteto/fascia/modules/logging"
 
 	"encoding/json"
 	"io/ioutil"

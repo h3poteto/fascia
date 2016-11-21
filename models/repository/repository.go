@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"../db"
+	"github.com/h3poteto/fascia/models/db"
 
 	"crypto/hmac"
 	"crypto/md5"

@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"../models/list_option"
-	"../modules/logging"
 	"encoding/json"
+	"github.com/h3poteto/fascia/models/list_option"
+	"github.com/h3poteto/fascia/modules/logging"
 	"github.com/zenazn/goji/web"
 	"net/http"
 )

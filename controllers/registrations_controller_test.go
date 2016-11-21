@@ -1,9 +1,9 @@
 package controllers_test
 
 import (
-	. "../../fascia"
-	. "../controllers"
-	"../models/db"
+	. "github.com/h3poteto/fascia"
+	. "github.com/h3poteto/fascia/controllers"
+	"github.com/h3poteto/fascia/models/db"
 
 	"database/sql"
 	"net/http"

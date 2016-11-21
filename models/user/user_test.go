@@ -1,11 +1,11 @@
 package user_test
 
 import (
-	seed "../../db/seed"
-	"../db"
-	"../project"
-	. "../user"
 	"database/sql"
+	"github.com/h3poteto/fascia/db"
+	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/project"
+	. "github.com/h3poteto/fascia/user"
 	"os"
 
 	"github.com/google/go-github/github"

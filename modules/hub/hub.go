@@ -1,8 +1,8 @@
 package hub
 
 import (
-	"../../models/repository"
-	"../logging"
+	"github.com/h3poteto/fascia/models/repository"
+	"github.com/h3poteto/fascia/modules/logging"
 
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"

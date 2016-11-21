@@ -1,7 +1,7 @@
 package main
 
 import (
-	"../../models/db"
+	"github.com/h3poteto/fascia/models/db"
 )
 
 func main() {

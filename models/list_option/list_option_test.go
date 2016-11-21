@@ -1,10 +1,10 @@
 package list_option_test
 
 import (
-	"../db"
-	. "../list_option"
+	"github.com/h3poteto/fascia/db"
+	"github.com/h3poteto/fascia/db/seed"
+	. "github.com/h3poteto/fascia/list_option"
 
-	seed "../../db/seed"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

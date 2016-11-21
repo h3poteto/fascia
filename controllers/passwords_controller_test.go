@@ -1,11 +1,11 @@
 package controllers_test
 
 import (
-	. "../../fascia"
-	. "../controllers"
-	"../models/db"
-	"../models/reset_password"
-	"../models/user"
+	. "github.com/h3poteto/fascia"
+	. "github.com/h3poteto/fascia/controllers"
+	"github.com/h3poteto/fascia/models/db"
+	"github.com/h3poteto/fascia/models/reset_password"
+	"github.com/h3poteto/fascia/models/user"
 
 	"net/http"
 	"net/http/httptest"

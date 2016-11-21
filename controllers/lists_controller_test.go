@@ -1,13 +1,13 @@
 package controllers_test
 
 import (
-	. "../../fascia"
-	"../controllers"
-	seed "../db/seed"
-	"../models/db"
-	"../models/list"
 	"database/sql"
 	"encoding/json"
+	. "github.com/h3poteto/fascia"
+	"github.com/h3poteto/fascia/controllers"
+	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/models/db"
+	"github.com/h3poteto/fascia/models/list"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"

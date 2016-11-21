@@ -1,9 +1,9 @@
 package password_mailer
 
 import (
-	"../../config"
-	"../../modules/logging"
 	"fmt"
+	"github.com/h3poteto/fascia/config"
+	"github.com/h3poteto/fascia/modules/logging"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
