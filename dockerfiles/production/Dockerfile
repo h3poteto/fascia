@@ -1,13 +1,12 @@
 FROM golang:1.6.2-alpine
 
 ENV GOPATH /go
-ENV GOJIROOT /root/fascia
+ENV GOJIROOT ${GOPATH}/src/github.com/h3poteto/fascia
 ENV GO15VENDOREXPERIMENT 0
 ENV GOJIENV production
 
 RUN set -x \
     && apk add --no-cache git mysql-client build-base \
-    && mkdir -p /go \
     && mkdir -p ${GOJIROOT}
 
 COPY . ${GOJIROOT}

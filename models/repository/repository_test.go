@@ -5,8 +5,8 @@ import (
 	"crypto/sha1"
 	"database/sql"
 	"encoding/hex"
-	"github.com/h3poteto/fascia/db"
-	. "github.com/h3poteto/fascia/repository"
+	"github.com/h3poteto/fascia/models/db"
+	. "github.com/h3poteto/fascia/models/repository"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

@@ -1,11 +1,11 @@
 package controllers_test
 
 import (
-	. "github.com/h3poteto/fascia"
-	. "github.com/h3poteto/fascia/controllers"
+	"github.com/h3poteto/fascia/controllers"
 	"github.com/h3poteto/fascia/models/db"
 	"github.com/h3poteto/fascia/models/reset_password"
 	"github.com/h3poteto/fascia/models/user"
+	. "github.com/h3poteto/fascia/server"
 
 	"net/http"
 	"net/http/httptest"
@@ -54,7 +54,7 @@ var _ = Describe("PasswordsController", func() {
 
 	Describe("Create", func() {
 		JustBeforeEach(func() {
-			CheckCSRFToken = func(r *http.Request, token string) bool { return true }
+			controllers.CheckCSRFToken = func(r *http.Request, token string) bool { return true }
 		})
 		It("should create new reset password", func() {
 			values := url.Values{}
@@ -94,7 +94,7 @@ var _ = Describe("PasswordsController", func() {
 	Describe("Update", func() {
 		var resetPassword *reset_password.ResetPasswordStruct
 		JustBeforeEach(func() {
-			CheckCSRFToken = func(r *http.Request, token string) bool { return true }
+			controllers.CheckCSRFToken = func(r *http.Request, token string) bool { return true }
 			resetPassword = reset_password.GenerateResetPassword(uid, email)
 			resetPassword.Save()
 		})

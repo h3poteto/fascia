@@ -10,7 +10,7 @@ dependencies:
   override:
     - gom install
     - go generate
-    - gom build server.go
+    - gom build
     - npm install
     - npm run-script js-release
     - npm run-script sass-release

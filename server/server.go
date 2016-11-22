@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"github.com/h3poteto/fascia/config"
@@ -105,7 +105,7 @@ func Routes(m *web.Mux) {
 	m.Get("/*", http.FileServer(http.Dir(filepath.Join(rootDir, "public/statics/"))))
 }
 
-func main() {
+func Serve() {
 	root := os.Getenv("GOJIROOT")
 	pongo2.DefaultSet = pongo2.NewSet("default", pongo2.MustNewLocalFileSystemLoader(filepath.Join(root, "views")))
 	pongo2.RegisterFilter("suffixAssetsUpdate", filters.SuffixAssetsUpdate)

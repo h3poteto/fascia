@@ -1,11 +1,11 @@
 package reset_password_test
 
 import (
-	. "github.com/h3poteto/fascia/reset_password"
-
 	"database/sql"
-	"github.com/h3poteto/fascia/db"
-	"github.com/h3poteto/fascia/user"
+
+	"github.com/h3poteto/fascia/models/db"
+	. "github.com/h3poteto/fascia/models/reset_password"
+	"github.com/h3poteto/fascia/models/user"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

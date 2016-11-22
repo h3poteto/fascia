@@ -1,20 +1,18 @@
 package controllers_test
 
 import (
-	. "../controllers"
-	"../models/user"
 	"encoding/json"
 	"github.com/flosch/pongo2"
+	. "github.com/h3poteto/fascia/controllers"
+	"github.com/h3poteto/fascia/filters"
+	"github.com/h3poteto/fascia/models/user"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-
 	"testing"
-
-	"../filters"
 )
 
 func TestControllers(t *testing.T) {

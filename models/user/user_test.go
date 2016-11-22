@@ -2,13 +2,13 @@ package user_test
 
 import (
 	"database/sql"
-	"github.com/h3poteto/fascia/db"
-	"github.com/h3poteto/fascia/db/seed"
-	"github.com/h3poteto/fascia/project"
-	. "github.com/h3poteto/fascia/user"
 	"os"
 
 	"github.com/google/go-github/github"
+	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/models/db"
+	"github.com/h3poteto/fascia/models/project"
+	. "github.com/h3poteto/fascia/models/user"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"golang.org/x/oauth2"

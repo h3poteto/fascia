@@ -3,13 +3,13 @@ package list_test
 import (
 	"database/sql"
 
-	"github.com/h3poteto/fascia/db"
 	"github.com/h3poteto/fascia/db/seed"
-	. "github.com/h3poteto/fascia/list"
-	"github.com/h3poteto/fascia/list_option"
-	"github.com/h3poteto/fascia/project"
-	"github.com/h3poteto/fascia/task"
-	"github.com/h3poteto/fascia/user"
+	"github.com/h3poteto/fascia/models/db"
+	. "github.com/h3poteto/fascia/models/list"
+	"github.com/h3poteto/fascia/models/list_option"
+	"github.com/h3poteto/fascia/models/project"
+	"github.com/h3poteto/fascia/models/task"
+	"github.com/h3poteto/fascia/models/user"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

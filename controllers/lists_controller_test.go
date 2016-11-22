@@ -3,11 +3,11 @@ package controllers_test
 import (
 	"database/sql"
 	"encoding/json"
-	. "github.com/h3poteto/fascia"
 	"github.com/h3poteto/fascia/controllers"
 	"github.com/h3poteto/fascia/db/seed"
 	"github.com/h3poteto/fascia/models/db"
 	"github.com/h3poteto/fascia/models/list"
+	. "github.com/h3poteto/fascia/server"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
