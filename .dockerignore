@@ -1,3 +1,5 @@
-_vendor
+vendor
 bin
 *~
+config/bindata.go
+test
