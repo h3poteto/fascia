@@ -19,7 +19,7 @@ var _ = Describe("User", func() {
 		database *sql.DB
 	)
 	BeforeEach(func() {
-		seed.ListOptions()
+		seed.Seeds()
 	})
 	AfterEach(func() {
 		database.Exec("truncate table users;")

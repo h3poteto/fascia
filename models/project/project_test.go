@@ -22,7 +22,7 @@ var _ = Describe("Project", func() {
 	)
 
 	BeforeEach(func() {
-		seed.ListOptions()
+		seed.Seeds()
 	})
 	AfterEach(func() {
 		database.Exec("truncate table users;")

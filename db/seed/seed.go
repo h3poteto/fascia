@@ -4,7 +4,12 @@ import (
 	"github.com/h3poteto/fascia/models/db"
 )
 
-func ListOptions() error {
+// Seeds insert all seed data
+func Seeds() error {
+	return listOptions()
+}
+
+func listOptions() error {
 	database := db.SharedInstance().Connection
 
 	_, err := database.Exec("TRUNCATE TABLE list_options;")

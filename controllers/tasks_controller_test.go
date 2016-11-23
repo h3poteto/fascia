@@ -43,7 +43,7 @@ var _ = Describe("TasksController", func() {
 		database.Exec("truncate table list_options;")
 	})
 	JustBeforeEach(func() {
-		seed.ListOptions()
+		seed.Seeds()
 		userID = LoginFaker(ts, "tasks@example.com", "hogehoge")
 		// projectを作っておく
 		values := url.Values{}

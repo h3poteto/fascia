@@ -41,7 +41,7 @@ var _ = Describe("ProjectsController", func() {
 		database.Exec("truncate table lists;")
 	})
 	JustBeforeEach(func() {
-		seed.ListOptions()
+		seed.Seeds()
 		userID = LoginFaker(ts, "projects@example.com", "hogehoge")
 	})
 

@@ -33,7 +33,7 @@ var _ = Describe("ListOptionsController", func() {
 	})
 	JustBeforeEach(func() {
 		userID = LoginFaker(ts, "list_options@example.com", "hogehoge")
-		seed.ListOptions()
+		seed.Seeds()
 	})
 
 	Describe("Index", func() {

@@ -30,7 +30,7 @@ var _ = Describe("List", func() {
 	})
 
 	JustBeforeEach(func() {
-		seed.ListOptions()
+		seed.Seeds()
 		email := "save@example.com"
 		password := "hogehoge"
 		uid, _ := user.Registration(email, password, password)

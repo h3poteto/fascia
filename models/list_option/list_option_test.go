@@ -11,7 +11,7 @@ import (
 
 var _ = Describe("ListOption", func() {
 	BeforeEach(func() {
-		seed.ListOptions()
+		seed.Seeds()
 	})
 	AfterEach(func() {
 		database := db.SharedInstance().Connection
