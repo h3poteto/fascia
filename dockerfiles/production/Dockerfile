@@ -21,4 +21,4 @@ RUN set -x \
 
 EXPOSE 9090:9090
 
-CMD bin/fascia
+CMD bin/fascia server
