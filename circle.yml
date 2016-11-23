@@ -9,6 +9,10 @@ machine:
   node:
     version: 6.1.0
 dependencies:
+  cache_directories:
+    - "node_modules"
+    - "vendor"
+    - "~/go"
   pre:
     - sudo rm -rf /usr/local/go
     - curl -L https://storage.googleapis.com/golang/go1.7.3.linux-amd64.tar.gz > go1.7.3.linux-amd64.tar.gz
@@ -24,8 +28,6 @@ dependencies:
     - rsync -azC --delete ./ "$REPO"
     - cd "$REPO" && go generate
     - cd "$REPO" && gom build
-  post:
-    - cd "$REPO" && docker build -f dockerfiles/production/Dockerfile -t h3poteto/fascia .
 database:
   pre:
     - mysql -u $DB_USER -e "CREATE DATABASE $DB_TEST_NAME;"
@@ -38,8 +40,9 @@ test:
     - npm test
 
 deployment:
-  hub:
+  production:
     branch: master
     commands:
+      - cd "$REPO" && docker build -f dockerfiles/production/Dockerfile -t h3poteto/fascia .
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
       - docker push h3poteto/fascia
