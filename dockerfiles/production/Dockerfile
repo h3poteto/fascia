@@ -1,8 +1,7 @@
-FROM golang:1.6.2-alpine
+FROM golang:1.6.3-alpine
 
 ENV GOPATH /go
 ENV GOJIROOT ${GOPATH}/src/github.com/h3poteto/fascia
-ENV GO15VENDOREXPERIMENT 0
 ENV GOJIENV production
 
 RUN set -x \
@@ -18,7 +17,7 @@ RUN set -x \
    && go get github.com/mattn/gom \
    && gom install \
    && go generate \
-   && gom build -o bin/fascia server.go
+   && gom build -o bin/fascia
 
 EXPOSE 9090:9090
 
