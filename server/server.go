@@ -103,6 +103,7 @@ func Routes(m *web.Mux) {
 	m.Get("/*", http.FileServer(http.Dir(filepath.Join(rootDir, "public/statics/"))))
 }
 
+// Serve start goji server
 func Serve() {
 	root := os.Getenv("GOJIROOT")
 	pongo2.DefaultSet = pongo2.NewSet("default", pongo2.MustNewLocalFileSystemLoader(filepath.Join(root, "views")))
