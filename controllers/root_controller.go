@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"../models/project"
-	"../modules/logging"
+	"github.com/h3poteto/fascia/models/project"
+	"github.com/h3poteto/fascia/modules/logging"
 
 	"net/http"
 	"strconv"

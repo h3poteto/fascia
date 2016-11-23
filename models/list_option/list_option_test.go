@@ -1,17 +1,17 @@
 package list_option_test
 
 import (
-	"../db"
-	. "../list_option"
+	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/models/db"
+	. "github.com/h3poteto/fascia/models/list_option"
 
-	seed "../../db/seed"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("ListOption", func() {
 	BeforeEach(func() {
-		seed.ListOptions()
+		seed.Seeds()
 	})
 	AfterEach(func() {
 		database := db.SharedInstance().Connection

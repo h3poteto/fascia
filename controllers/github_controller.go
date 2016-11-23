@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"../modules/logging"
+	"github.com/h3poteto/fascia/modules/logging"
 
 	"encoding/json"
 	"net/http"

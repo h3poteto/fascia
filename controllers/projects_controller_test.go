@@ -1,12 +1,12 @@
 package controllers_test
 
 import (
-	. "../../fascia"
-	"../controllers"
-	seed "../db/seed"
-	"../models/db"
-	"../models/list_option"
-	"../models/project"
+	"github.com/h3poteto/fascia/controllers"
+	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/models/db"
+	"github.com/h3poteto/fascia/models/list_option"
+	"github.com/h3poteto/fascia/models/project"
+	. "github.com/h3poteto/fascia/server"
 
 	"database/sql"
 	"encoding/json"
@@ -41,7 +41,7 @@ var _ = Describe("ProjectsController", func() {
 		database.Exec("truncate table lists;")
 	})
 	JustBeforeEach(func() {
-		seed.ListOptions()
+		seed.Seeds()
 		userID = LoginFaker(ts, "projects@example.com", "hogehoge")
 	})
 

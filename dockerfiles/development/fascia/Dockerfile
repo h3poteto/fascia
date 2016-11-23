@@ -1,28 +1,22 @@
-FROM golang:1.6.2-alpine
+FROM golang:1.6.3-alpine
 
 RUN apk add --no-cache \
     git \
     build-base \
     openssh
 
-RUN mkdir -p /go && \
-    mkdir -p /root/fascia
-
 ENV GOPATH /go
-ENV GOJIROOT /root/fascia
+ENV GOJIROOT ${GOPATH}/src/github.com/h3poteto/fascia
+RUN mkdir -p ${GOJIROOT}
 
-ENV HOME /root
-WORKDIR ${HOME}
+WORKDIR ${GOJIROOT}
 
-RUN go get github.com/mattn/gom
+RUN go get -u github.com/mattn/gom
 RUN go get -u github.com/jteeuwen/go-bindata/...
 
-ENV GO15VENDOREXPERIMENT 0
 ENV GOJIENV development
 
 EXPOSE 9090:9090
-
-WORKDIR /root/fascia
 
 CMD ["/bin/sh"]
 

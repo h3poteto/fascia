@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"../config"
-	userModel "../models/user"
-	"../modules/logging"
+	"github.com/h3poteto/fascia/config"
+	userModel "github.com/h3poteto/fascia/models/user"
+	"github.com/h3poteto/fascia/modules/logging"
 
 	"html/template"
 	"net/http"

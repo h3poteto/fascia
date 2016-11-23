@@ -1,14 +1,14 @@
 package user_test
 
 import (
-	seed "../../db/seed"
-	"../db"
-	"../project"
-	. "../user"
 	"database/sql"
 	"os"
 
 	"github.com/google/go-github/github"
+	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/models/db"
+	"github.com/h3poteto/fascia/models/project"
+	. "github.com/h3poteto/fascia/models/user"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"golang.org/x/oauth2"
@@ -19,7 +19,7 @@ var _ = Describe("User", func() {
 		database *sql.DB
 	)
 	BeforeEach(func() {
-		seed.ListOptions()
+		seed.Seeds()
 	})
 	AfterEach(func() {
 		database.Exec("truncate table users;")

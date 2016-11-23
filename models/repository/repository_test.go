@@ -1,12 +1,12 @@
 package repository_test
 
 import (
-	"../db"
-	. "../repository"
 	"crypto/hmac"
 	"crypto/sha1"
 	"database/sql"
 	"encoding/hex"
+	"github.com/h3poteto/fascia/models/db"
+	. "github.com/h3poteto/fascia/models/repository"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

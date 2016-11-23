@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	userModel "../models/user"
-	"../modules/logging"
+	userModel "github.com/h3poteto/fascia/models/user"
+	"github.com/h3poteto/fascia/modules/logging"
 
 	"crypto/md5"
 	"fmt"

@@ -1,12 +1,12 @@
 package project
 
 import (
-	"../../config"
-	"../../modules/hub"
-	"../../modules/logging"
-	"../db"
-	"../list"
-	"../task"
+	"github.com/h3poteto/fascia/config"
+	"github.com/h3poteto/fascia/models/db"
+	"github.com/h3poteto/fascia/models/list"
+	"github.com/h3poteto/fascia/models/task"
+	"github.com/h3poteto/fascia/modules/hub"
+	"github.com/h3poteto/fascia/modules/logging"
 
 	"database/sql"
 	"strings"

@@ -17,12 +17,12 @@ services:
     volumes:
       - .:/var/opt/app
     command: npm install && npm run-script watch
-  fascia:
+  go:
     build: dockerfiles/development/fascia
     env_file: .docker-env
     volumes:
       - ~/.ssh:/root/.ssh
-      - .:/root/fascia
+      - .:/go/src/github.com/h3poteto/fascia
     links:
       - mysql:mysql
       - node:node

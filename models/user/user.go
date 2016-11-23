@@ -1,9 +1,9 @@
 package user
 
 import (
-	"../../modules/logging"
-	"../db"
-	"../project"
+	"github.com/h3poteto/fascia/models/db"
+	"github.com/h3poteto/fascia/models/project"
+	"github.com/h3poteto/fascia/modules/logging"
 
 	"crypto/rand"
 	"database/sql"

@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	projectModel "../models/project"
-	"../modules/logging"
-	"../validators"
+	projectModel "github.com/h3poteto/fascia/models/project"
+	"github.com/h3poteto/fascia/modules/logging"
+	"github.com/h3poteto/fascia/validators"
 
 	"encoding/json"
 	"net/http"

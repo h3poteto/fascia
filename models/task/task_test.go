@@ -1,13 +1,13 @@
 package task_test
 
 import (
-	seed "../../db/seed"
-	"../db"
-	"../list"
-	"../project"
-	. "../task"
-	"../user"
 	"database/sql"
+	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/models/db"
+	"github.com/h3poteto/fascia/models/list"
+	"github.com/h3poteto/fascia/models/project"
+	. "github.com/h3poteto/fascia/models/task"
+	"github.com/h3poteto/fascia/models/user"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -21,7 +21,7 @@ var _ = Describe("Task", func() {
 		database   *sql.DB
 	)
 	BeforeEach(func() {
-		seed.ListOptions()
+		seed.Seeds()
 	})
 	AfterEach(func() {
 		database.Exec("truncate table users;")

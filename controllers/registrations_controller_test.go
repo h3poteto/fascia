@@ -1,9 +1,9 @@
 package controllers_test
 
 import (
-	. "../../fascia"
-	. "../controllers"
-	"../models/db"
+	"github.com/h3poteto/fascia/controllers"
+	"github.com/h3poteto/fascia/models/db"
+	. "github.com/h3poteto/fascia/server"
 
 	"database/sql"
 	"net/http"
@@ -46,7 +46,7 @@ var _ = Describe("RegistrationsController", func() {
 
 	Describe("Registration", func() {
 		JustBeforeEach(func() {
-			CheckCSRFToken = func(r *http.Request, token string) bool { return true }
+			controllers.CheckCSRFToken = func(r *http.Request, token string) bool { return true }
 		})
 
 		Context("パスワードと確認パスワードが一致しているとき", func() {

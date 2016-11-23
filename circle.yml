@@ -1,30 +1,37 @@
 machine:
+  environment:
+    GOPATH: "$HOME/go"
+    REPO: "$GOPATH/src/github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME"
+    PATH: "$PATH:$GOPATH/bin"
+
   services:
     - docker
   node:
     version: 6.1.0
 dependencies:
   pre:
+    - mkdir -p "$REPO"
     - go get github.com/mattn/gom
     - go get -u github.com/jteeuwen/go-bindata/...
   override:
-    - gom install
-    - go generate
-    - gom build server.go
     - npm install
     - npm run-script js-release
     - npm run-script sass-release
+    - gom install
+    - rsync -azC --delete ./ "$REPO"
+    - cd "$REPO" && go generate
+    - cd "$REPO" && gom build
   post:
-    - docker build -f dockerfiles/production/Dockerfile -t h3poteto/fascia .
+    - cd "$REPO" && docker build -f dockerfiles/production/Dockerfile -t h3poteto/fascia .
 database:
   pre:
     - mysql -u $DB_USER -e "CREATE DATABASE $DB_TEST_NAME;"
   override:
-    - gom exec goose -env test up
+    - cd "$REPO" && gom exec goose -env test up
 
 test:
   override:
-    - export GOJIENV=test; gom exec ginkgo -r ./
+    - export GOJIENV=test; cd "$REPO" && gom exec ginkgo -r ./
     - npm test
 
 deployment:

@@ -1,10 +1,10 @@
-package main
+package server
 
 import (
-	"./config"
-	"./controllers"
-	"./filters"
-	"./modules/logging"
+	"github.com/h3poteto/fascia/config"
+	"github.com/h3poteto/fascia/controllers"
+	"github.com/h3poteto/fascia/filters"
+	"github.com/h3poteto/fascia/modules/logging"
 
 	"flag"
 	"net"
@@ -20,8 +20,6 @@ import (
 	"github.com/zenazn/goji/web"
 	"github.com/zenazn/goji/web/middleware"
 )
-
-//go:generate go-bindata -ignore=\\.go -o=config/bindata.go -pkg=config -prefix=config/ config/
 
 func Routes(m *web.Mux) {
 	rootDir := os.Getenv("GOJIROOT")
@@ -105,7 +103,8 @@ func Routes(m *web.Mux) {
 	m.Get("/*", http.FileServer(http.Dir(filepath.Join(rootDir, "public/statics/"))))
 }
 
-func main() {
+// Serve start goji server
+func Serve() {
 	root := os.Getenv("GOJIROOT")
 	pongo2.DefaultSet = pongo2.NewSet("default", pongo2.MustNewLocalFileSystemLoader(filepath.Join(root, "views")))
 	pongo2.RegisterFilter("suffixAssetsUpdate", filters.SuffixAssetsUpdate)

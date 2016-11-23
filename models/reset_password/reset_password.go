@@ -1,8 +1,8 @@
 package reset_password
 
 import (
-	"../db"
-	"../user"
+	"github.com/h3poteto/fascia/models/db"
+	"github.com/h3poteto/fascia/models/user"
 
 	"crypto/md5"
 	"database/sql"

@@ -1,14 +1,15 @@
 package list_test
 
 import (
-	seed "../../db/seed"
-	"../db"
-	. "../list"
-	"../list_option"
-	"../project"
-	"../task"
-	"../user"
 	"database/sql"
+
+	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/models/db"
+	. "github.com/h3poteto/fascia/models/list"
+	"github.com/h3poteto/fascia/models/list_option"
+	"github.com/h3poteto/fascia/models/project"
+	"github.com/h3poteto/fascia/models/task"
+	"github.com/h3poteto/fascia/models/user"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -29,7 +30,7 @@ var _ = Describe("List", func() {
 	})
 
 	JustBeforeEach(func() {
-		seed.ListOptions()
+		seed.Seeds()
 		email := "save@example.com"
 		password := "hogehoge"
 		uid, _ := user.Registration(email, password, password)

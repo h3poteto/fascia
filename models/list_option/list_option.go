@@ -1,8 +1,8 @@
 package list_option
 
 import (
-	"../db"
 	"database/sql"
+	"github.com/h3poteto/fascia/models/db"
 
 	"github.com/pkg/errors"
 )

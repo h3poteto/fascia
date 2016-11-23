@@ -1,12 +1,13 @@
 package project_test
 
 import (
-	"../../config"
-	seed "../../db/seed"
-	"../db"
-	"../list"
-	. "../project"
-	"../user"
+	"github.com/h3poteto/fascia/config"
+	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/models/db"
+	"github.com/h3poteto/fascia/models/list"
+	. "github.com/h3poteto/fascia/models/project"
+	"github.com/h3poteto/fascia/models/user"
+
 	"database/sql"
 
 	. "github.com/onsi/ginkgo"
@@ -21,7 +22,7 @@ var _ = Describe("Project", func() {
 	)
 
 	BeforeEach(func() {
-		seed.ListOptions()
+		seed.Seeds()
 	})
 	AfterEach(func() {
 		database.Exec("truncate table users;")

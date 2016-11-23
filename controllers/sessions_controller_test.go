@@ -1,10 +1,10 @@
 package controllers_test
 
 import (
-	. "../../fascia"
-	. "../controllers"
-	"../models/db"
-	"../models/user"
+	"github.com/h3poteto/fascia/controllers"
+	"github.com/h3poteto/fascia/models/db"
+	"github.com/h3poteto/fascia/models/user"
+	. "github.com/h3poteto/fascia/server"
 
 	"net/http"
 	"net/http/httptest"
@@ -33,7 +33,7 @@ var _ = Describe("SessionsController", func() {
 	})
 	Describe("SignIn", func() {
 		JustBeforeEach(func() {
-			LoginRequired = CheckLogin
+			controllers.LoginRequired = controllers.CheckLogin
 			values := url.Values{}
 			http.PostForm(ts.URL+"/sign_out", values)
 		})
@@ -65,7 +65,7 @@ var _ = Describe("SessionsController", func() {
 
 	Describe("NewSession", func() {
 		JustBeforeEach(func() {
-			CheckCSRFToken = func(r *http.Request, token string) bool { return true }
+			controllers.CheckCSRFToken = func(r *http.Request, token string) bool { return true }
 		})
 		Context("before registration", func() {
 			It("should not login", func() {
@@ -80,7 +80,7 @@ var _ = Describe("SessionsController", func() {
 		Context("after registration", func() {
 			JustBeforeEach(func() {
 				id, _ := user.Registration("registration@example.com", "hogehoge", "hogehoge")
-				LoginRequired = func(r *http.Request) (*user.UserStruct, error) {
+				controllers.LoginRequired = func(r *http.Request) (*user.UserStruct, error) {
 					currentUser, _ := user.CurrentUser(id)
 					return currentUser, nil
 				}

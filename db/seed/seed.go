@@ -1,24 +1,26 @@
-package main
+package seed
 
 import (
-	"../../models/db"
+	"github.com/h3poteto/fascia/models/db"
 )
 
-func main() {
-	ListOptions()
+// Seeds insert all seed data
+func Seeds() error {
+	return listOptions()
 }
 
-func ListOptions() {
+func listOptions() error {
 	database := db.SharedInstance().Connection
 
 	_, err := database.Exec("TRUNCATE TABLE list_options;")
 	if err != nil {
-		panic(err)
+		return err
 	}
 	_, err = database.Exec("INSERT INTO list_options (action, created_at) values (?, now()), (?, now())",
 		"open",
 		"close")
 	if err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }

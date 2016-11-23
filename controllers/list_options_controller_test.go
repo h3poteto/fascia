@@ -1,10 +1,10 @@
 package controllers_test
 
 import (
-	. "../../fascia"
-	"../controllers"
-	seed "../db/seed"
-	"../models/db"
+	"github.com/h3poteto/fascia/controllers"
+	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/models/db"
+	. "github.com/h3poteto/fascia/server"
 
 	"encoding/json"
 	. "github.com/onsi/ginkgo"
@@ -33,7 +33,7 @@ var _ = Describe("ListOptionsController", func() {
 	})
 	JustBeforeEach(func() {
 		userID = LoginFaker(ts, "list_options@example.com", "hogehoge")
-		seed.ListOptions()
+		seed.Seeds()
 	})
 
 	Describe("Index", func() {

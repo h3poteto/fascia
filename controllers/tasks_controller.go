@@ -1,12 +1,12 @@
 package controllers
 
 import (
-	listModel "../models/list"
-	projectModel "../models/project"
-	taskModel "../models/task"
-	userModel "../models/user"
-	"../modules/logging"
-	"../validators"
+	listModel "github.com/h3poteto/fascia/models/list"
+	projectModel "github.com/h3poteto/fascia/models/project"
+	taskModel "github.com/h3poteto/fascia/models/task"
+	userModel "github.com/h3poteto/fascia/models/user"
+	"github.com/h3poteto/fascia/modules/logging"
+	"github.com/h3poteto/fascia/validators"
 
 	"database/sql"
 	"encoding/json"
