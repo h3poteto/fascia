@@ -5,6 +5,7 @@ import (
 	. "github.com/h3poteto/fascia/server"
 
 	"database/sql"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -43,8 +44,10 @@ var _ = Describe("GithubController", func() {
 		)
 		tc := oauth2.NewClient(oauth2.NoContext, ts)
 		client := github.NewClient(tc)
-		githubUser, _, _ := client.Users.Get("")
-
+		githubUser, _, err := client.Users.Get("")
+		if err != nil {
+			log.Fatal(err)
+		}
 		database.Exec("update users set provider = ?, oauth_token =?, user_name = ?, uuid = ?, avatar_url = ? where email = ?;", "github", token, *githubUser.Login, *githubUser.ID, *githubUser.AvatarURL, userEmail)
 
 	})
