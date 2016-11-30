@@ -73,7 +73,7 @@
     </div>
   </div>
   <div class="footer">
-    <p>&copy; Copyright 2016, Akira Fukushima</p>
+    <p>&copy; Copyright 2016, <a href="https://twitter.com/h3_poteto">@h3_poteto</a></p>
   </div>
 </div>
 {% endblock %}
