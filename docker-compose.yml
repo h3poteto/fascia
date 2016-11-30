@@ -16,7 +16,10 @@ services:
     build: dockerfiles/development/node
     volumes:
       - .:/var/opt/app
-    command: npm install && npm run-script watch
+    entrypoint: sh -c
+    command: |
+      "npm install && \
+      npm run-script watch"
   go:
     build: dockerfiles/development/fascia
     env_file: .docker-env
