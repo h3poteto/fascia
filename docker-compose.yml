@@ -5,18 +5,18 @@ services:
     volumes:
       - /var/lib/mysql
   mysql:
-    image: mysql:5.6.29
+    image: mysql:5.7
     volumes_from:
       - storage
     ports:
-      - "3307:3306"
+      - "3306:3306"
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "true"
   node:
     build: dockerfiles/development/node
     volumes:
       - .:/var/opt/app
-    entrypoint: sh -c
+    entrypoint: bash -c
     command: |
       "npm install && \
       npm run-script watch"

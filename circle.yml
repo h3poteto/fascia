@@ -30,7 +30,7 @@ dependencies:
     - cd "$REPO" && gom build
 database:
   pre:
-    - mysql -u $DB_USER -e "CREATE DATABASE $DB_TEST_NAME;"
+    - mysql -u $DB_USER -e "CREATE DATABASE $DB_TEST_NAME CHARACTER SET utf8mb4;"
   override:
     - cd "$REPO" && gom exec goose -env test up
 
