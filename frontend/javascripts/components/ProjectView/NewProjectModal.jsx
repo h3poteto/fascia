@@ -51,10 +51,10 @@ class NewProjectModal extends React.Component {
               <Field name="title" id="title" component="input" type="text" placeholder="Project name" className="form-control" />
               <label htmlFor="description">Description</label>
               <Field name="description" id="description" component="textarea" placeholder="Description" className="form-control" />
-              <label htmlFor="repositories">GitHub</label>
-              <Field name="repositories" id="repositories" component="select" className="form-control">
+              <label htmlFor="repository_id">GitHub</label>
+              <Field name="repository_id" id="repository_id" component="select" className="form-control">
                 <option value="0">--</option>
-                {this.props.repositories.map(function(repo, index) {
+                {repositories.map(function(repo, index) {
                   return <option key={index} value={repo.id}>{repo.full_name}</option>
                  }, this)}
               </Field>

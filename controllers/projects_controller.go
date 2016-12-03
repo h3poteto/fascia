@@ -18,11 +18,9 @@ type Projects struct {
 }
 
 type NewProjectForm struct {
-	Title           string `param:"title"`
-	Description     string `param:"description"`
-	RepositoryID    int64  `param:"repository_id"`
-	RepositoryOwner string `param:"repository_owner"`
-	RepositoryName  string `param:"repository_name"`
+	Title        string `param:"title"`
+	Description  string `param:"description"`
+	RepositoryID int    `param:"repository_id"`
 }
 
 type EditProjectForm struct {
@@ -135,8 +133,6 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		newProjectForm.Title,
 		newProjectForm.Description,
 		newProjectForm.RepositoryID,
-		newProjectForm.RepositoryOwner,
-		newProjectForm.RepositoryName,
 	)
 	if err != nil || !valid {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Create", c).Infof("validation error: %v", err)
@@ -149,8 +145,6 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		newProjectForm.Title,
 		newProjectForm.Description,
 		newProjectForm.RepositoryID,
-		newProjectForm.RepositoryOwner,
-		newProjectForm.RepositoryName,
 		currentUser.OauthToken,
 	)
 	if err != nil {

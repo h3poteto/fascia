@@ -5,7 +5,6 @@ const initState = {
   isModalOpen: false,
   projects: [],
   repositories: [],
-  selectedRepository: null,
   isLoading: false,
   error: null
 }

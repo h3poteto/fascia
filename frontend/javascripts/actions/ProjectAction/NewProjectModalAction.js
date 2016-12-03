@@ -48,6 +48,7 @@ function receiveCreateProject(body) {
 export function fetchCreateProject(params) {
   return dispatch => {
     dispatch(requestCreateProject())
+    console.log(params)
     // TODO: repositoryを上手いこと作れるようにしておく
     // var repositoryID, repositoryOwner, repositoryName
     // if (repository != null) {

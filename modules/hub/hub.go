@@ -9,10 +9,25 @@ import (
 	"golang.org/x/oauth2"
 )
 
-type hub interface {
+type Hub struct {
+	client *github.Client
 }
 
-type HubStruct struct {
+func New(token string) *Hub {
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(oauth2.NoContext, ts)
+	client := github.NewClient(tc)
+	return &Hub{client: client}
+}
+
+func (h *Hub) GetRepository(ID int) (*github.Repository, error) {
+	repo, _, err := h.client.Repositories.GetByID(ID)
+	if err != nil {
+		return nil, errors.Wrap(err, "response error")
+	}
+	return repo, nil
 }
 
 func CheckLabelPresent(token string, repo *repository.RepositoryStruct, title *string) (*github.Label, error) {

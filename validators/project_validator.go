@@ -5,11 +5,9 @@ import (
 )
 
 type projectCreate struct {
-	Title           string `valid:"stringlength(1|255)"`
-	Description     string `valid:"stringlength(0|255),optional"`
-	RepositoryID    int64  `valid:"-"`
-	RepositoryOwner string `valid:"-"`
-	RepositoryName  string `valid:"-"`
+	Title        string `valid:"stringlength(1|255)"`
+	Description  string `valid:"stringlength(0|255),optional"`
+	RepositoryID int    `valid:"-"`
 }
 
 type projectUpdate struct {
@@ -18,13 +16,11 @@ type projectUpdate struct {
 }
 
 // ProjectCreateValidation check form variable when create projects
-func ProjectCreateValidation(title string, description string, repositoryID int64, repositoryOwner string, repositoryName string) (bool, error) {
+func ProjectCreateValidation(title string, description string, repositoryID int) (bool, error) {
 	form := &projectCreate{
-		Title:           title,
-		Description:     description,
-		RepositoryID:    repositoryID,
-		RepositoryOwner: repositoryOwner,
-		RepositoryName:  repositoryName,
+		Title:        title,
+		Description:  description,
+		RepositoryID: repositoryID,
 	}
 	return govalidator.ValidateStruct(form)
 }
