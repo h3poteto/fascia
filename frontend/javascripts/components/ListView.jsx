@@ -109,7 +109,7 @@ export default class ListView extends React.Component {
   }
 
   render() {
-    const { isLoading, isListModalOpen, newList, lists, listOptions, noneList, project, isTaskModalOpen, newTask, selectedList, selectedListOption, isListEditModalOpen, isProjectEditModalOpen, taskDraggingFrom, taskDraggingTo, selectedProject, isTaskShowModalOpen, isEditTaskModalVisible, selectedTask, editTask, error } = this.props.ListReducer
+    const { isLoading, isListModalOpen, lists, listOptions, noneList, project, isTaskModalOpen, newTask, selectedList, selectedListOption, isListEditModalOpen, isProjectEditModalOpen, taskDraggingFrom, taskDraggingTo, selectedProject, isTaskShowModalOpen, isEditTaskModalVisible, selectedTask, editTask, error } = this.props.ListReducer
 
     return (
       <div id="lists">
@@ -117,12 +117,9 @@ export default class ListView extends React.Component {
         {this.flash(error)}
         <NewListModal
             isListModalOpen={isListModalOpen}
-            newList={newList}
             projectID={this.props.params.projectID}
-            closeNewListModal={this.props.newListModalActions.closeNewListModal}
-            updateNewListTitle={this.props.newListModalActions.updateNewListTitle}
-            updateNewListColor={this.props.newListModalActions.updateNewListColor}
-            fetchCreateList={this.props.newListModalActions.fetchCreateList}
+            onRequestClose={this.props.newListModalActions.closeNewListModal}
+            action={this.props.newListModalActions.fetchCreateList}
         />
         <NewTaskModal
             isTaskModalOpen={isTaskModalOpen}

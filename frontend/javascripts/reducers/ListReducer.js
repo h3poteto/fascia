@@ -12,7 +12,6 @@ const initState = {
   isProjectEditModalOpen: false,
   isTaskShowModalOpen: false,
   isEditTaskModalVisible: false,
-  newList: {title: "", color: "008ed4"},
   newTask: {title: "", description: ""},
   editTask: {Title: "", Description: ""},
   lists: [],
@@ -47,19 +46,7 @@ export default function ListReducer(state = initState, action) {
     })
   case newListModalActions.CLOSE_NEW_LIST:
     return Object.assign({}, state, {
-      isListModalOpen: action.isListModalOpen
-    })
-  case newListModalActions.UPDATE_NEW_LIST_TITLE:
-    var newList = state.newList
-    newList.title = action.title
-    return Object.assign({}, state, {
-      newList: newList
-    })
-  case newListModalActions.UPDATE_NEW_LIST_COLOR:
-    var newList = state.newList
-    newList.color = action.color
-    return Object.assign({}, state, {
-      newList: newList
+      isListModalOpen: false
     })
   case newListModalActions.REQUEST_CREATE_LIST:
     return Object.assign({}, state, {
@@ -72,7 +59,6 @@ export default function ListReducer(state = initState, action) {
     }
     var lists = state.lists.concat([createdList])
     return Object.assign({}, state, {
-      newList: {title: "", color: "008ed4"},
       lists: lists,
       isListModalOpen: false,
       isLoading: false

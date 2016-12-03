@@ -60,7 +60,7 @@ class NewProjectModal extends React.Component {
               </Field>
               <div className="form-action">
                 <button type="reset" className="pure-button pure-button-default" disabled={pristine || submitting} onClick={reset}>Reset</button>
-                <button type="submit" className="pure-button pure-button-primary" disabled={pristine || submitting}>CreateProject</button>
+                <button type="submit" className="pure-button pure-button-primary" disabled={pristine || submitting}>Create Project</button>
               </div>
             </fieldset>
           </form>

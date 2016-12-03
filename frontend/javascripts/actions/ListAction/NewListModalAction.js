@@ -25,26 +25,10 @@ function serverError() {
 export const CLOSE_NEW_LIST = 'CLOSE_NEW_LIST'
 export function closeNewListModal() {
   return {
-    type: CLOSE_NEW_LIST,
-    isListModalOpen: false
+    type: CLOSE_NEW_LIST
   }
 }
 
-export const UPDATE_NEW_LIST_TITLE = 'UPDATE_NEW_LIST_TITLE'
-export function updateNewListTitle(ev) {
-  return {
-    type: UPDATE_NEW_LIST_TITLE,
-    title: ev.target.value
-  }
-}
-
-export const UPDATE_NEW_LIST_COLOR = 'UPDATE_NEW_LIST_COLOR'
-export function updateNewListColor(ev) {
-  return {
-    type: UPDATE_NEW_LIST_COLOR,
-    color: ev.target.value
-  }
-}
 
 export const REQUEST_CREATE_LIST = 'REQUEST_CREATE_LIST'
 function requestCreateList() {
@@ -61,13 +45,13 @@ function receiveCreateList(list) {
   }
 }
 
-export function fetchCreateList(projectID, title, color) {
+export function fetchCreateList(projectID, params) {
   return dispatch => {
     dispatch(requestCreateList())
     return Request
       .post(`/projects/${projectID}/lists`)
       .type('form')
-      .send({title: title, color: color})
+      .send(params)
       .end((err, res)=> {
         if(res.ok) {
           dispatch(receiveCreateList(res.body))
