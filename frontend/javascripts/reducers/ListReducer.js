@@ -19,8 +19,7 @@ const initState = {
   noneList: {ID: 0, ListTasks: []},
   selectedList: null,
   selectedListOption: null,
-  project: null,
-  selectedProject: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
+  project: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
   selectedTask: {Title: "", IssueNumber: 0, Description: "description"},
   isTaskDraggingOver: false,
   taskDraggingFrom: null,
@@ -210,22 +209,11 @@ export default function ListReducer(state = initState, action) {
     return Object.assign({}, state, {
       isProjectEditModalOpen: false
     })
-  case editProjectModalActions.UPDATE_EDIT_PROJECT_TITLE:
-    var selectedProject = state.selectedProject
-    selectedProject.Title = action.title
-    return Object.assign({}, state, {
-      selectedProject: selectedProject
-    })
-  case editProjectModalActions.UPDATE_EDIT_PROJECT_DESCRIPTION:
-    var selectedProject = state.selectedProject
-    selectedProject.Description = action.description
-    return Object.assign({}, state, {
-      selectedProject: selectedProject
-    })
   case editProjectModalActions.RECEIVE_UPDATE_PROJECT:
     return Object.assign({}, state, {
       project: action.project,
-      isProjectEditModalOpen: false
+      isProjectEditModalOpen: false,
+      isLoading: false
     })
 
     //------------------------------------
@@ -399,8 +387,7 @@ export default function ListReducer(state = initState, action) {
     })
   case listActions.RECEIVE_PROJECT:
     return Object.assign({}, state, {
-      project: action.project,
-      selectedProject: Object.assign({}, action.project)
+      project: action.project
     })
   case listActions.TASK_DRAG_START:
     var lists = state.lists

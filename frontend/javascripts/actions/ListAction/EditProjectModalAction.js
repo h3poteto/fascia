@@ -63,23 +63,6 @@ export function closeEditProjectModal() {
   }
 }
 
-
-export const UPDATE_EDIT_PROJECT_TITLE = 'UPDATE_EDIT_PROJECT_TITLE'
-export function updateEditProjectTitle(ev) {
-  return {
-    type: UPDATE_EDIT_PROJECT_TITLE,
-    title: ev.target.value
-  }
-}
-
-export const UPDATE_EDIT_PROJECT_DESCRIPTION = 'UPDATE_EDIT_PROJECT_DESCRIPTION'
-export function updateEditProjectDescription(ev) {
-  return {
-    type: UPDATE_EDIT_PROJECT_DESCRIPTION,
-    description: ev.target.value
-  }
-}
-
 export const REQUEST_UPDATE_PROJECT = 'REQUEST_UPDATE_PROJECT'
 function requestUpdateProject() {
   return {
@@ -96,13 +79,13 @@ function receiveUpdateProject(project) {
 }
 
 export const FETCH_UPDATE_PROJECT = 'FETCH_UPDATE_PROJECT'
-export function fetchUpdateProject(projectID, project) {
+export function fetchUpdateProject(projectID, params) {
   return dispatch => {
     dispatch(requestUpdateProject())
     return Request
       .post(`/projects/${projectID}`)
       .type('form')
-      .send({title: project.Title, description: project.Description})
+      .send(params)
       .end((err, res) => {
         if (res.ok) {
           dispatch(receiveUpdateProject(res.body))

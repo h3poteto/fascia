@@ -1,5 +1,6 @@
 import React from 'react'
 import Modal from 'react-modal'
+import { Field, reduxForm } from 'redux-form'
 
 const customStyles = {
   overlay : {
@@ -21,7 +22,7 @@ const customStyles = {
   }
 }
 
-export default class EditProjectModal extends React.Component {
+class EditProjectModal extends React.Component {
   constructor(props) {
     super(props)
   }
@@ -37,23 +38,35 @@ export default class EditProjectModal extends React.Component {
   }
 
   render() {
+    const {
+      handleSubmit,
+      pristine,
+      reset,
+      submitting,
+      onRequestClose,
+      action,
+      projectID,
+      project,
+    } = this.props
+    // TODO: initial value for form
     return (
       <Modal
           isOpen={this.props.isProjectEditModalOpen}
-          onRequestClose={this.props.closeEditProjectModal}
+          onRequestClose={onRequestClose}
           style={customStyles}
       >
         <div className="project-form">
-          <form className="pure-form pure-form-stacked">
+          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(projectID, values) })}>
             <fieldset>
               <legend>Edit Project</legend>
               <label htmlFor="title">Title</label>
-              <input id="title" name="title" type="text" value={this.props.selectedProject.Title} onChange={this.props.updateEditProjectTitle} className="form-control" />
+              <Field name="title" id="title" component="input" type="text" className="form-control" />
               <label htmlFor="description">Description</label>
-              <textarea id="description" name="description" value={this.props.selectedProject.Description} onChange={this.props.updateEditProjectDescription} className="form-control" />
+              <Field name="description" id="description" component="textarea" placeholder="Description" className="form-control" />
               <div className="form-action">
                 {this.webhookButton(this.props.project)}&nbsp;
-                <button onClick={e => this.props.fetchUpdateProject(this.props.projectID, this.props.selectedProject)} className="pure-button pure-button-primary" type="button">Update Project</button>
+                <button type="reset" className="pure-button pure-button-default" disabled={pristine || submitting} onClick={reset}>Reset</button>&nbsp;
+                <button type="submit" className="pure-button pure-button-primary" disabled={pristine || submitting}>Update Project</button>
               </div>
             </fieldset>
           </form>
@@ -62,3 +75,7 @@ export default class EditProjectModal extends React.Component {
     )
   }
 }
+
+export default reduxForm({
+  form: 'edit-project-form',
+})(EditProjectModal)

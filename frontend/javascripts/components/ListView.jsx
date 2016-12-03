@@ -40,14 +40,14 @@ export default class ListView extends React.Component {
     }
   }
 
-  projectOperations(project, selectedProject) {
+  projectOperations(project) {
     if (project == null || project.RepositoryID == undefined || project.RepositoryID == null || project.RepositoryID == 0) {
       return <span></span>
     } else {
       return (
         <span>
-          <span className={project.ShowPullRequests ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.listActions.showPullRequests(this.props.params.projectID, selectedProject.ShowIssues, selectedProject.ShowPullRequests)}><i title="Switch visibility of pull requests" className="octicon octicon-git-pull-request"></i></span>
-          <span className={project.ShowIssues ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.listActions.showIssues(this.props.params.projectID, selectedProject.ShowIssues, selectedProject.ShowPullRequests)}><i title="Switch visibility of issues" className="octicon octicon-issue-opened"></i></span>
+          <span className={project.ShowPullRequests ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.listActions.showPullRequests(this.props.params.projectID, project.ShowIssues, project.ShowPullRequests)}><i title="Switch visibility of pull requests" className="octicon octicon-git-pull-request"></i></span>
+          <span className={project.ShowIssues ? "pull-request-select select" : "pull-request-select"} onClick={e => this.props.listActions.showIssues(this.props.params.projectID, project.ShowIssues, project.ShowPullRequests)}><i title="Switch visibility of issues" className="octicon octicon-issue-opened"></i></span>
           <i title="Reload all lists and tasks from github" className="fa fa-repeat" onClick={e => this.props.listActions.fetchProjectGithub(this.props.params.projectID)}></i>
         </span>
       )
@@ -109,7 +109,27 @@ export default class ListView extends React.Component {
   }
 
   render() {
-    const { isLoading, isListModalOpen, lists, listOptions, noneList, project, isTaskModalOpen, newTask, selectedList, selectedListOption, isListEditModalOpen, isProjectEditModalOpen, taskDraggingFrom, taskDraggingTo, selectedProject, isTaskShowModalOpen, isEditTaskModalVisible, selectedTask, editTask, error } = this.props.ListReducer
+    const {
+      isLoading,
+      isListModalOpen,
+      lists,
+      listOptions,
+      noneList,
+      project,
+      isTaskModalOpen,
+      newTask,
+      selectedList,
+      selectedListOption,
+      isListEditModalOpen,
+      isProjectEditModalOpen,
+      taskDraggingFrom,
+      taskDraggingTo,
+      isTaskShowModalOpen,
+      isEditTaskModalVisible,
+      selectedTask,
+      editTask,
+      error
+    } = this.props.ListReducer
 
     return (
       <div id="lists">
@@ -146,13 +166,10 @@ export default class ListView extends React.Component {
         />
         <EditProjectModal
             isProjectEditModalOpen={isProjectEditModalOpen}
-            selectedProject={selectedProject}
-            project={project}
             projectID={this.props.params.projectID}
-            closeEditProjectModal={this.props.editProjectModalActions.closeEditProjectModal}
-            updateEditProjectTitle={this.props.editProjectModalActions.updateEditProjectTitle}
-            updateEditProjectDescription={this.props.editProjectModalActions.updateEditProjectDescription}
-            fetchUpdateProject={this.props.editProjectModalActions.fetchUpdateProject}
+            project={project}
+            onRequestClose={this.props.editProjectModalActions.closeEditProjectModal}
+            action={this.props.editProjectModalActions.fetchUpdateProject}
             createWebhook={this.props.editProjectModalActions.createWebhook}
         />
         <ShowTaskModal
@@ -170,7 +187,7 @@ export default class ListView extends React.Component {
         />
         <div className="title-wrapper">
           <div className="project-operation">
-            {this.projectOperations(project, selectedProject)}
+            {this.projectOperations(project)}
           </div>
           <h3 className="project-title">{project != null ? project.Title : ''}<span className="fascia-project-menu" onClick={e => this.props.listActions.openEditProjectModal(project)}><i title="Edit project" className="fa fa-pencil"></i></span></h3>
         </div>
