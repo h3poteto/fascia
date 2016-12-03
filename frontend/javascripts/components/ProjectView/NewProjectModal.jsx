@@ -1,8 +1,9 @@
 import React from 'react'
 import Modal from 'react-modal'
+import { Field, reduxForm } from 'redux-form'
 
 const customStyles = {
-  overlay : {
+  overlay: {
     position          : 'fixed',
     top               : 0,
     left              : 0,
@@ -10,7 +11,7 @@ const customStyles = {
     bottom            : 0,
     backgroundColor   : 'rgba(255, 255, 255, 0.5)'
   },
-  content : {
+  content: {
     position : 'fixed',
     top : '50%',
     left : '50%',
@@ -21,39 +22,45 @@ const customStyles = {
   }
 }
 
-export default class NewProjectModal extends React.Component {
+class NewProjectModal extends React.Component {
   constructor(props) {
     super(props)
   }
 
   render() {
+    const {
+      handleSubmit,
+      pristine,
+      reset,
+      submitting,
+      onRequestClose,
+      action,
+      repositories,
+    } = this.props
     return (
       <Modal
           isOpen={this.props.isModalOpen}
-          onRequestClose={this.props.closeNewProjectModal}
+          onRequestClose={onRequestClose}
           style={customStyles}
       >
         <div className="project-form">
-          <form className="pure-form pure-form-stacked">
+          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(values) })}>
             <fieldset>
               <legend>Create Project</legend>
               <label htmlFor="title">Title</label>
-              <input id="title" name="title" type="text" value={this.props.newProject.title} onChange={this.props.updateNewProjectTitle} placeholder="Project Name" className="form-control" />
+              <Field name="title" id="title" component="input" type="text" placeholder="Project name" className="form-control" />
               <label htmlFor="description">Description</label>
-              <textarea id="description" name="description" value={this.props.newProject.description} onChange={this.props.updateNewProjectDescription} placeholder="Description" className="form-control" />
+              <Field name="description" id="description" component="textarea" placeholder="Description" className="form-control" />
               <label htmlFor="repositories">GitHub</label>
-              <select id="repositories" name="repositories" onChange={this.props.changeSelectedRepository} className="form-control">
+              <Field name="repositories" id="repositories" component="select" className="form-control">
                 <option value="0">--</option>
                 {this.props.repositories.map(function(repo, index) {
-                   if (this.props.selectedRepository != null && repo.id == this.props.selectedRepository.id) {
-                     return <option key={index} value={repo.id} selected>{repo.full_name}</option>
-                   } else {
-                     return <option key={index} value={repo.id}>{repo.full_name}</option>
-                   }
+                  return <option key={index} value={repo.id}>{repo.full_name}</option>
                  }, this)}
-              </select>
+              </Field>
               <div className="form-action">
-                <button onClick={e => this.props.fetchCreateProject(this.props.newProject.title, this.props.newProject.description, this.props.selectedRepository)} className="pure-button pure-button-primary" type="button">CreateProject</button>
+                <button type="reset" className="pure-button pure-button-default" disabled={pristine || submitting} onClick={reset}>Reset</button>
+                <button type="submit" className="pure-button pure-button-primary" disabled={pristine || submitting}>CreateProject</button>
               </div>
             </fieldset>
           </form>
@@ -62,3 +69,7 @@ export default class NewProjectModal extends React.Component {
     )
   }
 }
+
+export default reduxForm({
+  form: 'new-project-form',
+})(NewProjectModal)
