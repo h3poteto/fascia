@@ -57,17 +57,16 @@ func FindByAction(action string) (*ListOptionStruct, error) {
 func FindByID(id sql.NullInt64) (*ListOptionStruct, error) {
 	database := db.SharedInstance().Connection
 
-	if id.Valid {
-		var action string
-		err := database.QueryRow("select action from list_options where id = ?;", id).Scan(&action)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "sql select error")
-		}
-		return NewListOption(id.Int64, action), nil
-	} else {
+	if !id.Valid {
 		return nil, errors.New("id is not valid")
 	}
+	var action string
+	err := database.QueryRow("select action from list_options where id = ?;", id).Scan(&action)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "sql select error")
+	}
+	return NewListOption(id.Int64, action), nil
 }
 
 func (u *ListOptionStruct) Initialize() {

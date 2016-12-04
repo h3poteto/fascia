@@ -118,7 +118,6 @@ export default class ListView extends React.Component {
       project,
       isTaskModalOpen,
       selectedList,
-      selectedListOption,
       isListEditModalOpen,
       isProjectEditModalOpen,
       taskDraggingFrom,
@@ -149,16 +148,11 @@ export default class ListView extends React.Component {
         />
         <EditListModal
             isListEditModalOpen={isListEditModalOpen}
-            selectedList={selectedList}
-            selectedListOption={selectedListOption}
+            list={selectedList}
             project={project}
             listOptions={listOptions}
-            projectID={this.props.params.projectID}
-            closeEditListModal={this.props.editListModalActions.closeEditListModal}
-            updateSelectedListTitle={this.props.editListModalActions.updateSelectedListTitle}
-            updateSelectedListColor={this.props.editListModalActions.updateSelectedListColor}
-            changeSelectedListOption={this.props.editListModalActions.changeSelectedListOption}
-            fetchUpdateList={this.props.editListModalActions.fetchUpdateList}
+            onRequestClose={this.props.editListModalActions.closeEditListModal}
+            action={this.props.editListModalActions.fetchUpdateList}
         />
         <EditProjectModal
             isProjectEditModalOpen={isProjectEditModalOpen}

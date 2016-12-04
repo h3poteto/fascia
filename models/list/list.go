@@ -120,7 +120,7 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	return nil
 }
 
-func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.NullString, title *string, color *string, action *string) (e error) {
+func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.NullString, title *string, color *string, optionID *int64) (e error) {
 	// 初期リストに関しては一切編集を許可しない
 	// 色は変えられても良いが，titleとactionは変えられては困る
 	// 第一段階では色も含めてすべて固定とする
@@ -129,7 +129,7 @@ func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.N
 	}
 
 	var listOptionID sql.NullInt64
-	listOption, err := list_option.FindByAction(*action)
+	listOption, err := list_option.FindByID(sql.NullInt64{Int64: *optionID, Valid: true})
 	if err != nil {
 		// list_optionはnullでも構わない
 		// nullの場合は特にactionが発生しないだけ

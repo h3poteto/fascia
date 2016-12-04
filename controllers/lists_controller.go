@@ -25,9 +25,9 @@ type NewListForm struct {
 }
 
 type EditListForm struct {
-	Title  string `param:"title"`
-	Color  string `param:"color"`
-	Action string `param:"action"`
+	Title    string `param:"title"`
+	Color    string `param:"color"`
+	OptionID int64  `param:"option_id"`
 }
 
 type ListJSONFormat struct {
@@ -218,7 +218,11 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	logging.SharedInstance().MethodInfo("ListsController", "Update", c).Debugf("post edit list parameter: %+v", editListForm)
 
-	valid, err := validators.ListUpdateValidation(editListForm.Title, editListForm.Color, editListForm.Action)
+	valid, err := validators.ListUpdateValidation(
+		editListForm.Title,
+		editListForm.Color,
+		editListForm.OptionID,
+	)
 	if err != nil || !valid {
 		logging.SharedInstance().MethodInfo("ListsController", "Create", c).Infof("validation error: %v", err)
 		http.Error(w, "validation error", 422)
@@ -226,7 +230,7 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 
 	repo, _ := parentProject.Repository()
-	if err := targetList.Update(repo, &currentUser.OauthToken, &editListForm.Title, &editListForm.Color, &editListForm.Action); err != nil {
+	if err := targetList.Update(repo, &currentUser.OauthToken, &editListForm.Title, &editListForm.Color, &editListForm.OptionID); err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Update", err, c).Error(err)
 		http.Error(w, "save failed", 500)
 		return

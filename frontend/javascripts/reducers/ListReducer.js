@@ -17,7 +17,6 @@ const initState = {
   listOptions: [],
   noneList: {ID: 0, ListTasks: []},
   selectedList: {},
-  selectedListOption: null,
   project: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
   selectedTask: {Title: "", IssueNumber: 0, Description: "description"},
   isTaskDraggingOver: false,
@@ -81,18 +80,6 @@ export default function ListReducer(state = initState, action) {
       selectedList: {},
       selectedListOption: null
     })
-  case editListModalActions.UPDATE_SELECTED_LIST_TITLE:
-    var list = state.selectedList
-    list.Title = action.title
-    return Object.assign({}, state, {
-      selectedList: list
-    })
-  case editListModalActions.UPDATE_SELECTED_LIST_COLOR:
-    var list = state.selectedList
-    list.Color = action.color
-    return Object.assign({}, state, {
-      selectedList: list
-    })
   case editListModalActions.REQUEST_UPDATE_LIST:
     return Object.assign({}, state, {
       isLoading: true
@@ -113,18 +100,6 @@ export default function ListReducer(state = initState, action) {
       lists: lists,
       isListEditModalOpen: false,
       isLoading: false
-    })
-  case editListModalActions.CHANGE_SELECTED_LIST_OPTION:
-    var listOption = {
-      ID: action.selectEvent.value
-    }
-    state.listOptions.map(function(option, index) {
-      if (option.ID == action.selectEvent.value) {
-        listOption = option
-      }
-    })
-    return Object.assign({}, state, {
-      selectedListOption: listOption
     })
 
     //------------------------------------
