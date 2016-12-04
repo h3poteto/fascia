@@ -12,12 +12,11 @@ const initState = {
   isProjectEditModalOpen: false,
   isTaskShowModalOpen: false,
   isEditTaskModalVisible: false,
-  newTask: {title: "", description: ""},
   editTask: {Title: "", Description: ""},
   lists: [],
   listOptions: [],
   noneList: {ID: 0, ListTasks: []},
-  selectedList: null,
+  selectedList: {},
   selectedListOption: null,
   project: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
   selectedTask: {Title: "", IssueNumber: 0, Description: "description"},
@@ -79,7 +78,7 @@ export default function ListReducer(state = initState, action) {
   case editListModalActions.CLOSE_EDIT_LIST:
     return Object.assign({}, state, {
       isListEditModalOpen: action.isListEditModalOpen,
-      selectedList: null,
+      selectedList: {},
       selectedListOption: null
     })
   case editListModalActions.UPDATE_SELECTED_LIST_TITLE:
@@ -144,19 +143,7 @@ export default function ListReducer(state = initState, action) {
   case newTaskModalActions.CLOSE_NEW_TASK:
     return Object.assign({}, state, {
       isTaskModalOpen: action.isTaskModalOpen,
-      selectedList: null
-    })
-  case newTaskModalActions.UPDATE_NEW_TASK_TITLE:
-    var newTask = state.newTask
-    newTask.title = action.title
-    return Object.assign({}, state, {
-      newTask: newTask
-    })
-  case newTaskModalActions.UPDATE_NEW_TASK_DESCRIPTION:
-    var newTask = state.newTask
-    newTask.description = action.description
-    return Object.assign({}, state, {
-      newTask: newTask
+      selectedList: {},
     })
   case newTaskModalActions.REQUEST_CREATE_TASK:
     return Object.assign({}, state, {
@@ -181,7 +168,6 @@ export default function ListReducer(state = initState, action) {
       noneList = action.noneList
     }
     return Object.assign({}, state, {
-      newTask: {title: "", description: ""},
       lists: lists,
       isTaskModalOpen: false,
       isLoading: false,

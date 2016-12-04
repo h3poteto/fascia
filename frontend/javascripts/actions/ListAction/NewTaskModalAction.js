@@ -30,22 +30,6 @@ export function closeNewTaskModal() {
   }
 }
 
-export const UPDATE_NEW_TASK_TITLE = 'UPDATE_NEW_TASK_TITLE'
-export function updateNewTaskTitle(ev) {
-  return {
-    type: UPDATE_NEW_TASK_TITLE,
-    title: ev.target.value
-  }
-}
-
-export const UPDATE_NEW_TASK_DESCRIPTION = 'UPDATE_NEW_TASK_DESCRIPTION'
-export function updateNewTaskDescription(ev) {
-  return {
-    type: UPDATE_NEW_TASK_DESCRIPTION,
-    description: ev.target.value
-  }
-}
-
 export const REQUEST_CREATE_TASK = 'REQUEST_CREATE_TASK'
 function requestCreateTask() {
   return {
@@ -62,13 +46,13 @@ function receiveCreateTask(lists) {
   }
 }
 
-export function fetchCreateTask(projectID, listID, title, description) {
+export function fetchCreateTask(projectID, listID, params) {
   return dispatch => {
     dispatch(requestCreateTask())
     return Request
       .post(`/projects/${projectID}/lists/${listID}/tasks`)
       .type('form')
-      .send({title: title, description: description})
+      .send(params)
       .end((err, res)=> {
         if(res.ok) {
           dispatch(receiveCreateTask(res.body))
