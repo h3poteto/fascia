@@ -141,24 +141,22 @@ func Create(userID int64, title string, description string, repositoryID int, oa
 	tx.Commit()
 
 	// callbacks
-	go func(project *ProjectStruct, repo *repository.RepositoryStruct) {
+	go func(project *ProjectStruct) {
 		// create webhook
-		if repo != nil {
-			// github側にwebhooko登録
-			err := project.CreateWebhook()
-			if err != nil {
-				logging.SharedInstance().MethodInfo("Project", "Create").Infof("failed to create webhook: %v", err)
-			}
+		err := project.CreateWebhook()
+		if err != nil {
+			logging.SharedInstance().MethodInfo("Project", "Create").Infof("failed to create webhook: %v", err)
 		}
+		logging.SharedInstance().MethodInfo("Project", "Create").Info("success to create webhook")
 		// Sync github
-		_, err := project.Repository()
+		_, err = project.Repository()
 		if err == nil {
 			_, err := project.FetchGithub()
 			if err != nil {
 				logging.SharedInstance().MethodInfoWithStacktrace("Project", "Create", err).Error(err)
 			}
 		}
-	}(project, repo)
+	}(project)
 
 	return project, nil
 }
@@ -323,8 +321,7 @@ func (u *ProjectStruct) CreateWebhook() error {
 	if err != nil {
 		return err
 	}
-	err = hub.CreateWebhook(oauthToken, repo, repo.WebhookKey, url)
-	return err
+	return hub.CreateWebhook(oauthToken, repo, repo.WebhookKey, url)
 }
 
 // OauthToken get oauth token in users
