@@ -12,7 +12,6 @@ const initState = {
   isProjectEditModalOpen: false,
   isTaskShowModalOpen: false,
   isEditTaskModalVisible: false,
-  editTask: {Title: "", Description: ""},
   lists: [],
   listOptions: [],
   noneList: {ID: 0, ListTasks: []},
@@ -197,20 +196,7 @@ export default function ListReducer(state = initState, action) {
     })
   case showTaskModalActions.CHANGE_EDIT_MODE:
     return Object.assign({}, state, {
-      isEditTaskModalVisible: true,
-      editTask: action.task
-    })
-  case showTaskModalActions.UPDATE_EDIT_TASK_TITLE:
-    var editTask = state.editTask
-    editTask.Title = action.title
-    return Object.assign({}, state, {
-      editTask: editTask
-    })
-  case showTaskModalActions.UPDATE_EDIT_TASK_DESCRIPTION:
-    var editTask = state.editTask
-    editTask.Description = action.description
-    return Object.assign({}, state, {
-      editTask: editTask
+      isEditTaskModalVisible: true
     })
   case showTaskModalActions.REQUEST_UPDATE_TASK:
     return Object.assign({}, state, {

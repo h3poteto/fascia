@@ -125,7 +125,6 @@ export default class ListView extends React.Component {
       isTaskShowModalOpen,
       isEditTaskModalVisible,
       selectedTask,
-      editTask,
       error
     } = this.props.ListReducer
 
@@ -167,12 +166,9 @@ export default class ListView extends React.Component {
             isEditTaskModalVisible={isEditTaskModalVisible}
             projectID={this.props.params.projectID}
             task={selectedTask}
-            editTask={editTask}
-            closeShowTaskModal={this.props.showTaskModalActions.closeShowTaskModal}
+            onRequestClose={this.props.showTaskModalActions.closeShowTaskModal}
             changeEditMode={this.props.showTaskModalActions.changeEditMode}
-            updateEditTaskTitle={this.props.showTaskModalActions.updateEditTaskTitle}
-            updateEditTaskDescription={this.props.showTaskModalActions.updateEditTaskDescription}
-            fetchUpdateTask={this.props.showTaskModalActions.fetchUpdateTask}
+            action={this.props.showTaskModalActions.fetchUpdateTask}
             fetchDeleteTask={this.props.showTaskModalActions.fetchDeleteTask}
         />
         <div className="title-wrapper">
