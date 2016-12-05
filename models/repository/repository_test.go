@@ -27,7 +27,7 @@ var _ = Describe("Repository", func() {
 	Describe("Save", func() {
 		repositoryID := int64(123456)
 		It("should create repository", func() {
-			newRepository := NewRepository(0, repositoryID, "owner", "repository_name", "test_token")
+			newRepository := New(0, repositoryID, "owner", "repository_name", "test_token")
 			err := newRepository.Save()
 			Expect(err).To(BeNil())
 		})
@@ -36,7 +36,7 @@ var _ = Describe("Repository", func() {
 	Describe("Authenticate", func() {
 		It("should authenticate", func() {
 			webhookKey := GenerateWebhookKey("repository_name")
-			newRepository := NewRepository(0, int64(12345), "owner", "repository_name", webhookKey)
+			newRepository := New(0, int64(12345), "owner", "repository_name", webhookKey)
 			newRepository.Save()
 			mac := hmac.New(sha1.New, []byte(webhookKey))
 			mac.Write([]byte(""))

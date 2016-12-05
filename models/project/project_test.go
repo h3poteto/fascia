@@ -42,7 +42,7 @@ var _ = Describe("Project", func() {
 	Describe("Create", func() {
 		Context("when did not set repositoryID", func() {
 			It("should create new project", func() {
-				newProject, err := Create(uid, "new project", "description", 0, "", "", sql.NullString{})
+				newProject, err := Create(uid, "new project", "description", 0, sql.NullString{})
 				Expect(err).To(BeNil())
 				lists, _ := newProject.Lists()
 				Expect(len(lists)).To(Equal(3))
@@ -51,7 +51,7 @@ var _ = Describe("Project", func() {
 				Expect(newProject.ShowPullRequests).To(BeTrue())
 			})
 			It("should relate user and project", func() {
-				newProject, _ = Create(uid, "new project", "description", 0, "", "", sql.NullString{})
+				newProject, _ = Create(uid, "new project", "description", 0, sql.NullString{})
 				rows, _ := database.Query("select id, user_id, title, description from projects where id = ?;", newProject.ID)
 
 				var id int64
@@ -73,7 +73,7 @@ var _ = Describe("Project", func() {
 
 	Describe("Update", func() {
 		BeforeEach(func() {
-			newProject, _ = Create(uid, "new project", "description", 0, "", "", sql.NullString{})
+			newProject, _ = Create(uid, "new project", "description", 0, sql.NullString{})
 		})
 		It("should set new value", func() {
 			err := newProject.Update("newTitle", "newDescription", true, false)
@@ -86,20 +86,6 @@ var _ = Describe("Project", func() {
 		})
 	})
 
-	Describe("Repository", func() {
-		Context("when repository exist", func() {
-			It("should relate project to repository", func() {
-				repositoryID := int64(12345)
-				newProject, err := Create(uid, "new project", "description", repositoryID, "owner", "name", sql.NullString{})
-
-				Expect(err).To(BeNil())
-				repo, err := newProject.Repository()
-				Expect(err).To(BeNil())
-				Expect(repo.RepositoryID).To(Equal(repositoryID))
-			})
-		})
-	})
-
 	Describe("Lists", func() {
 		var (
 			newList, noneList *list.ListStruct
@@ -107,7 +93,7 @@ var _ = Describe("Project", func() {
 		)
 
 		BeforeEach(func() {
-			newProject, _ = Create(uid, "new project", "description", 0, "", "", sql.NullString{})
+			newProject, _ = Create(uid, "new project", "description", 0, sql.NullString{})
 			newList = list.NewList(0, newProject.ID, newProject.UserID, "list title", "", sql.NullInt64{}, false)
 			_ = newList.Save(nil, nil)
 			noneList = list.NewList(0, newProject.ID, newProject.UserID, config.Element("init_list").(map[interface{}]interface{})["none"].(string), "", sql.NullInt64{}, false)
@@ -129,7 +115,7 @@ var _ = Describe("Project", func() {
 
 	Describe("NoneList", func() {
 		It("should contain only none list", func() {
-			newProject, _ := Create(uid, "new project", "description", 0, "", "", sql.NullString{})
+			newProject, _ := Create(uid, "new project", "description", 0, sql.NullString{})
 			noneList, err := newProject.NoneList()
 			Expect(err).To(BeNil())
 			Expect(noneList.Title.String).To(Equal(config.Element("init_list").(map[interface{}]interface{})["none"].(string)))

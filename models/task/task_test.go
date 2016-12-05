@@ -35,7 +35,7 @@ var _ = Describe("Task", func() {
 		password := "hogehoge"
 		uid, _ := user.Registration(email, password, password)
 		database = db.SharedInstance().Connection
-		newProject, _ = project.Create(uid, "title", "desc", 0, "", "", sql.NullString{})
+		newProject, _ = project.Create(uid, "title", "desc", 0, sql.NullString{})
 		newList = list.NewList(0, newProject.ID, newProject.UserID, "list title", "", sql.NullInt64{}, false)
 		newList.Save(nil, nil)
 		newTask = NewTask(0, newList.ID, newProject.ID, newList.UserID, sql.NullInt64{}, "task title", "task description", false, sql.NullString{})
