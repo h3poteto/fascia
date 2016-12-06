@@ -21,14 +21,14 @@ describe('ListView::EditProjectModal', () => {
     let state = EditProjectModalFixture.initState()
     it('should not render list edit modal', () => {
       const { output } = setup(state)
-      expect(output.props.isOpen).toBe(false)
+      expect(output.props.isProjectEditModalOpen).toBe(false)
     })
   })
   context('when project edit modal open', () => {
     let state = EditProjectModalFixture.openEditProjectModalState()
     it('should render modal', () => {
       const { output } = setup(state)
-      expect(output.props.isOpen).toBe(true)
+      expect(output.props.isProjectEditModalOpen).toBe(true)
     })
   })
 })

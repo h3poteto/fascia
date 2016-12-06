@@ -7,41 +7,8 @@ describe('closeNewListModal', () => {
   it('should close new list modal', () => {
     const expectedAction = {
       type: newListModalActions.CLOSE_NEW_LIST,
-      isListModalOpen: false
     }
     expect(newListModalActions.closeNewListModal()).toEqual(expectedAction)
-  })
-})
-
-describe('updateNewListTitle', () => {
-  it('should update new list title', () => {
-    const title = "newTitle"
-    const ev = {
-      target: {
-        value: title
-      }
-    }
-    const expectedAction = {
-      type: newListModalActions.UPDATE_NEW_LIST_TITLE,
-      title: title
-    }
-    expect(newListModalActions.updateNewListTitle(ev)).toEqual(expectedAction)
-  })
-})
-
-describe('updateNewListColor', () => {
-  it('should update new list color', () => {
-    const color = "ffffff"
-    const ev = {
-      target: {
-        value: color
-      }
-    }
-    const expectedAction = {
-      type: newListModalActions.UPDATE_NEW_LIST_COLOR,
-      color: color
-    }
-    expect(newListModalActions.updateNewListColor(ev)).toEqual(expectedAction)
   })
 })
 
@@ -72,7 +39,11 @@ describe('fetchCreateList', () => {
         { type: newListModalActions.RECEIVE_CREATE_LIST, list: { ID: 1, ProjectID: projectID, Title: title, Color: color, ListTasks: ["task1"] } }
       ]
       const store = mockStore({ list: null }, expectedActions, done)
-      store.dispatch(newListModalActions.fetchCreateList(projectID, title, color))
+      const params = {
+        title: title,
+        color: color,
+      }
+      store.dispatch(newListModalActions.fetchCreateList(projectID, params))
     })
   })
 })

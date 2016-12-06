@@ -54,7 +54,7 @@ export function initState() {
         }
       ],
       selectedListOption: null,
-      selectedList: null,
+      selectedList: {},
       project: {
         Title: "testProject",
         Description: "description",

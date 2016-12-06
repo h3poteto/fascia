@@ -77,7 +77,6 @@ export default function ListReducer(state = initState, action) {
     return Object.assign({}, state, {
       isListEditModalOpen: action.isListEditModalOpen,
       selectedList: {},
-      selectedListOption: null
     })
   case editListModalActions.REQUEST_UPDATE_LIST:
     return Object.assign({}, state, {
@@ -289,16 +288,9 @@ export default function ListReducer(state = initState, action) {
       selectedList: Object.assign({}, action.list)
     })
   case listActions.OPEN_EDIT_LIST:
-    var selectedListOption = null
-    if (action.list.ListOptionID != 0) {
-      selectedListOption = {
-        ID: action.list.ListOptionID
-      }
-    }
     return Object.assign({}, state, {
       isListEditModalOpen: action.isListEditModalOpen,
       selectedList: Object.assign({}, action.list),
-      selectedListOption: selectedListOption
     })
   case listActions.OPEN_SHOW_TASK:
     return Object.assign({}, state, {

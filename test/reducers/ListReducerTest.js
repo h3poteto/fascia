@@ -20,16 +20,11 @@ function sharedExampleInitState(action) {
     isTaskShowModalOpen: false,
     isEditTaskModalVisible: false,
     isLoading: false,
-    newList: {title: "", color: "008ed4"},
-    newTask: {title: "", description: ""},
-    editTask: {Title: "", Description: ""},
     lists: [],
     noneList: {ID: 0, ListTasks: []},
     listOptions: [],
-    selectedListOption: null,
-    selectedList: null,
-    project: null,
-    selectedProject: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
+    selectedList: {},
+    project: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
     selectedTask: {Title: "", Description: "description", IssueNumber: 0},
     isTaskDraggingOver: false,
     taskDraggingFrom: null,
@@ -153,8 +148,7 @@ describe('ListReducer', () => {
         expect(
           ListReducer({
             isListEditModalOpen: false,
-            selectedList: null,
-            selectedListOption: null
+            selectedList: {},
           }, {
             type: listActions.OPEN_EDIT_LIST,
             isListEditModalOpen: true,
@@ -167,9 +161,6 @@ describe('ListReducer', () => {
           selectedList: {
             ListOptionID: 1
           },
-          selectedListOption: {
-            ID: 1
-          }
         })
       })
     })
@@ -1249,21 +1240,7 @@ describe('ListReducer', () => {
           })
         ).toEqual({
           isTaskModalOpen: false,
-          selectedList: null
-        })
-      })
-    })
-    describe('UPDATE_NEW_TASK_TITLE', () => {
-      it('should update new task title', () => {
-        expect(
-          ListReducer({
-            newTask: { title: "" }
-          }, {
-            type: newTaskModalActions.UPDATE_NEW_TASK_TITLE,
-            title: "newTask"
-          })
-        ).toEqual({
-          newTask: { title: "newTask" }
+          selectedList: {},
         })
       })
     })
@@ -1297,7 +1274,6 @@ describe('ListReducer', () => {
               ListTasks: []
             }],
             noneList: {ID: 0, ListTasks: [] },
-            newTask: { title: "task2", description: "hogehoge" },
             isTaskModalOpen: true,
             isLoading: true
           }, {
@@ -1330,7 +1306,6 @@ describe('ListReducer', () => {
             ListTasks: []
           }],
           noneList: [],
-          newTask: { title: "", description: "" },
           isTaskModalOpen: false,
           isLoading: false
         })
@@ -1376,36 +1351,7 @@ describe('ListReducer', () => {
           })
         ).toEqual({
           isListEditModalOpen: false,
-          selectedList: null,
-          selectedListOption: null
-        })
-      })
-    })
-    describe('UPDATE_SELECTED_LIST_TITLE', () => {
-      it('should update selected list title', () => {
-        expect(
-          ListReducer({
-            selectedList: { Title: "selectedL", Color: "" }
-          }, {
-            type: editListModalActions.UPDATE_SELECTED_LIST_TITLE,
-            title: "selectedList"
-          })
-        ).toEqual({
-          selectedList: { Title: "selectedList", Color: "" }
-        })
-      })
-    })
-    describe('UPDATE_SELECTED_LIST_COLOR', () => {
-      it('should update selected list color', () => {
-        expect(
-          ListReducer({
-            selectedList: { Title: "selectedList", Color: "30b" }
-          }, {
-            type: editListModalActions.UPDATE_SELECTED_LIST_COLOR,
-            color: "30bef"
-          })
-        ).toEqual({
-          selectedList: { Title: "selectedList", Color: "30bef" }
+          selectedList: {},
         })
       })
     })
@@ -1467,44 +1413,6 @@ describe('ListReducer', () => {
         })
       })
     })
-
-    describe('CHANGE_SELECTED_LIST_OPTION', () => {
-      it('should change selected list option', () => {
-        expect(
-          ListReducer({
-            listOptions: [
-              {
-                ID: 1,
-                Action: "close"
-              }, {
-                ID: 2,
-                Action: "open"
-              }
-            ],
-            selectedListOption: null
-          }, {
-            type: editListModalActions.CHANGE_SELECTED_LIST_OPTION,
-            selectEvent: {
-              value: 1
-            }
-          })
-        ).toEqual({
-          listOptions: [
-            {
-              ID: 1,
-              Action: "close"
-            }, {
-              ID: 2,
-              Action: "open"
-            }
-          ],
-          selectedListOption: {
-            ID: 1,
-            Action: "close"
-          }
-        })
-      })
-    })
   })
 
   context('newListModalActions', () => {
@@ -1533,34 +1441,6 @@ describe('ListReducer', () => {
       })
     })
 
-    describe('UPDATE_NEW_LIST_TITLE', () => {
-      it('should update list title', () => {
-        expect(
-          ListReducer({
-            newList: { title: "newL", color: "" }
-          }, {
-            type: newListModalActions.UPDATE_NEW_LIST_TITLE,
-            title: "newList"
-          })
-        ).toEqual({
-          newList: { title: "newList", color: "" }
-        })
-      })
-    })
-    describe('UPDATE_NEW_LIST_COLOR', () => {
-      it('should update list color', () => {
-        expect(
-          ListReducer({
-            newList: { title: "newList", color: "30b" }
-          }, {
-            type: newListModalActions.UPDATE_NEW_LIST_COLOR,
-            color: "30bfe"
-          })
-        ).toEqual({
-          newList: { title: "newList", color: "30bfe" }
-        })
-      })
-    })
     describe('REQUEST_CREATE_LIST', () => {
       it('should open whole loading window', () => {
         expect(
@@ -1591,7 +1471,6 @@ describe('ListReducer', () => {
                 }
               ],
               isListModalOpen: true,
-              newList: { title: "list3", color: "ffffff" },
               isLoading: true
             }, {
               type: newListModalActions.RECEIVE_CREATE_LIST,
@@ -1613,7 +1492,6 @@ describe('ListReducer', () => {
               }
             ],
             isListModalOpen: false,
-            newList: { title: "", color: "008ed4" },
             isLoading: false
           })
         })
@@ -1634,7 +1512,6 @@ describe('ListReducer', () => {
                 }
               ],
               isListModalOpen: false,
-              newList: { title: "", color: "ffffff" },
               isLoading: true
             }, {
               type: newListModalActions.RECEIVE_CREATE_LIST,
@@ -1658,7 +1535,6 @@ describe('ListReducer', () => {
               }
             ],
             isListModalOpen: false,
-            newList: { title: "", color: "008ed4" },
             isLoading: false
           })
         })
@@ -1713,46 +1589,6 @@ describe('ListReducer', () => {
         })
       })
     })
-    describe('UPDATE_EDIT_PROJECT_TITLE', () => {
-      it('should update project title', () => {
-        expect(
-          ListReducer({
-            selectedProject: {
-              Title: "title",
-              Description: "description"
-            }
-          }, {
-            type: editProjectModalActions.UPDATE_EDIT_PROJECT_TITLE,
-            title: "title samp"
-          })
-        ).toEqual({
-          selectedProject: {
-            Title: "title samp",
-            Description: "description"
-          }
-        })
-      })
-    })
-    describe('UPDATE_EDIT_PROJECT_DESCRIPTION', () => {
-      it('should update project description', () => {
-        expect(
-          ListReducer({
-            selectedProject: {
-              Title: "title",
-              Description: "description"
-            }
-          }, {
-            type: editProjectModalActions.UPDATE_EDIT_PROJECT_DESCRIPTION,
-            description: "description samp"
-          })
-        ).toEqual({
-          selectedProject: {
-            Title: "title",
-            Description: "description samp"
-          }
-        })
-      })
-    })
     describe('RECEIVE_UPDATE_PROJECT', () => {
       it('should return updated project', () => {
         expect(
@@ -1774,7 +1610,8 @@ describe('ListReducer', () => {
             Title: "title sample",
             Description: "description sample"
           },
-          isProjectEditModalOpen: false
+          isProjectEditModalOpen: false,
+          isLoading: false,
         })
       })
     })
@@ -1819,46 +1656,6 @@ describe('ListReducer', () => {
           editTask: {
             Title: "",
             Description: ""
-          }
-        })
-      })
-    })
-    describe('UPDATE_EDIT_TASK_TITLE', () => {
-      it('should update task title', () => {
-        expect(
-          ListReducer({
-            editTask: {
-              Title: "task",
-              Description: "description"
-            }
-          }, {
-            type: showTaskModalActions.UPDATE_EDIT_TASK_TITLE,
-            title: "task title"
-          })
-        ).toEqual({
-          editTask: {
-            Title: "task title",
-            Description: "description"
-          }
-        })
-      })
-    })
-    describe('UPDATE_EDIT_TASK_DESCRIPTION', () => {
-      it('should update task description', () => {
-        expect(
-          ListReducer({
-            editTask: {
-              Title: "task",
-              Description: "description"
-            }
-          }, {
-            type: showTaskModalActions.UPDATE_EDIT_TASK_DESCRIPTION,
-            description: "task description"
-          })
-        ).toEqual({
-          editTask: {
-            Title: "task",
-            Description: "task description"
           }
         })
       })

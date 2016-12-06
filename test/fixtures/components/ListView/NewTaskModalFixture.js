@@ -6,10 +6,6 @@ export function initState() {
     newTask: {title: ""},
     selectedList: 1,
     projectID: 1,
-    closeNewTaskModal: expect.createSpy(),
-    updateNewTaskTitle: expect.createSpy(),
-    updateNewTaskDescription: expect.createSpy(),
-    fetchCreateTask: expect.createSpy()
   }
 }
 

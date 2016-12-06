@@ -21,14 +21,14 @@ describe('ListView::NewListModal', () => {
     let state = NewListModalFixture.initState()
     it('should not render modal', () => {
       const { output } = setup(state)
-      expect(output.props.isOpen).toBe(false)
+      expect(output.props.isListModalOpen).toBe(false)
     })
   })
   context('when new list modal open', () => {
     let state = NewListModalFixture.openNewListModalState()
     it('should render modal', () => {
       const { output } = setup(state)
-      expect(output.props.isOpen).toBe(true)
+      expect(output.props.isListModalOpen).toBe(true)
     })
   })
 })

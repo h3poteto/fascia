@@ -30,7 +30,7 @@ describe('fetchUpdateList', () => {
       ProjectID: projectID,
       ListOptionID: option.ID
     }
-    const postForm = `title=${list.Title}&color=${list.Color}&action=${option.Action}`
+    const postForm = `title=${list.Title}&color=${list.Color}&option_id=${option.ID}`
     beforeEach(() => {
       nock('http://localhost')
         .post(`/projects/${projectID}/lists/${list.ID}`, postForm)
@@ -49,7 +49,12 @@ describe('fetchUpdateList', () => {
         { type: editListModalActions.RECEIVE_UPDATE_LIST, list: { ID: list.ID, ProjectID: list.ProjectID, Title: list.Title, Color: list.Color, ListTasks: [], ListOptionID: option.ID } }
       ]
       const store = mockStore({ list: null }, expectedActions, done)
-      store.dispatch(editListModalActions.fetchUpdateList(projectID, list, option))
+      const params = {
+        title: list.Title,
+        color: list.Color,
+        option_id: option.ID,
+      }
+      store.dispatch(editListModalActions.fetchUpdateList(projectID, list.ID, params))
     })
   })
 })

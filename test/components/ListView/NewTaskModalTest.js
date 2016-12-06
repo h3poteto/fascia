@@ -21,14 +21,14 @@ describe('ListView::NewTaskModal', () => {
     let state = NewTaskModalFixture.initState()
     it('should not render new task modal', () => {
       const { output } = setup(state)
-      expect(output.props.isOpen).toBe(false)
+      expect(output.props.isTaskModalOpen).toBe(false)
     })
   })
   context('when task modal open', () => {
     let state = NewTaskModalFixture.openNewTaskModalState()
     it('should render new task modal', () => {
       const { output } = setup(state)
-      expect(output.props.isOpen).toBe(true)
+      expect(output.props.isTaskModalOpen).toBe(true)
     })
   })
 })

@@ -22,43 +22,7 @@ describe('ProjectView::NewProjectModal', () => {
     it('should not render modal', () => {
       const { output } = setup(state)
 
-      expect(output.props.isOpen).toBe(false)
-    })
-  })
-
-  context('when open project modal with repositories', () => {
-    context('without selectedRepository', () => {
-      let state = NewProjectModalFixture.openNewProjectModalState()
-      it('should render repositories', () => {
-        const { output } = setup(state)
-
-        expect(output.props.isOpen).toBe(true)
-        let formWrapper = output.props.children
-        let form = formWrapper.props.children
-        let field = form.props.children
-        let [ , , , , , , repositorySelect ] = field.props.children
-        let [ , repos ] = repositorySelect.props.children
-        let [ repo1, repo2 ] = repos
-        expect(repo1.props.children).toBe('repo1')
-        expect(repo2.props.children).toBe('repo2')
-      })
-    })
-    context('with selectedRepository', () => {
-      let state = NewProjectModalFixture.openNewProjectModalWithRepositoryState()
-      it('should render repositories', () => {
-        const { output } = setup(state)
-
-        expect(output.props.isOpen).toBe(true)
-        let formWrapper = output.props.children
-        let form = formWrapper.props.children
-        let field = form.props.children
-        let [ , , , , , , repositorySelect ] = field.props.children
-        let [ , repos ] = repositorySelect.props.children
-        let [ repo1, repo2 ] = repos
-        expect(repo1.props.children).toBe('repo1')
-        expect(repo1.props.selected).toBe(true)
-        expect(repo2.props.children).toBe('repo2')
-      })
+      expect(output.props.isModalOpen).toBe(false)
     })
   })
 })

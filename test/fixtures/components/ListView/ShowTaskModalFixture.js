@@ -6,7 +6,6 @@ export function initState() {
     isEditTaskModalVisible: false,
     task: {Title: "", Description: "", IssueNumber: 0},
     editTask: { Title: "", Description: ""},
-    closeShowTaskModal: expect.createSpy()
   }
 }
 
@@ -16,8 +15,3 @@ export function openShowTaskModalState() {
   return state
 }
 
-export function visibleEditTaskModalState() {
-  let state = openShowTaskModalState()
-  state["isEditTaskModalVisible"] = true
-  return state
-}
