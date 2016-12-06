@@ -7,6 +7,7 @@ import (
 	"github.com/h3poteto/fascia/db/seed"
 	"github.com/h3poteto/fascia/models/db"
 	"github.com/h3poteto/fascia/models/list"
+	"github.com/h3poteto/fascia/models/list_option"
 	. "github.com/h3poteto/fascia/server"
 	"io/ioutil"
 	"net/http"
@@ -90,7 +91,7 @@ var _ = Describe("ListsController", func() {
 				values := url.Values{}
 				values.Add("title", "newListTitle")
 				values.Add("color", "008ed5")
-				values.Add("action", "null")
+				values.Add("option_id", "0")
 				res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(newList.ID, 10), values)
 			})
 			It("should update", func() {
@@ -106,9 +107,10 @@ var _ = Describe("ListsController", func() {
 				newList := list.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
 				newList.Save(nil, nil)
 				values := url.Values{}
+				closeListOption, _ := list_option.FindByAction("close")
 				values.Add("title", "newListTitle")
 				values.Add("color", "008ed5")
-				values.Add("action", "close")
+				values.Add("option_id", strconv.FormatInt(closeListOption.ID, 10))
 				res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(newList.ID, 10), values)
 			})
 			It("should update", func() {
