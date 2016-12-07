@@ -2,7 +2,7 @@ import Request from 'superagent'
 
 export const UNAUTHORIZED = 'UNAUTHORIZED'
 function unauthorized() {
-  window.location.pathname = "/sign_in"
+  window.location.pathname = '/sign_in'
   return {
     type: UNAUTHORIZED
   }
@@ -22,7 +22,7 @@ function serverError() {
   }
 }
 
-export const CLOSE_FLASH = "CLOSE_FLASH"
+export const CLOSE_FLASH = 'CLOSE_FLASH'
 export function closeFlash() {
   return {
     type: CLOSE_FLASH
@@ -126,10 +126,10 @@ export function fetchProject(projectID) {
 }
 
 
-export const TASK_DRAG_START = "TASK_DRAG_START"
+export const TASK_DRAG_START = 'TASK_DRAG_START'
 export function taskDragStart(ev) {
-  ev.dataTransfer.effectAllowed = "moved"
-  ev.dataTransfer.setData("text/html", ev.currentTarget)
+  ev.dataTransfer.effectAllowed = 'moved'
+  ev.dataTransfer.setData('text/html', ev.currentTarget)
   return {
     type: TASK_DRAG_START,
     taskDragTarget: ev.currentTarget,
@@ -137,12 +137,12 @@ export function taskDragStart(ev) {
   }
 }
 
-export const TASK_DRAG_LEAVE = "TASK_DRAG_LEAVE"
-export const TASK_DRAG_LEAVE_IGNORE = "TASK_DRAG_LEAVE_IGNORE"
+export const TASK_DRAG_LEAVE = 'TASK_DRAG_LEAVE'
+export const TASK_DRAG_LEAVE_IGNORE = 'TASK_DRAG_LEAVE_IGNORE'
 export function taskDragLeave(ev) {
   // li.new-taskだけはdragleaveイベントが頻繁に発生するため，抑制する
   // こうしておいても，他の要素に移動した際には問題なくleave処理が為される
-  if (ev.target.className == "new-task" || ev.target.className == "fa-plus") {
+  if (ev.target.className == 'new-task' || ev.target.className == 'fa-plus') {
     return {
       type: TASK_DRAG_LEAVE_IGNORE
     }
@@ -204,21 +204,21 @@ export function taskDrop(projectID, taskDraggingFrom, taskDraggingTo) {
   }
 }
 
-export const TASK_DRAG_OVER = "TASK_DRAG_OVER"
+export const TASK_DRAG_OVER = 'TASK_DRAG_OVER'
 export function taskDragOver(ev) {
   ev.preventDefault()
   var targetList
   switch(ev.target.dataset.droppedDepth) {
-  case "0":
+  case '0':
     targetList = ev.target
     break
-  case "1":
+  case '1':
     targetList = ev.target.parentNode
     break
-  case "2":
+  case '2':
     targetList = ev.target.parentNode.parentNode
     break
-  case "3":
+  case '3':
     targetList = ev.target.parentNode.parentNode.parentNode
     break
   default:
@@ -232,14 +232,14 @@ export function taskDragOver(ev) {
   }
 }
 
-export const REQUEST_FETCH_GITHUB = "REQUEST_FETCH_GITHUB"
+export const REQUEST_FETCH_GITHUB = 'REQUEST_FETCH_GITHUB'
 function requestFetchGithub() {
   return {
     type: REQUEST_FETCH_GITHUB
   }
 }
 
-export const RECEIVE_FETCH_GITHUB = "RECEIVE_FETCH_GITHUB"
+export const RECEIVE_FETCH_GITHUB = 'RECEIVE_FETCH_GITHUB'
 function receiveFetchGithub(lists) {
   return {
     type: RECEIVE_FETCH_GITHUB,
@@ -248,7 +248,7 @@ function receiveFetchGithub(lists) {
   }
 }
 
-export const FETCH_PROJECT_GITHUB = "FETCH_PROJECT_GITHUB"
+export const FETCH_PROJECT_GITHUB = 'FETCH_PROJECT_GITHUB'
 export function fetchProjectGithub(projectID) {
   return dispatch => {
     dispatch(requestFetchGithub())

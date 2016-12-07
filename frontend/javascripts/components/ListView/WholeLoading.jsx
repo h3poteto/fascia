@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default class WholeLoading extends React.Component {
+class WholeLoading extends React.Component {
   constructor(props) {
     super(props)
   }
@@ -21,3 +21,9 @@ export default class WholeLoading extends React.Component {
     }
   }
 }
+
+WholeLoading.propTypes = {
+  isLoading: React.PropTypes.bool.isRequired,
+}
+
+export default WholeLoading

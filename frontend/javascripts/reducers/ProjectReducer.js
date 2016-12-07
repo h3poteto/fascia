@@ -17,12 +17,12 @@ export default function ProjectReducer(state = initState, action) {
   case newProjectModalActions.NOT_FOUND:
     return Object.assign({}, state, {
       isLoading: false,
-      error: "Error Not Found"
+      error: 'Error Not Found'
     })
   case newProjectModalActions.SERVER_ERROR:
     return Object.assign({}, state, {
       isLoading: false,
-      error: "Internal Server Error"
+      error: 'Internal Server Error'
     })
   case newProjectModalActions.CLOSE_NEW_PROJECT:
     return Object.assign({}, state, {
@@ -32,13 +32,14 @@ export default function ProjectReducer(state = initState, action) {
     return Object.assign({}, state, {
       isLoading: true
     })
-  case newProjectModalActions.RECEIVE_CREATE_PROJECT:
+  case newProjectModalActions.RECEIVE_CREATE_PROJECT: {
     const projects = state.projects.concat([action.project])
     return Object.assign({}, state, {
       projects: projects,
       isLoading: false,
       isModalOpen: false
     })
+  }
 
     //-----------------------------------
     // projectActions
@@ -46,12 +47,12 @@ export default function ProjectReducer(state = initState, action) {
   case projectActions.NOT_FOUND:
     return Object.assign({}, state, {
       isLoading: false,
-      error: "Error Not Found"
+      error: 'Error Not Found'
     })
   case projectActions.SERVER_ERROR:
     return Object.assign({}, state, {
       isLoading: false,
-      error: "Internal Server Error"
+      error: 'Internal Server Error'
     })
   case projectActions.CLOSE_FLASH:
     return Object.assign({}, state, {
@@ -74,8 +75,12 @@ export default function ProjectReducer(state = initState, action) {
   case projectActions.REQUEST_REPOSITORIES:
     return state
   case projectActions.RECEIVE_REPOSITORIES:
+    var repo = action.repositories
+    if (repo == null) {
+      repo = []
+    }
     return Object.assign({}, state, {
-      repositories: action.repositories
+      repositories: repo,
     })
   default:
     return state

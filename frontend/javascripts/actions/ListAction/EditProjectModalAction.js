@@ -2,7 +2,7 @@ import Request from 'superagent'
 
 export const UNAUTHORIZED = 'UNAUTHORIZED'
 function unauthorized() {
-  window.location.pathname = "/sign_in"
+  window.location.pathname = '/sign_in'
   return {
     type: UNAUTHORIZED
   }

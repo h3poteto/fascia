@@ -1,6 +1,5 @@
 import React from 'react'
 import { Link } from 'react-router'
-import Modal from 'react-modal'
 import truncate from 'html-truncate'
 import NewProjectModal from './ProjectView/NewProjectModal.jsx'
 import WholeLoading from './ProjectView/WholeLoading.jsx'
@@ -29,12 +28,13 @@ class ProjectView extends React.Component {
   }
 
   render() {
-    const { isModalOpen, newProject, projects, selectedRepository, isLoading, error } = this.props.ProjectReducer
-    var { repositories } = this.props.ProjectReducer
-
-    if (repositories == null ) {
-      repositories = []
-    }
+    const {
+      isModalOpen,
+      projects,
+      repositories,
+      isLoading,
+      error
+    } = this.props.ProjectReducer
 
     var flash
     if (error != null) {
@@ -66,6 +66,27 @@ class ProjectView extends React.Component {
       </div>
     )
   }
+}
+
+ProjectView.propTypes = {
+  projectActions: React.PropTypes.shape({
+    fetchProjects: React.PropTypes.func.isRequired,
+    fetchRepositories: React.PropTypes.func.isRequired,
+    fetchSession: React.PropTypes.func.isRequired,
+    closeFlash: React.PropTypes.func.isRequired,
+    openNewProjectModal: React.PropTypes.func.isRequired,
+  }),
+  newProjectModalActions: React.PropTypes.shape({
+    closeNewProjectModal: React.PropTypes.func.isRequired,
+    fetchCreateProject: React.PropTypes.func.isRequired,
+  }),
+  ProjectReducer: React.PropTypes.shape({
+    isModalOpen: React.PropTypes.bool.isRequired,
+    projects: React.PropTypes.array,
+    isLoading: React.PropTypes.bool.isRequired,
+    error: React.PropTypes.string,
+    repositories: React.PropTypes.array,
+  }),
 }
 
 export default ProjectView

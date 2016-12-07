@@ -1,8 +1,8 @@
-import React from 'react';
+import React from 'react'
 
 class MenuView extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
   }
   render() {
     return (
@@ -19,7 +19,7 @@ class MenuView extends React.Component {
                 <ul className="pure-menu-children">
                   <li className="pure-menu-item fascia-menu-item">
                     <form id="logout" action="/sign_out" method="post">
-                      <a href="#" className="pure-menu-link" onClick={() => this.props.logout(document.getElementById("logout"))}>Sign Out</a>
+                      <a href="#" className="pure-menu-link" onClick={() => this.props.logout(document.getElementById('logout'))}>Sign Out</a>
                     </form>
                   </li>
                 </ul>
@@ -31,8 +31,13 @@ class MenuView extends React.Component {
           {this.props.children}
         </div>
       </div>
-    );
+    )
   }
 }
 
-export default MenuView;
+MenuView.propTypes = {
+  children: React.PropTypes.object.isRequired,
+  logout: React.PropTypes.func.isRequired,
+}
+
+export default MenuView

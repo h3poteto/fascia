@@ -16,8 +16,8 @@ const initState = {
   listOptions: [],
   noneList: {ID: 0, ListTasks: []},
   selectedList: {},
-  project: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
-  selectedTask: {Title: "", IssueNumber: 0, Description: "description"},
+  project: {Title: '', Description: '', RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
+  selectedTask: {Title: '', IssueNumber: 0, Description: 'description'},
   isTaskDraggingOver: false,
   taskDraggingFrom: null,
   taskDraggingTo: null,
@@ -32,12 +32,12 @@ export default function ListReducer(state = initState, action) {
     //-----------------------------------
   case newListModalActions.NOT_FOUND:
     return Object.assign({}, state, {
-      error: "Error Not Found",
+      error: 'Error Not Found',
       isLoading: false
     })
   case newListModalActions.SERVER_ERROR:
     return Object.assign({}, state, {
-      error: "Internal Server Error",
+      error: 'Internal Server Error',
       isLoading: false
     })
   case newListModalActions.CLOSE_NEW_LIST:
@@ -65,12 +65,12 @@ export default function ListReducer(state = initState, action) {
     //------------------------------------
   case editListModalActions.NOT_FOUND:
     return Object.assign({}, state, {
-      error: "Error Not Found",
+      error: 'Error Not Found',
       isLoading: false
     })
   case editListModalActions.SERVER_ERROR:
     return Object.assign({}, state, {
-      error: "Internal Server Error",
+      error: 'Internal Server Error',
       isLoading: false
     })
   case editListModalActions.CLOSE_EDIT_LIST:
@@ -82,12 +82,12 @@ export default function ListReducer(state = initState, action) {
     return Object.assign({}, state, {
       isLoading: true
     })
-  case editListModalActions.RECEIVE_UPDATE_LIST:
-    var updatedList = action.list
+  case editListModalActions.RECEIVE_UPDATE_LIST: {
+    let updatedList = action.list
     if (updatedList.ListTasks == null) {
       updatedList.ListTasks = []
     }
-    var lists = state.lists.map(function(list, index) {
+    let lists = state.lists.map(function(list, _) {
       if (list.ID == updatedList.ID) {
         return updatedList
       } else {
@@ -99,18 +99,18 @@ export default function ListReducer(state = initState, action) {
       isListEditModalOpen: false,
       isLoading: false
     })
-
+  }
     //------------------------------------
     // newTaskModalActions
     //------------------------------------
   case newTaskModalActions.NOT_FOUND:
     return Object.assign({}, state, {
-      error: "Error Not Found",
+      error: 'Error Not Found',
       isLoading: false
     })
   case newTaskModalActions.SERVER_ERROR:
     return Object.assign({}, state, {
-      error: "Internal Server Error",
+      error: 'Internal Server Error',
       isLoading: false
     })
   case newTaskModalActions.CLOSE_NEW_TASK:
@@ -122,12 +122,12 @@ export default function ListReducer(state = initState, action) {
     return Object.assign({}, state, {
       isLoading: true
     })
-  case newTaskModalActions.RECEIVE_CREATE_TASK:
-    var lists
+  case newTaskModalActions.RECEIVE_CREATE_TASK: {
+    let lists
     if (action.lists == null) {
       lists = []
     } else {
-      lists = action.lists.map(function(list, index) {
+      lists = action.lists.map(function(list, _) {
         if (list.ListTasks == null) {
           list.ListTasks = []
           return list
@@ -136,7 +136,7 @@ export default function ListReducer(state = initState, action) {
         }
       })
     }
-    var noneList = state.noneList
+    let noneList = state.noneList
     if (action.noneList != null) {
       noneList = action.noneList
     }
@@ -146,18 +146,19 @@ export default function ListReducer(state = initState, action) {
       isLoading: false,
       noneList: noneList
     })
+  }
 
     //------------------------------------
     // editProjectModalActions
     //------------------------------------
   case editProjectModalActions.NOT_FOUND:
     return Object.assign({}, state, {
-      error: "Error Not Found",
+      error: 'Error Not Found',
       isLoading: false
     })
   case editProjectModalActions.SERVER_ERROR:
     return Object.assign({}, state, {
-      error: "Internal Server Error",
+      error: 'Internal Server Error',
       isLoading: false
     })
   case editProjectModalActions.REQUEST_CREATE_WEBHOOK:
@@ -180,12 +181,12 @@ export default function ListReducer(state = initState, action) {
     //------------------------------------
   case showTaskModalActions.NOT_FOUND:
     return Object.assign({}, state, {
-      error: "Error Not Found",
+      error: 'Error Not Found',
       isLoading: false
     })
   case showTaskModalActions.SERVER_ERROR:
     return Object.assign({}, state, {
-      error: "Internal Server Error",
+      error: 'Internal Server Error',
       isLoading: false
     })
   case showTaskModalActions.CLOSE_SHOW_TASK:
@@ -201,12 +202,12 @@ export default function ListReducer(state = initState, action) {
     return Object.assign({}, state, {
       isLoading: true
     })
-  case showTaskModalActions.RECEIVE_UPDATE_TASK:
-    var lists
+  case showTaskModalActions.RECEIVE_UPDATE_TASK: {
+    let lists
     if (action.lists == null) {
       lists = []
     } else {
-      lists = action.lists.map(function(list, index) {
+      lists = action.lists.map(function(list, _) {
         if (list.ListTasks == null) {
           list.ListTasks = []
           return list
@@ -215,7 +216,7 @@ export default function ListReducer(state = initState, action) {
         }
       })
     }
-    var noneList = state.noneList
+    let noneList = state.noneList
     if (action.noneList != null) {
       noneList = action.noneList
     }
@@ -226,16 +227,17 @@ export default function ListReducer(state = initState, action) {
       isEditTaskModalVisible: false,
       isTaskShowModalOpen: false
     })
+  }
   case showTaskModalActions.REQUEST_DELETE_TASK:
     return Object.assign({}, state, {
       isLoading: true
     })
-  case showTaskModalActions.RECEIVE_DELETE_TASK:
-    var lists
+  case showTaskModalActions.RECEIVE_DELETE_TASK: {
+    let lists
     if (action.lists == null) {
       lists = []
     } else {
-      lists = action.lists.map(function(list, index) {
+      lists = action.lists.map(function(list, _) {
         if (list.ListTasks == null) {
           list.ListTasks = []
           return list
@@ -244,7 +246,7 @@ export default function ListReducer(state = initState, action) {
         }
       })
     }
-    var noneList = state.noneList
+    let noneList = state.noneList
     if (action.noneList != null) {
       noneList = action.noneList
     }
@@ -255,19 +257,19 @@ export default function ListReducer(state = initState, action) {
       isEditTaskModalVisible: false,
       isTaskShowModalOpen: false
     })
-
+  }
 
     //------------------------------------
     // listActions
     //------------------------------------
   case listActions.NOT_FOUND:
     return Object.assign({}, state, {
-      error: "Error Not Found",
+      error: 'Error Not Found',
       isLoading: false
     })
   case listActions.SERVER_ERROR:
     return Object.assign({}, state, {
-      error: "Internal Server Error",
+      error: 'Internal Server Error',
       isLoading: false
     })
   case listActions.CLOSE_FLASH:
@@ -301,12 +303,12 @@ export default function ListReducer(state = initState, action) {
   case listActions.RECEIVE_FETCH_GITHUB:
   case listActions.RECEIVE_MOVE_TASK:
   case listActions.RECEIVE_HIDE_LIST:
-  case listActions.RECEIVE_DISPLAY_LIST:
-    var lists
+  case listActions.RECEIVE_DISPLAY_LIST: {
+    let lists
     if (action.lists == null) {
       lists = []
     } else {
-      lists = action.lists.map(function(list, index) {
+      lists = action.lists.map(function(list, _) {
         if (list.ListTasks == null) {
           list.ListTasks = []
           return list
@@ -315,7 +317,7 @@ export default function ListReducer(state = initState, action) {
         }
       })
     }
-    var noneList = state.noneList
+    let noneList = state.noneList
     if (action.noneList != null) {
       noneList = action.noneList
     }
@@ -324,16 +326,16 @@ export default function ListReducer(state = initState, action) {
       noneList: noneList,
       isLoading: false
     })
+  }
   case listActions.RECEIVE_PROJECT:
     return Object.assign({}, state, {
       project: action.project
     })
-  case listActions.TASK_DRAG_START:
-    var lists = state.lists
-    var taskDraggingFrom
-    state.lists.map(function(list, i) {
+  case listActions.TASK_DRAG_START: {
+    let taskDraggingFrom
+    state.lists.map(function(list, _) {
       if (list.ID == action.taskDragFromList.dataset.id) {
-        list.ListTasks.map(function(task, j) {
+        list.ListTasks.map(function(task, _) {
           if (task.ID == action.taskDragTarget.dataset.id) {
             taskDraggingFrom = {fromList: list, fromTask: task}
           }
@@ -341,7 +343,7 @@ export default function ListReducer(state = initState, action) {
       }
     })
 
-    state.noneList.ListTasks.map(function(task, j) {
+    state.noneList.ListTasks.map(function(task, _) {
       if (task.ID == action.taskDragTarget.dataset.id) {
         taskDraggingFrom = {fromList: state.noneList, fromTask: task}
       }
@@ -350,10 +352,11 @@ export default function ListReducer(state = initState, action) {
     return Object.assign({}, state, {
       taskDraggingFrom: taskDraggingFrom
     })
-  case listActions.TASK_DRAG_LEAVE:
+  }
+  case listActions.TASK_DRAG_LEAVE: {
     // arrowを抜いて
-    var lists = state.lists.map(function(list, i) {
-      var taskIndex = null
+    let lists = state.lists.map(function(list, _) {
+      let taskIndex = null
       list.ListTasks.map(function(task, j) {
         if (task.draggedOn) {
           taskIndex = j
@@ -365,8 +368,8 @@ export default function ListReducer(state = initState, action) {
       }
       return list
     })
-    var noneList = state.noneList
-    var taskIndex = null
+    let noneList = state.noneList
+    let taskIndex = null
     state.noneList.ListTasks.map(function(task, j) {
       if (task.draggedOn) {
         taskIndex = j
@@ -381,10 +384,11 @@ export default function ListReducer(state = initState, action) {
       noneList: noneList,
       taskDraggingTo: null
     })
-  case listActions.TASK_DROP:
-    var lists = state.lists.map(function(list, i) {
+  }
+  case listActions.TASK_DROP: {
+    let lists = state.lists.map(function(list, _) {
       // arrowを抜く
-      var taskIndex = null
+      let taskIndex = null
       list.ListTasks.map(function(task, j) {
         if (task.draggedOn) {
           taskIndex = j
@@ -396,8 +400,8 @@ export default function ListReducer(state = initState, action) {
       }
       return list
     })
-    var noneList = state.noneList
-    var taskIndex = null
+    let noneList = state.noneList
+    let taskIndex = null
     state.noneList.ListTasks.map(function(task, j) {
       if (task.draggedOn) {
         taskIndex = j
@@ -413,10 +417,11 @@ export default function ListReducer(state = initState, action) {
       taskDraggingFrom: null,
       taskDraggingTo: null
     })
-  case listActions.REQUEST_MOVE_TASK:
-    var lists = state.lists.map(function(list, i) {
+  }
+  case listActions.REQUEST_MOVE_TASK: {
+    let lists = state.lists.map(function(list, _) {
       // arrowを抜く
-      var taskIndex = null
+      let taskIndex = null
       list.ListTasks.map(function(task, j) {
         if (task.draggedOn) {
           taskIndex = j
@@ -432,8 +437,8 @@ export default function ListReducer(state = initState, action) {
       }
       return list
     })
-    var noneList = state.noneList
-    var taskIndex = null
+    let noneList = state.noneList
+    let taskIndex = null
     state.noneList.ListTasks.map(function(task, j) {
       if (task.draggedOn) {
         taskIndex = j
@@ -449,14 +454,15 @@ export default function ListReducer(state = initState, action) {
       taskDraggingFrom: null,
       taskDraggingTo: null
     })
-  case listActions.TASK_DRAG_OVER:
+  }
+  case listActions.TASK_DRAG_OVER: {
     // arrowの操作のみ
-    var toList = null
-    var lists = state.lists
-    var noneList = state.noneList
-    var taskDraggingTo = state.taskDraggingTo
+    let toList = null
+    let lists = state.lists
+    let noneList = state.noneList
+    let taskDraggingTo = state.taskDraggingTo
     if (!state.isTaskDraggingOver) {
-      state.lists.map(function(list, i) {
+      state.lists.map(function(list, _) {
         if (list.ID == action.taskDragToList.dataset.id) {
           toList = list
         }
@@ -466,11 +472,11 @@ export default function ListReducer(state = initState, action) {
       }
       if (toList == null) {
         // こんな場合はありえないが
-      } else if(action.taskDragToTask.className == "task") {
+      } else if(action.taskDragToTask.className == 'task') {
         // taskの直前に入れる
-        lists = state.lists.map(function(list, i) {
+        lists = state.lists.map(function(list, _) {
           if (list.ID == toList.ID) {
-            var taskIndex
+            let taskIndex
             list.ListTasks.map(function(task, j) {
               if (task.ID == action.taskDragToTask.dataset.id) {
                 taskIndex = j
@@ -484,7 +490,7 @@ export default function ListReducer(state = initState, action) {
             return list
           }
         })
-        var taskIndex
+        let taskIndex
         if (noneList.ID == toList.ID) {
           state.noneList.ListTasks.map(function(task, j) {
             if (task.ID == action.taskDragToTask.dataset.id) {
@@ -497,7 +503,7 @@ export default function ListReducer(state = initState, action) {
         }
       } else {
         // taskの末尾に入れる
-        lists = state.lists.map(function(list, i) {
+        lists = state.lists.map(function(list, _) {
           if (list.ID == toList.ID) {
             list.ListTasks.push({draggedOn: true})
             list.isDraggingOver = true
@@ -519,6 +525,7 @@ export default function ListReducer(state = initState, action) {
       noneList: noneList,
       taskDraggingTo: taskDraggingTo
     })
+  }
   case listActions.RECEIVE_LIST_OPTIONS:
     return Object.assign({}, state, {
       listOptions: action.listOptions
