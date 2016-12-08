@@ -23,8 +23,19 @@ const customStyles = {
 }
 
 class EditProjectModal extends React.Component {
-  constructor(props) {
-    super(props)
+  componentWillReceiveProps(nextProps) {
+    if (!nextProps.isProjectEditModalOpen) {
+      this.handleInitialize(nextProps)
+    }
+  }
+
+  handleInitialize(props) {
+    const initData = {
+      "title": props.project.Title,
+      "description": props.project.Description,
+    }
+
+    this.props.initialize(initData)
   }
 
   webhookButton(project) {
@@ -48,7 +59,6 @@ class EditProjectModal extends React.Component {
       projectID,
       project,
     } = this.props
-    // TODO: initial value for form
     return (
       <Modal
           isOpen={this.props.isProjectEditModalOpen}
@@ -64,7 +74,7 @@ class EditProjectModal extends React.Component {
               <label htmlFor="description">Description</label>
               <Field name="description" id="description" component="textarea" placeholder="Description" className="form-control" />
               <div className="form-action">
-                {this.webhookButton(this.props.project)}&nbsp;
+                {this.webhookButton(project)}&nbsp;
                 <button type="reset" className="pure-button pure-button-default" disabled={pristine || submitting} onClick={reset}>Reset</button>&nbsp;
                 <button type="submit" className="pure-button pure-button-primary" disabled={pristine || submitting}>Update Project</button>
               </div>
@@ -79,3 +89,4 @@ class EditProjectModal extends React.Component {
 export default reduxForm({
   form: 'edit-project-form',
 })(EditProjectModal)
+

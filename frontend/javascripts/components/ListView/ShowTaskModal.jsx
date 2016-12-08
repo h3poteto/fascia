@@ -26,8 +26,21 @@ const customStyles = {
 }
 
 class ShowTaskModal extends React.Component {
-  constructor(props) {
-    super(props)
+  componentWillReceiveProps(nextProps) {
+    // modalをcloseするタイミングでは初期化しておかないと，別のtaskを選択したときに，現在の編集分が残っている可能性がある
+    console.log(nextProps.dirty)
+    if (!nextProps.dirty || !nextProps.isShowTaskModalOpen) {
+      this.handleInitialize(nextProps)
+    }
+  }
+
+  handleInitialize(props) {
+    const initData = {
+      "title": props.task.Title,
+      "description": props.task.Description,
+    }
+
+    this.props.initialize(initData)
   }
 
   issueNumber(task) {

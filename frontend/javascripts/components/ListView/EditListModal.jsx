@@ -23,8 +23,21 @@ const customStyles = {
 }
 
 class EditListModal extends React.Component {
-  constructor(props) {
-    super(props)
+  componentWillReceiveProps(nextProps) {
+    // modalをcloseするタイミングでは初期化しておかないと，別のlistを選択したときに，現在の編集分が残っている可能性がある
+    if (!nextProps.dirty || !nextProps.isListEditModalOpen) {
+      this.handleInitialize(nextProps)
+    }
+  }
+
+  handleInitialize(props) {
+    const initData = {
+      "title": props.list.Title,
+      "color": props.list.Color,
+      "option_id": props.list.OptionID,
+    }
+
+    this.props.initialize(initData)
   }
 
   listAction(project, listOptions) {
@@ -34,7 +47,7 @@ class EditListModal extends React.Component {
       return (
         <div>
           <label htmlFor="option_id">action</label>
-          <Field name="optiond_id" id="option_id" component="select" className="form-control">
+          <Field name="option_id" id="option_id" component="select" className="form-control">
             <option value="0">nothing</option>
             {listOptions.map(function(option, index) {
                return <option key={index} value={option.ID}>{option.Action}</option>

@@ -145,14 +145,6 @@ class ListView extends React.Component {
             onRequestClose={this.props.newTaskModalActions.closeNewTaskModal}
             action={this.props.newTaskModalActions.fetchCreateTask}
         />
-        <EditListModal
-            isListEditModalOpen={isListEditModalOpen}
-            list={selectedList}
-            project={project}
-            listOptions={listOptions}
-            onRequestClose={this.props.editListModalActions.closeEditListModal}
-            action={this.props.editListModalActions.fetchUpdateList}
-        />
         <EditProjectModal
             isProjectEditModalOpen={isProjectEditModalOpen}
             projectID={this.props.params.projectID}
@@ -160,6 +152,14 @@ class ListView extends React.Component {
             onRequestClose={this.props.editProjectModalActions.closeEditProjectModal}
             action={this.props.editProjectModalActions.fetchUpdateProject}
             createWebhook={this.props.editProjectModalActions.createWebhook}
+        />
+        <EditListModal
+            isListEditModalOpen={isListEditModalOpen}
+            list={selectedList}
+            project={project}
+            listOptions={listOptions}
+            onRequestClose={this.props.editListModalActions.closeEditListModal}
+            action={this.props.editListModalActions.fetchUpdateList}
         />
         <ShowTaskModal
             isShowTaskModalOpen={isTaskShowModalOpen}
