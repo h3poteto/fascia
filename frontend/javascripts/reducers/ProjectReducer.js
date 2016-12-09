@@ -3,10 +3,8 @@ import * as newProjectModalActions from '../actions/ProjectAction/NewProjectModa
 
 const initState = {
   isModalOpen: false,
-  newProject: {title: "", description: ""},
   projects: [],
   repositories: [],
-  selectedRepository: null,
   isLoading: false,
   error: null
 }
@@ -19,55 +17,29 @@ export default function ProjectReducer(state = initState, action) {
   case newProjectModalActions.NOT_FOUND:
     return Object.assign({}, state, {
       isLoading: false,
-      error: "Error Not Found"
+      error: 'Error Not Found'
     })
   case newProjectModalActions.SERVER_ERROR:
     return Object.assign({}, state, {
       isLoading: false,
-      error: "Internal Server Error"
+      error: 'Internal Server Error'
     })
   case newProjectModalActions.CLOSE_NEW_PROJECT:
     return Object.assign({}, state, {
-      isModalOpen: action.isModalOpen
-    })
-  case newProjectModalActions.CHANGE_SELECT_REPOSITORY:
-    var newProject = state.newProject
-    newProject.title = action.selectEvent.options[action.selectEvent.selectedIndex].text
-    // repositoryはオブジェクトを渡したい
-    var repository
-    state.repositories.map(function(repo, index) {
-      if (repo.id == action.selectEvent.value) {
-        repository = repo
-      }
-    })
-    return Object.assign({}, state, {
-      selectedRepository: repository,
-      newProject: newProject
+      isModalOpen: false
     })
   case newProjectModalActions.REQUEST_CREATE_PROJECT:
     return Object.assign({}, state, {
-      isModalOpen: false,
       isLoading: true
     })
-  case newProjectModalActions.RECEIVE_CREATE_PROJECT:
+  case newProjectModalActions.RECEIVE_CREATE_PROJECT: {
     const projects = state.projects.concat([action.project])
     return Object.assign({}, state, {
-      newProject: {title: "", description: ""},
       projects: projects,
-      isLoading: false
+      isLoading: false,
+      isModalOpen: false
     })
-  case newProjectModalActions.UPDATE_NEW_PROJECT_TITLE:
-    var newProject = state.newProject
-    newProject.title = action.title
-    return Object.assign({}, state, {
-      newProject: newProject
-    })
-  case newProjectModalActions.UPDATE_NEW_PROJECT_DESCRIPTION:
-    var newProject = state.newProject
-    newProject.description = action.description
-    return Object.assign({}, state, {
-      newProject: newProject
-    })
+  }
 
     //-----------------------------------
     // projectActions
@@ -75,12 +47,12 @@ export default function ProjectReducer(state = initState, action) {
   case projectActions.NOT_FOUND:
     return Object.assign({}, state, {
       isLoading: false,
-      error: "Error Not Found"
+      error: 'Error Not Found'
     })
   case projectActions.SERVER_ERROR:
     return Object.assign({}, state, {
       isLoading: false,
-      error: "Internal Server Error"
+      error: 'Internal Server Error'
     })
   case projectActions.CLOSE_FLASH:
     return Object.assign({}, state, {
@@ -103,8 +75,12 @@ export default function ProjectReducer(state = initState, action) {
   case projectActions.REQUEST_REPOSITORIES:
     return state
   case projectActions.RECEIVE_REPOSITORIES:
+    var repo = action.repositories
+    if (repo == null) {
+      repo = []
+    }
     return Object.assign({}, state, {
-      repositories: action.repositories
+      repositories: repo,
     })
   default:
     return state

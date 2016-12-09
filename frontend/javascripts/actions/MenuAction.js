@@ -1,4 +1,4 @@
 export function logout(form) {
-  form.submit();
-  return false;
+  form.submit()
+  return false
 }

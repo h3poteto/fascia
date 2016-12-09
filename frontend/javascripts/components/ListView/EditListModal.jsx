@@ -1,5 +1,6 @@
 import React from 'react'
 import Modal from 'react-modal'
+import { Field, reduxForm } from 'redux-form'
 
 const customStyles = {
   overlay : {
@@ -21,47 +22,72 @@ const customStyles = {
   }
 }
 
-export default class EditListModal extends React.Component {
-  constructor(props) {
-    super(props)
+class EditListModal extends React.Component {
+  componentWillReceiveProps(nextProps) {
+    // modalをcloseするタイミングでは初期化しておかないと，別のlistを選択したときに，現在の編集分が残っている可能性がある
+    if (!nextProps.dirty || !nextProps.isListEditModalOpen) {
+      this.handleInitialize(nextProps)
+    }
   }
 
-  listAction(project, listOptions, selectedList, selectedListOption) {
+  handleInitialize(props) {
+    const initData = {
+      'title': props.list.Title,
+      'color': props.list.Color,
+      'option_id': props.list.OptionID,
+    }
+
+    this.props.initialize(initData)
+  }
+
+  listAction(project, listOptions) {
     if (project == null || project.RepositoryID == undefined || project.RepositoryID == null || project.RepositoryID == 0) {
       return null
     } else {
       return (
         <div>
-          <label htmlFor="action">action</label>
-          <select id="action" name="action" type="text" onChange={this.props.changeSelectedListOption} className="form-control" value={selectedListOption ? selectedListOption.ID : (selectedList ? selectedList.ListOptionID : 0)}>
+          <label htmlFor="option_id">action</label>
+          <Field name="option_id" id="option_id" component="select" className="form-control">
             <option value="0">nothing</option>
             {listOptions.map(function(option, index) {
                return <option key={index} value={option.ID}>{option.Action}</option>
              }, this)}
-          </select>
+          </Field>
         </div>
       )
     }
   }
 
   render() {
+    const {
+      handleSubmit,
+      pristine,
+      reset,
+      submitting,
+      onRequestClose,
+      action,
+      project,
+      list,
+      listOptions,
+    } = this.props
     return (
       <Modal
           isOpen={this.props.isListEditModalOpen}
-          onRequestClose={this.props.closeEditListModal}
+          onRequestClose={onRequestClose}
           style={customStyles}
       >
         <div className="list-form">
-          <form className="pure-form pure-form-stacked">
+          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(project.ID, list.ID, values) })}>
             <fieldset>
               <legend>Edit List</legend>
               <label htmlFor="title">Title</label>
-              <input id="title" name="title" type="text" value={this.props.selectedList !=null ? this.props.selectedList.Title : ''} onChange={this.props.updateSelectedListTitle} className="form-control" />
+              <Field name="title" id="title" component="input" type="text" className="form-control" />
               <label htmlFor="color">Color</label>
-              <input id="color" name="color" type="text" value={this.props.selectedList !=null ? this.props.selectedList.Color : ''} onChange={this.props.updateSelectedListColor} className="form-control" />
-              {this.listAction(this.props.project, this.props.listOptions, this.props.selectedList, this.props.selectedListOption)}
+              <Field name="color" id="color" component="input" type="text" className="form-control" />
+              {this.listAction(project, listOptions)}
               <div className="form-action">
-                <button onClick={e => this.props.fetchUpdateList(this.props.projectID, this.props.selectedList, this.props.selectedListOption)} className="pure-button pure-button-primary" type="button">Update List</button>
+                <button type="reset" className="pure-button pure-button-default" disabled={pristine || submitting} onClick={reset}>Reset</button>
+                <button type="submit" className="pure-button pure-button-primary" disabled={pristine || submitting}>Update List</button>
               </div>
             </fieldset>
           </form>
@@ -70,3 +96,21 @@ export default class EditListModal extends React.Component {
     )
   }
 }
+
+EditListModal.propTypes = {
+  initialize: React.PropTypes.func.isRequired,
+  handleSubmit: React.PropTypes.func.isRequired,
+  pristine: React.PropTypes.bool,
+  reset: React.PropTypes.func.isRequired,
+  submitting: React.PropTypes.bool.isRequired,
+  onRequestClose: React.PropTypes.func.isRequired,
+  action: React.PropTypes.func.isRequired,
+  project: React.PropTypes.object,
+  list: React.PropTypes.object,
+  listOptions: React.PropTypes.array,
+  isListEditModalOpen: React.PropTypes.bool.isRequired,
+}
+
+export default reduxForm({
+  form: 'edit-list-form',
+})(EditListModal)

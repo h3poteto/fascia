@@ -2,6 +2,7 @@ import React from 'react'
 import Modal from 'react-modal'
 import MarkdownIt from 'markdown-it'
 import MarkdownItCheckbox from 'markdown-it-checkbox'
+import { Field, reduxForm } from 'redux-form'
 
 const customStyles = {
   overlay : {
@@ -24,9 +25,21 @@ const customStyles = {
   }
 }
 
-export default class ShowTaskModal extends React.Component {
-  constructor(props) {
-    super(props)
+class ShowTaskModal extends React.Component {
+  componentWillReceiveProps(nextProps) {
+    // modalをcloseするタイミングでは初期化しておかないと，別のtaskを選択したときに，現在の編集分が残っている可能性がある
+    if (!nextProps.dirty || !nextProps.isShowTaskModalOpen) {
+      this.handleInitialize(nextProps)
+    }
+  }
+
+  handleInitialize(props) {
+    const initData = {
+      'title': props.task.Title,
+      'description': props.task.Description,
+    }
+
+    this.props.initialize(initData)
   }
 
   issueNumber(task) {
@@ -55,23 +68,24 @@ export default class ShowTaskModal extends React.Component {
         .render(task.Description)
       return <span dangerouslySetInnerHTML={{__html: rawMarkup}} />
     } else {
-      return "Description"
+      return 'Description'
     }
   }
 
-  taskForm(projectID, task, isEditTaskModalVisible, editTask, updateEditTaskTitle, updateEditTaskDescription, fetchUpdateTask) {
+  taskForm(projectID, task, isEditTaskModalVisible, handleSubmit, action, pristine, submitting, reset) {
     if (isEditTaskModalVisible) {
       return (
         <div className="task-body task-form">
-          <form className="pure-form pure-form-stacked">
+          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(projectID, task.ListID, task.ID, values) })}>
             <fieldset>
               <legend>Edit Task</legend>
               <label htmlFor="title">Title</label>
-              <input id="title" name="title" type="text" value={editTask.Title} onChange={updateEditTaskTitle} placeholder="Title title" className="form-control" />
+              <Field name="title" id="title" component="input" type="text" className="form-control" />
               <label htmlFor="description">Description</label>
-              <textarea id="description" name="description" value={editTask.Description} onChange={updateEditTaskDescription} placeholder="Task description" className="form-control" />
+              <Field name="description" id="description" component="textarea" className="form-control" />
               <div className="form-action">
-                <button onClick={e => fetchUpdateTask(projectID, task.ListID, task.ID, editTask.Title, editTask.Description)} className="pure-button pure-button-primary" type="button">Update Task</button>
+                <button type="reset" className="pure-button pure-button-default" disabled={pristine || submitting} onClick={reset}>Reset</button>
+                <button type="submit" className="pure-button pure-button-primary" disabled={pristine || submitting}>Update Task</button>
               </div>
             </fieldset>
           </form>
@@ -95,27 +109,61 @@ export default class ShowTaskModal extends React.Component {
 
   deleteTask(projectID, task, fetchDeleteTask) {
     if (task.IssueNumber === 0) {
-      return <i title="Delete task" className="fa fa-trash" onClick={e => fetchDeleteTask(projectID, task.ListID, task.ID)}></i>
+      return <i title="Delete task" className="fa fa-trash" onClick={() => fetchDeleteTask(projectID, task.ListID, task.ID)}></i>
     } else {
       return
     }
   }
 
   render() {
+    const {
+      handleSubmit,
+      pristine,
+      reset,
+      submitting,
+      onRequestClose,
+      action,
+      projectID,
+      task,
+      fetchDeleteTask,
+      isEditTaskModalVisible,
+      isShowTaskModalOpen,
+      changeEditMode,
+    } = this.props
     return (
       <Modal
-          isOpen={this.props.isShowTaskModalOpen}
-          onRequestClose={this.props.closeShowTaskModal}
+          isOpen={isShowTaskModalOpen}
+          onRequestClose={onRequestClose}
           style={customStyles}
       >
         <div className="task-detail">
           <div className="task-controll">
-            {this.deleteTask(this.props.projectID, this.props.task, this.props.fetchDeleteTask)}
-            <i title="Edit task" className="fa fa-pencil" onClick={e => this.props.changeEditMode(this.props.task)}></i>
+            {this.deleteTask(projectID, task, fetchDeleteTask)}
+            <i title="Edit task" className="fa fa-pencil" onClick={() => changeEditMode(this.props.task)}></i>
           </div>
-          {this.taskForm(this.props.projectID, this.props.task, this.props.isEditTaskModalVisible, this.props.editTask, this.props.updateEditTaskTitle, this.props.updateEditTaskDescription, this.props.fetchUpdateTask)}
+          {this.taskForm(projectID, task, isEditTaskModalVisible, handleSubmit, action, pristine, submitting, reset)}
         </div>
       </Modal>
     )
   }
 }
+
+ShowTaskModal.propTypes = {
+  initialize: React.PropTypes.func.isRequired,
+  handleSubmit: React.PropTypes.func.isRequired,
+  pristine: React.PropTypes.bool,
+  reset: React.PropTypes.func.isRequired,
+  submitting: React.PropTypes.bool.isRequired,
+  onRequestClose: React.PropTypes.func.isRequired,
+  action: React.PropTypes.func.isRequired,
+  projectID: React.PropTypes.string.isRequired,
+  task: React.PropTypes.object,
+  isShowTaskModalOpen: React.PropTypes.bool.isRequired,
+  isEditTaskModalVisible: React.PropTypes.bool,
+  fetchDeleteTask: React.PropTypes.func.isRequired,
+  changeEditMode: React.PropTypes.func.isRequired,
+}
+
+export default reduxForm({
+  form: 'edit-task-form',
+})(ShowTaskModal)

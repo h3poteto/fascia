@@ -8,6 +8,7 @@ import (
 	"github.com/h3poteto/fascia/models/repository"
 	"github.com/h3poteto/fascia/modules/hub"
 	"github.com/h3poteto/fascia/modules/logging"
+	"github.com/h3poteto/fascia/services"
 
 	"database/sql"
 	"fmt"
@@ -58,7 +59,9 @@ func FindProject(projectID int64) (*ProjectStruct, error) {
 	return project, nil
 }
 
-func Create(userID int64, title string, description string, repositoryID int64, repositoryOwner string, repositoryName string, oauthToken sql.NullString) (p *ProjectStruct, e error) {
+// Create create project and repository, and create webhook and related lists.
+// TODO: サービス層に移動すべき内容である
+func Create(userID int64, title string, description string, repositoryID int, oauthToken sql.NullString) (p *ProjectStruct, e error) {
 	database := db.SharedInstance().Connection
 	tx, _ := database.Begin()
 	defer func() {
@@ -78,10 +81,10 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 
 	var repoID sql.NullInt64
 	var repo *repository.RepositoryStruct
-	if repositoryID != 0 {
-		key := repository.GenerateWebhookKey(repositoryName)
-		repo = repository.NewRepository(0, repositoryID, repositoryOwner, repositoryName, key)
-		if err := repo.Save(); err != nil {
+	if repositoryID != 0 && oauthToken.Valid {
+		// TODO: 本来サービスにいるべきコードなので，ここで層が違うserviceを呼び出すことを許可する
+		repo, err := services.CreateRepository(repositoryID, oauthToken.String)
+		if err != nil {
 			tx.Rollback()
 			return nil, err
 		}
@@ -92,15 +95,6 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 	if err := project.save(); err != nil {
 		tx.Rollback()
 		return nil, err
-	}
-
-	if repo != nil {
-		// github側にwebhooko登録
-		err := project.CreateWebhook()
-		if err != nil {
-			logging.SharedInstance().MethodInfo("Project", "Create").Infof("failed to create webhook: %v", err)
-			err = nil
-		}
 	}
 
 	// 初期リストの準備
@@ -147,16 +141,23 @@ func Create(userID int64, title string, description string, repositoryID int64, 
 	}
 	tx.Commit()
 
-	// githubから同期
-	go func() {
-		_, err := project.Repository()
+	// callbacks
+	go func(project *ProjectStruct) {
+		// create webhook
+		err := project.CreateWebhook()
+		if err != nil {
+			logging.SharedInstance().MethodInfo("Project", "Create").Infof("failed to create webhook: %v", err)
+		}
+		logging.SharedInstance().MethodInfo("Project", "Create").Info("success to create webhook")
+		// Sync github
+		_, err = project.Repository()
 		if err == nil {
 			_, err := project.FetchGithub()
 			if err != nil {
 				logging.SharedInstance().MethodInfoWithStacktrace("Project", "Create", err).Error(err)
 			}
 		}
-	}()
+	}(project)
 
 	return project, nil
 }
@@ -236,7 +237,7 @@ func (u *ProjectStruct) Repository() (*repository.RepositoryStruct, error) {
 		return nil, errors.Wrap(err, "sql select error")
 	}
 	if id == u.RepositoryID.Int64 && owner.Valid {
-		r := repository.NewRepository(id, repositoryID, owner.String, name.String, webhookKey)
+		r := repository.New(id, repositoryID, owner.String, name.String, webhookKey)
 		return r, nil
 	}
 	return nil, errors.New("repository not found")
@@ -321,8 +322,7 @@ func (u *ProjectStruct) CreateWebhook() error {
 	if err != nil {
 		return err
 	}
-	err = hub.CreateWebhook(oauthToken, repo, repo.WebhookKey, url)
-	return err
+	return hub.CreateWebhook(oauthToken, repo, repo.WebhookKey, url)
 }
 
 // OauthToken get oauth token in users

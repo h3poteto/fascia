@@ -108,7 +108,7 @@ var _ = Describe("ProjectsController", func() {
 	Describe("Show", func() {
 		var newProject *project.ProjectStruct
 		JustBeforeEach(func() {
-			newProject, _ = project.Create(userID, "title", "desc", 0, "", "", sql.NullString{})
+			newProject, _ = project.Create(userID, "title", "desc", 0, sql.NullString{})
 		})
 		It("should receive project title", func() {
 			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(newProject.ID, 10) + "/show")
@@ -124,7 +124,7 @@ var _ = Describe("ProjectsController", func() {
 	Describe("Update", func() {
 		var newProject *project.ProjectStruct
 		JustBeforeEach(func() {
-			newProject, _ = project.Create(userID, "title", "desc", 0, "", "", sql.NullString{})
+			newProject, _ = project.Create(userID, "title", "desc", 0, sql.NullString{})
 		})
 		It("should receive new project", func() {
 			values := url.Values{}
@@ -142,7 +142,7 @@ var _ = Describe("ProjectsController", func() {
 	Describe("Settings", func() {
 		var newProject *project.ProjectStruct
 		JustBeforeEach(func() {
-			newProject, _ = project.Create(userID, "title", "desc", 0, "", "", sql.NullString{})
+			newProject, _ = project.Create(userID, "title", "desc", 0, sql.NullString{})
 		})
 		It("should update show issues", func() {
 			values := url.Values{}

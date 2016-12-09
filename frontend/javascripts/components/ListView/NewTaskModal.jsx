@@ -1,5 +1,6 @@
 import React from 'react'
 import Modal from 'react-modal'
+import { Field, reduxForm } from 'redux-form'
 
 const customStyles = {
   overlay : {
@@ -21,28 +22,39 @@ const customStyles = {
   }
 }
 
-export default class NewTaskModal extends React.Component {
+class NewTaskModal extends React.Component {
   constructor(props) {
     super(props)
   }
 
   render() {
+    const {
+      handleSubmit,
+      pristine,
+      reset,
+      submitting,
+      onRequestClose,
+      action,
+      projectID,
+      listID,
+    } = this.props
     return (
       <Modal
           isOpen={this.props.isTaskModalOpen}
-          onRequestClose={this.props.closeNewTaskModal}
+          onRequestClose={onRequestClose}
           style={customStyles}
       >
         <div className="task-form">
-          <form className="pure-form pure-form-stacked">
+          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(projectID, listID, values) })} >
             <fieldset>
               <legend>Create Task</legend>
               <label htmlFor="title">Title</label>
-              <input id="title" name="title" type="text" value={this.props.newTask.title} onChange={this.props.updateNewTaskTitle} placeholder="Task Name" className="form-control" />
+              <Field name="title" id="title" component="input" type="text" placeholder="Task Name" className="form-control" />
               <label htmlFor="description">Description</label>
-              <textarea id="description" name="description" value={this.props.newTask.description} onChange={this.props.updateNewTaskDescription} placeholder="Task description" className="form-control" />
+              <Field name="description" id="description" component="textarea" placeholder="Task description" className="form-control" />
               <div className="form-action">
-                <button onClick={e => this.props.fetchCreateTask(this.props.projectID, this.props.selectedList.ID, this.props.newTask.title, this.props.newTask.description)} className="pure-button pure-button-primary" type="button">Create Task</button>
+                <button type="reset" className="pure-button pure-button-default" disabled={pristine || submitting} onClick={reset}>Reset</button>
+                <button type="submit" className="pure-button pure-button-primary" disabled={pristine || submitting}>Create List</button>
               </div>
             </fieldset>
           </form>
@@ -51,3 +63,19 @@ export default class NewTaskModal extends React.Component {
     )
   }
 }
+
+NewTaskModal.propTypes = {
+  handleSubmit: React.PropTypes.func.isRequired,
+  pristine: React.PropTypes.bool,
+  reset: React.PropTypes.func.isRequired,
+  submitting: React.PropTypes.bool.isRequired,
+  onRequestClose: React.PropTypes.func.isRequired,
+  action: React.PropTypes.func.isRequired,
+  projectID: React.PropTypes.string.isRequired,
+  listID: React.PropTypes.string,
+  isTaskModalOpen: React.PropTypes.bool.isRequired,
+}
+
+export default reduxForm({
+  form: 'new-task-form',
+})(NewTaskModal)

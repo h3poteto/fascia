@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default class ListLoading extends React.Component {
+class ListLoading extends React.Component {
   constructor(props) {
     super(props)
   }
@@ -21,3 +21,9 @@ export default class ListLoading extends React.Component {
     }
   }
 }
+
+ListLoading.propTypes = {
+  isLoading: React.PropTypes.bool,
+}
+
+export default ListLoading

@@ -5,10 +5,6 @@ export function initState() {
     isListModalOpen: false,
     newList: {title: "", color: "0effff"},
     projectID: 1,
-    closeNewListModal: expect.createSpy(),
-    updateNewListTitle: expect.createSpy(),
-    updateNewListColor: expect.createSpy(),
-    fetchCreateList: expect.createSpy
   }
 }
 

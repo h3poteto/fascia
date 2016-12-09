@@ -20,17 +20,12 @@ function sharedExampleInitState(action) {
     isTaskShowModalOpen: false,
     isEditTaskModalVisible: false,
     isLoading: false,
-    newList: {title: "", color: "008ed4"},
-    newTask: {title: "", description: ""},
-    editTask: {Title: "", Description: ""},
     lists: [],
     noneList: {ID: 0, ListTasks: []},
     listOptions: [],
-    selectedListOption: null,
-    selectedList: null,
-    project: null,
-    selectedProject: {Title: "", Description: "", RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
-    selectedTask: {Title: "", Description: "description", IssueNumber: 0},
+    selectedList: {},
+    project: {Title: '', Description: '', RepositoryID: 0, ShowIssues: true, ShowPullRequests: true},
+    selectedTask: {Title: '', Description: 'description', IssueNumber: 0},
     isTaskDraggingOver: false,
     taskDraggingFrom: null,
     taskDraggingTo: null,
@@ -54,7 +49,7 @@ describe('ListReducer', () => {
             type: listActions.SERVER_ERROR
           })
         ).toEqual({
-          error: "Internal Server Error",
+          error: 'Internal Server Error',
           isLoading: false
         })
       })
@@ -66,7 +61,7 @@ describe('ListReducer', () => {
             type: listActions.NOT_FOUND
           })
         ).toEqual({
-          error: "Error Not Found",
+          error: 'Error Not Found',
           isLoading: false
         })
       })
@@ -76,7 +71,7 @@ describe('ListReducer', () => {
       it('should close flash', () => {
         expect(
           ListReducer({
-            error: "Internal Server Error"
+            error: 'Internal Server Error'
           }, {
             type: listActions.CLOSE_FLASH
           })
@@ -136,13 +131,13 @@ describe('ListReducer', () => {
             type: listActions.OPEN_NEW_TASK,
             isTaskModalOpen: true,
             list: {
-              Title: "newList"
+              Title: 'newList'
             }
           })
         ).toEqual({
           isTaskModalOpen: true,
           selectedList: {
-            Title: "newList"
+            Title: 'newList'
           }
         })
       })
@@ -153,8 +148,7 @@ describe('ListReducer', () => {
         expect(
           ListReducer({
             isListEditModalOpen: false,
-            selectedList: null,
-            selectedListOption: null
+            selectedList: {},
           }, {
             type: listActions.OPEN_EDIT_LIST,
             isListEditModalOpen: true,
@@ -167,9 +161,6 @@ describe('ListReducer', () => {
           selectedList: {
             ListOptionID: 1
           },
-          selectedListOption: {
-            ID: 1
-          }
         })
       })
     })
@@ -203,15 +194,15 @@ describe('ListReducer', () => {
             }, {
               type: listActions.RECEIVE_LISTS,
               lists: [
-                { title: "list1", ListTasks: null },
-                { title: "list2", ListTasks: null }
+                { title: 'list1', ListTasks: null },
+                { title: 'list2', ListTasks: null }
               ],
               noneList: null
             })
           ).toEqual({
             lists: [
-              { title: "list1", ListTasks: [] },
-              { title: "list2", ListTasks: [] }
+              { title: 'list1', ListTasks: [] },
+              { title: 'list2', ListTasks: [] }
             ],
             noneList: {ID: 0, ListTasks: []},
             isLoading: false
@@ -228,15 +219,15 @@ describe('ListReducer', () => {
               type: listActions.RECEIVE_LISTS,
               lists: [
                 {
-                  title: "list1",
+                  title: 'list1',
                   ListTasks: [
-                    { title: "task1" }
+                    { title: 'task1' }
                   ]
                 },
                 {
-                  title: "list2",
+                  title: 'list2',
                   ListTasks: [
-                    { title: "task2" }
+                    { title: 'task2' }
                   ]
                 }
               ],
@@ -245,15 +236,15 @@ describe('ListReducer', () => {
           ).toEqual({
             lists: [
               {
-                title: "list1",
+                title: 'list1',
                 ListTasks: [
-                  { title: "task1" }
+                  { title: 'task1' }
                 ]
               },
               {
-                title: "list2",
+                title: 'list2',
                 ListTasks: [
-                  { title: "task2" }
+                  { title: 'task2' }
                 ]
               }
             ],
@@ -272,38 +263,38 @@ describe('ListReducer', () => {
               ListReducer({
                 lists: [{
                   ID: 1,
-                  Title: "list1",
+                  Title: 'list1',
                   ListTasks: [
-                    { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                    { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                    { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                    { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                   ]
                 }, {
                   ID: 2,
-                  Title: "list2",
+                  Title: 'list2',
                   ListTasks: []
                 }],
                 noneList: {
                   ID: 3,
                   ListTasks: [
-                    { ID: 3, ListID: 3, Title: "task3", Description: "hogehoge" },
-                    { ID: 4, ListID: 3, Title: "task4", Description: "hogehoge" }
+                    { ID: 3, ListID: 3, Title: 'task3', Description: 'hogehoge' },
+                    { ID: 4, ListID: 3, Title: 'task4', Description: 'hogehoge' }
                   ]
                 },
                 taskDraggingTo: null,
                 taskDraggingFrom: {
                   fromList: {
                     ID: 1,
-                    Title: "list1",
+                    Title: 'list1',
                     ListTasks: [
-                      { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                      { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                      { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                      { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                     ]
                   },
                   fromTask: {
                     ID: 2,
                     ListID: 1,
-                    Title: "task2",
-                    Description: "hogehoge"
+                    Title: 'task2',
+                    Description: 'hogehoge'
                   }
                 }
               }, {
@@ -323,8 +314,8 @@ describe('ListReducer', () => {
                 toList: {
                   ID: 3,
                   ListTasks: [
-                    { ID: 3, ListID: 3, Title: "task3", Description: "hogehoge" },
-                    { ID: 4, ListID: 3, Title: "task4", Description: "hogehoge" },
+                    { ID: 3, ListID: 3, Title: 'task3', Description: 'hogehoge' },
+                    { ID: 4, ListID: 3, Title: 'task4', Description: 'hogehoge' },
                     { draggedOn: true }
                   ]
                 },
@@ -332,38 +323,38 @@ describe('ListReducer', () => {
               },
               lists: [{
                 ID: 1,
-                Title: "list1",
+                Title: 'list1',
                 ListTasks: [
-                  { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                  { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                  { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                  { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                 ]
               }, {
                 ID: 2,
-                Title: "list2",
+                Title: 'list2',
                 ListTasks: []
               }],
               noneList: {
                 ID: 3,
                 ListTasks: [
-                  { ID: 3, ListID: 3, Title: "task3", Description: "hogehoge" },
-                  { ID: 4, ListID: 3, Title: "task4", Description: "hogehoge" },
+                  { ID: 3, ListID: 3, Title: 'task3', Description: 'hogehoge' },
+                  { ID: 4, ListID: 3, Title: 'task4', Description: 'hogehoge' },
                   { draggedOn: true }
                 ]
               },
               taskDraggingFrom: {
                 fromList: {
                   ID: 1,
-                  Title: "list1",
+                  Title: 'list1',
                   ListTasks: [
-                    { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                    { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                    { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                    { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                   ]
                 },
                 fromTask: {
                   ID: 2,
                   ListID: 1,
-                  Title: "task2",
-                  Description: "hogehoge"
+                  Title: 'task2',
+                  Description: 'hogehoge'
                 }
               }
             })
@@ -375,34 +366,34 @@ describe('ListReducer', () => {
               ListReducer({
                 lists: [{
                   ID: 1,
-                  Title: "list1",
+                  Title: 'list1',
                   ListTasks: [
-                    { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                    { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                    { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                    { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                   ]
                 }, {
                   ID: 2,
-                  Title: "list2",
+                  Title: 'list2',
                   ListTasks: [
-                    { ID: 3, ListID: 2, Title: "task3", Description: "hogehoge" },
-                    { ID: 4, ListID: 2, Title: "task4", Description: "hogehoge" }]
+                    { ID: 3, ListID: 2, Title: 'task3', Description: 'hogehoge' },
+                    { ID: 4, ListID: 2, Title: 'task4', Description: 'hogehoge' }]
                 }],
                 noneList: {ID: 0, ListTasks: [] },
                 taskDraggingTo: null,
                 taskDraggingFrom: {
                   fromList: {
                     ID: 1,
-                    Title: "list1",
+                    Title: 'list1',
                     ListTasks: [
-                      { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                      { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                      { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                      { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                     ]
                   },
                   fromTask: {
                     ID: 2,
                     ListID: 1,
-                    Title: "task2",
-                    Description: "hogehoge"
+                    Title: 'task2',
+                    Description: 'hogehoge'
                   }
                 }
               }, {
@@ -421,10 +412,10 @@ describe('ListReducer', () => {
               taskDraggingTo: {
                 toList: {
                   ID: 2,
-                  Title: "list2",
+                  Title: 'list2',
                   ListTasks: [
-                    { ID: 3, ListID: 2, Title: "task3", Description: "hogehoge" },
-                    { ID: 4, ListID: 2, Title: "task4", Description: "hogehoge" },
+                    { ID: 3, ListID: 2, Title: 'task3', Description: 'hogehoge' },
+                    { ID: 4, ListID: 2, Title: 'task4', Description: 'hogehoge' },
                     { draggedOn: true }
                   ],
                   isDraggingOver: true
@@ -433,17 +424,17 @@ describe('ListReducer', () => {
               },
               lists: [{
                 ID: 1,
-                Title: "list1",
+                Title: 'list1',
                 ListTasks: [
-                  { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                  { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                  { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                  { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                 ]
               }, {
                 ID: 2,
-                Title: "list2",
+                Title: 'list2',
                 ListTasks: [
-                  { ID: 3, ListID: 2, Title: "task3", Description: "hogehoge" },
-                  { ID: 4, ListID: 2, Title: "task4", Description: "hogehoge" },
+                  { ID: 3, ListID: 2, Title: 'task3', Description: 'hogehoge' },
+                  { ID: 4, ListID: 2, Title: 'task4', Description: 'hogehoge' },
                   { draggedOn: true }
                 ],
                 isDraggingOver: true
@@ -452,17 +443,17 @@ describe('ListReducer', () => {
               taskDraggingFrom: {
                 fromList: {
                   ID: 1,
-                  Title: "list1",
+                  Title: 'list1',
                   ListTasks: [
-                    { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                    { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                    { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                    { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                   ]
                 },
                 fromTask: {
                   ID: 2,
                   ListID: 1,
-                  Title: "task2",
-                  Description: "hogehoge"
+                  Title: 'task2',
+                  Description: 'hogehoge'
                 }
               }
             })
@@ -476,38 +467,38 @@ describe('ListReducer', () => {
               ListReducer({
                 lists: [{
                   ID: 1,
-                  Title: "list1",
+                  Title: 'list1',
                   ListTasks: [
-                    { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                    { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                    { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                    { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                   ]
                 }, {
                   ID: 2,
-                  Title: "list2",
+                  Title: 'list2',
                   ListTasks: []
                 }],
                 noneList: {
                   ID: 3,
                   ListTasks: [
-                    { ID: 3, ListID: 3, Title: "task3", Description: "hogehoge" },
-                    { ID: 4, ListID: 3, Title: "task4", Description: "hogehoge" }
+                    { ID: 3, ListID: 3, Title: 'task3', Description: 'hogehoge' },
+                    { ID: 4, ListID: 3, Title: 'task4', Description: 'hogehoge' }
                   ]
                 },
                 taskDraggingTo: null,
                 taskDraggingFrom: {
                   fromList: {
                     ID: 1,
-                    Title: "list1",
+                    Title: 'list1',
                     ListTasks: [
-                      { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                      { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                      { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                      { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                     ]
                   },
                   fromTask: {
                     ID: 2,
                     ListID: 1,
-                    Title: "task2",
-                    Description: "hogehoge"
+                    Title: 'task2',
+                    Description: 'hogehoge'
                   }
                 }
               }, {
@@ -518,7 +509,7 @@ describe('ListReducer', () => {
                   }
                 },
                 taskDragToTask: {
-                  className: "task",
+                  className: 'task',
                   dataset: {
                     id: 4
                   }
@@ -530,47 +521,47 @@ describe('ListReducer', () => {
                 toList: {
                   ID: 3,
                   ListTasks: [
-                    { ID: 3, ListID: 3, Title: "task3", Description: "hogehoge" },
+                    { ID: 3, ListID: 3, Title: 'task3', Description: 'hogehoge' },
                     { draggedOn: true },
-                    { ID: 4, ListID: 3, Title: "task4", Description: "hogehoge" }
+                    { ID: 4, ListID: 3, Title: 'task4', Description: 'hogehoge' }
                   ]
                 },
-                prevToTask: { ID: 4, ListID: 3, Title: "task4", Description: "hogehoge" }
+                prevToTask: { ID: 4, ListID: 3, Title: 'task4', Description: 'hogehoge' }
               },
               lists: [{
                 ID: 1,
-                Title: "list1",
+                Title: 'list1',
                 ListTasks: [
-                  { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                  { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                  { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                  { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                 ]
               }, {
                 ID: 2,
-                Title: "list2",
+                Title: 'list2',
                 ListTasks: []
               }],
               noneList: {
                 ID: 3,
                 ListTasks: [
-                  { ID: 3, ListID: 3, Title: "task3", Description: "hogehoge" },
+                  { ID: 3, ListID: 3, Title: 'task3', Description: 'hogehoge' },
                   { draggedOn: true },
-                  { ID: 4, ListID: 3, Title: "task4", Description: "hogehoge" }
+                  { ID: 4, ListID: 3, Title: 'task4', Description: 'hogehoge' }
                 ]
               },
               taskDraggingFrom: {
                 fromList: {
                   ID: 1,
-                  Title: "list1",
+                  Title: 'list1',
                   ListTasks: [
-                    { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                    { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                    { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                    { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                   ]
                 },
                 fromTask: {
                   ID: 2,
                   ListID: 1,
-                  Title: "task2",
-                  Description: "hogehoge"
+                  Title: 'task2',
+                  Description: 'hogehoge'
                 }
               }
             })
@@ -582,34 +573,34 @@ describe('ListReducer', () => {
               ListReducer({
                 lists: [{
                   ID: 1,
-                  Title: "list1",
+                  Title: 'list1',
                   ListTasks: [
-                    { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                    { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                    { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                    { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                   ]
                 }, {
                   ID: 2,
-                  Title: "list2",
+                  Title: 'list2',
                   ListTasks: [
-                    { ID: 3, ListID: 2, Title: "task3", Description: "hogehoge" },
-                    { ID: 4, ListID: 2, Title: "task4", Description: "hogehoge" }]
+                    { ID: 3, ListID: 2, Title: 'task3', Description: 'hogehoge' },
+                    { ID: 4, ListID: 2, Title: 'task4', Description: 'hogehoge' }]
                 }],
                 noneList: {ID: 0, ListTasks: [] },
                 taskDraggingTo: null,
                 taskDraggingFrom: {
                   fromList: {
                     ID: 1,
-                    Title: "list1",
+                    Title: 'list1',
                     ListTasks: [
-                      { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                      { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                      { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                      { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                     ]
                   },
                   fromTask: {
                     ID: 2,
                     ListID: 1,
-                    Title: "task2",
-                    Description: "hogehoge"
+                    Title: 'task2',
+                    Description: 'hogehoge'
                   }
                 }
               }, {
@@ -620,7 +611,7 @@ describe('ListReducer', () => {
                   }
                 },
                 taskDragToTask: {
-                  className: "task",
+                  className: 'task',
                   dataset: {
                     id: 4
                   }
@@ -631,30 +622,30 @@ describe('ListReducer', () => {
               taskDraggingTo: {
                 toList: {
                   ID: 2,
-                  Title: "list2",
+                  Title: 'list2',
                   ListTasks: [
-                    { ID: 3, ListID: 2, Title: "task3", Description: "hogehoge" },
+                    { ID: 3, ListID: 2, Title: 'task3', Description: 'hogehoge' },
                     { draggedOn: true },
-                    { ID: 4, ListID: 2, Title: "task4", Description: "hogehoge" }
+                    { ID: 4, ListID: 2, Title: 'task4', Description: 'hogehoge' }
                   ],
                   isDraggingOver: true
                 },
-                prevToTask: { ID: 4, ListID: 2, Title: "task4", Description: "hogehoge" }
+                prevToTask: { ID: 4, ListID: 2, Title: 'task4', Description: 'hogehoge' }
               },
               lists: [{
                 ID: 1,
-                Title: "list1",
+                Title: 'list1',
                 ListTasks: [
-                  { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                  { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                  { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                  { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                 ]
               }, {
                 ID: 2,
-                Title: "list2",
+                Title: 'list2',
                 ListTasks: [
-                  { ID: 3, ListID: 2, Title: "task3", Description: "hogehoge" },
+                  { ID: 3, ListID: 2, Title: 'task3', Description: 'hogehoge' },
                   { draggedOn: true },
-                  { ID: 4, ListID: 2, Title: "task4", Description: "hogehoge" }
+                  { ID: 4, ListID: 2, Title: 'task4', Description: 'hogehoge' }
                 ],
                 isDraggingOver: true
               }],
@@ -662,17 +653,17 @@ describe('ListReducer', () => {
               taskDraggingFrom: {
                 fromList: {
                   ID: 1,
-                  Title: "list1",
+                  Title: 'list1',
                   ListTasks: [
-                    { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                    { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                    { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                    { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                   ]
                 },
                 fromTask: {
                   ID: 2,
                   ListID: 1,
-                  Title: "task2",
-                  Description: "hogehoge"
+                  Title: 'task2',
+                  Description: 'hogehoge'
                 }
               }
             })
@@ -688,20 +679,20 @@ describe('ListReducer', () => {
             ListReducer({
               lists: [{
                 ID: 1,
-                Title: "list1",
+                Title: 'list1',
                 ListTasks: [
-                  { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                  { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                  { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                  { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                 ]
               }, {
                 ID: 2,
-                Title: "list2",
+                Title: 'list2',
                 ListTasks: []
               }],
               noneList: {
                 ID: 3,
                 ListTasks: [
-                  { ID: 3, ListID: 3, Title: "task3", Description: "hogehoge" }
+                  { ID: 3, ListID: 3, Title: 'task3', Description: 'hogehoge' }
                 ]
               },
               taskDraggingFrom: null
@@ -721,34 +712,34 @@ describe('ListReducer', () => {
           ).toEqual({
             lists: [{
               ID: 1,
-              Title: "list1",
+              Title: 'list1',
               ListTasks: [
-                { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
               ]
             }, {
               ID: 2,
-              Title: "list2",
+              Title: 'list2',
               ListTasks: []
             }],
             noneList: {
               ID: 3,
               ListTasks: [
-                { ID: 3, ListID: 3, Title: "task3", Description: "hogehoge" }
+                { ID: 3, ListID: 3, Title: 'task3', Description: 'hogehoge' }
               ]
             },
             taskDraggingFrom: {
               fromList: {
                 ID: 3,
                 ListTasks: [
-                  { ID: 3, ListID: 3, Title: "task3", Description: "hogehoge" }
+                  { ID: 3, ListID: 3, Title: 'task3', Description: 'hogehoge' }
                 ]
               },
               fromTask: {
                 ID: 3,
                 ListID: 3,
-                Title: "task3",
-                Description: "hogehoge"
+                Title: 'task3',
+                Description: 'hogehoge'
               }
             }
           })
@@ -760,14 +751,14 @@ describe('ListReducer', () => {
             ListReducer({
               lists: [{
                 ID: 1,
-                Title: "list1",
+                Title: 'list1',
                 ListTasks: [
-                  { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                  { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                  { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                  { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                 ]
               }, {
                 ID: 2,
-                Title: "list2",
+                Title: 'list2',
                 ListTasks: []
               }],
               noneList: {ID: 3, ListTasks: [] },
@@ -788,31 +779,31 @@ describe('ListReducer', () => {
           ).toEqual({
             lists: [{
               ID: 1,
-              Title: "list1",
+              Title: 'list1',
               ListTasks: [
-                { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
               ]
             }, {
               ID: 2,
-              Title: "list2",
+              Title: 'list2',
               ListTasks: []
             }],
             noneList: {ID: 3, ListTasks: [] },
             taskDraggingFrom: {
               fromList: {
                 ID: 1,
-                Title: "list1",
+                Title: 'list1',
                 ListTasks: [
-                  { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                  { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                  { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                  { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                 ]
               },
               fromTask: {
                 ID: 2,
                 ListID: 1,
-                Title: "task2",
-                Description: "hogehoge"
+                Title: 'task2',
+                Description: 'hogehoge'
               }
             }
           })
@@ -826,14 +817,14 @@ describe('ListReducer', () => {
             ListReducer({
               lists: [{
                 ID: 1,
-                Title: "list1",
+                Title: 'list1',
                 ListTasks: [
-                  { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                  { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                  { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                  { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                 ]
               }, {
                 ID: 2,
-                Title: "list2",
+                Title: 'list2',
                 ListTasks: []
               }],
               noneList: {
@@ -858,14 +849,14 @@ describe('ListReducer', () => {
             taskDraggingTo: null,
             lists: [{
               ID: 1,
-              Title: "list1",
+              Title: 'list1',
               ListTasks: [
-                { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
               ]
             }, {
               ID: 2,
-              Title: "list2",
+              Title: 'list2',
               ListTasks: []
             }],
             noneList: {
@@ -881,14 +872,14 @@ describe('ListReducer', () => {
             ListReducer({
               lists: [{
                 ID: 1,
-                Title: "list1",
+                Title: 'list1',
                 ListTasks: [
-                  { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                  { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                  { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                  { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                 ]
               }, {
                 ID: 2,
-                Title: "list2",
+                Title: 'list2',
                 ListTasks: [ { draggedOn: true } ],
                 isDraggingOver: true
               }],
@@ -897,7 +888,7 @@ describe('ListReducer', () => {
               taskDraggingTo: {
                 toList: {
                   ID: 2,
-                  Title: "list2",
+                  Title: 'list2',
                   ListTasks: []
                 },
                 prevToTask: null
@@ -910,14 +901,14 @@ describe('ListReducer', () => {
             taskDraggingTo: null,
             lists: [{
               ID: 1,
-              Title: "list1",
+              Title: 'list1',
               ListTasks: [
-                { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
               ]
             }, {
               ID: 2,
-              Title: "list2",
+              Title: 'list2',
               ListTasks: [],
               isDraggingOver: false
             }],
@@ -933,14 +924,14 @@ describe('ListReducer', () => {
             ListReducer({
               lists: [{
                 ID: 1,
-                Title: "list1",
+                Title: 'list1',
                 ListTasks: [
-                  { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                  { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                  { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                  { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                 ]
               }, {
                 ID: 2,
-                Title: "list2",
+                Title: 'list2',
                 ListTasks: []
               }],
               noneList: {
@@ -958,17 +949,17 @@ describe('ListReducer', () => {
               taskDraggingFrom: {
                 fromList: {
                   ID: 1,
-                  Title: "list1",
+                  Title: 'list1',
                   ListTasks: [
-                    { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                    { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                    { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                    { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                   ]
                 },
                 fromTask: {
                   ID: 2,
                   ListID: 1,
-                  Title: "task2",
-                  Description: "hogehoge"
+                  Title: 'task2',
+                  Description: 'hogehoge'
                 }
               }
             }, {
@@ -980,15 +971,15 @@ describe('ListReducer', () => {
             taskDraggingFrom: null,
             lists: [{
               ID: 1,
-              Title: "list1",
+              Title: 'list1',
               ListTasks: [
-                { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
               ],
               isLoading: true
             }, {
               ID: 2,
-              Title: "list2",
+              Title: 'list2',
               ListTasks: []
             }],
             noneList: {
@@ -1004,14 +995,14 @@ describe('ListReducer', () => {
             ListReducer({
               lists: [{
                 ID: 1,
-                Title: "list1",
+                Title: 'list1',
                 ListTasks: [
-                  { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                  { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                  { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                  { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                 ]
               }, {
                 ID: 2,
-                Title: "list2",
+                Title: 'list2',
                 ListTasks: [ { draggedOn: true } ],
                 isDraggingOver: true
               }],
@@ -1020,7 +1011,7 @@ describe('ListReducer', () => {
               taskDraggingTo: {
                 toList: {
                   ID: 2,
-                  Title: "list2",
+                  Title: 'list2',
                   ListTasks: []
                 },
                 prevToTask: null
@@ -1028,17 +1019,17 @@ describe('ListReducer', () => {
               taskDraggingFrom: {
                 fromList: {
                   ID: 1,
-                  Title: "list1",
+                  Title: 'list1',
                   ListTasks: [
-                    { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                    { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                    { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                    { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                   ]
                 },
                 fromTask: {
                   ID: 2,
                   ListID: 1,
-                  Title: "task2",
-                  Description: "hogehoge"
+                  Title: 'task2',
+                  Description: 'hogehoge'
                 }
               }
             }, {
@@ -1050,15 +1041,15 @@ describe('ListReducer', () => {
             taskDraggingFrom: null,
             lists: [{
               ID: 1,
-              Title: "list1",
+              Title: 'list1',
               ListTasks: [
-                { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
               ],
               isLoading: true
             }, {
               ID: 2,
-              Title: "list2",
+              Title: 'list2',
               ListTasks: [],
               isLoading: true,
               isDraggingOver: false
@@ -1075,14 +1066,14 @@ describe('ListReducer', () => {
             ListReducer({
               lists: [{
                 ID: 1,
-                Title: "list1",
+                Title: 'list1',
                 ListTasks: [
-                  { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                  { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                  { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                  { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                 ]
               }, {
                 ID: 2,
-                Title: "list2",
+                Title: 'list2',
                 ListTasks: []
               }],
               noneList: {
@@ -1100,17 +1091,17 @@ describe('ListReducer', () => {
               taskDraggingFrom: {
                 fromList: {
                   ID: 1,
-                  Title: "list1",
+                  Title: 'list1',
                   ListTasks: [
-                    { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                    { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                    { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                    { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                   ]
                 },
                 fromTask: {
                   ID: 2,
                   ListID: 1,
-                  Title: "task2",
-                  Description: "hogehoge"
+                  Title: 'task2',
+                  Description: 'hogehoge'
                 }
               }
             }, {
@@ -1122,14 +1113,14 @@ describe('ListReducer', () => {
             taskDraggingFrom: null,
             lists: [{
               ID: 1,
-              Title: "list1",
+              Title: 'list1',
               ListTasks: [
-                { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
               ]
             }, {
               ID: 2,
-              Title: "list2",
+              Title: 'list2',
               ListTasks: []
             }],
             noneList: {
@@ -1145,14 +1136,14 @@ describe('ListReducer', () => {
             ListReducer({
               lists: [{
                 ID: 1,
-                Title: "list1",
+                Title: 'list1',
                 ListTasks: [
-                  { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                  { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                  { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                  { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                 ]
               }, {
                 ID: 2,
-                Title: "list2",
+                Title: 'list2',
                 ListTasks: [ { draggedOn: true } ],
                 isDraggingOver: true
               }],
@@ -1161,7 +1152,7 @@ describe('ListReducer', () => {
               taskDraggingTo: {
                 toList: {
                   ID: 2,
-                  Title: "list2",
+                  Title: 'list2',
                   ListTasks: []
                 },
                 prevToTask: null
@@ -1169,17 +1160,17 @@ describe('ListReducer', () => {
               taskDraggingFrom: {
                 fromList: {
                   ID: 1,
-                  Title: "list1",
+                  Title: 'list1',
                   ListTasks: [
-                    { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                    { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                    { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                    { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
                   ]
                 },
                 fromTask: {
                   ID: 2,
                   ListID: 1,
-                  Title: "task2",
-                  Description: "hogehoge"
+                  Title: 'task2',
+                  Description: 'hogehoge'
                 }
               }
             }, {
@@ -1191,14 +1182,14 @@ describe('ListReducer', () => {
             taskDraggingFrom: null,
             lists: [{
               ID: 1,
-              Title: "list1",
+              Title: 'list1',
               ListTasks: [
-                { ID: 1, ListID: 1, Title: "task1", Description: "hogehoge" },
-                { ID: 2, ListID: 1, Title: "task2", Description: "hogehoge" }
+                { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
+                { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
               ]
             }, {
               ID: 2,
-              Title: "list2",
+              Title: 'list2',
               ListTasks: [],
               isDraggingOver: false
             }],
@@ -1219,7 +1210,7 @@ describe('ListReducer', () => {
             type: newTaskModalActions.SERVER_ERROR
           })
         ).toEqual({
-          error: "Internal Server Error",
+          error: 'Internal Server Error',
           isLoading: false
         })
       })
@@ -1231,7 +1222,7 @@ describe('ListReducer', () => {
             type: newTaskModalActions.NOT_FOUND
           })
         ).toEqual({
-          error: "Error Not Found",
+          error: 'Error Not Found',
           isLoading: false
         })
       })
@@ -1242,28 +1233,14 @@ describe('ListReducer', () => {
         expect(
           ListReducer({
             isTaskModalOpen: true,
-            selectedList: "newList"
+            selectedList: 'newList'
           }, {
             type: newTaskModalActions.CLOSE_NEW_TASK,
             isTaskModalOpen: false
           })
         ).toEqual({
           isTaskModalOpen: false,
-          selectedList: null
-        })
-      })
-    })
-    describe('UPDATE_NEW_TASK_TITLE', () => {
-      it('should update new task title', () => {
-        expect(
-          ListReducer({
-            newTask: { title: "" }
-          }, {
-            type: newTaskModalActions.UPDATE_NEW_TASK_TITLE,
-            title: "newTask"
-          })
-        ).toEqual({
-          newTask: { title: "newTask" }
+          selectedList: {},
         })
       })
     })
@@ -1287,31 +1264,30 @@ describe('ListReducer', () => {
           ListReducer({
             lists: [{
               ID: 1,
-              Title: "list1",
+              Title: 'list1',
               ListTasks: [
-                { ListID: 1, Title: "task1", Description: "fugafuga" }
+                { ListID: 1, Title: 'task1', Description: 'fugafuga' }
               ]
             }, {
               ID: 2,
-              Title: "list2",
+              Title: 'list2',
               ListTasks: []
             }],
             noneList: {ID: 0, ListTasks: [] },
-            newTask: { title: "task2", description: "hogehoge" },
             isTaskModalOpen: true,
             isLoading: true
           }, {
             type: newTaskModalActions.RECEIVE_CREATE_TASK,
             lists: [{
               ID: 1,
-              Title: "list1",
+              Title: 'list1',
               ListTasks: [
-                { ListID: 1, Title: "task1", Description: "fugafuga" },
-                { ListID: 1, Title: "task2", Description: "hogehoge" }
+                { ListID: 1, Title: 'task1', Description: 'fugafuga' },
+                { ListID: 1, Title: 'task2', Description: 'hogehoge' }
               ]
             }, {
               ID: 2,
-              Title: "list2",
+              Title: 'list2',
               ListTasks: []
             }],
             noneList: []
@@ -1319,18 +1295,17 @@ describe('ListReducer', () => {
         ).toEqual({
           lists: [{
             ID: 1,
-            Title: "list1",
+            Title: 'list1',
             ListTasks: [
-              { ListID: 1, Title: "task1", Description: "fugafuga" },
-              { ListID: 1, Title: "task2", Description: "hogehoge" }
+              { ListID: 1, Title: 'task1', Description: 'fugafuga' },
+              { ListID: 1, Title: 'task2', Description: 'hogehoge' }
             ]
           }, {
             ID: 2,
-            Title: "list2",
+            Title: 'list2',
             ListTasks: []
           }],
           noneList: [],
-          newTask: { title: "", description: "" },
           isTaskModalOpen: false,
           isLoading: false
         })
@@ -1346,7 +1321,7 @@ describe('ListReducer', () => {
             type: editListModalActions.SERVER_ERROR
           })
         ).toEqual({
-          error: "Internal Server Error",
+          error: 'Internal Server Error',
           isLoading: false
         })
       })
@@ -1358,7 +1333,7 @@ describe('ListReducer', () => {
             type: editListModalActions.NOT_FOUND
           })
         ).toEqual({
-          error: "Error Not Found",
+          error: 'Error Not Found',
           isLoading: false
         })
       })
@@ -1369,43 +1344,14 @@ describe('ListReducer', () => {
         expect(
           ListReducer({
             isListEditModalOpen: true,
-            selectedList: "editList"
+            selectedList: 'editList'
           }, {
             type: editListModalActions.CLOSE_EDIT_LIST,
             isListEditModalOpen: false
           })
         ).toEqual({
           isListEditModalOpen: false,
-          selectedList: null,
-          selectedListOption: null
-        })
-      })
-    })
-    describe('UPDATE_SELECTED_LIST_TITLE', () => {
-      it('should update selected list title', () => {
-        expect(
-          ListReducer({
-            selectedList: { Title: "selectedL", Color: "" }
-          }, {
-            type: editListModalActions.UPDATE_SELECTED_LIST_TITLE,
-            title: "selectedList"
-          })
-        ).toEqual({
-          selectedList: { Title: "selectedList", Color: "" }
-        })
-      })
-    })
-    describe('UPDATE_SELECTED_LIST_COLOR', () => {
-      it('should update selected list color', () => {
-        expect(
-          ListReducer({
-            selectedList: { Title: "selectedList", Color: "30b" }
-          }, {
-            type: editListModalActions.UPDATE_SELECTED_LIST_COLOR,
-            color: "30bef"
-          })
-        ).toEqual({
-          selectedList: { Title: "selectedList", Color: "30bef" }
+          selectedList: {},
         })
       })
     })
@@ -1429,13 +1375,13 @@ describe('ListReducer', () => {
           ListReducer({
             lists: [{
               ID: 1,
-              Title: "list1",
+              Title: 'list1',
               ListTasks: [
-                { ListID: 1, Title: "task1", Description: "hogehoge" }
+                { ListID: 1, Title: 'task1', Description: 'hogehoge' }
               ]
             }, {
               ID: 2,
-              Title: "list2",
+              Title: 'list2',
               ListTasks: []
             }],
             isListEditModalOpen: true,
@@ -1444,64 +1390,26 @@ describe('ListReducer', () => {
             type: editListModalActions.RECEIVE_UPDATE_LIST,
             list: {
               ID: 1,
-              Title: "updateList1",
+              Title: 'updateList1',
               ListTasks: [
-                { ListID: 1, Title: "task1", Description: "hogehoge" }
+                { ListID: 1, Title: 'task1', Description: 'hogehoge' }
               ]
             }
           })
         ).toEqual({
           lists: [{
             ID: 1,
-            Title: "updateList1",
+            Title: 'updateList1',
             ListTasks: [
-              { ListID: 1, Title: "task1", Description: "hogehoge" }
+              { ListID: 1, Title: 'task1', Description: 'hogehoge' }
             ]
           }, {
             ID: 2,
-            Title: "list2",
+            Title: 'list2',
             ListTasks: []
           }],
           isListEditModalOpen: false,
           isLoading: false
-        })
-      })
-    })
-
-    describe('CHANGE_SELECTED_LIST_OPTION', () => {
-      it('should change selected list option', () => {
-        expect(
-          ListReducer({
-            listOptions: [
-              {
-                ID: 1,
-                Action: "close"
-              }, {
-                ID: 2,
-                Action: "open"
-              }
-            ],
-            selectedListOption: null
-          }, {
-            type: editListModalActions.CHANGE_SELECTED_LIST_OPTION,
-            selectEvent: {
-              value: 1
-            }
-          })
-        ).toEqual({
-          listOptions: [
-            {
-              ID: 1,
-              Action: "close"
-            }, {
-              ID: 2,
-              Action: "open"
-            }
-          ],
-          selectedListOption: {
-            ID: 1,
-            Action: "close"
-          }
         })
       })
     })
@@ -1515,7 +1423,7 @@ describe('ListReducer', () => {
             type: newListModalActions.SERVER_ERROR
           })
         ).toEqual({
-          error: "Internal Server Error",
+          error: 'Internal Server Error',
           isLoading: false
         })
       })
@@ -1527,40 +1435,12 @@ describe('ListReducer', () => {
             type: newListModalActions.NOT_FOUND
           })
         ).toEqual({
-          error: "Error Not Found",
+          error: 'Error Not Found',
           isLoading: false
         })
       })
     })
 
-    describe('UPDATE_NEW_LIST_TITLE', () => {
-      it('should update list title', () => {
-        expect(
-          ListReducer({
-            newList: { title: "newL", color: "" }
-          }, {
-            type: newListModalActions.UPDATE_NEW_LIST_TITLE,
-            title: "newList"
-          })
-        ).toEqual({
-          newList: { title: "newList", color: "" }
-        })
-      })
-    })
-    describe('UPDATE_NEW_LIST_COLOR', () => {
-      it('should update list color', () => {
-        expect(
-          ListReducer({
-            newList: { title: "newList", color: "30b" }
-          }, {
-            type: newListModalActions.UPDATE_NEW_LIST_COLOR,
-            color: "30bfe"
-          })
-        ).toEqual({
-          newList: { title: "newList", color: "30bfe" }
-        })
-      })
-    })
     describe('REQUEST_CREATE_LIST', () => {
       it('should open whole loading window', () => {
         expect(
@@ -1580,40 +1460,38 @@ describe('ListReducer', () => {
           expect(
             ListReducer({
               lists: [
-                { title: "list1",
+                { title: 'list1',
                   ListTasks: [
-                    { title: "task1" },
-                    { title: "task2" }
+                    { title: 'task1' },
+                    { title: 'task2' }
                   ]
                 },
-                { title: "list2",
+                { title: 'list2',
                   ListTasks: []
                 }
               ],
               isListModalOpen: true,
-              newList: { title: "list3", color: "ffffff" },
               isLoading: true
             }, {
               type: newListModalActions.RECEIVE_CREATE_LIST,
-              list: { title: "list3", ListTasks: null }
+              list: { title: 'list3', ListTasks: null }
             })
           ).toEqual({
             lists: [
-              { title: "list1",
+              { title: 'list1',
                 ListTasks: [
-                  { title: "task1" },
-                  { title: "task2" }
+                  { title: 'task1' },
+                  { title: 'task2' }
                 ]
               },
-              { title: "list2",
+              { title: 'list2',
                 ListTasks: []
               },
-              { title: "list3",
+              { title: 'list3',
                 ListTasks: []
               }
             ],
             isListModalOpen: false,
-            newList: { title: "", color: "008ed4" },
             isLoading: false
           })
         })
@@ -1623,42 +1501,40 @@ describe('ListReducer', () => {
           expect(
             ListReducer({
               lists: [
-                { title: "list1",
+                { title: 'list1',
                   ListTasks: [
-                    { title: "task1" },
-                    { title: "task2" }
+                    { title: 'task1' },
+                    { title: 'task2' }
                   ]
                 },
-                { title: "list2",
+                { title: 'list2',
                   ListTasks: []
                 }
               ],
               isListModalOpen: false,
-              newList: { title: "", color: "ffffff" },
               isLoading: true
             }, {
               type: newListModalActions.RECEIVE_CREATE_LIST,
-              list: { title: "list3", ListTasks: [ { title: "task3" } ] }
+              list: { title: 'list3', ListTasks: [ { title: 'task3' } ] }
             })
           ).toEqual({
             lists: [
-              { title: "list1",
+              { title: 'list1',
                 ListTasks: [
-                  { title: "task1" },
-                  { title: "task2" }
+                  { title: 'task1' },
+                  { title: 'task2' }
                 ]
               }, {
-                title: "list2",
+                title: 'list2',
                 ListTasks: []
               }, {
-                title: "list3",
+                title: 'list3',
                 ListTasks: [
-                  { title: "task3" }
+                  { title: 'task3' }
                 ]
               }
             ],
             isListModalOpen: false,
-            newList: { title: "", color: "008ed4" },
             isLoading: false
           })
         })
@@ -1674,7 +1550,7 @@ describe('ListReducer', () => {
             type: editProjectModalActions.SERVER_ERROR
           })
         ).toEqual({
-          error: "Internal Server Error",
+          error: 'Internal Server Error',
           isLoading: false
         })
       })
@@ -1686,7 +1562,7 @@ describe('ListReducer', () => {
             type: editProjectModalActions.NOT_FOUND
           })
         ).toEqual({
-          error: "Error Not Found",
+          error: 'Error Not Found',
           isLoading: false
         })
       })
@@ -1713,68 +1589,29 @@ describe('ListReducer', () => {
         })
       })
     })
-    describe('UPDATE_EDIT_PROJECT_TITLE', () => {
-      it('should update project title', () => {
-        expect(
-          ListReducer({
-            selectedProject: {
-              Title: "title",
-              Description: "description"
-            }
-          }, {
-            type: editProjectModalActions.UPDATE_EDIT_PROJECT_TITLE,
-            title: "title samp"
-          })
-        ).toEqual({
-          selectedProject: {
-            Title: "title samp",
-            Description: "description"
-          }
-        })
-      })
-    })
-    describe('UPDATE_EDIT_PROJECT_DESCRIPTION', () => {
-      it('should update project description', () => {
-        expect(
-          ListReducer({
-            selectedProject: {
-              Title: "title",
-              Description: "description"
-            }
-          }, {
-            type: editProjectModalActions.UPDATE_EDIT_PROJECT_DESCRIPTION,
-            description: "description samp"
-          })
-        ).toEqual({
-          selectedProject: {
-            Title: "title",
-            Description: "description samp"
-          }
-        })
-      })
-    })
     describe('RECEIVE_UPDATE_PROJECT', () => {
       it('should return updated project', () => {
         expect(
           ListReducer({
             project: {
-              Title: "title",
-              Description: "description"
+              Title: 'title',
+              Description: 'description'
             },
             isProjectEditModalOpen: true
           }, {
             type: editProjectModalActions.RECEIVE_UPDATE_PROJECT,
             project: {
-              Title: "title sample",
-              Description: "description sample"
+              Title: 'title sample',
+              Description: 'description sample'
             }
           })
         ).toEqual({
           project: {
-            Title: "title sample",
-            Description: "description sample"
+            Title: 'title sample',
+            Description: 'description sample'
           },
-          isProjectEditModalOpen: false
+          isProjectEditModalOpen: false,
+          isLoading: false,
         })
       })
     })
@@ -1803,62 +1640,22 @@ describe('ListReducer', () => {
             isTaskShowModalOpen: true,
             isEditTaskModalVisible: false,
             editTask: {
-              Title: "",
-              Description: ""
+              Title: '',
+              Description: ''
             }
           }, {
             type: showTaskModalActions.CHANGE_EDIT_MODE,
             task: {
-              Title: "",
-              Description: ""
+              Title: '',
+              Description: ''
             }
           })
         ).toEqual({
           isTaskShowModalOpen: true,
           isEditTaskModalVisible: true,
           editTask: {
-            Title: "",
-            Description: ""
-          }
-        })
-      })
-    })
-    describe('UPDATE_EDIT_TASK_TITLE', () => {
-      it('should update task title', () => {
-        expect(
-          ListReducer({
-            editTask: {
-              Title: "task",
-              Description: "description"
-            }
-          }, {
-            type: showTaskModalActions.UPDATE_EDIT_TASK_TITLE,
-            title: "task title"
-          })
-        ).toEqual({
-          editTask: {
-            Title: "task title",
-            Description: "description"
-          }
-        })
-      })
-    })
-    describe('UPDATE_EDIT_TASK_DESCRIPTION', () => {
-      it('should update task description', () => {
-        expect(
-          ListReducer({
-            editTask: {
-              Title: "task",
-              Description: "description"
-            }
-          }, {
-            type: showTaskModalActions.UPDATE_EDIT_TASK_DESCRIPTION,
-            description: "task description"
-          })
-        ).toEqual({
-          editTask: {
-            Title: "task",
-            Description: "task description"
+            Title: '',
+            Description: ''
           }
         })
       })
@@ -1872,16 +1669,16 @@ describe('ListReducer', () => {
             isLoading: true,
             lists: [
               {
-                Title: "task1",
-                Description: "hoge"
+                Title: 'task1',
+                Description: 'hoge'
               }
             ]
           }, {
             type: showTaskModalActions.RECEIVE_UPDATE_TASK,
             lists: [
               {
-                Title: "task updated",
-                Description: "fuga",
+                Title: 'task updated',
+                Description: 'fuga',
                 ListTasks: []
               }
             ],
@@ -1893,8 +1690,8 @@ describe('ListReducer', () => {
           isLoading: false,
           lists: [
             {
-              Title: "task updated",
-              Description: "fuga",
+              Title: 'task updated',
+              Description: 'fuga',
               ListTasks: []
             }
           ],

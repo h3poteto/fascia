@@ -10,10 +10,8 @@ function sharedExampleInitState(action) {
     ProjectReducer(undefined, action)
   ).toEqual({
     isModalOpen: false,
-    newProject: {title: "", description: ""},
     projects: [],
     repositories: [],
-    selectedRepository: null,
     isLoading: false,
     error: null
   })
@@ -180,49 +178,11 @@ describe('ProjectReducer', () => {
       })
     })
 
-    describe('CHANGE_SELECT_REPOSITORY', () => {
-      it('should return repository object and set new project title', () => {
-        const stateRepositories = [
-          {
-            id: 2,
-            title: "repo1"
-          },{
-            id: 3,
-            title: "repo2"
-          }
-        ]
-        expect(
-          ProjectReducer({
-            repositories: stateRepositories,
-            newProject: {title: "", description: ""}
-          }, {
-            type: newProjectModalActions.CHANGE_SELECT_REPOSITORY,
-            selectEvent: {
-              selectedIndex: 0,
-              options: [
-                { text: "repo1" },
-                { text: "repo2" }
-              ],
-              value: 2
-            }
-          })
-        ).toEqual({
-          repositories: stateRepositories,
-          selectedRepository: {
-            id: 2,
-            title: "repo1"
-          },
-          newProject: {title: "repo1", description: ""}
-        })
-      })
-    })
-
     describe('REQUEST_CREATE_PROJECT', () => {
       it('should close modal and open whole loading', () => {
         expect(
           ProjectReducer({
             projects: ["project1", "project2"],
-            newProject: { title: "project3", description: "" },
             isModalOpen: true,
             isLoading: false
           }, {
@@ -231,9 +191,8 @@ describe('ProjectReducer', () => {
           })
         ).toEqual({
           projects: ["project1", "project2"],
-          newProject: { title: "project3", description: "" },
-          isModalOpen: false,
-          isLoading: true
+          isModalOpen: true,
+          isLoading: true,
         })
       })
     })
@@ -243,7 +202,6 @@ describe('ProjectReducer', () => {
         expect(
           ProjectReducer({
             projects: ["project1", "project2"],
-            newProject: { title: "project3", description: "" },
             isLoading: true
           },{
             type: newProjectModalActions.RECEIVE_CREATE_PROJECT,
@@ -251,38 +209,8 @@ describe('ProjectReducer', () => {
           })
         ).toEqual({
           projects: ["project1", "project2", "project3"],
-          newProject: {title: "", description: ""},
-          isLoading: false
-        })
-      })
-    })
-
-    describe('UPDATE_NEW_PROJECT_TITLE', () => {
-      it('should return new project title', () => {
-        expect(
-          ProjectReducer({
-            newProject: { title: "pro", description: "" }
-          },{
-            type: newProjectModalActions.UPDATE_NEW_PROJECT_TITLE,
-            title: "proj"
-          })
-        ).toEqual({
-          newProject: { title: "proj", description: "" }
-        })
-      })
-    })
-
-    describe('UPDATE_NEW_PROJECT_DESCRIPTION', () => {
-      it('should return new project description', () => {
-        expect(
-          ProjectReducer({
-            newProject: { title: "project1", description: "project des" }
-          },{
-            type: newProjectModalActions.UPDATE_NEW_PROJECT_DESCRIPTION,
-            description: "project description"
-          })
-        ).toEqual({
-          newProject: { title: "project1", description: "project description" }
+          isLoading: false,
+          isModalOpen: false,
         })
       })
     })

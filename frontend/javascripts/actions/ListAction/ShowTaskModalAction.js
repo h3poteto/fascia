@@ -2,7 +2,7 @@ import Request from 'superagent'
 
 export const UNAUTHORIZED = 'UNAUTHORIZED'
 function unauthorized() {
-  window.location.pathname = "/sign_in"
+  window.location.pathname = '/sign_in'
   return {
     type: UNAUTHORIZED
   }
@@ -37,22 +37,6 @@ export function changeEditMode(task) {
   }
 }
 
-export const UPDATE_EDIT_TASK_TITLE = 'UPDATE_EDIT_TASK_TITLE'
-export function updateEditTaskTitle(ev) {
-  return {
-    type: UPDATE_EDIT_TASK_TITLE,
-    title: ev.target.value
-  }
-}
-
-export const UPDATE_EDIT_TASK_DESCRIPTION = 'UPDATE_EDIT_TASK_DESCRIPTION'
-export function updateEditTaskDescription(ev) {
-  return {
-    type: UPDATE_EDIT_TASK_DESCRIPTION,
-    description: ev.target.value
-  }
-}
-
 export const REQUEST_UPDATE_TASK = 'REQUEST_UPDATE_TASK'
 function requestUpdateTask() {
   return {
@@ -69,13 +53,13 @@ function receiveUpdateTask(lists) {
   }
 }
 
-export function fetchUpdateTask(projectID, listID, taskID, title, description) {
+export function fetchUpdateTask(projectID, listID, taskID, params) {
   return dispatch => {
     dispatch(requestUpdateTask())
     return Request
       .post(`/projects/${projectID}/lists/${listID}/tasks/${taskID}`)
       .type('form')
-      .send({title: title, description: description})
+      .send(params)
       .end((err, res)=> {
         if(res.ok) {
           dispatch(receiveUpdateTask(res.body))

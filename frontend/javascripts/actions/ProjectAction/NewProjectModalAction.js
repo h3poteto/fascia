@@ -2,7 +2,7 @@ import Request from 'superagent'
 
 export const UNAUTHORIZED = 'UNAUTHORIZED'
 function unauthorized() {
-  window.location.pathname = "/sign_in"
+  window.location.pathname = '/sign_in'
   return {
     type: UNAUTHORIZED
   }
@@ -25,8 +25,7 @@ function serverError() {
 export const CLOSE_NEW_PROJECT = 'CLOSE_NEW_PROJECT'
 export function closeNewProjectModal() {
   return {
-    type: CLOSE_NEW_PROJECT,
-    isModalOpen: false
+    type: CLOSE_NEW_PROJECT
   }
 }
 
@@ -38,30 +37,24 @@ function requestCreateProject() {
 }
 
 export const RECEIVE_CREATE_PROJECT = 'RECEIVE_CREATE_PROJECT'
-function receiveCreateProject(id, userID, title, description) {
+function receiveCreateProject(body) {
   return {
     type: RECEIVE_CREATE_PROJECT,
-    project: {ID: id, UserID: userID, Title: title, Description: description}
+    project: {ID: body.ID, UserID: body.UserID, Title: body.Title, Description: body.Description}
   }
 }
 
 
-export function fetchCreateProject(title, description, repository) {
+export function fetchCreateProject(params) {
   return dispatch => {
     dispatch(requestCreateProject())
-    var repositoryID, repositoryOwner, repositoryName
-    if (repository != null) {
-      repositoryID = repository.id
-      repositoryOwner = repository.owner.login
-      repositoryName = repository.name
-    }
     return Request
       .post('/projects')
       .type('form')
-      .send({title: title, description: description, repository_id: repositoryID, repository_owner: repositoryOwner, repository_name: repositoryName})
+      .send(params)
       .end((err, res)=> {
         if (res.ok) {
-          dispatch(receiveCreateProject(res.body.ID, res.body.UserID, res.body.Title, res.body.Description))
+          dispatch(receiveCreateProject(res.body))
         } else if (res.unauthorized) {
           dispatch(unauthorized())
         } else if (res.notFound) {
@@ -71,28 +64,4 @@ export function fetchCreateProject(title, description, repository) {
         }
       })
     }
-}
-
-export const UPDATE_NEW_PROJECT_TITLE = 'UPDATE_NEW_PROJECT_TITLE'
-export function updateNewProjectTitle(ev) {
-  return {
-    type: UPDATE_NEW_PROJECT_TITLE,
-    title: ev.target.value
-  }
-}
-
-export const UPDATE_NEW_PROJECT_DESCRIPTION = 'UPDATE_NEW_PROJECT_DESCRIPTION'
-export function updateNewProjectDescription(ev) {
-  return {
-    type: UPDATE_NEW_PROJECT_DESCRIPTION,
-    description: ev.target.value
-  }
-}
-
-export const CHANGE_SELECT_REPOSITORY = 'CHANGE_SELECT_REPOSITORY'
-export function changeSelectedRepository(ev) {
-  return {
-    type: CHANGE_SELECT_REPOSITORY,
-    selectEvent: ev.target
-  }
 }

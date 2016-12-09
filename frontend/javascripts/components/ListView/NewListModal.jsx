@@ -1,8 +1,9 @@
 import React from 'react'
 import Modal from 'react-modal'
+import { Field, reduxForm } from 'redux-form'
 
 const customStyles = {
-  overlay : {
+  overlay: {
     position          : 'fixed',
     top               : 0,
     left              : 0,
@@ -10,7 +11,7 @@ const customStyles = {
     bottom            : 0,
     backgroundColor   : 'rgba(255, 255, 255, 0.5)'
   },
-  content : {
+  content: {
     position : 'fixed',
     top : '50%',
     left : '50%',
@@ -21,28 +22,38 @@ const customStyles = {
   }
 }
 
-export default class NewListModal extends React.Component {
+class NewListModal extends React.Component {
   constructor(props) {
     super(props)
   }
 
   render() {
+    const {
+      handleSubmit,
+      pristine,
+      reset,
+      submitting,
+      onRequestClose,
+      action,
+      projectID,
+    } = this.props
     return (
       <Modal
           isOpen={this.props.isListModalOpen}
-          onRequestClose={this.props.closeNewListModal}
+          onRequestClose={onRequestClose}
           style={customStyles}
       >
         <div className="list-form">
-          <form className="pure-form pure-form-stacked">
+          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(projectID, values) })}>
             <fieldset>
               <legend>Create List</legend>
               <label htmlFor="title">Title</label>
-              <input id="title" name="title" type="text" value={this.props.newList.title} onChange={this.props.updateNewListTitle} placeholder="List Name" className="form-control" />
+              <Field name="title" id="title" component="input" type="text" placeholder="List name" className="form-control" />
               <label htmlFor="color">Color</label>
-              <input id="color" name="color" type="text" value={this.props.newList.color} onChange={this.props.updateNewListColor} className="form-control" />
+              <Field name="color" id="color" component="input" type="text" placeholder="008ed4" className="form-control" />
               <div className="form-action">
-                <button onClick={e => this.props.fetchCreateList(this.props.projectID, this.props.newList.title, this.props.newList.color)} className="pure-button pure-button-primary" type="button">Create List</button>
+                <button type="reset" className="pure-button pure-button-default" disabled={pristine || submitting} onClick={reset}>Reset</button>
+                <button type="submit" className="pure-button pure-button-primary" disabled={pristine || submitting}>Create List</button>
               </div>
             </fieldset>
           </form>
@@ -51,3 +62,18 @@ export default class NewListModal extends React.Component {
     )
   }
 }
+
+NewListModal.propTypes = {
+  handleSubmit: React.PropTypes.func.isRequired,
+  pristine: React.PropTypes.bool,
+  reset: React.PropTypes.func.isRequired,
+  submitting: React.PropTypes.bool.isRequired,
+  onRequestClose: React.PropTypes.func.isRequired,
+  action: React.PropTypes.func.isRequired,
+  projectID: React.PropTypes.string.isRequired,
+  isListModalOpen: React.PropTypes.bool.isRequired,
+}
+
+export default reduxForm({
+  form: 'new-list-form',
+})(NewListModal)

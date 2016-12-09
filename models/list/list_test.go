@@ -35,7 +35,7 @@ var _ = Describe("List", func() {
 		password := "hogehoge"
 		uid, _ := user.Registration(email, password, password)
 		database = db.SharedInstance().Connection
-		newProject, _ = project.Create(uid, "title", "desc", 0, "", "", sql.NullString{})
+		newProject, _ = project.Create(uid, "title", "desc", 0, sql.NullString{})
 		newList = NewList(0, newProject.ID, newProject.UserID, "list title", "", sql.NullInt64{}, false)
 	})
 
@@ -95,8 +95,8 @@ var _ = Describe("List", func() {
 			It("should update list", func() {
 				newTitle := "newTitle"
 				newColor := "newColor"
-				action := "nothing"
-				newList.Update(nil, nil, &newTitle, &newColor, &action)
+				optionID := int64(0)
+				newList.Update(nil, nil, &newTitle, &newColor, &optionID)
 				findList, err := FindList(newList.ProjectID, newList.ID)
 				Expect(err).To(BeNil())
 				Expect(findList.Title.String).To(Equal(newTitle))
@@ -107,14 +107,12 @@ var _ = Describe("List", func() {
 			It("should update list and have list_option", func() {
 				newTitle := "newTitle"
 				newColor := "newColor"
-				action := "close"
-				newList.Update(nil, nil, &newTitle, &newColor, &action)
+				listOption, _ := list_option.FindByAction("close")
+				newList.Update(nil, nil, &newTitle, &newColor, &listOption.ID)
 				findList, err := FindList(newList.ProjectID, newList.ID)
 				Expect(err).To(BeNil())
 				Expect(findList.Title.String).To(Equal(newTitle))
 				Expect(findList.Color.String).To(Equal(newColor))
-				listOption, err := list_option.FindByAction(action)
-				Expect(err).To(BeNil())
 				Expect(findList.ListOptionID.Int64).To(Equal(listOption.ID))
 			})
 		})

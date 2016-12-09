@@ -151,7 +151,7 @@ var _ = Describe("User", func() {
 				}
 			}
 			var err error
-			newProject, err = project.Create(userid, "title", "desc", 0, "", "", sql.NullString{})
+			newProject, err = project.Create(userid, "title", "desc", 0, sql.NullString{})
 			if err != nil {
 				panic(err)
 			}

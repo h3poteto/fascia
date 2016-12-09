@@ -21,27 +21,16 @@ describe('ListView::ShowTaskModal', () => {
     let state = ShowTaskModalFixture.initState()
     it('should not render show task modal', () => {
       const { output } = setup(state)
-      expect(output.props.isOpen).toBe(false)
+      expect(output.props.isShowTaskModalOpen).toBe(false)
     })
   })
   context('when task modal open', () => {
     let state = ShowTaskModalFixture.openShowTaskModalState()
     it('should render show task modal', () => {
       const { output } = setup(state)
-      expect(output.props.isOpen).toBe(true)
+      expect(output.props.isShowTaskModalOpen).toBe(true)
     })
   })
 
-  context('when edit task modal visible', () => {
-    let state = ShowTaskModalFixture.visibleEditTaskModalState()
-    it('should render edit task form', () => {
-      const { output } = setup(state)
-      expect(output.props.isOpen).toBe(true)
-
-      let taskDetail = output.props.children
-      let [ , body ]  = taskDetail.props.children
-      expect(body.props.children.type).toBe('form')
-    })
-  })
 })
 

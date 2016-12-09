@@ -2,7 +2,7 @@ import Request from 'superagent'
 
 export const UNAUTHORIZED = 'UNAUTHORIZED'
 function unauthorized() {
-  window.location.pathname = "/sign_in"
+  window.location.pathname = '/sign_in'
   return {
     type: UNAUTHORIZED
   }
@@ -30,22 +30,6 @@ export function closeEditListModal() {
   }
 }
 
-export const UPDATE_SELECTED_LIST_TITLE = 'UPDATE_SELECTED_LIST_TITLE'
-export function updateSelectedListTitle(ev) {
-  return {
-    type: UPDATE_SELECTED_LIST_TITLE,
-    title: ev.target.value
-  }
-}
-
-export const UPDATE_SELECTED_LIST_COLOR = 'UPDATE_SELECTED_LIST_COLOR'
-export function updateSelectedListColor(ev) {
-  return {
-    type: UPDATE_SELECTED_LIST_COLOR,
-    color: ev.target.value
-  }
-}
-
 export const REQUEST_UPDATE_LIST = 'REQUEST_UPDATE_LIST'
 function requestUpdateList() {
   return {
@@ -61,17 +45,13 @@ function receiveUpdateList(list) {
   }
 }
 
-export function fetchUpdateList(projectID, list, option) {
-  var action
-  if (option != undefined && option != null) {
-    action = option.Action
-  }
+export function fetchUpdateList(projectID, listID, params) {
   return dispatch => {
     dispatch(requestUpdateList())
     return Request
-      .post(`/projects/${projectID}/lists/${list.ID}`)
+      .post(`/projects/${projectID}/lists/${listID}`)
       .type('form')
-      .send({title: list.Title, color: list.Color, action: action})
+      .send(params)
       .end((err, res)=> {
         if(res.ok) {
           dispatch(receiveUpdateList(res.body))
@@ -83,14 +63,5 @@ export function fetchUpdateList(projectID, list, option) {
           dispatch(serverError())
         }
       })
-  }
-}
-
-
-export const CHANGE_SELECTED_LIST_OPTION = 'CHANGE_SELECTED_LIST_OPTION'
-export function changeSelectedListOption(ev) {
-  return {
-    type: CHANGE_SELECTED_LIST_OPTION,
-    selectEvent: ev.target
   }
 }

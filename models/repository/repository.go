@@ -29,7 +29,7 @@ type RepositoryStruct struct {
 	database     *sql.DB
 }
 
-// GenerateWebhookKey is create new md5 hash
+// GenerateWebhookKey create new md5 hash
 func GenerateWebhookKey(seed string) string {
 	h := md5.New()
 	io.WriteString(h, strconv.FormatInt(time.Now().Unix(), 10))
@@ -39,8 +39,8 @@ func GenerateWebhookKey(seed string) string {
 	return token
 }
 
-// NewRepository is build new Repository struct
-func NewRepository(id int64, repositoryID int64, owner string, name string, webhookKey string) *RepositoryStruct {
+// New is build new Repository struct
+func New(id int64, repositoryID int64, owner string, name string, webhookKey string) *RepositoryStruct {
 	if repositoryID <= 0 {
 		return nil
 	}
@@ -58,7 +58,7 @@ func FindRepositoryByRepositoryID(repositoryID int64) (*RepositoryStruct, error)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
-	return NewRepository(id, repositoryID, owner, name, webhookKey), nil
+	return New(id, repositoryID, owner, name, webhookKey), nil
 }
 
 func (u *RepositoryStruct) Initialize() {

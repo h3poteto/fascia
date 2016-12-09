@@ -2,7 +2,7 @@ import Request from 'superagent'
 
 export const UNAUTHORIZED = 'UNAUTHORIZED'
 function unauthorized() {
-  window.location.pathname = "/sign_in"
+  window.location.pathname = '/sign_in'
   return {
     type: UNAUTHORIZED
   }
@@ -22,7 +22,7 @@ function serverError() {
   }
 }
 
-export const CLOSE_FLASH = "CLOSE_FLASH"
+export const CLOSE_FLASH = 'CLOSE_FLASH'
 export function closeFlash() {
   return {
     type: CLOSE_FLASH

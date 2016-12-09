@@ -66,7 +66,11 @@ describe('fetchUpdateTask', () => {
         }
       ]
       const store = mockStore({}, expectedActions, done)
-      store.dispatch(showTaskModalActions.fetchUpdateTask(projectID, listID, taskID, title, description))
+      const params = {
+        title: title,
+        description: description,
+      }
+      store.dispatch(showTaskModalActions.fetchUpdateTask(projectID, listID, taskID, params))
     })
   })
 })

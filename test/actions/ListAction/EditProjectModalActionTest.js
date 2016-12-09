@@ -38,7 +38,11 @@ describe('fetchUpdateProject', () => {
         { type: editProjectModalActions.RECEIVE_UPDATE_PROJECT, project: project }
       ]
       const store = mockStore({ project: null }, expectedActions, done)
-      store.dispatch(editProjectModalActions.fetchUpdateProject(project.ID, project))
+      const params = {
+        title: project.Title,
+        description: project.Description,
+      }
+      store.dispatch(editProjectModalActions.fetchUpdateProject(project.ID, params))
     })
   })
 })

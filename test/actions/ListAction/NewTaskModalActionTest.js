@@ -67,7 +67,11 @@ describe('fetchCreateTask', () => {
         }
       ]
       const store = mockStore({ task: null }, expectedActions, done)
-      store.dispatch(newTaskModalActions.fetchCreateTask(projectID, listID, title, description))
+      const params = {
+        title: title,
+        description: description,
+      }
+      store.dispatch(newTaskModalActions.fetchCreateTask(projectID, listID, params))
     })
   })
 })
