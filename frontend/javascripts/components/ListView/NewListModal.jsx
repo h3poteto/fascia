@@ -63,6 +63,17 @@ class NewListModal extends React.Component {
   }
 }
 
+NewListModal.propTypes = {
+  handleSubmit: React.PropTypes.func.isRequired,
+  pristine: React.PropTypes.bool,
+  reset: React.PropTypes.func.isRequired,
+  submitting: React.PropTypes.bool.isRequired,
+  onRequestClose: React.PropTypes.func.isRequired,
+  action: React.PropTypes.func.isRequired,
+  projectID: React.PropTypes.string.isRequired,
+  isListModalOpen: React.PropTypes.bool.isRequired,
+}
+
 export default reduxForm({
   form: 'new-list-form',
 })(NewListModal)

@@ -28,7 +28,6 @@ const customStyles = {
 class ShowTaskModal extends React.Component {
   componentWillReceiveProps(nextProps) {
     // modalをcloseするタイミングでは初期化しておかないと，別のtaskを選択したときに，現在の編集分が残っている可能性がある
-    console.log(nextProps.dirty)
     if (!nextProps.dirty || !nextProps.isShowTaskModalOpen) {
       this.handleInitialize(nextProps)
     }
@@ -36,8 +35,8 @@ class ShowTaskModal extends React.Component {
 
   handleInitialize(props) {
     const initData = {
-      "title": props.task.Title,
-      "description": props.task.Description,
+      'title': props.task.Title,
+      'description': props.task.Description,
     }
 
     this.props.initialize(initData)
@@ -69,7 +68,7 @@ class ShowTaskModal extends React.Component {
         .render(task.Description)
       return <span dangerouslySetInnerHTML={{__html: rawMarkup}} />
     } else {
-      return "Description"
+      return 'Description'
     }
   }
 
@@ -147,6 +146,22 @@ class ShowTaskModal extends React.Component {
       </Modal>
     )
   }
+}
+
+ShowTaskModal.propTypes = {
+  initialize: React.PropTypes.func.isRequired,
+  handleSubmit: React.PropTypes.func.isRequired,
+  pristine: React.PropTypes.bool,
+  reset: React.PropTypes.func.isRequired,
+  submitting: React.PropTypes.bool.isRequired,
+  onRequestClose: React.PropTypes.func.isRequired,
+  action: React.PropTypes.func.isRequired,
+  projectID: React.PropTypes.string.isRequired,
+  task: React.PropTypes.object,
+  isShowTaskModalOpen: React.PropTypes.bool.isRequired,
+  isEditTaskModalVisible: React.PropTypes.bool,
+  fetchDeleteTask: React.PropTypes.func.isRequired,
+  changeEditMode: React.PropTypes.func.isRequired,
 }
 
 export default reduxForm({

@@ -32,9 +32,9 @@ class EditListModal extends React.Component {
 
   handleInitialize(props) {
     const initData = {
-      "title": props.list.Title,
-      "color": props.list.Color,
-      "option_id": props.list.OptionID,
+      'title': props.list.Title,
+      'color': props.list.Color,
+      'option_id': props.list.OptionID,
     }
 
     this.props.initialize(initData)
@@ -95,6 +95,20 @@ class EditListModal extends React.Component {
       </Modal>
     )
   }
+}
+
+EditListModal.propTypes = {
+  initialize: React.PropTypes.func.isRequired,
+  handleSubmit: React.PropTypes.func.isRequired,
+  pristine: React.PropTypes.bool,
+  reset: React.PropTypes.func.isRequired,
+  submitting: React.PropTypes.bool.isRequired,
+  onRequestClose: React.PropTypes.func.isRequired,
+  action: React.PropTypes.func.isRequired,
+  project: React.PropTypes.object,
+  list: React.PropTypes.object,
+  listOptions: React.PropTypes.array,
+  isListEditModalOpen: React.PropTypes.bool.isRequired,
 }
 
 export default reduxForm({

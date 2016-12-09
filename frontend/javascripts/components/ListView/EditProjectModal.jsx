@@ -31,8 +31,8 @@ class EditProjectModal extends React.Component {
 
   handleInitialize(props) {
     const initData = {
-      "title": props.project.Title,
-      "description": props.project.Description,
+      'title': props.project.Title,
+      'description': props.project.Description,
     }
 
     this.props.initialize(initData)
@@ -43,7 +43,7 @@ class EditProjectModal extends React.Component {
       return null
     } else {
       return (
-        <button onClick={e => this.props.createWebhook(this.props.projectID)} className="pure-button button-secondary" type="button">Update Webhook</button>
+        <button onClick={() => this.props.createWebhook(this.props.projectID)} className="pure-button button-secondary" type="button">Update Webhook</button>
       )
     }
   }
@@ -86,7 +86,20 @@ class EditProjectModal extends React.Component {
   }
 }
 
+EditProjectModal.propTypes = {
+  initialize: React.PropTypes.func.isRequired,
+  handleSubmit: React.PropTypes.func.isRequired,
+  pristine: React.PropTypes.bool,
+  reset: React.PropTypes.func.isRequired,
+  submitting: React.PropTypes.bool.isRequired,
+  onRequestClose: React.PropTypes.func.isRequired,
+  action: React.PropTypes.func.isRequired,
+  projectID: React.PropTypes.string.isRequired,
+  project: React.PropTypes.object,
+  isProjectEditModalOpen: React.PropTypes.bool.isRequired,
+  createWebhook: React.PropTypes.func.isRequired,
+}
+
 export default reduxForm({
   form: 'edit-project-form',
 })(EditProjectModal)
-
