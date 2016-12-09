@@ -120,6 +120,7 @@ func (u *ListStruct) Save(repo *repository.RepositoryStruct, OauthToken *sql.Nul
 	return nil
 }
 
+// Update update and save list in database
 func (u *ListStruct) Update(repo *repository.RepositoryStruct, OauthToken *sql.NullString, title *string, color *string, optionID *int64) (e error) {
 	// 初期リストに関しては一切編集を許可しない
 	// 色は変えられても良いが，titleとactionは変えられては困る

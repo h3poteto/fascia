@@ -5,6 +5,7 @@ import (
 	"github.com/h3poteto/fascia/modules/hub"
 )
 
+// CreateRepository create repository record based on github repository
 func CreateRepository(ID int, oauthToken string) (*repository.RepositoryStruct, error) {
 	// confirm github
 	h := hub.New(oauthToken)

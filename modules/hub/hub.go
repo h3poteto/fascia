@@ -9,10 +9,12 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// Hub has github client struct
 type Hub struct {
 	client *github.Client
 }
 
+// New returns Hub struct
 func New(token string) *Hub {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
@@ -22,6 +24,7 @@ func New(token string) *Hub {
 	return &Hub{client: client}
 }
 
+// GetRepository returns a repository struct
 func (h *Hub) GetRepository(ID int) (*github.Repository, error) {
 	repo, _, err := h.client.Repositories.GetByID(ID)
 	if err != nil {

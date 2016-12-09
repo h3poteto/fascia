@@ -59,6 +59,7 @@ func FindProject(projectID int64) (*ProjectStruct, error) {
 	return project, nil
 }
 
+// Create create project and repository, and create webhook and related lists.
 // TODO: サービス層に移動すべき内容である
 func Create(userID int64, title string, description string, repositoryID int, oauthToken sql.NullString) (p *ProjectStruct, e error) {
 	database := db.SharedInstance().Connection
