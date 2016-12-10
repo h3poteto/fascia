@@ -23,8 +23,14 @@ const customStyles = {
 }
 
 class NewTaskModal extends React.Component {
-  constructor(props) {
-    super(props)
+  componentWillReceiveProps(nextProps) {
+    if (!nextProps.isTaskModalOpen) {
+      this.handleInitialize()
+    }
+  }
+
+  handleInitialize() {
+    this.props.initialize({})
   }
 
   render() {
@@ -65,6 +71,7 @@ class NewTaskModal extends React.Component {
 }
 
 NewTaskModal.propTypes = {
+  initialize: React.PropTypes.func.isRequired,
   handleSubmit: React.PropTypes.func.isRequired,
   pristine: React.PropTypes.bool,
   reset: React.PropTypes.func.isRequired,
