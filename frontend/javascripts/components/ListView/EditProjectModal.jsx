@@ -74,9 +74,13 @@ class EditProjectModal extends React.Component {
               <label htmlFor="description">Description</label>
               <Field name="description" id="description" component="textarea" placeholder="Description" className="form-control" />
               <div className="form-action">
-                {this.webhookButton(project)}&nbsp;
-                <button type="reset" className="pure-button pure-button-default" disabled={pristine || submitting} onClick={reset}>Reset</button>&nbsp;
-                <button type="submit" className="pure-button pure-button-primary" disabled={pristine || submitting}>Update Project</button>
+                <div>
+                  {this.webhookButton(project)}
+                </div>
+                <div>
+                  <button type="reset" className="pure-button pure-button-default" disabled={pristine || submitting} onClick={reset}>Reset</button>
+                  <button type="submit" className="pure-button pure-button-primary" disabled={pristine || submitting}>Update Project</button>
+                </div>
               </div>
             </fieldset>
           </form>
