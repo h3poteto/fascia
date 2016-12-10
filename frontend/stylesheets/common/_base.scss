@@ -12,8 +12,12 @@ $green-color: #d3eda3;
 .button-warning,
 .button-secondary {
   color: white;
-  border-radius: 10px;
+  border-radius: 8px;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.pure-button-default {
+  border-radius: 8px;
 }
 
 .button-success {
@@ -71,6 +75,13 @@ html, body {
 
 body {
   font-family: 'Raleway', sans-serif;
+}
+
+.form-action {
+  button {
+    margin-bottom: 8px;
+    margin-left: 4px;
+  }
 }
 
 .fascia-form-icon-wrapper {
