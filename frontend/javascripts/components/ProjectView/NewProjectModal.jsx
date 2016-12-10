@@ -23,8 +23,14 @@ const customStyles = {
 }
 
 class NewProjectModal extends React.Component {
-  constructor(props) {
-    super(props)
+  componentWillReceiveProps(nextProps) {
+    if (!nextProps.isModalOpen) {
+      this.handleInitialize()
+    }
+  }
+
+  handleInitialize() {
+    this.props.initialize({})
   }
 
   render() {
@@ -71,6 +77,7 @@ class NewProjectModal extends React.Component {
 }
 
 NewProjectModal.propTypes = {
+  initialize: React.PropTypes.func.isRequired,
   handleSubmit: React.PropTypes.func.isRequired,
   pristine: React.PropTypes.bool,
   reset: React.PropTypes.func.isRequired,

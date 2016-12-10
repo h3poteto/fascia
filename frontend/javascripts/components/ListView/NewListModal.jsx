@@ -23,8 +23,14 @@ const customStyles = {
 }
 
 class NewListModal extends React.Component {
-  constructor(props) {
-    super(props)
+  componentWillReceiveProps(nextProps) {
+    if (!nextProps.isListModalOpen) {
+      this.handleInitialize()
+    }
+  }
+
+  handleInitialize() {
+    this.props.initialize({})
   }
 
   render() {
@@ -64,6 +70,7 @@ class NewListModal extends React.Component {
 }
 
 NewListModal.propTypes = {
+  initialize: React.PropTypes.func.isRequired,
   handleSubmit: React.PropTypes.func.isRequired,
   pristine: React.PropTypes.bool,
   reset: React.PropTypes.func.isRequired,
