@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	userModel "github.com/h3poteto/fascia/server/models/user"
+	"github.com/h3poteto/fascia/server/services"
 
 	"crypto/md5"
 	"fmt"
@@ -39,7 +39,7 @@ var cookieStore = sessions.NewCookieStore([]byte("session-keys"))
 var CheckCSRFToken = checkCSRF
 var LoginRequired = CheckLogin
 
-func CheckLogin(r *http.Request) (*userModel.UserStruct, error) {
+func CheckLogin(r *http.Request) (*services.User, error) {
 	session, err := cookieStore.Get(r, Key)
 	if err != nil {
 		return nil, errors.New("cookie error")
@@ -48,7 +48,7 @@ func CheckLogin(r *http.Request) (*userModel.UserStruct, error) {
 	if id == nil {
 		return nil, errors.New("not logined")
 	}
-	currentUser, err := userModel.CurrentUser(id.(int64))
+	currentUser, err := services.CurrentUser(id.(int64))
 	if err != nil {
 		return nil, err
 	}

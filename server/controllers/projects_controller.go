@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	projectModel "github.com/h3poteto/fascia/server/models/project"
+	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/validators"
 
 	"encoding/json"
@@ -61,11 +61,19 @@ func (u *Projects) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	jsonProjects := make([]*ProjectJSONFormat, 0)
 	for _, p := range projects {
 		var repositoryID int64
-		repo, err := p.Repository()
+		repo, err := p.ProjectAggregation.Repository()
 		if err == nil {
 			repositoryID = repo.ID
 		}
-		jsonProjects = append(jsonProjects, &ProjectJSONFormat{ID: p.ID, UserID: p.UserID, Title: p.Title, Description: p.Description, ShowIssues: p.ShowIssues, ShowPullRequests: p.ShowPullRequests, RepositoryID: repositoryID})
+		jsonProjects = append(jsonProjects, &ProjectJSONFormat{
+			ID:               p.ProjectAggregation.ProjectModel.ID,
+			UserID:           p.ProjectAggregation.ProjectModel.UserID,
+			Title:            p.ProjectAggregation.ProjectModel.Title,
+			Description:      p.ProjectAggregation.ProjectModel.Description,
+			ShowIssues:       p.ProjectAggregation.ProjectModel.ShowIssues,
+			ShowPullRequests: p.ProjectAggregation.ProjectModel.ShowPullRequests,
+			RepositoryID:     repositoryID,
+		})
 	}
 	encoder.Encode(jsonProjects)
 }
@@ -86,18 +94,26 @@ func (u *Projects) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "project not found", 404)
 		return
 	}
-	project, err := projectModel.FindProject(projectID)
-	if err != nil || project.UserID != currentUser.ID {
+	projectService, err := handlers.FindProject(projectID)
+	if err != nil || !(projectService.CheckOwner(currentUser.UserAggregation.UserModel.ID)) {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Show", c).Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
 	var repoID int64
-	repo, err := project.Repository()
+	repo, err := projectService.ProjectAggregation.Repository()
 	if err == nil {
 		repoID = repo.ID
 	}
-	jsonProject := ProjectJSONFormat{ID: project.ID, UserID: project.UserID, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repoID}
+	jsonProject := ProjectJSONFormat{
+		ID:               projectService.ProjectAggregation.ProjectModel.ID,
+		UserID:           projectService.ProjectAggregation.ProjectModel.UserID,
+		Title:            projectService.ProjectAggregation.ProjectModel.Title,
+		Description:      projectService.ProjectAggregation.ProjectModel.Description,
+		ShowIssues:       projectService.ProjectAggregation.ProjectModel.ShowIssues,
+		ShowPullRequests: projectService.ProjectAggregation.ProjectModel.ShowPullRequests,
+		RepositoryID:     repoID,
+	}
 	encoder.Encode(jsonProject)
 	return
 }
@@ -140,12 +156,12 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	project, err := projectModel.Create(
-		currentUser.ID,
+	projectService, err := handlers.CreateProject(
+		currentUser.UserAggregation.UserModel.ID,
 		newProjectForm.Title,
 		newProjectForm.Description,
 		newProjectForm.RepositoryID,
-		currentUser.OauthToken,
+		currentUser.UserAggregation.UserModel.OauthToken,
 	)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Create", err, c).Error(err)
@@ -153,11 +169,19 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var repositoryID int64
-	repo, err := project.Repository()
+	repo, err := projectService.ProjectAggregation.Repository()
 	if err == nil {
 		repositoryID = repo.ID
 	}
-	jsonProject := ProjectJSONFormat{ID: project.ID, UserID: project.UserID, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repositoryID}
+	jsonProject := ProjectJSONFormat{
+		ID:               projectService.ProjectAggregation.ProjectModel.ID,
+		UserID:           projectService.ProjectAggregation.ProjectModel.UserID,
+		Title:            projectService.ProjectAggregation.ProjectModel.Title,
+		Description:      projectService.ProjectAggregation.ProjectModel.Description,
+		ShowIssues:       projectService.ProjectAggregation.ProjectModel.ShowIssues,
+		ShowPullRequests: projectService.ProjectAggregation.ProjectModel.ShowPullRequests,
+		RepositoryID:     repositoryID,
+	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Create", c).Info("success to create project")
 	encoder.Encode(jsonProject)
 }
@@ -179,8 +203,8 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "project not found", 404)
 		return
 	}
-	project, err := projectModel.FindProject(projectID)
-	if err != nil || project.UserID != currentUser.ID {
+	projectService, err := handlers.FindProject(projectID)
+	if err != nil || !(projectService.CheckOwner(currentUser.UserAggregation.UserModel.ID)) {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Update", c).Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
@@ -214,18 +238,26 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := project.Update(editProjectForm.Title, editProjectForm.Description, project.ShowIssues, project.ShowPullRequests); err != nil {
+	if err := projectService.UpdateProject(editProjectForm.Title, editProjectForm.Description, projectService.ProjectAggregation.ProjectModel.ShowIssues, projectService.ProjectAggregation.ProjectModel.ShowPullRequests); err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Update", err, c).Error(err)
 		http.Error(w, "update failed", 500)
 		return
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Update", c).Info("success to update project")
 	var repositoryID int64
-	repo, err := project.Repository()
+	repo, err := projectService.ProjectAggregation.Repository()
 	if err == nil {
 		repositoryID = repo.ID
 	}
-	jsonProject := ProjectJSONFormat{ID: project.ID, UserID: project.UserID, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repositoryID}
+	jsonProject := ProjectJSONFormat{
+		ID:               projectService.ProjectAggregation.ProjectModel.ID,
+		UserID:           projectService.ProjectAggregation.ProjectModel.UserID,
+		Title:            projectService.ProjectAggregation.ProjectModel.Title,
+		Description:      projectService.ProjectAggregation.ProjectModel.Description,
+		ShowIssues:       projectService.ProjectAggregation.ProjectModel.ShowIssues,
+		ShowPullRequests: projectService.ProjectAggregation.ProjectModel.ShowPullRequests,
+		RepositoryID:     repositoryID,
+	}
 	encoder.Encode(jsonProject)
 }
 
@@ -244,8 +276,8 @@ func (u *Projects) Settings(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "project not found", 404)
 		return
 	}
-	project, err := projectModel.FindProject(projectID)
-	if err != nil || project.UserID != currentUser.ID {
+	projectService, err := handlers.FindProject(projectID)
+	if err != nil || !(projectService.CheckOwner(currentUser.UserAggregation.UserModel.ID)) {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Settings", c).Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
@@ -268,18 +300,31 @@ func (u *Projects) Settings(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Settings", c).Debug("post edit project parameter: %+v", settingsProjectForm)
-	if err := project.Update(project.Title, project.Description, settingsProjectForm.ShowIssues, settingsProjectForm.ShowPullRequests); err != nil {
+	if err := projectService.UpdateProject(
+		projectService.ProjectAggregation.ProjectModel.Title,
+		projectService.ProjectAggregation.ProjectModel.Description,
+		settingsProjectForm.ShowIssues,
+		settingsProjectForm.ShowPullRequests,
+	); err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Settings", err, c).Error(err)
 		http.Error(w, "update failed", 500)
 		return
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Settings", c).Info("success to update project")
 	var repositoryID int64
-	repo, err := project.Repository()
+	repo, err := projectService.ProjectAggregation.Repository()
 	if err == nil {
 		repositoryID = repo.ID
 	}
-	jsonProject := ProjectJSONFormat{ID: project.ID, UserID: project.UserID, Title: project.Title, Description: project.Description, ShowIssues: project.ShowIssues, ShowPullRequests: project.ShowPullRequests, RepositoryID: repositoryID}
+	jsonProject := ProjectJSONFormat{
+		ID:               projectService.ProjectAggregation.ProjectModel.ID,
+		UserID:           projectService.ProjectAggregation.ProjectModel.UserID,
+		Title:            projectService.ProjectAggregation.ProjectModel.Title,
+		Description:      projectService.ProjectAggregation.ProjectModel.Description,
+		ShowIssues:       projectService.ProjectAggregation.ProjectModel.ShowIssues,
+		ShowPullRequests: projectService.ProjectAggregation.ProjectModel.ShowPullRequests,
+		RepositoryID:     repositoryID,
+	}
 	encoder.Encode(jsonProject)
 }
 
@@ -299,19 +344,19 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "project not found", 404)
 		return
 	}
-	project, err := projectModel.FindProject(projectID)
-	if err != nil || project.UserID != currentUser.ID {
+	projectService, err := handlers.FindProject(projectID)
+	if err != nil || !(projectService.CheckOwner(currentUser.UserAggregation.UserModel.ID)) {
 		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub", c).Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
-	_, err = project.FetchGithub()
+	_, err = projectService.FetchGithub()
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "FetchGithub", err, c).Errorf("github fetch error: %v", err)
 		http.Error(w, err.Error(), 500)
 		return
 	} else {
-		lists, err := project.Lists()
+		lists, err := projectService.ProjectAggregation.Lists()
 		if err != nil {
 			logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "FetchGithub", err, c).Error(err)
 			http.Error(w, "lists not found", 500)
@@ -323,7 +368,7 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 			http.Error(w, "lists format error", 500)
 			return
 		}
-		noneList, err := project.NoneList()
+		noneList, err := projectService.ProjectAggregation.NoneList()
 		if err != nil {
 			logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "FetchGithub", err, c).Error(err)
 			http.Error(w, "none list not found", 500)
@@ -358,20 +403,20 @@ func (u *Projects) Webhook(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "project not found", 404)
 		return
 	}
-	project, err := projectModel.FindProject(projectID)
-	if err != nil || project.UserID != currentUser.ID {
+	projectService, err := handlers.FindProject(projectID)
+	if err != nil || projectService.CheckOwner(currentUser.UserAggregation.UserModel.ID) {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook", c).Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
 
-	_, err = project.Repository()
+	_, err = projectService.ProjectAggregation.Repository()
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook", c).Warn("repository not found: %v", err)
 		http.Error(w, "repository not found", 404)
 		return
 	}
-	err = project.CreateWebhook()
+	err = projectService.CreateWebhook()
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Webhook", err, c).Errorf("failed to create webhook: %v", err)
 		http.Error(w, "cannot create webhook", 500)

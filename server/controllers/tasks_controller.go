@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
+	"github.com/h3poteto/fascia/server/handlers"
 	listModel "github.com/h3poteto/fascia/server/models/list"
-	projectModel "github.com/h3poteto/fascia/server/models/project"
 	taskModel "github.com/h3poteto/fascia/server/models/task"
-	userModel "github.com/h3poteto/fascia/server/models/user"
+	"github.com/h3poteto/fascia/server/services"
 	"github.com/h3poteto/fascia/server/validators"
 
 	"database/sql"
@@ -58,7 +58,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	parentProject, parentList, statusCode, err := setProjectAndList(c, w, currentUser)
+	projectService, parentList, statusCode, err := setProjectAndList(c, w, currentUser)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Create", err, c).Error(err)
 		switch statusCode {
@@ -94,10 +94,20 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task := taskModel.NewTask(0, parentList.ID, parentProject.ID, parentList.UserID, sql.NullInt64{}, newTaskForm.Title, newTaskForm.Description, false, sql.NullString{})
+	task := taskModel.NewTask(
+		0,
+		parentList.ID,
+		projectService.ProjectAggregation.ProjectModel.ID,
+		parentList.UserID,
+		sql.NullInt64{},
+		newTaskForm.Title,
+		newTaskForm.Description,
+		false,
+		sql.NullString{},
+	)
 
-	repo, _ := parentProject.Repository()
-	if err := task.Save(repo, &currentUser.OauthToken); err != nil {
+	repo, _ := projectService.ProjectAggregation.Repository()
+	if err := task.Save(repo, &currentUser.UserAggregation.UserModel.OauthToken); err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Create", err, c).Errorf("save failed: %v", err)
 		http.Error(w, "save failed", 500)
 		return
@@ -105,7 +115,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	encoder := json.NewEncoder(w)
 
-	jsonAllLists, err := allListsResponse(parentProject)
+	jsonAllLists, err := allListsResponse(projectService)
 	if err != nil {
 		http.Error(w, "Internal Server Error", 500)
 		return
@@ -166,7 +176,7 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	parentProject, parentList, statusCode, err := setProjectAndList(c, w, currentUser)
+	projectService, parentList, statusCode, err := setProjectAndList(c, w, currentUser)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Error(err)
 		switch statusCode {
@@ -219,8 +229,8 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 		prevToTaskID = &moveTaskFrom.PrevToTaskID
 	}
 
-	repo, _ := parentProject.Repository()
-	if err := task.ChangeList(moveTaskFrom.ToListID, prevToTaskID, repo, &currentUser.OauthToken); err != nil {
+	repo, _ := projectService.ProjectAggregation.Repository()
+	if err := task.ChangeList(moveTaskFrom.ToListID, prevToTaskID, repo, &currentUser.UserAggregation.UserModel.OauthToken); err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Errorf("failed change list: %v", err)
 		http.Error(w, "failed change list", 500)
 		return
@@ -228,7 +238,7 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	encoder := json.NewEncoder(w)
 
-	jsonAllLists, err := allListsResponse(parentProject)
+	jsonAllLists, err := allListsResponse(projectService)
 	if err != nil {
 		http.Error(w, "Internal Server Error", 500)
 		return
@@ -250,7 +260,7 @@ func (u *Tasks) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	parentProject, parentList, statusCode, err := setProjectAndList(c, w, currentUser)
+	projectService, parentList, statusCode, err := setProjectAndList(c, w, currentUser)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Update", err, c).Error(err)
 		switch statusCode {
@@ -301,8 +311,8 @@ func (u *Tasks) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	task.Title = editTaskForm.Title
 	task.Description = editTaskForm.Description
 
-	repo, _ := parentProject.Repository()
-	if err := task.Update(repo, &currentUser.OauthToken); err != nil {
+	repo, _ := projectService.ProjectAggregation.Repository()
+	if err := task.Update(repo, &currentUser.UserAggregation.UserModel.OauthToken); err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Update", err, c).Error(err)
 		http.Error(w, "update error", 500)
 		return
@@ -310,7 +320,7 @@ func (u *Tasks) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	encoder := json.NewEncoder(w)
 
-	jsonAllLists, err := allListsResponse(parentProject)
+	jsonAllLists, err := allListsResponse(projectService)
 	if err != nil {
 		http.Error(w, "Internal Server Error", 500)
 		return
@@ -331,7 +341,7 @@ func (u *Tasks) Delete(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	parentProject, parentList, statusCode, err := setProjectAndList(c, w, currentUser)
+	projectService, parentList, statusCode, err := setProjectAndList(c, w, currentUser)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Delete", err, c).Error(err)
 		switch statusCode {
@@ -362,7 +372,7 @@ func (u *Tasks) Delete(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	encoder := json.NewEncoder(w)
-	jsonAllLists, err := allListsResponse(parentProject)
+	jsonAllLists, err := allListsResponse(projectService)
 	if err != nil {
 		http.Error(w, "Internal Server Error", 500)
 		return
@@ -372,14 +382,14 @@ func (u *Tasks) Delete(c web.C, w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func setProjectAndList(c web.C, w http.ResponseWriter, currentUser *userModel.UserStruct) (*projectModel.ProjectStruct, *listModel.ListStruct, int, error) {
+func setProjectAndList(c web.C, w http.ResponseWriter, currentUser *services.User) (*services.Project, *listModel.ListStruct, int, error) {
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
 		return nil, nil, 404, err
 	}
-	parentProject, err := projectModel.FindProject(projectID)
-	if err != nil || parentProject.UserID != currentUser.ID {
+	projectService, err := handlers.FindProject(projectID)
+	if err != nil || !(projectService.CheckOwner(currentUser.UserAggregation.UserModel.ID)) {
 		return nil, nil, 404, err
 	}
 	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
@@ -387,11 +397,11 @@ func setProjectAndList(c web.C, w http.ResponseWriter, currentUser *userModel.Us
 		err := errors.Wrap(err, "parse error")
 		return nil, nil, 404, err
 	}
-	parentList, err := listModel.FindList(projectID, listID)
+	parentList, err := listModel.FindList(projectService.ProjectAggregation.ProjectModel.ID, listID)
 	if err != nil {
 		return nil, nil, 404, err
 	}
-	return parentProject, parentList, 200, nil
+	return projectService, parentList, 200, nil
 }
 
 func setTask(c web.C, w http.ResponseWriter, list *listModel.ListStruct) (*taskModel.TaskStruct, int, error) {
@@ -417,8 +427,8 @@ func TaskFormatToJSON(tasks []*taskModel.TaskStruct) []*TaskJSONFormat {
 	return jsonTasks
 }
 
-func allListsResponse(project *projectModel.ProjectStruct) (*AllListJSONFormat, error) {
-	allLists, err := project.Lists()
+func allListsResponse(projectService *services.Project) (*AllListJSONFormat, error) {
+	allLists, err := projectService.ProjectAggregation.Lists()
 	if err != nil {
 		return nil, err
 	}
@@ -426,7 +436,7 @@ func allListsResponse(project *projectModel.ProjectStruct) (*AllListJSONFormat, 
 	if err != nil {
 		return nil, err
 	}
-	noneList, err := project.NoneList()
+	noneList, err := projectService.ProjectAggregation.NoneList()
 	if err != nil {
 		return nil, err
 	}

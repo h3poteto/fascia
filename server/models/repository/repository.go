@@ -4,14 +4,9 @@ import (
 	"github.com/h3poteto/fascia/server/models/db"
 
 	"crypto/hmac"
-	"crypto/md5"
 	"crypto/sha1"
 	"database/sql"
 	"encoding/hex"
-	"fmt"
-	"io"
-	"strconv"
-	"time"
 
 	"github.com/pkg/errors"
 )
@@ -27,16 +22,6 @@ type RepositoryStruct struct {
 	Name         sql.NullString
 	WebhookKey   string
 	database     *sql.DB
-}
-
-// GenerateWebhookKey create new md5 hash
-func GenerateWebhookKey(seed string) string {
-	h := md5.New()
-	io.WriteString(h, strconv.FormatInt(time.Now().Unix(), 10))
-	io.WriteString(h, seed)
-	token := fmt.Sprintf("%x", h.Sum(nil))
-
-	return token
 }
 
 // New is build new Repository struct

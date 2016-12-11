@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/models/project"
 	"github.com/h3poteto/fascia/server/models/repository"
+	"github.com/h3poteto/fascia/server/services"
 
 	"encoding/json"
 	"io/ioutil"
@@ -51,7 +51,8 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "repository authenticate failed", 404)
 			return
 		}
-		err = project.IssuesEvent(repo.ID, githubBody)
+		projectService, err := services.FindProjectByRepositoryID(repo.ID)
+		err = projectService.ApplyIssueChanges(githubBody)
 		if err != nil && !u.includeDuplicateError(err) {
 			if u.includeDuplicateError(err) {
 				logging.SharedInstance().MethodInfo("Repositories", "Hook", c).Warn(err)
@@ -80,7 +81,9 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "repository authenticate failed", 404)
 			return
 		}
-		err = project.PullRequestEvent(repo.ID, githubBody)
+
+		projectService, err := services.FindProjectByRepositoryID(repo.ID)
+		err = projectService.ApplyPullRequestChanges(githubBody)
 		if err != nil {
 			if u.includeDuplicateError(err) {
 				logging.SharedInstance().MethodInfo("Repositories", "Hook", c).Warn(err)

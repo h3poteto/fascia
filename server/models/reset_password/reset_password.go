@@ -54,7 +54,7 @@ func Authenticate(id int64, token string) error {
 	return nil
 }
 
-func ChangeUserPassword(id int64, token string, password string) (u *user.UserStruct, e error) {
+func ChangeUserPassword(id int64, token string, password string) (u *user.User, e error) {
 	database := db.SharedInstance().Connection
 	tx, _ := database.Begin()
 	defer func() {

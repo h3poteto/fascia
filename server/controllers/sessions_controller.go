@@ -3,7 +3,7 @@ package controllers
 import (
 	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	userModel "github.com/h3poteto/fascia/server/models/user"
+	"github.com/h3poteto/fascia/server/handlers"
 
 	"html/template"
 	"net/http"
@@ -84,16 +84,16 @@ func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	currentUser, err := userModel.Login(template.HTMLEscapeString(signInForm.Email), template.HTMLEscapeString(signInForm.Password))
+	userService, err := handlers.LoginUser(template.HTMLEscapeString(signInForm.Email), template.HTMLEscapeString(signInForm.Password))
 	if err != nil {
 		logging.SharedInstance().MethodInfo("SessionsController", "NewSession", c).Infof("login error: %v", err)
 		http.Redirect(w, r, "/sign_in", 302)
 		return
 	}
-	logging.SharedInstance().MethodInfo("SessionsController", "NewSession", c).Debugf("login success: %+v", currentUser)
+	logging.SharedInstance().MethodInfo("SessionsController", "NewSession", c).Debugf("login success: %+v", userService)
 	session, err = cookieStore.Get(r, "fascia")
 	session.Options = &sessions.Options{Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int)}
-	session.Values["current_user_id"] = currentUser.ID
+	session.Values["current_user_id"] = userService.UserAggregation.UserModel.ID
 	err = session.Save(r, w)
 	if err != nil {
 		err := errors.Wrap(err, "session error")
@@ -128,7 +128,7 @@ func (u *Sessions) SignOut(c web.C, w http.ResponseWriter, r *http.Request) {
 }
 
 func (u *Sessions) Update(c web.C, w http.ResponseWriter, r *http.Request) {
-	currentUser, err := LoginRequired(r)
+	userService, err := LoginRequired(r)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("SessionsController", "Update", c).Infof("login error: %v", err)
 		http.Error(w, "Authentication Error", 401)
@@ -140,7 +140,7 @@ func (u *Sessions) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		Path:   "/",
 		MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int),
 	}
-	session.Values["current_user_id"] = currentUser.ID
+	session.Values["current_user_id"] = userService.UserAggregation.UserModel.ID
 	err = session.Save(r, w)
 	if err != nil {
 		err := errors.Wrap(err, "session error")

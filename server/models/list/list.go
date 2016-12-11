@@ -15,10 +15,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-type List interface {
-	Save() bool
-}
-
 type ListStruct struct {
 	ID           int64
 	ProjectID    int64

@@ -4,7 +4,6 @@ import (
 	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/lib/modules/hub"
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/models/db"
 	"github.com/h3poteto/fascia/server/models/list"
 	"github.com/h3poteto/fascia/server/models/task"
 
@@ -16,20 +15,20 @@ import (
 )
 
 // ListLoadFromGithub load lists from github labels
-func (u *ProjectStruct) ListLoadFromGithub(labels []*github.Label) error {
-	lists, err := u.Lists()
+func (p *Project) ListLoadFromGithub(labels []*github.Label) error {
+	lists, err := p.Lists()
 	if err != nil {
 		return err
 	}
 	for _, l := range lists {
-		if err := u.labelUpdate(l, labels); err != nil {
+		if err := p.labelUpdate(l, labels); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (u *ProjectStruct) labelUpdate(l *list.ListStruct, labels []*github.Label) error {
+func (p *Project) labelUpdate(l *list.ListStruct, labels []*github.Label) error {
 	for _, label := range labels {
 		if strings.ToLower(*label.Name) == strings.ToLower(l.Title.String) {
 			l.Color.String = *label.Color
@@ -42,92 +41,16 @@ func (u *ProjectStruct) labelUpdate(l *list.ListStruct, labels []*github.Label) 
 }
 
 // TaskLoadFromGithub load tasks from github issues
-func (u *ProjectStruct) TaskLoadFromGithub(issues []*github.Issue) error {
+func (p *Project) TaskLoadFromGithub(issues []*github.Issue) error {
 	for _, issue := range issues {
-		targetTask, _ := task.FindByIssueNumber(u.ID, *issue.Number)
+		targetTask, _ := task.FindByIssueNumber(p.ProjectModel.ID, *issue.Number)
 
-		err := u.taskApplyLabel(targetTask, issue)
+		err := p.TaskApplyLabel(targetTask, issue)
 		if err != nil {
 			return err
 		}
 	}
 	return nil
-}
-
-// IssuesEvent apply issue changes to task
-func IssuesEvent(repositoryID int64, body github.IssuesEvent) error {
-	database := db.SharedInstance().Connection
-	var projectID int64
-	err := database.QueryRow("select id from projects where repository_id = ?;", repositoryID).Scan(&projectID)
-	if err != nil {
-		return errors.Wrap(err, "sql select error")
-	}
-	parentProject, err := FindProject(projectID)
-	if err != nil {
-		return err
-	}
-	// taskが見つからない場合は新規作成するのでエラーハンドリング不要
-	targetTask, _ := task.FindByIssueNumber(projectID, *body.Issue.Number)
-
-	switch *body.Action {
-	case "opened", "reopened":
-		// create時点ではlabelsが空の状態でhookが飛んできている場合がある
-		// そのためlabelsが空だった場合には，一度labelsを取得しなおす処理を呼んでおく
-		issue, err := parentProject.reacquireIssue(body.Issue)
-		if err != nil {
-			return err
-		}
-		if targetTask == nil {
-			err = parentProject.createNewTask(issue)
-		} else {
-			err = parentProject.reopenTask(targetTask, issue)
-		}
-	case "closed", "labeled", "unlabeled", "edited":
-		err = parentProject.taskApplyLabel(targetTask, body.Issue)
-	}
-	return err
-}
-
-// PullRequestEvent apply issue changes to task
-func PullRequestEvent(repositoryID int64, body github.PullRequestEvent) error {
-	database := db.SharedInstance().Connection
-
-	var projectID int64
-	err := database.QueryRow("select id from projects where repository_id = ?;", repositoryID).Scan(&projectID)
-	if err != nil {
-		return errors.Wrap(err, "sql select error")
-	}
-	parentProject, err := FindProject(projectID)
-	if err != nil {
-		return err
-	}
-	// taskが見つからない場合は新規作成するのでエラーハンドリング不要
-	targetTask, _ := task.FindByIssueNumber(projectID, *body.Number)
-
-	// note: もしgithubへのアクセスが増大するようであれば，PullRequestオブジェクトからラベルの付替えを行うように改修する
-
-	oauthToken, err := parentProject.OauthToken()
-	if err != nil {
-		return err
-	}
-
-	repo, err := parentProject.Repository()
-	if err != nil {
-		return err
-	}
-	issue, err := hub.GetGithubIssue(oauthToken, repo, *body.Number)
-
-	switch *body.Action {
-	case "opened", "reopened":
-		if targetTask == nil {
-			err = parentProject.createNewTask(issue)
-		} else {
-			err = parentProject.reopenTask(targetTask, issue)
-		}
-	case "closed", "labeled", "unlabeled", "edited":
-		err = parentProject.taskApplyLabel(targetTask, issue)
-	}
-	return err
 }
 
 // githubLabels get issues which match project's lists from github
@@ -156,46 +79,35 @@ func listsWithCloseAction(lists []list.ListStruct) []list.ListStruct {
 	return closeLists
 }
 
-func (u *ProjectStruct) reacquireIssue(issue *github.Issue) (*github.Issue, error) {
+func (p *Project) ReacquireIssue(issue *github.Issue) (*github.Issue, error) {
 	if len(issue.Labels) > 0 {
 		return issue, nil
 	}
-	oauthToken, err := u.OauthToken()
+	oauthToken, err := p.OauthToken()
 	if err != nil {
 		return nil, err
 	}
 
-	repo, err := u.Repository()
+	repo, err := p.Repository()
 	if err != nil {
 		return nil, err
 	}
 	return hub.GetGithubIssue(oauthToken, repo, *issue.Number)
 }
 
-func (u *ProjectStruct) taskApplyLabel(targetTask *task.TaskStruct, issue *github.Issue) error {
+func (p *Project) TaskApplyLabel(targetTask *task.TaskStruct, issue *github.Issue) error {
 	if targetTask == nil {
-		err := u.createNewTask(issue)
+		err := p.CreateNewTask(issue)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
-	issueTask, err := u.applyListToTask(targetTask, issue)
+	issueTask, err := p.applyListToTask(targetTask, issue)
 	if err != nil {
 		return err
 	}
-	issueTask, err = u.applyIssueInfoToTask(issueTask, issue)
-	if err != nil {
-		return err
-	}
-	if err := issueTask.Update(nil, nil); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (u *ProjectStruct) reopenTask(targetTask *task.TaskStruct, issue *github.Issue) error {
-	issueTask, err := u.applyListToTask(targetTask, issue)
+	issueTask, err = p.applyIssueInfoToTask(issueTask, issue)
 	if err != nil {
 		return err
 	}
@@ -205,12 +117,23 @@ func (u *ProjectStruct) reopenTask(targetTask *task.TaskStruct, issue *github.Is
 	return nil
 }
 
-func (u *ProjectStruct) createNewTask(issue *github.Issue) error {
+func (p *Project) ReopenTask(targetTask *task.TaskStruct, issue *github.Issue) error {
+	issueTask, err := p.applyListToTask(targetTask, issue)
+	if err != nil {
+		return err
+	}
+	if err := issueTask.Update(nil, nil); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *Project) CreateNewTask(issue *github.Issue) error {
 	issueTask := task.NewTask(
 		0,
 		0,
-		u.ID,
-		u.UserID,
+		p.ProjectModel.ID,
+		p.ProjectModel.UserID,
 		sql.NullInt64{Int64: int64(*issue.Number), Valid: true},
 		*issue.Title,
 		*issue.Body,
@@ -218,7 +141,7 @@ func (u *ProjectStruct) createNewTask(issue *github.Issue) error {
 		sql.NullString{String: *issue.HTMLURL, Valid: true},
 	)
 
-	issueTask, err := u.applyListToTask(issueTask, issue)
+	issueTask, err := p.applyListToTask(issueTask, issue)
 	if err != nil {
 		return err
 	}
@@ -229,10 +152,10 @@ func (u *ProjectStruct) createNewTask(issue *github.Issue) error {
 
 }
 
-func (u *ProjectStruct) applyListToTask(issueTask *task.TaskStruct, issue *github.Issue) (*task.TaskStruct, error) {
+func (p *Project) applyListToTask(issueTask *task.TaskStruct, issue *github.Issue) (*task.TaskStruct, error) {
 	// close noneの用意
 	var closedList, noneList *list.ListStruct
-	lists, err := u.Lists()
+	lists, err := p.Lists()
 	if err != nil {
 		return nil, err
 	}
@@ -245,7 +168,7 @@ func (u *ProjectStruct) applyListToTask(issueTask *task.TaskStruct, issue *githu
 		return nil, errors.New("cannot find close list")
 	}
 
-	noneList, err = u.NoneList()
+	noneList, err = p.NoneList()
 	if err != nil {
 		return nil, err
 	}
@@ -278,7 +201,7 @@ func (u *ProjectStruct) applyListToTask(issueTask *task.TaskStruct, issue *githu
 	return issueTask, nil
 }
 
-func (u *ProjectStruct) applyIssueInfoToTask(targetTask *task.TaskStruct, issue *github.Issue) (*task.TaskStruct, error) {
+func (u *Project) applyIssueInfoToTask(targetTask *task.TaskStruct, issue *github.Issue) (*task.TaskStruct, error) {
 	if targetTask == nil {
 		return nil, errors.New("target task is required")
 	}

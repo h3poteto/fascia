@@ -24,13 +24,13 @@ func (u *Github) Repositories(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	encoder := json.NewEncoder(w)
-	if !currentUser.OauthToken.Valid {
+	if !currentUser.UserAggregation.UserModel.OauthToken.Valid {
 		logging.SharedInstance().MethodInfo("GithubController", "Repositories", c).Info("user did not have oauth")
 		encoder.Encode(nil)
 		return
 	}
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: currentUser.OauthToken.String},
+		&oauth2.Token{AccessToken: currentUser.UserAggregation.UserModel.OauthToken.String},
 	)
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 	client := github.NewClient(tc)

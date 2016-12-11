@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
+	"github.com/h3poteto/fascia/server/handlers"
 	listModel "github.com/h3poteto/fascia/server/models/list"
-	projectModel "github.com/h3poteto/fascia/server/models/project"
 	"github.com/h3poteto/fascia/server/validators"
 
 	"database/sql"
@@ -63,13 +63,13 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "project not found", 404)
 		return
 	}
-	parentProject, err := projectModel.FindProject(projectID)
-	if err != nil || parentProject.UserID != currentUser.ID {
+	projectService, err := handlers.FindProject(projectID)
+	if err != nil || !(projectService.CheckOwner(currentUser.UserAggregation.UserModel.ID)) {
 		logging.SharedInstance().MethodInfo("ListsController", "Index", c).Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
 	}
-	lists, err := parentProject.Lists()
+	lists, err := projectService.ProjectAggregation.Lists()
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Index", err, c).Error(err)
 		http.Error(w, "lists not found", 500)
@@ -81,7 +81,7 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "lists format error", 500)
 		return
 	}
-	noneList, err := parentProject.NoneList()
+	noneList, err := projectService.ProjectAggregation.NoneList()
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Index", err, c).Error(err)
 		http.Error(w, "none list not found", 500)
@@ -115,8 +115,8 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "project not found", 404)
 		return
 	}
-	parentProject, err := projectModel.FindProject(projectID)
-	if err != nil || parentProject.UserID != currentUser.ID {
+	projectService, err := handlers.FindProject(projectID)
+	if err != nil || !(projectService.CheckOwner(currentUser.UserAggregation.UserModel.ID)) {
 		logging.SharedInstance().MethodInfo("ListsController", "Create", c).Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
@@ -146,10 +146,10 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	list := listModel.NewList(0, projectID, currentUser.ID, newListForm.Title, newListForm.Color, sql.NullInt64{}, false)
+	list := listModel.NewList(0, projectID, currentUser.UserAggregation.UserModel.ID, newListForm.Title, newListForm.Color, sql.NullInt64{}, false)
 
-	repo, _ := parentProject.Repository()
-	if err := list.Save(repo, &currentUser.OauthToken); err != nil {
+	repo, _ := projectService.ProjectAggregation.Repository()
+	if err := list.Save(repo, &currentUser.UserAggregation.UserModel.OauthToken); err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Create", err, c).Error(err)
 		http.Error(w, "failed save", 500)
 		return
@@ -181,8 +181,8 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "project not found", 404)
 		return
 	}
-	parentProject, err := projectModel.FindProject(projectID)
-	if err != nil || parentProject.UserID != currentUser.ID {
+	projectService, err := handlers.FindProject(projectID)
+	if err != nil || !(projectService.CheckOwner(currentUser.UserAggregation.UserModel.ID)) {
 		logging.SharedInstance().MethodInfo("ListsController", "Update", c).Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
@@ -229,8 +229,8 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repo, _ := parentProject.Repository()
-	if err := targetList.Update(repo, &currentUser.OauthToken, &editListForm.Title, &editListForm.Color, &editListForm.OptionID); err != nil {
+	repo, _ := projectService.ProjectAggregation.Repository()
+	if err := targetList.Update(repo, &currentUser.UserAggregation.UserModel.OauthToken, &editListForm.Title, &editListForm.Color, &editListForm.OptionID); err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Update", err, c).Error(err)
 		http.Error(w, "save failed", 500)
 		return
@@ -262,8 +262,8 @@ func (u *Lists) Hide(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "project not found", 404)
 		return
 	}
-	parentProject, err := projectModel.FindProject(projectID)
-	if err != nil || parentProject.UserID != currentUser.ID {
+	projectService, err := handlers.FindProject(projectID)
+	if err != nil || !(projectService.CheckOwner(currentUser.UserAggregation.UserModel.ID)) {
 		logging.SharedInstance().MethodInfo("ListsController", "Hide", c).Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
@@ -290,7 +290,7 @@ func (u *Lists) Hide(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	// prepare response
 	encoder := json.NewEncoder(w)
-	lists, err := parentProject.Lists()
+	lists, err := projectService.ProjectAggregation.Lists()
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Hide", err, c).Error(err)
 		http.Error(w, "lists not found", 500)
@@ -302,7 +302,7 @@ func (u *Lists) Hide(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "list format error", 500)
 		return
 	}
-	noneList, err := parentProject.NoneList()
+	noneList, err := projectService.ProjectAggregation.NoneList()
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Hide", err, c).Error(err)
 		http.Error(w, "none list not found", 500)
@@ -336,8 +336,8 @@ func (u *Lists) Display(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "project not found", 404)
 		return
 	}
-	parentProject, err := projectModel.FindProject(projectID)
-	if err != nil || parentProject.UserID != currentUser.ID {
+	projectService, err := handlers.FindProject(projectID)
+	if err != nil || !(projectService.CheckOwner(currentUser.UserAggregation.UserModel.ID)) {
 		logging.SharedInstance().MethodInfo("ListsController", "Display", c).Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
@@ -364,7 +364,7 @@ func (u *Lists) Display(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	// prepare response
 	encoder := json.NewEncoder(w)
-	lists, err := parentProject.Lists()
+	lists, err := projectService.ProjectAggregation.Lists()
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Display", err, c).Error(err)
 		http.Error(w, "lists not found", 500)
@@ -376,7 +376,7 @@ func (u *Lists) Display(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "lists format error", 500)
 		return
 	}
-	noneList, err := parentProject.NoneList()
+	noneList, err := projectService.ProjectAggregation.NoneList()
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Display", err, c).Error(err)
 		http.Error(w, "none list not found", 500)

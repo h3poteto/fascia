@@ -3,7 +3,7 @@ package controllers
 import (
 	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	userModel "github.com/h3poteto/fascia/server/models/user"
+	"github.com/h3poteto/fascia/server/handlers"
 
 	"net/http"
 
@@ -32,17 +32,17 @@ func (u *Oauth) Github(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Oauth Token Error", 500)
 		return
 	}
-	// userModelにtokenを保存してログイン完了
-	currentUser, err := userModel.FindOrCreateGithub(token.AccessToken)
+
+	userService, err := handlers.FindOrCreateUserFromGithub(token.AccessToken)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("OauthController", "Github", err, c).Error(err)
 		http.Redirect(w, r, "/sign_in", 302)
 		return
 	}
-	logging.SharedInstance().MethodInfo("OauthController", "Github", c).Debugf("login success: %+v", currentUser)
+	logging.SharedInstance().MethodInfo("OauthController", "Github", c).Debugf("login success: %+v", userService)
 	session, err = cookieStore.Get(r, "fascia")
 	session.Options = &sessions.Options{Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int)}
-	session.Values["current_user_id"] = currentUser.ID
+	session.Values["current_user_id"] = userService.UserAggregation.UserModel.ID
 	err = session.Save(r, w)
 	if err != nil {
 		err := errors.Wrap(err, "session error")
