@@ -24,17 +24,26 @@ func New(id int64, email string, provider sql.NullString, oauthToken sql.NullStr
 	}
 }
 
-func CurrentUser(userID int64) (*User, error) {
-	var id int64
-	var uuid sql.NullInt64
-	var email string
-	var provider, oauthToken, userName, avatarURL sql.NullString
-	err := db.SharedInstance().Connection.QueryRow("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where id = ?;", userID).Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
+func Find(id int64) (*User, error) {
+	u, err := user.Find(id)
 	if err != nil {
-		return nil, errors.Wrap(err, "sql select error")
+		return nil, err
 	}
+	return &User{
+		UserModel: u,
+		database:  db.SharedInstance().Connection,
+	}, nil
+}
 
-	return New(id, email, provider, oauthToken, uuid, userName, avatarURL), nil
+func FindByEmail(email string) (*User, error) {
+	u, err := user.FindByEmail(email)
+	if err != nil {
+		return nil, err
+	}
+	return &User{
+		UserModel: u,
+		database:  db.SharedInstance().Connection,
+	}, nil
 }
 
 func Login(userEmail string, userPassword string) (*User, error) {
@@ -93,6 +102,10 @@ func FindOrCreateFromGithub(githubUser *github.User, token string, primaryEmail 
 	}
 
 	return u, nil
+}
+
+func HashPassword(password string) ([]byte, error) {
+	return user.HashPassword(password)
 }
 
 // Projects list up projects related a user

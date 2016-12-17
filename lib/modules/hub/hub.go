@@ -2,7 +2,6 @@ package hub
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/models/repository"
 
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
@@ -33,16 +32,13 @@ func (h *Hub) GetRepository(ID int) (*github.Repository, error) {
 	return repo, nil
 }
 
-func CheckLabelPresent(token string, repo *repository.RepositoryStruct, title *string) (*github.Label, error) {
+func CheckLabelPresent(token, owner, name, title string) (*github.Label, error) {
 	client := prepareClient(token)
 
-	if title == nil {
-		return nil, errors.New("title is required")
-	}
-	githubLabel, response, err := client.Issues.GetLabel(repo.Owner.String, repo.Name.String, *title)
+	githubLabel, response, err := client.Issues.GetLabel(owner, name, title)
 	logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent").Debugf("respone of geting github label: %+v", response)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent").Debugf("cannot find github label: %v", repo.Name.String)
+		logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent").Debugf("cannot find github label: %v", name)
 		// TODO: 本当はerrorで返したいが，error=nil, label=nilでラベルの存在判定をしている箇所があるので，それらを駆逐したい
 		return nil, nil
 	}
@@ -50,18 +46,14 @@ func CheckLabelPresent(token string, repo *repository.RepositoryStruct, title *s
 	return githubLabel, nil
 }
 
-func CreateGithubLabel(token string, repo *repository.RepositoryStruct, title *string, color *string) (*github.Label, error) {
+func CreateGithubLabel(token, owner, name, title, color string) (*github.Label, error) {
 	client := prepareClient(token)
 
-	if title == nil || color == nil {
-		return nil, errors.New("title or color is nil")
-	}
-
 	label := &github.Label{
-		Name:  title,
-		Color: color,
+		Name:  &title,
+		Color: &color,
 	}
-	githubLabel, response, err := client.Issues.CreateLabel(repo.Owner.String, repo.Name.String, label)
+	githubLabel, response, err := client.Issues.CreateLabel(owner, name, label)
 	logging.SharedInstance().MethodInfo("hub", "CreateGithubLabel").Debugf("response of creating github label: %+v\n", response)
 	if err != nil {
 		return nil, errors.Wrap(err, "response is error")
@@ -70,18 +62,14 @@ func CreateGithubLabel(token string, repo *repository.RepositoryStruct, title *s
 	return githubLabel, nil
 }
 
-func UpdateGithubLabel(token string, repo *repository.RepositoryStruct, originalTitle *string, title *string, color *string) (*github.Label, error) {
+func UpdateGithubLabel(token, owner, name, originalTitle, title, color string) (*github.Label, error) {
 	client := prepareClient(token)
 
-	if title == nil || color == nil {
-		return nil, errors.New("title or color is nil")
-	}
-
 	label := &github.Label{
-		Name:  title,
-		Color: color,
+		Name:  &title,
+		Color: &color,
 	}
-	githubLabel, response, err := client.Issues.EditLabel(repo.Owner.String, repo.Name.String, *originalTitle, label)
+	githubLabel, response, err := client.Issues.EditLabel(owner, name, originalTitle, label)
 	logging.SharedInstance().MethodInfo("hub", "UpddateGithubLabel").Debugf("response of updating github label: %+v", response)
 	if err != nil {
 		return nil, errors.Wrap(err, "response is error")
@@ -90,19 +78,15 @@ func UpdateGithubLabel(token string, repo *repository.RepositoryStruct, original
 	return githubLabel, nil
 }
 
-func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels []string, title *string, description *string) (*github.Issue, error) {
+func CreateGithubIssue(token, owner, name, title, description string, labels []string) (*github.Issue, error) {
 	client := prepareClient(token)
 
-	if title == nil {
-		return nil, errors.New("title is nil")
-	}
-
 	issueRequest := &github.IssueRequest{
-		Title:  title,
-		Body:   description,
+		Title:  &title,
+		Body:   &description,
 		Labels: &labels,
 	}
-	githubIssue, response, err := client.Issues.Create(repo.Owner.String, repo.Name.String, issueRequest)
+	githubIssue, response, err := client.Issues.Create(owner, name, issueRequest)
 	logging.SharedInstance().MethodInfo("hub", "CreateGithubIssue").Debugf("response of creating github issue: %+v\n", response)
 	if err != nil {
 		return nil, errors.Wrap(err, "response is error")
@@ -112,17 +96,17 @@ func CreateGithubIssue(token string, repo *repository.RepositoryStruct, labels [
 }
 
 // EditGithubIssue get a issue information from github
-func EditGithubIssue(token string, repo *repository.RepositoryStruct, issueNumber int, labels []string, title *string, description *string, state *string) (bool, error) {
+func EditGithubIssue(token, owner, name, title, description, state string, issueNumber int, labels []string) (bool, error) {
 	client := prepareClient(token)
 
 	issueRequest := &github.IssueRequest{
-		Title:  title,
-		Body:   description,
-		State:  state,
+		Title:  &title,
+		Body:   &description,
+		State:  &state,
 		Labels: &labels,
 	}
 
-	issue, response, err := client.Issues.Edit(repo.Owner.String, repo.Name.String, issueNumber, issueRequest)
+	issue, response, err := client.Issues.Edit(owner, name, issueNumber, issueRequest)
 	logging.SharedInstance().MethodInfo("hub", "EditGithubIssue").Debugf("response of edit github issue: %+v", response)
 	if err != nil {
 		return false, errors.Wrap(err, "response is error")
@@ -132,17 +116,18 @@ func EditGithubIssue(token string, repo *repository.RepositoryStruct, issueNumbe
 }
 
 // GetGithubIssue get a issue from github
-func GetGithubIssue(token string, repo *repository.RepositoryStruct, number int) (*github.Issue, error) {
+func GetGithubIssue(token, owner, name string, number int) (*github.Issue, error) {
 	client := prepareClient(token)
 
-	issue, _, err := client.Issues.Get(repo.Owner.String, repo.Name.String, number)
+	issue, _, err := client.Issues.Get(owner, name, number)
 	if err != nil {
 		return nil, errors.Wrap(err, "response is error")
 	}
 	return issue, nil
 }
 
-func GetGithubIssues(token string, repo *repository.RepositoryStruct) ([]*github.Issue, []*github.Issue, error) {
+// GetGithubIssues returns open and closed issues
+func GetGithubIssues(token, owner, name string) ([]*github.Issue, []*github.Issue, error) {
 	client := prepareClient(token)
 
 	openIssueOption := github.IssueListByRepoOptions{
@@ -151,11 +136,11 @@ func GetGithubIssues(token string, repo *repository.RepositoryStruct) ([]*github
 	closedIssueOption := github.IssueListByRepoOptions{
 		State: "closed",
 	}
-	opneIssues, _, err := client.Issues.ListByRepo(repo.Owner.String, repo.Name.String, &openIssueOption)
+	opneIssues, _, err := client.Issues.ListByRepo(owner, name, &openIssueOption)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "response is error")
 	}
-	closedIssues, _, err := client.Issues.ListByRepo(repo.Owner.String, repo.Name.String, &closedIssueOption)
+	closedIssues, _, err := client.Issues.ListByRepo(owner, name, &closedIssueOption)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "response is error")
 	}
@@ -164,10 +149,10 @@ func GetGithubIssues(token string, repo *repository.RepositoryStruct) ([]*github
 }
 
 // ListLabels list all github labels
-func ListLabels(token string, repo *repository.RepositoryStruct) ([]*github.Label, error) {
+func ListLabels(token, owner, name string) ([]*github.Label, error) {
 	client := prepareClient(token)
 
-	labels, _, err := client.Issues.ListLabels(repo.Owner.String, repo.Name.String, nil)
+	labels, _, err := client.Issues.ListLabels(owner, name, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "response is error")
 	}
@@ -182,10 +167,10 @@ func IsPullRequest(issue *github.Issue) bool {
 }
 
 // CreateWebhook create a new webhook in a github repository
-func CreateWebhook(token string, repo *repository.RepositoryStruct, secret string, url string) error {
+func CreateWebhook(token, owner, name, secret, url string) error {
 	client := prepareClient(token)
 
-	name := "web"
+	hookName := "web"
 	active := true
 	hookConfig := map[string]interface{}{
 		"url":          url,
@@ -194,7 +179,7 @@ func CreateWebhook(token string, repo *repository.RepositoryStruct, secret strin
 	}
 
 	hook := github.Hook{
-		Name: &name,
+		Name: &hookName,
 		URL:  &url,
 		Events: []string{
 			"commit_comment",
@@ -209,7 +194,7 @@ func CreateWebhook(token string, repo *repository.RepositoryStruct, secret strin
 		Active: &active,
 		Config: hookConfig,
 	}
-	_, _, err := client.Repositories.CreateHook(repo.Owner.String, repo.Name.String, &hook)
+	_, _, err := client.Repositories.CreateHook(owner, name, &hook)
 	if err != nil {
 		return errors.Wrap(err, "response is error")
 	}

@@ -70,7 +70,7 @@ func Registration(email string, password string, passwordConfirm string) (int64,
 	return user.ID, err
 }
 
-func FindUser(id int64) (*User, error) {
+func Find(id int64) (*User, error) {
 	database := db.SharedInstance().Connection
 
 	var uuid sql.NullInt64

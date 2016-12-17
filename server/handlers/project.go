@@ -9,7 +9,7 @@ import (
 
 func CreateProject(userID int64, title string, description string, repositoryID int, oauthToken sql.NullString) (*services.Project, error) {
 	projectService := services.NewProjectService(nil)
-	_, err := projectService.CreateProject(userID, title, description, repositoryID, oauthToken)
+	_, err := projectService.Create(userID, title, description, repositoryID, oauthToken)
 	if err != nil {
 		return nil, err
 	}
@@ -19,6 +19,7 @@ func CreateProject(userID int64, title string, description string, repositoryID 
 		err := projectService.CreateWebhook()
 		if err != nil {
 			logging.SharedInstance().MethodInfo("Project", "Create").Infof("failed to create webhook: %v", err)
+			return
 		}
 		logging.SharedInstance().MethodInfo("Project", "Create").Info("success to create webhook")
 
@@ -27,6 +28,7 @@ func CreateProject(userID int64, title string, description string, repositoryID 
 			_, err := projectService.FetchGithub()
 			if err != nil {
 				logging.SharedInstance().MethodInfoWithStacktrace("Project", "Create", err).Error(err)
+				return
 			}
 		}
 	}(projectService)

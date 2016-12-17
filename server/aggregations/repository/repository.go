@@ -9,6 +9,8 @@ import (
 
 	"github.com/h3poteto/fascia/lib/modules/hub"
 	"github.com/h3poteto/fascia/server/models/repository"
+
+	"github.com/google/go-github/github"
 )
 
 type Repository struct {
@@ -52,4 +54,40 @@ func GenerateWebhookKey(seed string) string {
 
 func (r *Repository) Save() error {
 	return r.RepositoryModel.Save()
+}
+
+func (r *Repository) CheckLabelPresent(token, title string) (*github.Label, error) {
+	return hub.CheckLabelPresent(token, r.RepositoryModel.Owner.String, r.RepositoryModel.Name.String, title)
+}
+
+func (r *Repository) CreateGithubLabel(token, title, color string) (*github.Label, error) {
+	return hub.CreateGithubLabel(token, r.RepositoryModel.Owner.String, r.RepositoryModel.Name.String, title, color)
+}
+
+func (r *Repository) UpdateGithubLabel(token, originalTitle, title, color string) (*github.Label, error) {
+	return hub.UpdateGithubLabel(token, r.RepositoryModel.Owner.String, r.RepositoryModel.Name.String, originalTitle, title, color)
+}
+
+func (r *Repository) CreateGithubIssue(token, title, description string, labels []string) (*github.Issue, error) {
+	return hub.CreateGithubIssue(token, r.RepositoryModel.Owner.String, r.RepositoryModel.Name.String, title, description, labels)
+}
+
+func (r *Repository) EditGithubIssue(token, title, description, state string, issueNumber int, labels []string) (bool, error) {
+	return hub.EditGithubIssue(token, r.RepositoryModel.Owner.String, r.RepositoryModel.Name.String, title, description, state, issueNumber, labels)
+}
+
+func (r *Repository) GetGithubIssue(token string, number int) (*github.Issue, error) {
+	return hub.GetGithubIssue(token, r.RepositoryModel.Owner.String, r.RepositoryModel.Name.String, number)
+}
+
+func (r *Repository) GetGithubIssues(token string) ([]*github.Issue, []*github.Issue, error) {
+	return hub.GetGithubIssues(token, r.RepositoryModel.Owner.String, r.RepositoryModel.Name.String)
+}
+
+func (r *Repository) ListLabels(token string) ([]*github.Label, error) {
+	return hub.ListLabels(token, r.RepositoryModel.Owner.String, r.RepositoryModel.Name.String)
+}
+
+func (r *Repository) CreateWebhook(token, url string) error {
+	return hub.CreateWebhook(token, r.RepositoryModel.Owner.String, r.RepositoryModel.Name.String, r.RepositoryModel.WebhookKey, url)
 }

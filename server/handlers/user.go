@@ -4,8 +4,8 @@ import (
 	"github.com/h3poteto/fascia/server/services"
 )
 
-func CurrentUser(userID int64) (*services.User, error) {
-	return services.CurrentUser(userID)
+func FindUser(id int64) (*services.User, error) {
+	return services.FindUser(id)
 }
 
 func LoginUser(email string, password string) (*services.User, error) {

@@ -1,0 +1,81 @@
+package services
+
+import (
+	"database/sql"
+
+	"github.com/h3poteto/fascia/lib/modules/logging"
+	"github.com/h3poteto/fascia/server/aggregations/repository"
+	"github.com/h3poteto/fascia/server/aggregations/task"
+	"github.com/pkg/errors"
+)
+
+type Task struct {
+	TaskAggregation *task.Task
+}
+
+func (t *Task) Save() error {
+	return t.TaskAggregation.Save()
+}
+
+func (t *Task) Update(listID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString) error {
+	return t.TaskAggregation.Update(listID, issueNumber, title, description, pullRequest, htmlURL)
+}
+
+func (t *Task) ChangeList(listID int64, prevToTaskID *int64) (bool, error) {
+	return t.TaskAggregation.ChangeList(listID, prevToTaskID)
+}
+
+func (t *Task) FetchCreated(oauthToken string, repo *repository.Repository) error {
+	if repo != nil {
+		issue, err := t.TaskAggregation.SyncIssue(repo, oauthToken)
+		if err != nil {
+			return errors.Wrap(err, "sync github error")
+		}
+		issueNumber := sql.NullInt64{Int64: int64(*issue.Number), Valid: true}
+		HTMLURL := sql.NullString{String: *issue.HTMLURL, Valid: true}
+
+		err = t.TaskAggregation.Update(
+			t.TaskAggregation.TaskModel.ListID,
+			issueNumber,
+			t.TaskAggregation.TaskModel.Title,
+			t.TaskAggregation.TaskModel.Description,
+			t.TaskAggregation.TaskModel.PullRequest,
+			HTMLURL,
+		)
+		if err != nil {
+			// note: この時にはすでにissueが作られてしまっているが，DBへの保存には失敗したということ
+			// 本来であれば，issueを削除しなければならない
+			// しかし，githubにはissue削除APIがない
+			// 運がいいことに，Webhookが正常に動作していれば，作られたissueに応じてDBにタスクを作ってくれる
+			// そちらに任せることにしよう
+			return errors.Wrap(err, "sql execute error")
+		}
+		logging.SharedInstance().MethodInfo("task", "Save").Info("issue number is updated")
+	}
+	return nil
+}
+
+func (t *Task) FetchUpdated(oauthToken string, repo *repository.Repository) error {
+	// github側へ同期
+	if repo != nil {
+		_, err := t.TaskAggregation.SyncIssue(repo, oauthToken)
+		if err != nil {
+			logging.SharedInstance().MethodInfo("task", "Update").Error(err)
+			return err
+		}
+		logging.SharedInstance().MethodInfo("task", "Update").Debugf("task synced to github: %+v", t)
+	}
+	return nil
+}
+
+func (t *Task) FetchChangedList(oauthToken string, repo *repository.Repository, isReorder bool) error {
+	if !isReorder && repo != nil {
+		_, err := t.TaskAggregation.SyncIssue(repo, oauthToken)
+		if err != nil {
+			logging.SharedInstance().MethodInfo("task", "ChangeList").Error(err)
+			return err
+		}
+		logging.SharedInstance().MethodInfo("Task", "Update").Debugf("task synced to github: %+v", t)
+	}
+	return nil
+}

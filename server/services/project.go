@@ -5,11 +5,10 @@ import (
 	"fmt"
 
 	"github.com/h3poteto/fascia/config"
-	"github.com/h3poteto/fascia/lib/modules/hub"
 	"github.com/h3poteto/fascia/server/aggregations/project"
 	"github.com/h3poteto/fascia/server/aggregations/repository"
+	"github.com/h3poteto/fascia/server/aggregations/task"
 	"github.com/h3poteto/fascia/server/models/db"
-	"github.com/h3poteto/fascia/server/models/task"
 
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
@@ -52,7 +51,7 @@ func (p *Project) CheckOwner(userID int64) bool {
 }
 
 // Create create project and repository, and create webhook and related lists.
-func (p *Project) CreateProject(userID int64, title string, description string, repositoryID int, oauthToken sql.NullString) (*project.Project, error) {
+func (p *Project) Create(userID int64, title string, description string, repositoryID int, oauthToken sql.NullString) (*project.Project, error) {
 	var repoID sql.NullInt64
 	if repositoryID != 0 && oauthToken.Valid {
 		// TODO: repository:projectは1:多なので，unique制約に引っかかって失敗する可能性がある
@@ -85,11 +84,11 @@ func (p *Project) CreateProject(userID int64, title string, description string, 
 	return projectAg, nil
 }
 
-func (p *Project) UpdateProject(title string, description string, showIssues bool, showPullRequests bool) error {
+func (p *Project) Update(title string, description string, showIssues bool, showPullRequests bool) error {
 	return p.ProjectAggregation.Update(title, description, showIssues, showPullRequests)
 }
 
-// CreateWebhook call hub.CreateWebhook if project has repository
+// CreateWebhook call CreateWebhook if project has repository
 func (p *Project) CreateWebhook() error {
 	oauthToken, err := p.ProjectAggregation.OauthToken()
 	if err != nil {
@@ -101,11 +100,10 @@ func (p *Project) CreateWebhook() error {
 	if err != nil {
 		return err
 	}
-	return hub.CreateWebhook(oauthToken, repo, repo.WebhookKey, url)
+	return repo.CreateWebhook(oauthToken, url)
 }
 
 func (p *Project) FetchGithub() (bool, error) {
-	// TODO: repository check
 	repo, err := p.ProjectAggregation.Repository()
 	// user自体はgithub連携していても，projectが連携していない可能性もあるのでチェック
 	if err != nil {
@@ -118,7 +116,7 @@ func (p *Project) FetchGithub() (bool, error) {
 	}
 
 	// listを同期
-	labels, err := hub.ListLabels(oauthToken, repo)
+	labels, err := repo.ListLabels(oauthToken)
 	if err != nil {
 		return false, err
 	}
@@ -127,7 +125,7 @@ func (p *Project) FetchGithub() (bool, error) {
 		return false, err
 	}
 
-	openIssues, closedIssues, err := hub.GetGithubIssues(oauthToken, repo)
+	openIssues, closedIssues, err := repo.GetGithubIssues(oauthToken)
 	if err != nil {
 		return false, err
 	}
@@ -152,18 +150,18 @@ func (p *Project) FetchGithub() (bool, error) {
 		if err != nil {
 			return false, errors.Wrap(err, "sql scan error")
 		}
-		label, err := hub.CheckLabelPresent(oauthToken, repo, &listTitle.String)
+		label, err := repo.CheckLabelPresent(oauthToken, listTitle.String)
 		if err != nil {
 			return false, err
 		}
 		if label == nil {
-			label, err = hub.CreateGithubLabel(oauthToken, repo, &listTitle.String, &listColor.String)
+			label, err = repo.CreateGithubLabel(oauthToken, listTitle.String, listColor.String)
 			if err != nil {
 				return false, err
 			}
 		}
 
-		_, err = hub.CreateGithubIssue(oauthToken, repo, []string{*label.Name}, &title, &description)
+		_, err = repo.CreateGithubIssue(oauthToken, title, description, []string{*label.Name})
 		if err != nil {
 			return false, err
 		}
@@ -212,7 +210,7 @@ func (p *Project) ApplyPullRequestChanges(body github.PullRequestEvent) error {
 	if err != nil {
 		return err
 	}
-	issue, err := hub.GetGithubIssue(oauthToken, repo, *body.Number)
+	issue, err := repo.GetGithubIssue(oauthToken, *body.Number)
 
 	switch *body.Action {
 	case "opened", "reopened":

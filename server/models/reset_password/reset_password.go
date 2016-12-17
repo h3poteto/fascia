@@ -2,23 +2,14 @@ package reset_password
 
 import (
 	"github.com/h3poteto/fascia/server/models/db"
-	"github.com/h3poteto/fascia/server/models/user"
 
-	"crypto/md5"
 	"database/sql"
-	"fmt"
-	"io"
-	"runtime"
-	"strconv"
 	"time"
 
 	"github.com/pkg/errors"
 )
 
-type ResetPassword interface {
-}
-
-type ResetPasswordStruct struct {
+type ResetPassword struct {
 	ID        int64
 	UserID    int64
 	Token     string
@@ -26,20 +17,10 @@ type ResetPasswordStruct struct {
 	database  *sql.DB
 }
 
-func NewResetPassword(id int64, userID int64, token string, expiresAt time.Time) *ResetPasswordStruct {
-	resetPassword := &ResetPasswordStruct{ID: id, UserID: userID, Token: token, ExpiresAt: expiresAt}
-	resetPassword.Initialize()
+func New(id int64, userID int64, token string, expiresAt time.Time) *ResetPassword {
+	resetPassword := &ResetPassword{ID: id, UserID: userID, Token: token, ExpiresAt: expiresAt}
+	resetPassword.initialize()
 	return resetPassword
-}
-
-func GenerateResetPassword(userID int64, email string) *ResetPasswordStruct {
-	// tokenを生成
-	h := md5.New()
-	io.WriteString(h, strconv.FormatInt(time.Now().Unix(), 10))
-	io.WriteString(h, email)
-	token := fmt.Sprintf("%x", h.Sum(nil))
-
-	return NewResetPassword(0, userID, token, time.Now().AddDate(0, 0, 1))
 }
 
 func Authenticate(id int64, token string) error {
@@ -54,66 +35,26 @@ func Authenticate(id int64, token string) error {
 	return nil
 }
 
-func ChangeUserPassword(id int64, token string, password string) (u *user.User, e error) {
-	database := db.SharedInstance().Connection
-	tx, _ := database.Begin()
-	defer func() {
-		if err := recover(); err != nil {
-			tx.Rollback()
-			u = nil
-			switch ty := err.(type) {
-			case runtime.Error:
-				e = errors.Wrap(ty, "runtime error")
-			case string:
-				e = errors.New(err.(string))
-			default:
-				e = errors.New("unexpected error")
-			}
-		}
-	}()
-
+func FindAvailable(id int64, token string) (*ResetPassword, error) {
 	var userID int64
-	err := tx.QueryRow("select user_id from reset_passwords where id = ? and token = ? and expires_at > now();", id, token).Scan(&userID)
+	var expiresAt time.Time
+	database := db.SharedInstance().Connection
+	err := database.QueryRow("select user_id, expires_at from reset_passwords where id = ? and token = ? and expires_at > now();", id, token).Scan(&userID, &expiresAt)
 	if err != nil {
-		tx.Rollback()
 		return nil, errors.Wrap(err, "sql select error")
 	}
-
-	hashPassword, err := user.HashPassword(password)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	_, err = tx.Exec("update users set password = ? where id = ?;", hashPassword, userID)
-	if err != nil {
-		tx.Rollback()
-		return nil, errors.Wrap(err, "sql execute error")
-	}
-
-	_, err = tx.Exec("update reset_passwords set expires_at = now() where id = ?;", id)
-	if err != nil {
-		tx.Rollback()
-		return nil, errors.Wrap(err, "sql execute error")
-	}
-
-	u, err = user.FindUser(userID)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	tx.Commit()
-	return u, nil
+	return New(id, userID, token, expiresAt), nil
 }
 
-func (u *ResetPasswordStruct) Initialize() {
-	u.database = db.SharedInstance().Connection
+func (r *ResetPassword) initialize() {
+	r.database = db.SharedInstance().Connection
 }
 
-func (u *ResetPasswordStruct) Save() error {
-	result, err := u.database.Exec("insert into reset_passwords (user_id, token, expires_at, created_at) values (?, ?, ?, now());", u.UserID, u.Token, u.ExpiresAt)
+func (r *ResetPassword) Save() error {
+	result, err := r.database.Exec("insert into reset_passwords (user_id, token, expires_at, created_at) values (?, ?, ?, now());", r.UserID, r.Token, r.ExpiresAt)
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
-	u.ID, _ = result.LastInsertId()
+	r.ID, _ = result.LastInsertId()
 	return nil
 }

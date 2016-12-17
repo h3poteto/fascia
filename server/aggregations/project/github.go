@@ -4,8 +4,8 @@ import (
 	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/lib/modules/hub"
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/models/list"
-	"github.com/h3poteto/fascia/server/models/task"
+	"github.com/h3poteto/fascia/server/aggregations/list"
+	"github.com/h3poteto/fascia/server/aggregations/task"
 
 	"database/sql"
 	"strings"
@@ -28,11 +28,10 @@ func (p *Project) ListLoadFromGithub(labels []*github.Label) error {
 	return nil
 }
 
-func (p *Project) labelUpdate(l *list.ListStruct, labels []*github.Label) error {
+func (p *Project) labelUpdate(l *list.List, labels []*github.Label) error {
 	for _, label := range labels {
-		if strings.ToLower(*label.Name) == strings.ToLower(l.Title.String) {
-			l.Color.String = *label.Color
-			if err := l.UpdateColor(); err != nil {
+		if strings.ToLower(*label.Name) == strings.ToLower(l.ListModel.Title.String) {
+			if err := l.Update(l.ListModel.Title.String, *label.Color, l.ListModel.ListOptionID.Int64); err != nil {
 				return err
 			}
 		}
@@ -54,11 +53,11 @@ func (p *Project) TaskLoadFromGithub(issues []*github.Issue) error {
 }
 
 // githubLabels get issues which match project's lists from github
-func githubLabelLists(issue *github.Issue, projectLists []*list.ListStruct) []list.ListStruct {
-	var githubLabels []list.ListStruct
+func githubLabelLists(issue *github.Issue, projectLists []*list.List) []list.List {
+	var githubLabels []list.List
 	for _, label := range issue.Labels {
 		for _, list := range projectLists {
-			if list.Title.Valid && strings.ToLower(list.Title.String) == strings.ToLower(*label.Name) {
+			if list.ListModel.Title.Valid && strings.ToLower(list.ListModel.Title.String) == strings.ToLower(*label.Name) {
 				githubLabels = append(githubLabels, *list)
 			}
 		}
@@ -66,8 +65,8 @@ func githubLabelLists(issue *github.Issue, projectLists []*list.ListStruct) []li
 	return githubLabels
 }
 
-func listsWithCloseAction(lists []list.ListStruct) []list.ListStruct {
-	var closeLists []list.ListStruct
+func listsWithCloseAction(lists []list.List) []list.List {
+	var closeLists []list.List
 	for _, list := range lists {
 		result, err := list.HasCloseAction()
 		if err != nil {
@@ -92,10 +91,10 @@ func (p *Project) ReacquireIssue(issue *github.Issue) (*github.Issue, error) {
 	if err != nil {
 		return nil, err
 	}
-	return hub.GetGithubIssue(oauthToken, repo, *issue.Number)
+	return repo.GetGithubIssue(oauthToken, *issue.Number)
 }
 
-func (p *Project) TaskApplyLabel(targetTask *task.TaskStruct, issue *github.Issue) error {
+func (p *Project) TaskApplyLabel(targetTask *task.Task, issue *github.Issue) error {
 	if targetTask == nil {
 		err := p.CreateNewTask(issue)
 		if err != nil {
@@ -111,25 +110,41 @@ func (p *Project) TaskApplyLabel(targetTask *task.TaskStruct, issue *github.Issu
 	if err != nil {
 		return err
 	}
-	if err := issueTask.Update(nil, nil); err != nil {
+	err = issueTask.Update(
+		issueTask.TaskModel.ListID,
+		issueTask.TaskModel.IssueNumber,
+		issueTask.TaskModel.Title,
+		issueTask.TaskModel.Description,
+		issueTask.TaskModel.PullRequest,
+		issueTask.TaskModel.HTMLURL,
+	)
+	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *Project) ReopenTask(targetTask *task.TaskStruct, issue *github.Issue) error {
+func (p *Project) ReopenTask(targetTask *task.Task, issue *github.Issue) error {
 	issueTask, err := p.applyListToTask(targetTask, issue)
 	if err != nil {
 		return err
 	}
-	if err := issueTask.Update(nil, nil); err != nil {
+	err = issueTask.Update(
+		issueTask.TaskModel.ListID,
+		issueTask.TaskModel.IssueNumber,
+		issueTask.TaskModel.Title,
+		issueTask.TaskModel.Description,
+		issueTask.TaskModel.PullRequest,
+		issueTask.TaskModel.HTMLURL,
+	)
+	if err != nil {
 		return err
 	}
 	return nil
 }
 
 func (p *Project) CreateNewTask(issue *github.Issue) error {
-	issueTask := task.NewTask(
+	issueTask := task.New(
 		0,
 		0,
 		p.ProjectModel.ID,
@@ -145,22 +160,22 @@ func (p *Project) CreateNewTask(issue *github.Issue) error {
 	if err != nil {
 		return err
 	}
-	if err := issueTask.Save(nil, nil); err != nil {
+	if err := issueTask.Save(); err != nil {
 		return err
 	}
 	return nil
 
 }
 
-func (p *Project) applyListToTask(issueTask *task.TaskStruct, issue *github.Issue) (*task.TaskStruct, error) {
+func (p *Project) applyListToTask(issueTask *task.Task, issue *github.Issue) (*task.Task, error) {
 	// close noneの用意
-	var closedList, noneList *list.ListStruct
+	var closedList, noneList *list.List
 	lists, err := p.Lists()
 	if err != nil {
 		return nil, err
 	}
 	for _, list := range lists {
-		if list.Title.Valid && list.Title.String == config.Element("init_list").(map[interface{}]interface{})["done"].(string) {
+		if list.ListModel.Title.Valid && list.ListModel.Title.String == config.Element("init_list").(map[interface{}]interface{})["done"].(string) {
 			closedList = list
 		}
 	}
@@ -180,11 +195,11 @@ func (p *Project) applyListToTask(issueTask *task.TaskStruct, issue *github.Issu
 	if *issue.State == "open" {
 		if len(labelLists) >= 1 {
 			// 一以上listだけが該当するとき
-			issueTask.ListID = labelLists[0].ID
+			issueTask.TaskModel.ListID = labelLists[0].ListModel.ID
 		} else {
 			// listに該当しないlabelしか持っていない
 			// or そもそもlabelがひとつもついていない
-			issueTask.ListID = noneList.ID
+			issueTask.TaskModel.ListID = noneList.ListModel.ID
 		}
 	} else {
 		// closeのものは，該当するlistがあったとしてもそのまま放り込めない
@@ -193,20 +208,20 @@ func (p *Project) applyListToTask(issueTask *task.TaskStruct, issue *github.Issu
 		listsWithClose := listsWithCloseAction(labelLists)
 		logging.SharedInstance().MethodInfo("Project", "applyListToTask").Debugf("lists with close action: %+v", listsWithClose)
 		if len(listsWithClose) >= 1 {
-			issueTask.ListID = listsWithClose[0].ID
+			issueTask.TaskModel.ListID = listsWithClose[0].ListModel.ID
 		} else {
-			issueTask.ListID = closedList.ID
+			issueTask.TaskModel.ListID = closedList.ListModel.ID
 		}
 	}
 	return issueTask, nil
 }
 
-func (u *Project) applyIssueInfoToTask(targetTask *task.TaskStruct, issue *github.Issue) (*task.TaskStruct, error) {
+func (u *Project) applyIssueInfoToTask(targetTask *task.Task, issue *github.Issue) (*task.Task, error) {
 	if targetTask == nil {
 		return nil, errors.New("target task is required")
 	}
-	targetTask.Title = *issue.Title
-	targetTask.Description = *issue.Body
-	targetTask.HTMLURL = sql.NullString{String: *issue.HTMLURL, Valid: true}
+	targetTask.TaskModel.Title = *issue.Title
+	targetTask.TaskModel.Description = *issue.Body
+	targetTask.TaskModel.HTMLURL = sql.NullString{String: *issue.HTMLURL, Valid: true}
 	return targetTask, nil
 }

@@ -18,23 +18,33 @@ func NewUserService(userAg *user.User) *User {
 	}
 }
 
-func CurrentUser(userID int64) (*User, error) {
-	userAggregation, err := user.CurrentUser(userID)
+func FindUser(id int64) (*User, error) {
+	aggregation, err := user.Find(id)
 	if err != nil {
 		return nil, err
 	}
 	return &User{
-		UserAggregation: userAggregation,
+		UserAggregation: aggregation,
+	}, nil
+}
+
+func FindUserByEmail(email string) (*User, error) {
+	aggregation, err := user.FindByEmail(email)
+	if err != nil {
+		return nil, err
+	}
+	return &User{
+		UserAggregation: aggregation,
 	}, nil
 }
 
 func LoginUser(email, password string) (*User, error) {
-	userAggregation, err := user.Login(email, password)
+	aggregation, err := user.Login(email, password)
 	if err != nil {
 		return nil, err
 	}
 	return &User{
-		UserAggregation: userAggregation,
+		UserAggregation: aggregation,
 	}, nil
 }
 
@@ -59,12 +69,12 @@ func FindOrCreateUserFromGithub(token string) (*User, error) {
 		}
 	}
 
-	userAggregation, err := user.FindOrCreateFromGithub(githubUser, token, primaryEmail)
+	aggregation, err := user.FindOrCreateFromGithub(githubUser, token, primaryEmail)
 	if err != nil {
 		return nil, err
 	}
 	return &User{
-		UserAggregation: userAggregation,
+		UserAggregation: aggregation,
 	}, nil
 }
 
