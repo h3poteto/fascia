@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
+	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/services"
 
 	"crypto/md5"
@@ -48,7 +49,7 @@ func CheckLogin(r *http.Request) (*services.User, error) {
 	if id == nil {
 		return nil, errors.New("not logined")
 	}
-	currentUser, err := services.CurrentUser(id.(int64))
+	currentUser, err := handlers.FindUser(id.(int64))
 	if err != nil {
 		return nil, err
 	}

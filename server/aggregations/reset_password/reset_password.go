@@ -26,14 +26,20 @@ func New(id, userID int64, token string, expiresAt time.Time) *ResetPassword {
 	}
 }
 
-func GenerateResetPassword(userID int64, email string) *ResetPassword {
+func GenerateResetPassword(userID int64, email string) (*ResetPassword, error) {
 	// tokenを生成
 	h := md5.New()
-	io.WriteString(h, strconv.FormatInt(time.Now().Unix(), 10))
-	io.WriteString(h, email)
+	_, err := io.WriteString(h, strconv.FormatInt(time.Now().Unix(), 10))
+	if err != nil {
+		return nil, errors.Wrap(err, "token generate error")
+	}
+	_, err = io.WriteString(h, email)
+	if err != nil {
+		return nil, errors.Wrap(err, "token generate error")
+	}
 	token := fmt.Sprintf("%x", h.Sum(nil))
 
-	return New(0, userID, token, time.Now().AddDate(0, 0, 1))
+	return New(0, userID, token, time.Now().AddDate(0, 0, 1)), nil
 }
 
 func FindAvailable(id int64, token string) (*ResetPassword, error) {
@@ -46,6 +52,15 @@ func FindAvailable(id int64, token string) (*ResetPassword, error) {
 		database:           db.SharedInstance().Connection,
 	}, nil
 }
+
+func Authenticate(id int64, token string) error {
+	return reset_password.Authenticate(id, token)
+}
+
+func (r *ResetPassword) Save() error {
+	return r.ResetPasswordModel.Save()
+}
+
 func (r *ResetPassword) User() (*user.User, error) {
 	var userID int64
 	err := r.database.QueryRow("select user_id from reset_passwords where id = ?;", r.ResetPasswordModel.ID).Scan(&userID)

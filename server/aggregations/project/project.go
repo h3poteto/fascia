@@ -100,21 +100,20 @@ func (p *Project) CreateInitialLists(tx *sql.Tx) error {
 	)
 
 	// githubへの同期はもっと上層で行う
-	// TODO: ここもtxにしないと駄目
-	if err := none.Save(); err != nil {
+	if err := none.Save(tx); err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	if err := todo.Save(); err != nil {
+	if err := todo.Save(tx); err != nil {
 		tx.Rollback()
 		return err
 	}
-	if err := inprogress.Save(); err != nil {
+	if err := inprogress.Save(tx); err != nil {
 		tx.Rollback()
 		return err
 	}
-	if err := done.Save(); err != nil {
+	if err := done.Save(tx); err != nil {
 		tx.Rollback()
 		return err
 	}

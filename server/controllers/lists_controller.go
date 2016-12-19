@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
+	"github.com/h3poteto/fascia/server/aggregations/list"
 	"github.com/h3poteto/fascia/server/handlers"
-	listModel "github.com/h3poteto/fascia/server/models/list"
 	"github.com/h3poteto/fascia/server/validators"
 
 	"database/sql"
@@ -146,15 +146,14 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	list := listModel.NewList(0, projectID, currentUser.UserAggregation.UserModel.ID, newListForm.Title, newListForm.Color, sql.NullInt64{}, false)
+	list := handlers.NewList(0, projectID, currentUser.UserAggregation.UserModel.ID, newListForm.Title, newListForm.Color, sql.NullInt64{}, false)
 
-	repo, _ := projectService.ProjectAggregation.Repository()
-	if err := list.Save(repo, &currentUser.UserAggregation.UserModel.OauthToken); err != nil {
+	if err := list.Save(); err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Create", err, c).Error(err)
 		http.Error(w, "failed save", 500)
 		return
 	}
-	jsonList, err := ListFormatToJSON(list)
+	jsonList, err := ListFormatToJSON(list.ListAggregation)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Create", err, c).Error(err)
 		http.Error(w, "list format error", 500)
@@ -194,7 +193,7 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "list not found", 404)
 		return
 	}
-	targetList, err := listModel.FindList(projectID, listID)
+	targetList, err := handlers.FindList(projectID, listID)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Update", err, c).Error(err)
 		http.Error(w, "list not found", 404)
@@ -229,13 +228,12 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repo, _ := projectService.ProjectAggregation.Repository()
-	if err := targetList.Update(repo, &currentUser.UserAggregation.UserModel.OauthToken, &editListForm.Title, &editListForm.Color, &editListForm.OptionID); err != nil {
+	if err := targetList.Update(editListForm.Title, editListForm.Color, editListForm.OptionID); err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Update", err, c).Error(err)
 		http.Error(w, "save failed", 500)
 		return
 	}
-	jsonList, err := ListFormatToJSON(targetList)
+	jsonList, err := ListFormatToJSON(targetList.ListAggregation)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Update", err, c).Error(err)
 		http.Error(w, "list format error", 500)
@@ -275,7 +273,7 @@ func (u *Lists) Hide(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "list not found", 404)
 		return
 	}
-	targetList, err := listModel.FindList(projectID, listID)
+	targetList, err := handlers.FindList(projectID, listID)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Hide", err, c).Error(err)
 		http.Error(w, "list not found", 404)
@@ -349,7 +347,7 @@ func (u *Lists) Display(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "list not found", 404)
 		return
 	}
-	targetList, err := listModel.FindList(projectID, listID)
+	targetList, err := handlers.FindList(projectID, listID)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Display", err, c).Error(err)
 		http.Error(w, "list not found", 404)
@@ -395,7 +393,7 @@ func (u *Lists) Display(c web.C, w http.ResponseWriter, r *http.Request) {
 }
 
 // ListsFormatToJSON convert lists models's array to json
-func ListsFormatToJSON(lists []*listModel.ListStruct) ([]*ListJSONFormat, error) {
+func ListsFormatToJSON(lists []*list.List) ([]*ListJSONFormat, error) {
 	var jsonLists []*ListJSONFormat
 	for _, l := range lists {
 		list, err := ListFormatToJSON(l)
@@ -408,20 +406,20 @@ func ListsFormatToJSON(lists []*listModel.ListStruct) ([]*ListJSONFormat, error)
 }
 
 // ListFormatToJSON convert a list model to json
-func ListFormatToJSON(list *listModel.ListStruct) (*ListJSONFormat, error) {
+func ListFormatToJSON(list *list.List) (*ListJSONFormat, error) {
 	tasks, err := list.Tasks()
 	if err != nil {
 		return nil, err
 	}
 	return &ListJSONFormat{
-		ID:           list.ID,
-		ProjectID:    list.ProjectID,
-		UserID:       list.UserID,
-		Title:        list.Title.String,
+		ID:           list.ListModel.ID,
+		ProjectID:    list.ListModel.ProjectID,
+		UserID:       list.ListModel.UserID,
+		Title:        list.ListModel.Title.String,
 		ListTasks:    TaskFormatToJSON(tasks),
-		Color:        list.Color.String,
-		ListOptionID: list.ListOptionID.Int64,
-		IsHidden:     list.IsHidden,
+		Color:        list.ListModel.Color.String,
+		ListOptionID: list.ListModel.ListOptionID.Int64,
+		IsHidden:     list.ListModel.IsHidden,
 		IsInitList:   list.IsInitList(),
 	}, nil
 }

@@ -13,19 +13,115 @@ type Task struct {
 	TaskAggregation *task.Task
 }
 
+func NewTask(id, listID, projectID, userID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString) *Task {
+	return &Task{
+		TaskAggregation: task.New(id, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL),
+	}
+}
+
+func FindTask(listID, taskID int64) (*Task, error) {
+	t, err := task.Find(listID, taskID)
+	if err != nil {
+		return nil, err
+	}
+	return &Task{
+		TaskAggregation: t,
+	}, nil
+}
+
 func (t *Task) Save() error {
-	return t.TaskAggregation.Save()
+	err := t.TaskAggregation.Save()
+	if err != nil {
+		return err
+	}
+
+	go func(task *Task) {
+		projectID := task.TaskAggregation.TaskModel.ProjectID
+		p, err := FindProject(projectID)
+		// TODO: log
+		if err != nil {
+			return
+		}
+		token, err := p.ProjectAggregation.OauthToken()
+		if err != nil {
+			return
+		}
+		repo, err := p.ProjectAggregation.Repository()
+		if err != nil {
+			return
+		}
+		err = task.fetchCreated(token, repo)
+		if err != nil {
+			return
+		}
+	}(t)
+
+	return nil
 }
 
 func (t *Task) Update(listID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString) error {
-	return t.TaskAggregation.Update(listID, issueNumber, title, description, pullRequest, htmlURL)
+	err := t.TaskAggregation.Update(listID, issueNumber, title, description, pullRequest, htmlURL)
+	if err != nil {
+		return err
+	}
+
+	go func(task *Task) {
+		projectID := task.TaskAggregation.TaskModel.ProjectID
+		p, err := FindProject(projectID)
+		// TODO: log
+		if err != nil {
+			return
+		}
+		token, err := p.ProjectAggregation.OauthToken()
+		if err != nil {
+			return
+		}
+		repo, err := p.ProjectAggregation.Repository()
+		if err != nil {
+			return
+		}
+		err = task.fetchUpdated(token, repo)
+		if err != nil {
+			return
+		}
+	}(t)
+	return nil
 }
 
-func (t *Task) ChangeList(listID int64, prevToTaskID *int64) (bool, error) {
-	return t.TaskAggregation.ChangeList(listID, prevToTaskID)
+func (t *Task) ChangeList(listID int64, prevToTaskID *int64) error {
+	isReorder, err := t.TaskAggregation.ChangeList(listID, prevToTaskID)
+	if err != nil {
+		return err
+	}
+
+	go func(task *Task, isReorder bool) {
+		projectID := task.TaskAggregation.TaskModel.ProjectID
+		p, err := FindProject(projectID)
+		// TODO: log
+		if err != nil {
+			return
+		}
+		token, err := p.ProjectAggregation.OauthToken()
+		if err != nil {
+			return
+		}
+		repo, err := p.ProjectAggregation.Repository()
+		if err != nil {
+			return
+		}
+		err = task.fetchChangedList(token, repo, isReorder)
+		if err != nil {
+			return
+		}
+	}(t, isReorder)
+	return nil
 }
 
-func (t *Task) FetchCreated(oauthToken string, repo *repository.Repository) error {
+func (t *Task) Delete() error {
+	return t.TaskAggregation.Delete()
+}
+
+func (t *Task) fetchCreated(oauthToken string, repo *repository.Repository) error {
 	if repo != nil {
 		issue, err := t.TaskAggregation.SyncIssue(repo, oauthToken)
 		if err != nil {
@@ -55,7 +151,7 @@ func (t *Task) FetchCreated(oauthToken string, repo *repository.Repository) erro
 	return nil
 }
 
-func (t *Task) FetchUpdated(oauthToken string, repo *repository.Repository) error {
+func (t *Task) fetchUpdated(oauthToken string, repo *repository.Repository) error {
 	// github側へ同期
 	if repo != nil {
 		_, err := t.TaskAggregation.SyncIssue(repo, oauthToken)
@@ -68,7 +164,7 @@ func (t *Task) FetchUpdated(oauthToken string, repo *repository.Repository) erro
 	return nil
 }
 
-func (t *Task) FetchChangedList(oauthToken string, repo *repository.Repository, isReorder bool) error {
+func (t *Task) fetchChangedList(oauthToken string, repo *repository.Repository, isReorder bool) error {
 	if !isReorder && repo != nil {
 		_, err := t.TaskAggregation.SyncIssue(repo, oauthToken)
 		if err != nil {

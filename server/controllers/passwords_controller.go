@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
+	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/mailers/password_mailer"
-	"github.com/h3poteto/fascia/server/models/reset_password"
-	"github.com/h3poteto/fascia/server/models/user"
+	"github.com/h3poteto/fascia/server/services"
 	"github.com/h3poteto/fascia/server/validators"
 
 	"net/http"
@@ -83,7 +83,7 @@ func (u *Passwords) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	targetUser, err := user.FindByEmail(newPasswordForm.Email)
+	targetUser, err := handlers.FindUserByEmail(newPasswordForm.Email)
 	if err != nil {
 		// OKにしておかないとEmail探りに使われる
 		logging.SharedInstance().MethodInfo("PasswordsController", "Create", c).Infof("cannot find user: %v", err)
@@ -91,14 +91,19 @@ func (u *Passwords) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	reset := reset_password.GenerateResetPassword(targetUser.ID, targetUser.Email)
+	reset, err := handlers.GenerateResetPassword(targetUser.UserAggregation.UserModel.ID, targetUser.UserAggregation.UserModel.Email)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "Create", err, c).Error(err)
+		InternalServerError(w, r)
+		return
+	}
 	if err := reset.Save(); err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "Create", err, c).Error(err)
 		InternalServerError(w, r)
 		return
 	}
 	// ここでemail送信
-	go password_mailer.Reset(reset.ID, targetUser.Email, reset.Token)
+	go password_mailer.Reset(reset.ResetPasswordAggregation.ResetPasswordModel.ID, targetUser.UserAggregation.UserModel.Email, reset.ResetPasswordAggregation.ResetPasswordModel.Token)
 	http.Redirect(w, r, "/sign_in", 302)
 	logging.SharedInstance().MethodInfo("PasswordsController", "Create", c).Info("success to send password reset request")
 	return
@@ -119,7 +124,7 @@ func (u *Passwords) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "reset password not found", 404)
 		return
 	}
-	if err := reset_password.Authenticate(id, resetToken); err != nil {
+	if err := services.AuthenticateResetPassword(id, resetToken); err != nil {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Edit", c).Info("cannot authenticate reset password: %v", err)
 		InternalServerError(w, r)
 		return
@@ -173,14 +178,14 @@ func (u *Passwords) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	targetUser, err := reset_password.ChangeUserPassword(id, editPasswordForm.ResetToken, editPasswordForm.Password)
+	targetUser, err := handlers.ChangeUserPassword(id, editPasswordForm.ResetToken, editPasswordForm.Password)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Update", c).Info("cannot authenticate reset password")
 		InternalServerError(w, r)
 		return
 	}
 
-	go password_mailer.Changed(targetUser.Email)
+	go password_mailer.Changed(targetUser.UserAggregation.UserModel.Email)
 	logging.SharedInstance().MethodInfo("PasswordsController", "Update", c).Info("success to change password")
 	http.Redirect(w, r, "/sign_in", 302)
 	return

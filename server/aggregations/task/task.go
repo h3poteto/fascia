@@ -68,6 +68,10 @@ func (t *Task) ChangeList(listID int64, prevToTaskID *int64) (bool, error) {
 	return isReorder, t.TaskModel.ChangeList(listID, prevToTaskID)
 }
 
+func (t *Task) Delete() error {
+	return t.TaskModel.Delete()
+}
+
 func (t *Task) SyncIssue(repo *repository.Repository, token string) (*github.Issue, error) {
 	var listTitle, listColor sql.NullString
 	var listOptionID sql.NullInt64

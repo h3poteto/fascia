@@ -18,6 +18,16 @@ func NewUserService(userAg *user.User) *User {
 	}
 }
 
+func RegistrationUser(email, password, passwordConfirm string) (*User, error) {
+	u, err := user.Registration(email, password, passwordConfirm)
+	if err != nil {
+		return nil, err
+	}
+	return &User{
+		UserAggregation: u,
+	}, nil
+}
+
 func FindUser(id int64) (*User, error) {
 	aggregation, err := user.Find(id)
 	if err != nil {

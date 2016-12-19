@@ -39,3 +39,7 @@ func CreateProject(userID int64, title string, description string, repositoryID 
 func FindProject(projectID int64) (*services.Project, error) {
 	return services.FindProject(projectID)
 }
+
+func FindProjectByRepositoryID(repositoryID int64) (*services.Project, error) {
+	return services.FindProjectByRepositoryID(repositoryID)
+}

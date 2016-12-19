@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	userModel "github.com/h3poteto/fascia/server/models/user"
+	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/validators"
 
 	"html/template"
@@ -80,7 +80,7 @@ func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Req
 		return
 	}
 	// TODO: ここCSRFのmiddlewareとかでなんとかならんかなぁ
-	_, err = userModel.Registration(
+	_, err = handlers.RegistrationUser(
 		template.HTMLEscapeString(signUpForm.Email),
 		template.HTMLEscapeString(signUpForm.Password),
 		template.HTMLEscapeString(signUpForm.PasswordConfirm),

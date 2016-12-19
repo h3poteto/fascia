@@ -2,8 +2,7 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/models/repository"
-	"github.com/h3poteto/fascia/server/services"
+	"github.com/h3poteto/fascia/server/handlers"
 
 	"encoding/json"
 	"io/ioutil"
@@ -40,7 +39,7 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 		json.Unmarshal(data, &githubBody)
 		id := int64(*githubBody.Repo.ID)
 
-		repo, err := repository.FindRepositoryByRepositoryID(id)
+		repo, err := handlers.FindRepositoryByGithubRepoID(id)
 		if err != nil {
 			logging.SharedInstance().MethodInfoWithStacktrace("Repositories", "Hook", err, c).Errorf("could not find repository: %v", err)
 			http.Error(w, "repository not found", 404)
@@ -51,7 +50,8 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "repository authenticate failed", 404)
 			return
 		}
-		projectService, err := services.FindProjectByRepositoryID(repo.ID)
+		// TODO: project:repositoryは必ずしも1:1にならない．そのため，ここは複数project対応にする必要がある
+		projectService, err := handlers.FindProjectByRepositoryID(repo.RepositoryAggregation.RepositoryModel.ID)
 		err = projectService.ApplyIssueChanges(githubBody)
 		if err != nil && !u.includeDuplicateError(err) {
 			if u.includeDuplicateError(err) {
@@ -70,7 +70,7 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 		json.Unmarshal(data, &githubBody)
 		id := int64(*githubBody.Repo.ID)
 
-		repo, err := repository.FindRepositoryByRepositoryID(id)
+		repo, err := handlers.FindRepositoryByGithubRepoID(id)
 		if err != nil {
 			logging.SharedInstance().MethodInfoWithStacktrace("Repositories", "Hook", err, c).Errorf("could not find repository: %v", err)
 			http.Error(w, "repository not found", 404)
@@ -82,7 +82,7 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		projectService, err := services.FindProjectByRepositoryID(repo.ID)
+		projectService, err := handlers.FindProjectByRepositoryID(repo.RepositoryAggregation.RepositoryModel.ID)
 		err = projectService.ApplyPullRequestChanges(githubBody)
 		if err != nil {
 			if u.includeDuplicateError(err) {

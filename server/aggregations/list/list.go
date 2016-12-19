@@ -25,8 +25,19 @@ func New(id int64, projectID int64, userID int64, title string, color string, op
 	}
 }
 
-func (l *List) Save() error {
-	return l.ListModel.Save()
+func FindByID(projectID, listID int64) (*List, error) {
+	l, err := list.FindByID(projectID, listID)
+	if err != nil {
+		return nil, err
+	}
+	return &List{
+		ListModel: l,
+		database:  db.SharedInstance().Connection,
+	}, nil
+}
+
+func (l *List) Save(tx *sql.Tx) error {
+	return l.ListModel.Save(tx)
 }
 
 func (l *List) Update(title, color string, optionID int64) error {
@@ -51,6 +62,14 @@ func (l *List) Update(title, color string, optionID int64) error {
 		return err
 	}
 	return nil
+}
+
+func (l *List) Hide() error {
+	return l.ListModel.Hide()
+}
+
+func (l *List) Display() error {
+	return l.ListModel.Display()
 }
 
 // Tasks list up related a list

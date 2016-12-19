@@ -57,17 +57,20 @@ func (u *User) initialize() {
 }
 
 // Registration is create new user through validation
-func Registration(email string, password string, passwordConfirm string) (int64, error) {
+func Registration(email string, password string, passwordConfirm string) (*User, error) {
 	hashPassword, err := HashPassword(password)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
 	user := New(0, email, sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
 	user.Password = string(hashPassword)
 	err = user.Save()
+	if err != nil {
+		return nil, err
+	}
 
-	return user.ID, err
+	return user, nil
 }
 
 func Find(id int64) (*User, error) {

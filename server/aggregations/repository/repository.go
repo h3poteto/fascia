@@ -1,7 +1,10 @@
 package repository
 
 import (
+	"crypto/hmac"
 	"crypto/md5"
+	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"strconv"
@@ -11,6 +14,7 @@ import (
 	"github.com/h3poteto/fascia/server/models/repository"
 
 	"github.com/google/go-github/github"
+	"github.com/pkg/errors"
 )
 
 type Repository struct {
@@ -21,6 +25,16 @@ func New(id int64, repositoryID int64, owner string, name string, webhookKey str
 	return &Repository{
 		RepositoryModel: repository.New(id, repositoryID, owner, name, webhookKey),
 	}
+}
+
+func FindByGithubRepoID(id int64) (*Repository, error) {
+	r, err := repository.FindByGithubRepoID(id)
+	if err != nil {
+		return nil, err
+	}
+	return &Repository{
+		RepositoryModel: r,
+	}, nil
 }
 
 // CreateRepository create repository record based on github repository
@@ -54,6 +68,17 @@ func GenerateWebhookKey(seed string) string {
 
 func (r *Repository) Save() error {
 	return r.RepositoryModel.Save()
+}
+
+// Authenticate is check token and webhookKey with response
+func (r *Repository) Authenticate(token string, response []byte) error {
+	mac := hmac.New(sha1.New, []byte(r.RepositoryModel.WebhookKey))
+	mac.Write(response)
+	hashedToken := hex.EncodeToString(mac.Sum(nil))
+	if token != ("sha1=" + hashedToken) {
+		return errors.New("token is not equal webhookKey")
+	}
+	return nil
 }
 
 func (r *Repository) CheckLabelPresent(token, title string) (*github.Label, error) {

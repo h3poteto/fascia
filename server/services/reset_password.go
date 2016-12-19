@@ -21,3 +21,21 @@ func ChangeUserPassword(id int64, token string, password string) (*User, error) 
 	}
 	return NewUserService(u), nil
 }
+
+func GenerateResetPassword(userID int64, email string) (*ResetPassword, error) {
+	r, err := reset_password.GenerateResetPassword(userID, email)
+	if err != nil {
+		return nil, err
+	}
+	return &ResetPassword{
+		ResetPasswordAggregation: r,
+	}, nil
+}
+
+func AuthenticateResetPassword(id int64, token string) error {
+	return reset_password.Authenticate(id, token)
+}
+
+func (r *ResetPassword) Save() error {
+	return r.ResetPasswordAggregation.Save()
+}

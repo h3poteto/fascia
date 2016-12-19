@@ -24,6 +24,17 @@ func New(id int64, email string, provider sql.NullString, oauthToken sql.NullStr
 	}
 }
 
+func Registration(email, password, passwordConfirm string) (*User, error) {
+	u, err := user.Registration(email, password, passwordConfirm)
+	if err != nil {
+		return nil, err
+	}
+	return &User{
+		UserModel: u,
+		database:  db.SharedInstance().Connection,
+	}, nil
+}
+
 func Find(id int64) (*User, error) {
 	u, err := user.Find(id)
 	if err != nil {

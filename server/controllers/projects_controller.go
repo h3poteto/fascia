@@ -63,7 +63,7 @@ func (u *Projects) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 		var repositoryID int64
 		repo, err := p.ProjectAggregation.Repository()
 		if err == nil {
-			repositoryID = repo.ID
+			repositoryID = repo.RepositoryModel.ID
 		}
 		jsonProjects = append(jsonProjects, &ProjectJSONFormat{
 			ID:               p.ProjectAggregation.ProjectModel.ID,
@@ -103,7 +103,7 @@ func (u *Projects) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 	var repoID int64
 	repo, err := projectService.ProjectAggregation.Repository()
 	if err == nil {
-		repoID = repo.ID
+		repoID = repo.RepositoryModel.ID
 	}
 	jsonProject := ProjectJSONFormat{
 		ID:               projectService.ProjectAggregation.ProjectModel.ID,
@@ -171,7 +171,7 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 	var repositoryID int64
 	repo, err := projectService.ProjectAggregation.Repository()
 	if err == nil {
-		repositoryID = repo.ID
+		repositoryID = repo.RepositoryModel.ID
 	}
 	jsonProject := ProjectJSONFormat{
 		ID:               projectService.ProjectAggregation.ProjectModel.ID,
@@ -238,7 +238,7 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := projectService.UpdateProject(editProjectForm.Title, editProjectForm.Description, projectService.ProjectAggregation.ProjectModel.ShowIssues, projectService.ProjectAggregation.ProjectModel.ShowPullRequests); err != nil {
+	if err := projectService.Update(editProjectForm.Title, editProjectForm.Description, projectService.ProjectAggregation.ProjectModel.ShowIssues, projectService.ProjectAggregation.ProjectModel.ShowPullRequests); err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Update", err, c).Error(err)
 		http.Error(w, "update failed", 500)
 		return
@@ -247,7 +247,7 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	var repositoryID int64
 	repo, err := projectService.ProjectAggregation.Repository()
 	if err == nil {
-		repositoryID = repo.ID
+		repositoryID = repo.RepositoryModel.ID
 	}
 	jsonProject := ProjectJSONFormat{
 		ID:               projectService.ProjectAggregation.ProjectModel.ID,
@@ -300,7 +300,7 @@ func (u *Projects) Settings(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Settings", c).Debug("post edit project parameter: %+v", settingsProjectForm)
-	if err := projectService.UpdateProject(
+	if err := projectService.Update(
 		projectService.ProjectAggregation.ProjectModel.Title,
 		projectService.ProjectAggregation.ProjectModel.Description,
 		settingsProjectForm.ShowIssues,
@@ -314,7 +314,7 @@ func (u *Projects) Settings(c web.C, w http.ResponseWriter, r *http.Request) {
 	var repositoryID int64
 	repo, err := projectService.ProjectAggregation.Repository()
 	if err == nil {
-		repositoryID = repo.ID
+		repositoryID = repo.RepositoryModel.ID
 	}
 	jsonProject := ProjectJSONFormat{
 		ID:               projectService.ProjectAggregation.ProjectModel.ID,

@@ -31,7 +31,7 @@ func New(id int64, projectID int64, userID int64, title string, color string, op
 	return list
 }
 
-func Find(projectID int64, listID int64) (*List, error) {
+func FindByID(projectID int64, listID int64) (*List, error) {
 	database := db.SharedInstance().Connection
 	var id, userID int64
 	var title, color sql.NullString
@@ -59,8 +59,14 @@ func (u *List) initialize() {
 	u.database = db.SharedInstance().Connection
 }
 
-func (u *List) Save() error {
-	result, err := u.database.Exec("insert into lists (project_id, user_id, title, color, list_option_id, is_hidden, created_at) values (?, ?, ?, ?, ?, ?, now());", u.ProjectID, u.UserID, u.Title, u.Color, u.ListOptionID, u.IsHidden)
+func (u *List) Save(tx *sql.Tx) error {
+	var err error
+	var result sql.Result
+	if tx != nil {
+		result, err = tx.Exec("insert into lists (project_id, user_id, title, color, list_option_id, is_hidden, created_at) values (?, ?, ?, ?, ?, ?, now());", u.ProjectID, u.UserID, u.Title, u.Color, u.ListOptionID, u.IsHidden)
+	} else {
+		result, err = u.database.Exec("insert into lists (project_id, user_id, title, color, list_option_id, is_hidden, created_at) values (?, ?, ?, ?, ?, ?, now());", u.ProjectID, u.UserID, u.Title, u.Color, u.ListOptionID, u.IsHidden)
+	}
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}

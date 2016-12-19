@@ -2,9 +2,8 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
+	"github.com/h3poteto/fascia/server/aggregations/task"
 	"github.com/h3poteto/fascia/server/handlers"
-	listModel "github.com/h3poteto/fascia/server/models/list"
-	taskModel "github.com/h3poteto/fascia/server/models/task"
 	"github.com/h3poteto/fascia/server/services"
 	"github.com/h3poteto/fascia/server/validators"
 
@@ -94,11 +93,11 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task := taskModel.NewTask(
+	task := services.NewTask(
 		0,
-		parentList.ID,
+		parentList.ListAggregation.ListModel.ID,
 		projectService.ProjectAggregation.ProjectModel.ID,
-		parentList.UserID,
+		parentList.ListAggregation.ListModel.UserID,
 		sql.NullInt64{},
 		newTaskForm.Title,
 		newTaskForm.Description,
@@ -106,8 +105,7 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		sql.NullString{},
 	)
 
-	repo, _ := projectService.ProjectAggregation.Repository()
-	if err := task.Save(repo, &currentUser.UserAggregation.UserModel.OauthToken); err != nil {
+	if err := task.Save(); err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Create", err, c).Errorf("save failed: %v", err)
 		http.Error(w, "save failed", 500)
 		return
@@ -161,7 +159,16 @@ func (u *Tasks) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 
 	encoder := json.NewEncoder(w)
-	jsonTask := TaskJSONFormat{ID: task.ID, ListID: task.ListID, UserID: task.UserID, IssueNumber: task.IssueNumber.Int64, Title: task.Title, Description: task.Description, HTMLURL: task.HTMLURL.String, PullRequest: task.PullRequest}
+	jsonTask := TaskJSONFormat{
+		ID:          task.TaskAggregation.TaskModel.ID,
+		ListID:      task.TaskAggregation.TaskModel.ListID,
+		UserID:      task.TaskAggregation.TaskModel.UserID,
+		IssueNumber: task.TaskAggregation.TaskModel.IssueNumber.Int64,
+		Title:       task.TaskAggregation.TaskModel.Title,
+		Description: task.TaskAggregation.TaskModel.Description,
+		HTMLURL:     task.TaskAggregation.TaskModel.HTMLURL.String,
+		PullRequest: task.TaskAggregation.TaskModel.PullRequest,
+	}
 	logging.SharedInstance().MethodInfo("TasksController", "Show", c).Info("success to get task")
 	encoder.Encode(jsonTask)
 	return
@@ -229,8 +236,7 @@ func (u *Tasks) MoveTask(c web.C, w http.ResponseWriter, r *http.Request) {
 		prevToTaskID = &moveTaskFrom.PrevToTaskID
 	}
 
-	repo, _ := projectService.ProjectAggregation.Repository()
-	if err := task.ChangeList(moveTaskFrom.ToListID, prevToTaskID, repo, &currentUser.UserAggregation.UserModel.OauthToken); err != nil {
+	if err := task.ChangeList(moveTaskFrom.ToListID, prevToTaskID); err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "MoveTask", err, c).Errorf("failed change list: %v", err)
 		http.Error(w, "failed change list", 500)
 		return
@@ -308,11 +314,15 @@ func (u *Tasks) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task.Title = editTaskForm.Title
-	task.Description = editTaskForm.Description
-
-	repo, _ := projectService.ProjectAggregation.Repository()
-	if err := task.Update(repo, &currentUser.UserAggregation.UserModel.OauthToken); err != nil {
+	err = task.Update(
+		task.TaskAggregation.TaskModel.ListID,
+		task.TaskAggregation.TaskModel.IssueNumber,
+		editTaskForm.Title,
+		editTaskForm.Description,
+		task.TaskAggregation.TaskModel.PullRequest,
+		task.TaskAggregation.TaskModel.HTMLURL,
+	)
+	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Update", err, c).Error(err)
 		http.Error(w, "update error", 500)
 		return
@@ -382,7 +392,7 @@ func (u *Tasks) Delete(c web.C, w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func setProjectAndList(c web.C, w http.ResponseWriter, currentUser *services.User) (*services.Project, *listModel.ListStruct, int, error) {
+func setProjectAndList(c web.C, w http.ResponseWriter, currentUser *services.User) (*services.Project, *services.List, int, error) {
 	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
@@ -397,20 +407,20 @@ func setProjectAndList(c web.C, w http.ResponseWriter, currentUser *services.Use
 		err := errors.Wrap(err, "parse error")
 		return nil, nil, 404, err
 	}
-	parentList, err := listModel.FindList(projectService.ProjectAggregation.ProjectModel.ID, listID)
+	parentList, err := handlers.FindList(projectService.ProjectAggregation.ProjectModel.ID, listID)
 	if err != nil {
 		return nil, nil, 404, err
 	}
 	return projectService, parentList, 200, nil
 }
 
-func setTask(c web.C, w http.ResponseWriter, list *listModel.ListStruct) (*taskModel.TaskStruct, int, error) {
+func setTask(c web.C, w http.ResponseWriter, list *services.List) (*services.Task, int, error) {
 	taskID, err := strconv.ParseInt(c.URLParams["task_id"], 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
 		return nil, 404, err
 	}
-	task, err := taskModel.FindTask(list.ID, taskID)
+	task, err := handlers.FindTask(list.ListAggregation.ListModel.ID, taskID)
 	if err != nil {
 		return nil, 404, err
 	}
@@ -419,10 +429,19 @@ func setTask(c web.C, w http.ResponseWriter, list *listModel.ListStruct) (*taskM
 }
 
 // TaskFormatToJSON convert task model's array to json
-func TaskFormatToJSON(tasks []*taskModel.TaskStruct) []*TaskJSONFormat {
+func TaskFormatToJSON(tasks []*task.Task) []*TaskJSONFormat {
 	jsonTasks := make([]*TaskJSONFormat, 0)
 	for _, t := range tasks {
-		jsonTasks = append(jsonTasks, &TaskJSONFormat{ID: t.ID, ListID: t.ListID, UserID: t.UserID, IssueNumber: t.IssueNumber.Int64, Title: t.Title, Description: t.Description, HTMLURL: t.HTMLURL.String, PullRequest: t.PullRequest})
+		jsonTasks = append(jsonTasks, &TaskJSONFormat{
+			ID:          t.TaskModel.ID,
+			ListID:      t.TaskModel.ListID,
+			UserID:      t.TaskModel.UserID,
+			IssueNumber: t.TaskModel.IssueNumber.Int64,
+			Title:       t.TaskModel.Title,
+			Description: t.TaskModel.Description,
+			HTMLURL:     t.TaskModel.HTMLURL.String,
+			PullRequest: t.TaskModel.PullRequest,
+		})
 	}
 	return jsonTasks
 }
