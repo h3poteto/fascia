@@ -40,7 +40,7 @@ func (l *List) Save(tx *sql.Tx) error {
 	return l.ListModel.Save(tx)
 }
 
-func (l *List) Update(title, color string, optionID int64) error {
+func (l *List) UpdateExceptInitList(title, color string, optionID int64) error {
 	// 初期リストに関しては一切編集を許可しない
 	// 色は変えられても良いが，titleとactionは変えられては困る
 	// 現段階では色も含めてすべて固定とする
@@ -48,6 +48,10 @@ func (l *List) Update(title, color string, optionID int64) error {
 		return errors.New("cannot update initial list")
 	}
 
+	return l.Update(title, color, optionID)
+}
+
+func (l *List) Update(title, color string, optionID int64) error {
 	var listOptionID sql.NullInt64
 	listOption, err := list_option.FindByID(optionID)
 	if err != nil {

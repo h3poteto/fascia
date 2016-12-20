@@ -79,7 +79,7 @@ func (l *List) fetchCreated(oauthToken string, repo *repository.Repository) erro
 }
 
 func (l *List) Update(title, color string, optionID int64) error {
-	err := l.ListAggregation.Update(title, color, optionID)
+	err := l.ListAggregation.UpdateExceptInitList(title, color, optionID)
 	if err != nil {
 		return err
 	}

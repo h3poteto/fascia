@@ -15,22 +15,25 @@ func CreateProject(userID int64, title string, description string, repositoryID 
 	}
 
 	go func(projectService *services.Project) {
+		// Create initial list before get issues from github
+		err := projectService.FetchCreatedInitialList()
+		if err != nil {
+			return
+		}
+		// Sync issues from github
+		_, err = projectService.FetchGithub()
+		if err != nil {
+			logging.SharedInstance().MethodInfoWithStacktrace("Project", "Create", err).Error(err)
+			return
+		}
+
 		// Create Webhook in github
-		err := projectService.CreateWebhook()
+		err = projectService.CreateWebhook()
 		if err != nil {
 			logging.SharedInstance().MethodInfo("Project", "Create").Infof("failed to create webhook: %v", err)
 			return
 		}
 		logging.SharedInstance().MethodInfo("Project", "Create").Info("success to create webhook")
-
-		// Sync github
-		if err == nil {
-			_, err := projectService.FetchGithub()
-			if err != nil {
-				logging.SharedInstance().MethodInfoWithStacktrace("Project", "Create", err).Error(err)
-				return
-			}
-		}
 	}(projectService)
 
 	return projectService, nil

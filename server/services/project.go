@@ -72,15 +72,18 @@ func (p *Project) Create(userID int64, title string, description string, reposit
 		return nil, err
 	}
 
-	p.ProjectAggregation = projectAg
-
 	// 初期listsの保存は今のところ必須要件なのでtransaction内で行いたい
 	// ただしgithubへの同期はtransactionが終わってからで良いので，ここでは行わない
-	err = p.ProjectAggregation.CreateInitialLists(tx)
+	err = projectAg.CreateInitialLists(tx)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
 	}
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+	p.ProjectAggregation = projectAg
 	return projectAg, nil
 }
 
@@ -173,6 +176,8 @@ func (p *Project) FetchGithub() (bool, error) {
 // ApplyIssuesChanges apply issue changes to task
 func (p *Project) ApplyIssueChanges(body github.IssuesEvent) error {
 	// taskが見つからない場合は新規作成するのでエラーハンドリング不要
+	fmt.Println("debug log: ", p.ProjectAggregation)
+	fmt.Println("debug log: ", *body.Issue)
 	targetTask, _ := task.FindByIssueNumber(p.ProjectAggregation.ProjectModel.ID, *body.Issue.Number)
 	var err error
 	switch *body.Action {
@@ -223,4 +228,36 @@ func (p *Project) ApplyPullRequestChanges(body github.PullRequestEvent) error {
 		err = p.ProjectAggregation.TaskApplyLabel(targetTask, issue)
 	}
 	return err
+}
+
+func (p *Project) FetchCreatedInitialList() error {
+	repo, err := p.ProjectAggregation.Repository()
+	if err != nil {
+		return err
+	}
+
+	oauthToken, err := p.ProjectAggregation.OauthToken()
+	if err != nil {
+		return err
+	}
+
+	lists, err := p.ProjectAggregation.Lists()
+	if err != nil {
+		return err
+	}
+	for _, l := range lists {
+		label, err := repo.CheckLabelPresent(oauthToken, l.ListModel.Title.String)
+		if err != nil {
+			return err
+		}
+		if label != nil {
+			continue
+		}
+		_, err = repo.CreateGithubLabel(oauthToken, l.ListModel.Title.String, l.ListModel.Color.String)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+
 }

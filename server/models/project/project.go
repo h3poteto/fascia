@@ -53,7 +53,7 @@ func FindByRepositoryID(repoID int64) (*ProjectStruct, error) {
 	var title string
 	var description string
 	var showIssues, showPullRequests bool
-	err := database.QueryRow("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where repository_id = ?;", repositoryID).Scan(&id, &userID, &repositoryID, &title, &description, &showIssues, &showPullRequests)
+	err := database.QueryRow("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where repository_id = ?;", repoID).Scan(&id, &userID, &repositoryID, &title, &description, &showIssues, &showPullRequests)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}

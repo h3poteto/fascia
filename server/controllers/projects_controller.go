@@ -404,7 +404,7 @@ func (u *Projects) Webhook(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	projectService, err := handlers.FindProject(projectID)
-	if err != nil || projectService.CheckOwner(currentUser.UserAggregation.UserModel.ID) {
+	if err != nil || !(projectService.CheckOwner(currentUser.UserAggregation.UserModel.ID)) {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook", c).Warnf("project not found: %v", err)
 		http.Error(w, "project not found", 404)
 		return
