@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/aggregations/task"
+	"github.com/h3poteto/fascia/server/entities/task"
 	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/services"
 	"github.com/h3poteto/fascia/server/validators"
@@ -95,9 +95,9 @@ func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	task := services.NewTask(
 		0,
-		parentList.ListAggregation.ListModel.ID,
-		projectService.ProjectAggregation.ProjectModel.ID,
-		parentList.ListAggregation.ListModel.UserID,
+		parentList.ListEntity.ListModel.ID,
+		projectService.ProjectEntity.ProjectModel.ID,
+		parentList.ListEntity.ListModel.UserID,
 		sql.NullInt64{},
 		newTaskForm.Title,
 		newTaskForm.Description,
@@ -160,14 +160,14 @@ func (u *Tasks) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	encoder := json.NewEncoder(w)
 	jsonTask := TaskJSONFormat{
-		ID:          task.TaskAggregation.TaskModel.ID,
-		ListID:      task.TaskAggregation.TaskModel.ListID,
-		UserID:      task.TaskAggregation.TaskModel.UserID,
-		IssueNumber: task.TaskAggregation.TaskModel.IssueNumber.Int64,
-		Title:       task.TaskAggregation.TaskModel.Title,
-		Description: task.TaskAggregation.TaskModel.Description,
-		HTMLURL:     task.TaskAggregation.TaskModel.HTMLURL.String,
-		PullRequest: task.TaskAggregation.TaskModel.PullRequest,
+		ID:          task.TaskEntity.TaskModel.ID,
+		ListID:      task.TaskEntity.TaskModel.ListID,
+		UserID:      task.TaskEntity.TaskModel.UserID,
+		IssueNumber: task.TaskEntity.TaskModel.IssueNumber.Int64,
+		Title:       task.TaskEntity.TaskModel.Title,
+		Description: task.TaskEntity.TaskModel.Description,
+		HTMLURL:     task.TaskEntity.TaskModel.HTMLURL.String,
+		PullRequest: task.TaskEntity.TaskModel.PullRequest,
 	}
 	logging.SharedInstance().MethodInfo("TasksController", "Show", c).Info("success to get task")
 	encoder.Encode(jsonTask)
@@ -315,12 +315,12 @@ func (u *Tasks) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = task.Update(
-		task.TaskAggregation.TaskModel.ListID,
-		task.TaskAggregation.TaskModel.IssueNumber,
+		task.TaskEntity.TaskModel.ListID,
+		task.TaskEntity.TaskModel.IssueNumber,
 		editTaskForm.Title,
 		editTaskForm.Description,
-		task.TaskAggregation.TaskModel.PullRequest,
-		task.TaskAggregation.TaskModel.HTMLURL,
+		task.TaskEntity.TaskModel.PullRequest,
+		task.TaskEntity.TaskModel.HTMLURL,
 	)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Update", err, c).Error(err)
@@ -399,7 +399,7 @@ func setProjectAndList(c web.C, w http.ResponseWriter, currentUser *services.Use
 		return nil, nil, 404, err
 	}
 	projectService, err := handlers.FindProject(projectID)
-	if err != nil || !(projectService.CheckOwner(currentUser.UserAggregation.UserModel.ID)) {
+	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
 		return nil, nil, 404, err
 	}
 	listID, err := strconv.ParseInt(c.URLParams["list_id"], 10, 64)
@@ -407,7 +407,7 @@ func setProjectAndList(c web.C, w http.ResponseWriter, currentUser *services.Use
 		err := errors.Wrap(err, "parse error")
 		return nil, nil, 404, err
 	}
-	parentList, err := handlers.FindList(projectService.ProjectAggregation.ProjectModel.ID, listID)
+	parentList, err := handlers.FindList(projectService.ProjectEntity.ProjectModel.ID, listID)
 	if err != nil {
 		return nil, nil, 404, err
 	}
@@ -420,7 +420,7 @@ func setTask(c web.C, w http.ResponseWriter, list *services.List) (*services.Tas
 		err := errors.Wrap(err, "parse error")
 		return nil, 404, err
 	}
-	task, err := handlers.FindTask(list.ListAggregation.ListModel.ID, taskID)
+	task, err := handlers.FindTask(list.ListEntity.ListModel.ID, taskID)
 	if err != nil {
 		return nil, 404, err
 	}
@@ -447,7 +447,7 @@ func TaskFormatToJSON(tasks []*task.Task) []*TaskJSONFormat {
 }
 
 func allListsResponse(projectService *services.Project) (*AllListJSONFormat, error) {
-	allLists, err := projectService.ProjectAggregation.Lists()
+	allLists, err := projectService.ProjectEntity.Lists()
 	if err != nil {
 		return nil, err
 	}
@@ -455,7 +455,7 @@ func allListsResponse(projectService *services.Project) (*AllListJSONFormat, err
 	if err != nil {
 		return nil, err
 	}
-	noneList, err := projectService.ProjectAggregation.NoneList()
+	noneList, err := projectService.ProjectEntity.NoneList()
 	if err != nil {
 		return nil, err
 	}

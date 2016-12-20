@@ -1,11 +1,11 @@
 package services
 
 import (
-	"github.com/h3poteto/fascia/server/aggregations/repository"
+	"github.com/h3poteto/fascia/server/entities/repository"
 )
 
 type Repository struct {
-	RepositoryAggregation *repository.Repository
+	RepositoryEntity *repository.Repository
 }
 
 func FindRepositoryByGithubRepoID(id int64) (*Repository, error) {
@@ -14,10 +14,10 @@ func FindRepositoryByGithubRepoID(id int64) (*Repository, error) {
 		return nil, err
 	}
 	return &Repository{
-		RepositoryAggregation: r,
+		RepositoryEntity: r,
 	}, nil
 }
 
 func (r *Repository) Authenticate(token string, response []byte) error {
-	return r.RepositoryAggregation.Authenticate(token, response)
+	return r.RepositoryEntity.Authenticate(token, response)
 }

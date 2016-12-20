@@ -3,7 +3,7 @@ package user
 import (
 	"database/sql"
 
-	"github.com/h3poteto/fascia/server/aggregations/project"
+	"github.com/h3poteto/fascia/server/entities/project"
 	"github.com/h3poteto/fascia/server/models/db"
 	"github.com/h3poteto/fascia/server/models/user"
 

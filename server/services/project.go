@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/h3poteto/fascia/config"
-	"github.com/h3poteto/fascia/server/aggregations/project"
-	"github.com/h3poteto/fascia/server/aggregations/repository"
-	"github.com/h3poteto/fascia/server/aggregations/task"
+	"github.com/h3poteto/fascia/server/entities/project"
+	"github.com/h3poteto/fascia/server/entities/repository"
+	"github.com/h3poteto/fascia/server/entities/task"
 	"github.com/h3poteto/fascia/server/models/db"
 
 	"github.com/google/go-github/github"
@@ -15,36 +15,36 @@ import (
 )
 
 type Project struct {
-	ProjectAggregation *project.Project
-	database           *sql.DB
+	ProjectEntity *project.Project
+	database      *sql.DB
 }
 
-func NewProjectService(projectAg *project.Project) *Project {
+func NewProjectService(entity *project.Project) *Project {
 	return &Project{
-		ProjectAggregation: projectAg,
-		database:           db.SharedInstance().Connection,
+		ProjectEntity: entity,
+		database:      db.SharedInstance().Connection,
 	}
 }
 
 // FindProject search project from projectID
 func FindProject(projectID int64) (*Project, error) {
-	projectAggregation, err := project.Find(projectID)
+	projectEntity, err := project.Find(projectID)
 	if err != nil {
 		return nil, err
 	}
-	return NewProjectService(projectAggregation), nil
+	return NewProjectService(projectEntity), nil
 }
 
 func FindProjectByRepositoryID(repositoryID int64) (*Project, error) {
-	projectAggregation, err := project.FindByRepositoryID(repositoryID)
+	projectEntity, err := project.FindByRepositoryID(repositoryID)
 	if err != nil {
 		return nil, err
 	}
-	return NewProjectService(projectAggregation), nil
+	return NewProjectService(projectEntity), nil
 }
 
 func (p *Project) CheckOwner(userID int64) bool {
-	if p.ProjectAggregation.ProjectModel.UserID != userID {
+	if p.ProjectEntity.ProjectModel.UserID != userID {
 		return false
 	}
 	return true
@@ -67,14 +67,14 @@ func (p *Project) Create(userID int64, title string, description string, reposit
 	if err != nil {
 		return nil, err
 	}
-	projectAg := project.New(0, userID, title, description, repoID, true, true)
-	if err := projectAg.Save(tx); err != nil {
+	entity := project.New(0, userID, title, description, repoID, true, true)
+	if err := entity.Save(tx); err != nil {
 		return nil, err
 	}
 
 	// 初期listsの保存は今のところ必須要件なのでtransaction内で行いたい
 	// ただしgithubへの同期はtransactionが終わってからで良いので，ここでは行わない
-	err = projectAg.CreateInitialLists(tx)
+	err = entity.CreateInitialLists(tx)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -83,23 +83,23 @@ func (p *Project) Create(userID int64, title string, description string, reposit
 	if err != nil {
 		return nil, err
 	}
-	p.ProjectAggregation = projectAg
-	return projectAg, nil
+	p.ProjectEntity = entity
+	return entity, nil
 }
 
 func (p *Project) Update(title string, description string, showIssues bool, showPullRequests bool) error {
-	return p.ProjectAggregation.Update(title, description, showIssues, showPullRequests)
+	return p.ProjectEntity.Update(title, description, showIssues, showPullRequests)
 }
 
 // CreateWebhook call CreateWebhook if project has repository
 func (p *Project) CreateWebhook() error {
-	oauthToken, err := p.ProjectAggregation.OauthToken()
+	oauthToken, err := p.ProjectEntity.OauthToken()
 	if err != nil {
 		return err
 	}
 
 	url := fmt.Sprintf("%s://%s/repositories/hooks/github", config.Element("protocol").(string), config.Element("fqdn"))
-	repo, err := p.ProjectAggregation.Repository()
+	repo, err := p.ProjectEntity.Repository()
 	if err != nil {
 		return err
 	}
@@ -107,13 +107,13 @@ func (p *Project) CreateWebhook() error {
 }
 
 func (p *Project) FetchGithub() (bool, error) {
-	repo, err := p.ProjectAggregation.Repository()
+	repo, err := p.ProjectEntity.Repository()
 	// user自体はgithub連携していても，projectが連携していない可能性もあるのでチェック
 	if err != nil {
 		return false, err
 	}
 
-	oauthToken, err := p.ProjectAggregation.OauthToken()
+	oauthToken, err := p.ProjectEntity.OauthToken()
 	if err != nil {
 		return false, err
 	}
@@ -123,7 +123,7 @@ func (p *Project) FetchGithub() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	err = p.ProjectAggregation.ListLoadFromGithub(labels)
+	err = p.ProjectEntity.ListLoadFromGithub(labels)
 	if err != nil {
 		return false, err
 	}
@@ -134,7 +134,7 @@ func (p *Project) FetchGithub() (bool, error) {
 	}
 
 	// taskをすべて同期
-	err = p.ProjectAggregation.TaskLoadFromGithub(append(openIssues, closedIssues...))
+	err = p.ProjectEntity.TaskLoadFromGithub(append(openIssues, closedIssues...))
 	if err != nil {
 		return false, err
 	}
@@ -142,7 +142,7 @@ func (p *Project) FetchGithub() (bool, error) {
 	// github側へ同期
 	// github側に存在するissueについては，#299でDB内に新規作成されるため，ここではgithub側に存在せず，DB内にのみ存在するタスクをissue化すれば良い
 	// ここではprojectとlist両方考慮する必要がある
-	rows, err := p.database.Query("select tasks.title, tasks.description, lists.title, lists.color from tasks left join lists on lists.id = tasks.list_id where tasks.project_id = ? and tasks.user_id = ? and tasks.issue_number IS NULL;", p.ProjectAggregation.ProjectModel.ID, p.ProjectAggregation.ProjectModel.UserID)
+	rows, err := p.database.Query("select tasks.title, tasks.description, lists.title, lists.color from tasks left join lists on lists.id = tasks.list_id where tasks.project_id = ? and tasks.user_id = ? and tasks.issue_number IS NULL;", p.ProjectEntity.ProjectModel.ID, p.ProjectEntity.ProjectModel.UserID)
 	if err != nil {
 		return false, errors.Wrap(err, "sql select error")
 	}
@@ -176,25 +176,25 @@ func (p *Project) FetchGithub() (bool, error) {
 // ApplyIssuesChanges apply issue changes to task
 func (p *Project) ApplyIssueChanges(body github.IssuesEvent) error {
 	// taskが見つからない場合は新規作成するのでエラーハンドリング不要
-	fmt.Println("debug log: ", p.ProjectAggregation)
+	fmt.Println("debug log: ", p.ProjectEntity)
 	fmt.Println("debug log: ", *body.Issue)
-	targetTask, _ := task.FindByIssueNumber(p.ProjectAggregation.ProjectModel.ID, *body.Issue.Number)
+	targetTask, _ := task.FindByIssueNumber(p.ProjectEntity.ProjectModel.ID, *body.Issue.Number)
 	var err error
 	switch *body.Action {
 	case "opened", "reopened":
 		// create時点ではlabelsが空の状態でhookが飛んできている場合がある
 		// そのためlabelsが空だった場合には，一度labelsを取得しなおす処理を呼んでおく
-		issue, err := p.ProjectAggregation.ReacquireIssue(body.Issue)
+		issue, err := p.ProjectEntity.ReacquireIssue(body.Issue)
 		if err != nil {
 			return err
 		}
 		if targetTask == nil {
-			err = p.ProjectAggregation.CreateNewTask(issue)
+			err = p.ProjectEntity.CreateNewTask(issue)
 		} else {
-			err = p.ProjectAggregation.ReopenTask(targetTask, issue)
+			err = p.ProjectEntity.ReopenTask(targetTask, issue)
 		}
 	case "closed", "labeled", "unlabeled", "edited":
-		err = p.ProjectAggregation.TaskApplyLabel(targetTask, body.Issue)
+		err = p.ProjectEntity.TaskApplyLabel(targetTask, body.Issue)
 	}
 	return err
 }
@@ -202,16 +202,16 @@ func (p *Project) ApplyIssueChanges(body github.IssuesEvent) error {
 // ApplyPullRequestChanges apply issue changes to task
 func (p *Project) ApplyPullRequestChanges(body github.PullRequestEvent) error {
 	// taskが見つからない場合は新規作成するのでエラーハンドリング不要
-	targetTask, _ := task.FindByIssueNumber(p.ProjectAggregation.ProjectModel.ID, *body.Number)
+	targetTask, _ := task.FindByIssueNumber(p.ProjectEntity.ProjectModel.ID, *body.Number)
 
 	// note: もしgithubへのアクセスが増大するようであれば，PullRequestオブジェクトからラベルの付替えを行うように改修する
 
-	oauthToken, err := p.ProjectAggregation.OauthToken()
+	oauthToken, err := p.ProjectEntity.OauthToken()
 	if err != nil {
 		return err
 	}
 
-	repo, err := p.ProjectAggregation.Repository()
+	repo, err := p.ProjectEntity.Repository()
 	if err != nil {
 		return err
 	}
@@ -220,28 +220,28 @@ func (p *Project) ApplyPullRequestChanges(body github.PullRequestEvent) error {
 	switch *body.Action {
 	case "opened", "reopened":
 		if targetTask == nil {
-			err = p.ProjectAggregation.CreateNewTask(issue)
+			err = p.ProjectEntity.CreateNewTask(issue)
 		} else {
-			err = p.ProjectAggregation.ReopenTask(targetTask, issue)
+			err = p.ProjectEntity.ReopenTask(targetTask, issue)
 		}
 	case "closed", "labeled", "unlabeled", "edited":
-		err = p.ProjectAggregation.TaskApplyLabel(targetTask, issue)
+		err = p.ProjectEntity.TaskApplyLabel(targetTask, issue)
 	}
 	return err
 }
 
 func (p *Project) FetchCreatedInitialList() error {
-	repo, err := p.ProjectAggregation.Repository()
+	repo, err := p.ProjectEntity.Repository()
 	if err != nil {
 		return err
 	}
 
-	oauthToken, err := p.ProjectAggregation.OauthToken()
+	oauthToken, err := p.ProjectEntity.OauthToken()
 	if err != nil {
 		return err
 	}
 
-	lists, err := p.ProjectAggregation.Lists()
+	lists, err := p.ProjectEntity.Lists()
 	if err != nil {
 		return err
 	}

@@ -1,11 +1,11 @@
 package services
 
 import (
-	"github.com/h3poteto/fascia/server/aggregations/list_option"
+	"github.com/h3poteto/fascia/server/entities/list_option"
 )
 
 type ListOption struct {
-	ListOptionAggregation *list_option.ListOption
+	ListOptionEntity *list_option.ListOption
 }
 
 func ListOptionAll() ([]*ListOption, error) {
@@ -15,7 +15,7 @@ func ListOptionAll() ([]*ListOption, error) {
 	}
 	var listOptions []*ListOption
 	for _, o := range options {
-		listOptions = append(listOptions, &ListOption{ListOptionAggregation: o})
+		listOptions = append(listOptions, &ListOption{ListOptionEntity: o})
 	}
 	return listOptions, nil
 }
@@ -26,7 +26,7 @@ func FindListOptionByID(id int64) (*ListOption, error) {
 		return nil, err
 	}
 	return &ListOption{
-		ListOptionAggregation: option,
+		ListOptionEntity: option,
 	}, nil
 }
 
@@ -36,10 +36,10 @@ func FindListOptionByAction(action string) (*ListOption, error) {
 		return nil, err
 	}
 	return &ListOption{
-		ListOptionAggregation: option,
+		ListOptionEntity: option,
 	}, nil
 }
 
 func (l *ListOption) IsCloseAction() bool {
-	return l.ListOptionAggregation.IsCloseAction()
+	return l.ListOptionEntity.IsCloseAction()
 }

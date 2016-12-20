@@ -93,7 +93,7 @@ func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
 	logging.SharedInstance().MethodInfo("SessionsController", "NewSession", c).Debugf("login success: %+v", userService)
 	session, err = cookieStore.Get(r, "fascia")
 	session.Options = &sessions.Options{Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int)}
-	session.Values["current_user_id"] = userService.UserAggregation.UserModel.ID
+	session.Values["current_user_id"] = userService.UserEntity.UserModel.ID
 	err = session.Save(r, w)
 	if err != nil {
 		err := errors.Wrap(err, "session error")
@@ -140,7 +140,7 @@ func (u *Sessions) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		Path:   "/",
 		MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int),
 	}
-	session.Values["current_user_id"] = userService.UserAggregation.UserModel.ID
+	session.Values["current_user_id"] = userService.UserEntity.UserModel.ID
 	err = session.Save(r, w)
 	if err != nil {
 		err := errors.Wrap(err, "session error")

@@ -4,18 +4,18 @@ import (
 	"database/sql"
 
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/aggregations/repository"
-	"github.com/h3poteto/fascia/server/aggregations/task"
+	"github.com/h3poteto/fascia/server/entities/repository"
+	"github.com/h3poteto/fascia/server/entities/task"
 	"github.com/pkg/errors"
 )
 
 type Task struct {
-	TaskAggregation *task.Task
+	TaskEntity *task.Task
 }
 
 func NewTask(id, listID, projectID, userID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString) *Task {
 	return &Task{
-		TaskAggregation: task.New(id, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL),
+		TaskEntity: task.New(id, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL),
 	}
 }
 
@@ -25,28 +25,28 @@ func FindTask(listID, taskID int64) (*Task, error) {
 		return nil, err
 	}
 	return &Task{
-		TaskAggregation: t,
+		TaskEntity: t,
 	}, nil
 }
 
 func (t *Task) Save() error {
-	err := t.TaskAggregation.Save()
+	err := t.TaskEntity.Save()
 	if err != nil {
 		return err
 	}
 
 	go func(task *Task) {
-		projectID := task.TaskAggregation.TaskModel.ProjectID
+		projectID := task.TaskEntity.TaskModel.ProjectID
 		p, err := FindProject(projectID)
 		// TODO: log
 		if err != nil {
 			return
 		}
-		token, err := p.ProjectAggregation.OauthToken()
+		token, err := p.ProjectEntity.OauthToken()
 		if err != nil {
 			return
 		}
-		repo, err := p.ProjectAggregation.Repository()
+		repo, err := p.ProjectEntity.Repository()
 		if err != nil {
 			return
 		}
@@ -60,23 +60,23 @@ func (t *Task) Save() error {
 }
 
 func (t *Task) Update(listID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString) error {
-	err := t.TaskAggregation.Update(listID, issueNumber, title, description, pullRequest, htmlURL)
+	err := t.TaskEntity.Update(listID, issueNumber, title, description, pullRequest, htmlURL)
 	if err != nil {
 		return err
 	}
 
 	go func(task *Task) {
-		projectID := task.TaskAggregation.TaskModel.ProjectID
+		projectID := task.TaskEntity.TaskModel.ProjectID
 		p, err := FindProject(projectID)
 		// TODO: log
 		if err != nil {
 			return
 		}
-		token, err := p.ProjectAggregation.OauthToken()
+		token, err := p.ProjectEntity.OauthToken()
 		if err != nil {
 			return
 		}
-		repo, err := p.ProjectAggregation.Repository()
+		repo, err := p.ProjectEntity.Repository()
 		if err != nil {
 			return
 		}
@@ -89,23 +89,23 @@ func (t *Task) Update(listID int64, issueNumber sql.NullInt64, title, descriptio
 }
 
 func (t *Task) ChangeList(listID int64, prevToTaskID *int64) error {
-	isReorder, err := t.TaskAggregation.ChangeList(listID, prevToTaskID)
+	isReorder, err := t.TaskEntity.ChangeList(listID, prevToTaskID)
 	if err != nil {
 		return err
 	}
 
 	go func(task *Task, isReorder bool) {
-		projectID := task.TaskAggregation.TaskModel.ProjectID
+		projectID := task.TaskEntity.TaskModel.ProjectID
 		p, err := FindProject(projectID)
 		// TODO: log
 		if err != nil {
 			return
 		}
-		token, err := p.ProjectAggregation.OauthToken()
+		token, err := p.ProjectEntity.OauthToken()
 		if err != nil {
 			return
 		}
-		repo, err := p.ProjectAggregation.Repository()
+		repo, err := p.ProjectEntity.Repository()
 		if err != nil {
 			return
 		}
@@ -118,24 +118,24 @@ func (t *Task) ChangeList(listID int64, prevToTaskID *int64) error {
 }
 
 func (t *Task) Delete() error {
-	return t.TaskAggregation.Delete()
+	return t.TaskEntity.Delete()
 }
 
 func (t *Task) fetchCreated(oauthToken string, repo *repository.Repository) error {
 	if repo != nil {
-		issue, err := t.TaskAggregation.SyncIssue(repo, oauthToken)
+		issue, err := t.TaskEntity.SyncIssue(repo, oauthToken)
 		if err != nil {
 			return errors.Wrap(err, "sync github error")
 		}
 		issueNumber := sql.NullInt64{Int64: int64(*issue.Number), Valid: true}
 		HTMLURL := sql.NullString{String: *issue.HTMLURL, Valid: true}
 
-		err = t.TaskAggregation.Update(
-			t.TaskAggregation.TaskModel.ListID,
+		err = t.TaskEntity.Update(
+			t.TaskEntity.TaskModel.ListID,
 			issueNumber,
-			t.TaskAggregation.TaskModel.Title,
-			t.TaskAggregation.TaskModel.Description,
-			t.TaskAggregation.TaskModel.PullRequest,
+			t.TaskEntity.TaskModel.Title,
+			t.TaskEntity.TaskModel.Description,
+			t.TaskEntity.TaskModel.PullRequest,
 			HTMLURL,
 		)
 		if err != nil {
@@ -154,7 +154,7 @@ func (t *Task) fetchCreated(oauthToken string, repo *repository.Repository) erro
 func (t *Task) fetchUpdated(oauthToken string, repo *repository.Repository) error {
 	// github側へ同期
 	if repo != nil {
-		_, err := t.TaskAggregation.SyncIssue(repo, oauthToken)
+		_, err := t.TaskEntity.SyncIssue(repo, oauthToken)
 		if err != nil {
 			logging.SharedInstance().MethodInfo("task", "Update").Error(err)
 			return err
@@ -166,7 +166,7 @@ func (t *Task) fetchUpdated(oauthToken string, repo *repository.Repository) erro
 
 func (t *Task) fetchChangedList(oauthToken string, repo *repository.Repository, isReorder bool) error {
 	if !isReorder && repo != nil {
-		_, err := t.TaskAggregation.SyncIssue(repo, oauthToken)
+		_, err := t.TaskEntity.SyncIssue(repo, oauthToken)
 		if err != nil {
 			logging.SharedInstance().MethodInfo("task", "ChangeList").Error(err)
 			return err

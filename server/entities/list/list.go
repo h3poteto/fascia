@@ -5,8 +5,8 @@ import (
 
 	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/aggregations/list_option"
-	"github.com/h3poteto/fascia/server/aggregations/task"
+	"github.com/h3poteto/fascia/server/entities/list_option"
+	"github.com/h3poteto/fascia/server/entities/task"
 	"github.com/h3poteto/fascia/server/models/db"
 	"github.com/h3poteto/fascia/server/models/list"
 

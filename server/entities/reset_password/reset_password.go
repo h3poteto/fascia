@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/h3poteto/fascia/server/aggregations/user"
+	"github.com/h3poteto/fascia/server/entities/user"
 	"github.com/h3poteto/fascia/server/models/db"
 	"github.com/h3poteto/fascia/server/models/reset_password"
 	"github.com/pkg/errors"

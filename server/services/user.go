@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/h3poteto/fascia/server/aggregations/user"
+	"github.com/h3poteto/fascia/server/entities/user"
 
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
@@ -9,12 +9,12 @@ import (
 )
 
 type User struct {
-	UserAggregation *user.User
+	UserEntity *user.User
 }
 
-func NewUserService(userAg *user.User) *User {
+func NewUserService(entity *user.User) *User {
 	return &User{
-		UserAggregation: userAg,
+		UserEntity: entity,
 	}
 }
 
@@ -24,37 +24,37 @@ func RegistrationUser(email, password, passwordConfirm string) (*User, error) {
 		return nil, err
 	}
 	return &User{
-		UserAggregation: u,
+		UserEntity: u,
 	}, nil
 }
 
 func FindUser(id int64) (*User, error) {
-	aggregation, err := user.Find(id)
+	entity, err := user.Find(id)
 	if err != nil {
 		return nil, err
 	}
 	return &User{
-		UserAggregation: aggregation,
+		UserEntity: entity,
 	}, nil
 }
 
 func FindUserByEmail(email string) (*User, error) {
-	aggregation, err := user.FindByEmail(email)
+	entity, err := user.FindByEmail(email)
 	if err != nil {
 		return nil, err
 	}
 	return &User{
-		UserAggregation: aggregation,
+		UserEntity: entity,
 	}, nil
 }
 
 func LoginUser(email, password string) (*User, error) {
-	aggregation, err := user.Login(email, password)
+	entity, err := user.Login(email, password)
 	if err != nil {
 		return nil, err
 	}
 	return &User{
-		UserAggregation: aggregation,
+		UserEntity: entity,
 	}, nil
 }
 
@@ -79,22 +79,22 @@ func FindOrCreateUserFromGithub(token string) (*User, error) {
 		}
 	}
 
-	aggregation, err := user.FindOrCreateFromGithub(githubUser, token, primaryEmail)
+	entity, err := user.FindOrCreateFromGithub(githubUser, token, primaryEmail)
 	if err != nil {
 		return nil, err
 	}
 	return &User{
-		UserAggregation: aggregation,
+		UserEntity: entity,
 	}, nil
 }
 
 func (u *User) Projects() ([]*Project, error) {
-	projectAggregations, err := u.UserAggregation.Projects()
+	projectEntities, err := u.UserEntity.Projects()
 	if err != nil {
 		return nil, err
 	}
 	var slice []*Project
-	for _, p := range projectAggregations {
+	for _, p := range projectEntities {
 		slice = append(slice, NewProjectService(p))
 	}
 	return slice, nil

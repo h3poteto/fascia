@@ -51,7 +51,7 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// TODO: project:repositoryは必ずしも1:1にならない．そのため，ここは複数project対応にする必要がある
-		projectService, err := handlers.FindProjectByRepositoryID(repo.RepositoryAggregation.RepositoryModel.ID)
+		projectService, err := handlers.FindProjectByRepositoryID(repo.RepositoryEntity.RepositoryModel.ID)
 		if err != nil {
 			logging.SharedInstance().MethodInfoWithStacktrace("Repositories", "Hook", err, c).Errorf("cannot find project: %v", err)
 			http.Error(w, "project not found", 404)
@@ -87,7 +87,7 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		projectService, err := handlers.FindProjectByRepositoryID(repo.RepositoryAggregation.RepositoryModel.ID)
+		projectService, err := handlers.FindProjectByRepositoryID(repo.RepositoryEntity.RepositoryModel.ID)
 		if err != nil {
 			logging.SharedInstance().MethodInfoWithStacktrace("Repositories", "Hook", err, c).Errorf("cannot find project: %v", err)
 			http.Error(w, "project not found", 404)

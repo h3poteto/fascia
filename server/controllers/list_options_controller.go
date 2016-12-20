@@ -37,8 +37,8 @@ func (u *ListOptions) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	for _, o := range listOptionAll {
 		jsonOptions = append(jsonOptions, &ListOptionJSONFormat{
-			ID:     o.ListOptionAggregation.ListOptionModel.ID,
-			Action: o.ListOptionAggregation.ListOptionModel.Action,
+			ID:     o.ListOptionEntity.ListOptionModel.ID,
+			Action: o.ListOptionEntity.ListOptionModel.Action,
 		})
 	}
 	encoder.Encode(jsonOptions)

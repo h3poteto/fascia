@@ -4,17 +4,17 @@ import (
 	"database/sql"
 
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/aggregations/list"
-	"github.com/h3poteto/fascia/server/aggregations/repository"
+	"github.com/h3poteto/fascia/server/entities/list"
+	"github.com/h3poteto/fascia/server/entities/repository"
 )
 
 type List struct {
-	ListAggregation *list.List
+	ListEntity *list.List
 }
 
 func NewList(id, projectID, userID int64, title, color string, optionID sql.NullInt64, isHidden bool) *List {
 	return &List{
-		ListAggregation: list.New(id, projectID, userID, title, color, optionID, isHidden),
+		ListEntity: list.New(id, projectID, userID, title, color, optionID, isHidden),
 	}
 }
 
@@ -24,27 +24,27 @@ func FindListByID(projectID, listID int64) (*List, error) {
 		return nil, err
 	}
 	return &List{
-		ListAggregation: l,
+		ListEntity: l,
 	}, nil
 }
 
 func (l *List) Save() error {
-	err := l.ListAggregation.Save(nil)
+	err := l.ListEntity.Save(nil)
 	if err != nil {
 		return err
 	}
 	go func(list *List) {
-		projectID := list.ListAggregation.ListModel.ProjectID
+		projectID := list.ListEntity.ListModel.ProjectID
 		p, err := FindProject(projectID)
 		// TODO: log
 		if err != nil {
 			return
 		}
-		token, err := p.ProjectAggregation.OauthToken()
+		token, err := p.ProjectEntity.OauthToken()
 		if err != nil {
 			return
 		}
-		repo, err := p.ProjectAggregation.Repository()
+		repo, err := p.ProjectEntity.Repository()
 		if err != nil {
 			return
 		}
@@ -58,17 +58,17 @@ func (l *List) Save() error {
 
 func (l *List) fetchCreated(oauthToken string, repo *repository.Repository) error {
 	if repo != nil {
-		label, err := repo.CheckLabelPresent(oauthToken, l.ListAggregation.ListModel.Title.String)
+		label, err := repo.CheckLabelPresent(oauthToken, l.ListEntity.ListModel.Title.String)
 		if err != nil {
 			return err
 		} else if label == nil {
-			label, err = repo.CreateGithubLabel(oauthToken, l.ListAggregation.ListModel.Title.String, l.ListAggregation.ListModel.Color.String)
+			label, err = repo.CreateGithubLabel(oauthToken, l.ListEntity.ListModel.Title.String, l.ListEntity.ListModel.Color.String)
 			if err != nil {
 				return err
 			}
 		} else {
 			// 色だけはこちら指定のものに変更したい
-			_, err := repo.UpdateGithubLabel(oauthToken, l.ListAggregation.ListModel.Title.String, l.ListAggregation.ListModel.Title.String, l.ListAggregation.ListModel.Color.String)
+			_, err := repo.UpdateGithubLabel(oauthToken, l.ListEntity.ListModel.Title.String, l.ListEntity.ListModel.Title.String, l.ListEntity.ListModel.Color.String)
 			if err != nil {
 				return err
 			}
@@ -79,22 +79,22 @@ func (l *List) fetchCreated(oauthToken string, repo *repository.Repository) erro
 }
 
 func (l *List) Update(title, color string, optionID int64) error {
-	err := l.ListAggregation.UpdateExceptInitList(title, color, optionID)
+	err := l.ListEntity.UpdateExceptInitList(title, color, optionID)
 	if err != nil {
 		return err
 	}
 
 	go func(list *List, title, color string) {
-		projectID := list.ListAggregation.ListModel.ProjectID
+		projectID := list.ListEntity.ListModel.ProjectID
 		p, err := FindProject(projectID)
 		if err != nil {
 			return
 		}
-		token, err := p.ProjectAggregation.OauthToken()
+		token, err := p.ProjectEntity.OauthToken()
 		if err != nil {
 			return
 		}
-		repo, err := p.ProjectAggregation.Repository()
+		repo, err := p.ProjectEntity.Repository()
 		if err != nil {
 			return
 		}
@@ -109,7 +109,7 @@ func (l *List) Update(title, color string, optionID int64) error {
 func (l *List) fetchUpdated(oauthToken string, repo *repository.Repository, newTitle, newColor string) error {
 	if repo != nil {
 		// 編集前のラベルがそもそも存在しているかどうかを確認する
-		existLabel, err := repo.CheckLabelPresent(oauthToken, l.ListAggregation.ListModel.Title.String)
+		existLabel, err := repo.CheckLabelPresent(oauthToken, l.ListEntity.ListModel.Title.String)
 		if err != nil {
 			return err
 		} else if existLabel == nil {
@@ -120,7 +120,7 @@ func (l *List) fetchUpdated(oauthToken string, repo *repository.Repository, newT
 				return err
 			}
 		} else {
-			_, err := repo.UpdateGithubLabel(oauthToken, l.ListAggregation.ListModel.Title.String, newTitle, newColor)
+			_, err := repo.UpdateGithubLabel(oauthToken, l.ListEntity.ListModel.Title.String, newTitle, newColor)
 			if err != nil {
 				return err
 			}
@@ -130,9 +130,9 @@ func (l *List) fetchUpdated(oauthToken string, repo *repository.Repository, newT
 }
 
 func (l *List) Hide() error {
-	return l.ListAggregation.Hide()
+	return l.ListEntity.Hide()
 }
 
 func (l *List) Display() error {
-	return l.ListAggregation.Display()
+	return l.ListEntity.Display()
 }

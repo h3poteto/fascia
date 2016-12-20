@@ -4,8 +4,8 @@ import (
 	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/lib/modules/hub"
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/aggregations/list"
-	"github.com/h3poteto/fascia/server/aggregations/task"
+	"github.com/h3poteto/fascia/server/entities/list"
+	"github.com/h3poteto/fascia/server/entities/task"
 
 	"database/sql"
 	"strings"

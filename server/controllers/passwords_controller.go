@@ -91,7 +91,7 @@ func (u *Passwords) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	reset, err := handlers.GenerateResetPassword(targetUser.UserAggregation.UserModel.ID, targetUser.UserAggregation.UserModel.Email)
+	reset, err := handlers.GenerateResetPassword(targetUser.UserEntity.UserModel.ID, targetUser.UserEntity.UserModel.Email)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "Create", err, c).Error(err)
 		InternalServerError(w, r)
@@ -103,7 +103,7 @@ func (u *Passwords) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// ここでemail送信
-	go password_mailer.Reset(reset.ResetPasswordAggregation.ResetPasswordModel.ID, targetUser.UserAggregation.UserModel.Email, reset.ResetPasswordAggregation.ResetPasswordModel.Token)
+	go password_mailer.Reset(reset.ResetPasswordEntity.ResetPasswordModel.ID, targetUser.UserEntity.UserModel.Email, reset.ResetPasswordEntity.ResetPasswordModel.Token)
 	http.Redirect(w, r, "/sign_in", 302)
 	logging.SharedInstance().MethodInfo("PasswordsController", "Create", c).Info("success to send password reset request")
 	return
@@ -185,7 +185,7 @@ func (u *Passwords) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go password_mailer.Changed(targetUser.UserAggregation.UserModel.Email)
+	go password_mailer.Changed(targetUser.UserEntity.UserModel.Email)
 	logging.SharedInstance().MethodInfo("PasswordsController", "Update", c).Info("success to change password")
 	http.Redirect(w, r, "/sign_in", 302)
 	return

@@ -1,11 +1,11 @@
 package services
 
 import (
-	"github.com/h3poteto/fascia/server/aggregations/reset_password"
+	"github.com/h3poteto/fascia/server/entities/reset_password"
 )
 
 type ResetPassword struct {
-	ResetPasswordAggregation *reset_password.ResetPassword
+	ResetPasswordEntity *reset_password.ResetPassword
 }
 
 func ChangeUserPassword(id int64, token string, password string) (*User, error) {
@@ -28,7 +28,7 @@ func GenerateResetPassword(userID int64, email string) (*ResetPassword, error) {
 		return nil, err
 	}
 	return &ResetPassword{
-		ResetPasswordAggregation: r,
+		ResetPasswordEntity: r,
 	}, nil
 }
 
@@ -37,5 +37,5 @@ func AuthenticateResetPassword(id int64, token string) error {
 }
 
 func (r *ResetPassword) Save() error {
-	return r.ResetPasswordAggregation.Save()
+	return r.ResetPasswordEntity.Save()
 }

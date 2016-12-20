@@ -4,9 +4,9 @@ import (
 	"database/sql"
 
 	"github.com/h3poteto/fascia/config"
-	"github.com/h3poteto/fascia/server/aggregations/list"
-	"github.com/h3poteto/fascia/server/aggregations/list_option"
-	"github.com/h3poteto/fascia/server/aggregations/repository"
+	"github.com/h3poteto/fascia/server/entities/list"
+	"github.com/h3poteto/fascia/server/entities/list_option"
+	"github.com/h3poteto/fascia/server/entities/repository"
 	"github.com/h3poteto/fascia/server/models/db"
 	"github.com/h3poteto/fascia/server/models/project"
 

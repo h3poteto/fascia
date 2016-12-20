@@ -30,7 +30,7 @@ func (u *Root) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	projectID, _ := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
 	if projectID != 0 {
 		projectService, err := handlers.FindProject(projectID)
-		if err != nil || !(projectService.CheckOwner(currentUser.UserAggregation.UserModel.ID)) {
+		if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
 			logging.SharedInstance().MethodInfo("RootController", "Index", c).Warnf("project not found: %v", err)
 			NotFound(w, r)
 			return
