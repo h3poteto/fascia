@@ -20,7 +20,7 @@ func (r *Repository) UpdateGithubLabel(token, originalTitle, title, color string
 	return hub.UpdateGithubLabel(token, r.RepositoryModel.Owner.String, r.RepositoryModel.Name.String, originalTitle, title, color)
 }
 
-// CreateGuthubIssue create new issue in github
+// CreateGithubIssue create new issue in github
 func (r *Repository) CreateGithubIssue(token, title, description string, labels []string) (*github.Issue, error) {
 	return hub.CreateGithubIssue(token, r.RepositoryModel.Owner.String, r.RepositoryModel.Name.String, title, description, labels)
 }

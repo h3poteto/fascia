@@ -8,7 +8,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-type ProjectStruct struct {
+// Project has project record
+type Project struct {
 	ID               int64
 	UserID           int64
 	Title            string
@@ -19,17 +20,19 @@ type ProjectStruct struct {
 	database         *sql.DB
 }
 
-func New(id int64, userID int64, title string, description string, repositoryID sql.NullInt64, showIssues bool, showPullRequests bool) *ProjectStruct {
+// New returns a new project object
+func New(id int64, userID int64, title string, description string, repositoryID sql.NullInt64, showIssues bool, showPullRequests bool) *Project {
 	if userID == 0 {
 		return nil
 	}
 
-	project := &ProjectStruct{ID: id, UserID: userID, Title: title, Description: description, RepositoryID: repositoryID, ShowIssues: showIssues, ShowPullRequests: showPullRequests}
+	project := &Project{ID: id, UserID: userID, Title: title, Description: description, RepositoryID: repositoryID, ShowIssues: showIssues, ShowPullRequests: showPullRequests}
 	project.initialize()
 	return project
 }
 
-func Find(projectID int64) (*ProjectStruct, error) {
+// Find search a project according to id
+func Find(projectID int64) (*Project, error) {
 	database := db.SharedInstance().Connection
 
 	var id, userID int64
@@ -45,7 +48,8 @@ func Find(projectID int64) (*ProjectStruct, error) {
 	return project, nil
 }
 
-func FindByRepositoryID(repoID int64) (*ProjectStruct, error) {
+// FindByRepositoryID search a project according to repository id
+func FindByRepositoryID(repoID int64) (*Project, error) {
 	database := db.SharedInstance().Connection
 
 	var id, userID int64
@@ -61,34 +65,36 @@ func FindByRepositoryID(repoID int64) (*ProjectStruct, error) {
 	return project, nil
 }
 
-func (u *ProjectStruct) initialize() {
-	u.database = db.SharedInstance().Connection
+func (p *Project) initialize() {
+	p.database = db.SharedInstance().Connection
 }
 
-func (u *ProjectStruct) Save(tx *sql.Tx) error {
+// Save save project model in record
+func (p *Project) Save(tx *sql.Tx) error {
 	var err error
 	var result sql.Result
 	if tx != nil {
-		result, err = tx.Exec("insert into projects (user_id, repository_id, title, description, show_issues, show_pull_requests, created_at) values (?, ?, ?, ?, ?, ?, now());", u.UserID, u.RepositoryID, u.Title, u.Description, u.ShowIssues, u.ShowPullRequests)
+		result, err = tx.Exec("insert into projects (user_id, repository_id, title, description, show_issues, show_pull_requests, created_at) values (?, ?, ?, ?, ?, ?, now());", p.UserID, p.RepositoryID, p.Title, p.Description, p.ShowIssues, p.ShowPullRequests)
 	} else {
-		result, err = u.database.Exec("insert into projects (user_id, repository_id, title, description, show_issues, show_pull_requests, created_at) values (?, ?, ?, ?, ?, ?, now());", u.UserID, u.RepositoryID, u.Title, u.Description, u.ShowIssues, u.ShowPullRequests)
+		result, err = p.database.Exec("insert into projects (user_id, repository_id, title, description, show_issues, show_pull_requests, created_at) values (?, ?, ?, ?, ?, ?, now());", p.UserID, p.RepositoryID, p.Title, p.Description, p.ShowIssues, p.ShowPullRequests)
 	}
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
-	u.ID, _ = result.LastInsertId()
+	p.ID, _ = result.LastInsertId()
 	return nil
 }
 
-func (u *ProjectStruct) Update(title string, description string, showIssues bool, showPullRequests bool) error {
-	_, err := u.database.Exec("update projects set title = ?, description = ?, show_issues = ?, show_pull_requests = ? where id = ?;", title, description, showIssues, showPullRequests, u.ID)
+// Update update project model in record
+func (p *Project) Update(title string, description string, showIssues bool, showPullRequests bool) error {
+	_, err := p.database.Exec("update projects set title = ?, description = ?, show_issues = ?, show_pull_requests = ? where id = ?;", title, description, showIssues, showPullRequests, p.ID)
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
-	u.Title = title
-	u.Description = description
-	u.ShowIssues = showIssues
-	u.ShowPullRequests = showPullRequests
+	p.Title = title
+	p.Description = description
+	p.ShowIssues = showIssues
+	p.ShowPullRequests = showPullRequests
 
 	return nil
 }

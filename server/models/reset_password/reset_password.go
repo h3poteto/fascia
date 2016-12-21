@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ResetPassword has reset password record
 type ResetPassword struct {
 	ID        int64
 	UserID    int64
@@ -17,12 +18,14 @@ type ResetPassword struct {
 	database  *sql.DB
 }
 
+// New returns a reset password
 func New(id int64, userID int64, token string, expiresAt time.Time) *ResetPassword {
 	resetPassword := &ResetPassword{ID: id, UserID: userID, Token: token, ExpiresAt: expiresAt}
 	resetPassword.initialize()
 	return resetPassword
 }
 
+// Authenticate check token with record
 func Authenticate(id int64, token string) error {
 	database := db.SharedInstance().Connection
 
@@ -35,6 +38,7 @@ func Authenticate(id int64, token string) error {
 	return nil
 }
 
+// FindAvailable search a reset password which can authorize
 func FindAvailable(id int64, token string) (*ResetPassword, error) {
 	var userID int64
 	var expiresAt time.Time
@@ -50,6 +54,7 @@ func (r *ResetPassword) initialize() {
 	r.database = db.SharedInstance().Connection
 }
 
+// Save save object to record
 func (r *ResetPassword) Save() error {
 	result, err := r.database.Exec("insert into reset_passwords (user_id, token, expires_at, created_at) values (?, ?, ?, now());", r.UserID, r.Token, r.ExpiresAt)
 	if err != nil {

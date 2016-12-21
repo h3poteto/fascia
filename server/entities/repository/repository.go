@@ -18,7 +18,7 @@ import (
 
 // Repository has repository model object
 type Repository struct {
-	RepositoryModel *repository.RepositoryStruct
+	RepositoryModel *repository.Repository
 }
 
 // New returns a repository entity

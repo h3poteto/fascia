@@ -6,10 +6,12 @@ import (
 	"os"
 	"path/filepath"
 
+	// mysql is used in database connection, it is slient include
 	_ "github.com/go-sql-driver/mysql"
 	"gopkg.in/yaml.v2"
 )
 
+// Database has database connection
 type Database struct {
 	Connection *sql.DB
 }

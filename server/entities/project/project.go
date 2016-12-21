@@ -15,7 +15,7 @@ import (
 
 // Project has a project model object
 type Project struct {
-	ProjectModel *project.ProjectStruct
+	ProjectModel *project.Project
 	database     *sql.DB
 }
 

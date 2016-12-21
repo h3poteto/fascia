@@ -179,7 +179,7 @@ func (p *Project) FetchGithub() (bool, error) {
 	return true, nil
 }
 
-// ApplyIssuesChanges apply issue changes to task
+// ApplyIssueChanges apply issue changes to task
 func (p *Project) ApplyIssueChanges(body github.IssuesEvent) error {
 	// taskが見つからない場合は新規作成するのでエラーハンドリング不要
 	fmt.Println("debug log: ", p.ProjectEntity)

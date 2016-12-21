@@ -14,13 +14,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// User has a user record
 type User struct {
 	ID         int64
 	Email      string
 	Password   string
 	Provider   sql.NullString
 	OauthToken sql.NullString
-	Uuid       sql.NullInt64
+	UUID       sql.NullInt64
 	UserName   sql.NullString
 	Avatar     sql.NullString
 	database   *sql.DB
@@ -32,6 +33,7 @@ func randomString() string {
 	return strconv.FormatUint(n, 36)
 }
 
+// HashPassword generate hash password
 func HashPassword(password string) ([]byte, error) {
 	bytePassword := []byte(password)
 	cost := 10
@@ -46,8 +48,9 @@ func HashPassword(password string) ([]byte, error) {
 	return hashPassword, nil
 }
 
+// New returns a user object
 func New(id int64, email string, provider sql.NullString, oauthToken sql.NullString, uuid sql.NullInt64, userName sql.NullString, avatar sql.NullString) *User {
-	user := &User{ID: id, Email: email, Provider: provider, OauthToken: oauthToken, Uuid: uuid, UserName: userName, Avatar: avatar}
+	user := &User{ID: id, Email: email, Provider: provider, OauthToken: oauthToken, UUID: uuid, UserName: userName, Avatar: avatar}
 	user.initialize()
 	return user
 }
@@ -73,6 +76,7 @@ func Registration(email string, password string, passwordConfirm string) (*User,
 	return user, nil
 }
 
+// Find search a user according to id
 func Find(id int64) (*User, error) {
 	database := db.SharedInstance().Connection
 
@@ -86,6 +90,7 @@ func Find(id int64) (*User, error) {
 	return New(id, email, provider, oauthToken, uuid, userName, avatarURL), nil
 }
 
+// FindByEmail search a user according to email
 func FindByEmail(email string) (*User, error) {
 	database := db.SharedInstance().Connection
 	var id int64
@@ -98,9 +103,10 @@ func FindByEmail(email string) (*User, error) {
 	return New(id, email, provider, oauthToken, uuid, userName, avatarURL), nil
 }
 
+// Save save user model in database
 func (u *User) Save() error {
 	// TODO: この前にvalidationを入れたい
-	result, err := u.database.Exec("insert into users (email, password, provider, oauth_token, uuid, user_name, avatar_url, created_at) values (?, ?, ?, ?, ?, ?, ?, now());", u.Email, u.Password, u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar)
+	result, err := u.database.Exec("insert into users (email, password, provider, oauth_token, uuid, user_name, avatar_url, created_at) values (?, ?, ?, ?, ?, ?, ?, now());", u.Email, u.Password, u.Provider, u.OauthToken, u.UUID, u.UserName, u.Avatar)
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
@@ -109,14 +115,16 @@ func (u *User) Save() error {
 	return nil
 }
 
+// Update update user model in database
 func (u *User) Update() error {
-	_, err := u.database.Exec("update users set provider = ?, oauth_token = ?, uuid = ?, user_name = ?, avatar_url = ? where email = ?;", u.Provider, u.OauthToken, u.Uuid, u.UserName, u.Avatar, u.Email)
+	_, err := u.database.Exec("update users set provider = ?, oauth_token = ?, uuid = ?, user_name = ?, avatar_url = ? where email = ?;", u.Provider, u.OauthToken, u.UUID, u.UserName, u.Avatar, u.Email)
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
 	return nil
 }
 
+// CreateGithubUser create a user from github authentication
 func (u *User) CreateGithubUser(token string, githubUser *github.User, primaryEmail string) error {
 	u.Email = primaryEmail
 	bytePassword, err := HashPassword(randomString())
@@ -128,7 +136,7 @@ func (u *User) CreateGithubUser(token string, githubUser *github.User, primaryEm
 	u.OauthToken = sql.NullString{String: token, Valid: true}
 
 	u.UserName = sql.NullString{String: *githubUser.Login, Valid: true}
-	u.Uuid = sql.NullInt64{Int64: int64(*githubUser.ID), Valid: true}
+	u.UUID = sql.NullInt64{Int64: int64(*githubUser.ID), Valid: true}
 	u.Avatar = sql.NullString{String: *githubUser.AvatarURL, Valid: true}
 	if err := u.Save(); err != nil {
 		return err
@@ -136,11 +144,12 @@ func (u *User) CreateGithubUser(token string, githubUser *github.User, primaryEm
 	return nil
 }
 
+// UpdateGithubUserInfo update a user from github authentication
 func (u *User) UpdateGithubUserInfo(token string, githubUser *github.User) error {
 	u.Provider = sql.NullString{String: "github", Valid: true}
 	u.OauthToken = sql.NullString{String: token, Valid: true}
 	u.UserName = sql.NullString{String: *githubUser.Login, Valid: true}
-	u.Uuid = sql.NullInt64{Int64: int64(*githubUser.ID), Valid: true}
+	u.UUID = sql.NullInt64{Int64: int64(*githubUser.ID), Valid: true}
 	u.Avatar = sql.NullString{String: *githubUser.AvatarURL, Valid: true}
 	if err := u.Update(); err != nil {
 		return err

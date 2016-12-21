@@ -9,7 +9,7 @@ type ResetPassword struct {
 	ResetPasswordEntity *reset_password.ResetPassword
 }
 
-// ChangeUserPassword
+// ChangeUserPassword change password with related user
 func ChangeUserPassword(id int64, token string, password string) (*User, error) {
 	// reset_passwordモデルを探し出す必要がある
 	r, err := reset_password.FindAvailable(id, token)

@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Task has task record
 type Task struct {
 	ID          int64
 	ListID      int64
@@ -22,12 +23,14 @@ type Task struct {
 	database    *sql.DB
 }
 
+// New returns a task object
 func New(id int64, listID int64, projectID int64, userID int64, issueNumber sql.NullInt64, title string, description string, pullRequest bool, htmlURL sql.NullString) *Task {
 	task := &Task{ID: id, ListID: listID, ProjectID: projectID, UserID: userID, IssueNumber: issueNumber, Title: title, Description: description, PullRequest: pullRequest, HTMLURL: htmlURL}
 	task.initialize()
 	return task
 }
 
+// Find search a task according to id
 func Find(listID int64, taskID int64) (*Task, error) {
 	database := db.SharedInstance().Connection
 
@@ -47,6 +50,7 @@ func Find(listID int64, taskID int64) (*Task, error) {
 	return task, nil
 }
 
+// FindByIssueNumber search a task according to issue number in github
 func FindByIssueNumber(projectID int64, issueNumber int) (*Task, error) {
 	database := db.SharedInstance().Connection
 
@@ -66,39 +70,40 @@ func FindByIssueNumber(projectID int64, issueNumber int) (*Task, error) {
 	return task, nil
 }
 
-func (u *Task) initialize() {
-	u.database = db.SharedInstance().Connection
+func (t *Task) initialize() {
+	t.database = db.SharedInstance().Connection
 }
 
-func (u *Task) Save() error {
-	transaction, err := u.database.Begin()
+// Save save task model in database, and arrange order tasks
+func (t *Task) Save() error {
+	transaction, err := t.database.Begin()
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
 
 	// display_indexを自動挿入する
 	count := 0
-	err = transaction.QueryRow("SELECT COUNT(id) FROM tasks WHERE list_id = ?;", u.ListID).Scan(&count)
+	err = transaction.QueryRow("SELECT COUNT(id) FROM tasks WHERE list_id = ?;", t.ListID).Scan(&count)
 	if err != nil {
 		transaction.Rollback()
 		return errors.Wrap(err, "sql select error")
 	}
-	result, err := transaction.Exec("insert into tasks (list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index, created_at) values (?,?,?, ?, ?, ?, ?, ?, ?, now());", u.ListID, u.ProjectID, u.UserID, u.IssueNumber, u.Title, u.Description, u.PullRequest, u.HTMLURL, count+1)
+	result, err := transaction.Exec("insert into tasks (list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index, created_at) values (?,?,?, ?, ?, ?, ?, ?, ?, now());", t.ListID, t.ProjectID, t.UserID, t.IssueNumber, t.Title, t.Description, t.PullRequest, t.HTMLURL, count+1)
 	if err != nil {
 		transaction.Rollback()
 		return errors.Wrap(err, "sql execute error")
 	}
-	u.ID, _ = result.LastInsertId()
+	t.ID, _ = result.LastInsertId()
 	err = transaction.Commit()
 	if err != nil {
 		transaction.Rollback()
 		return errors.Wrap(err, "sql execute error")
 	}
-	logging.SharedInstance().MethodInfo("task", "Save").Debugf("new task saved: %+v", u)
+	logging.SharedInstance().MethodInfo("task", "Save").Debugf("new task saved: %+v", t)
 	return nil
 }
 
-// Update is update task in db and sync github issue
+// Update is update task in database
 func (t *Task) Update(listID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString) error {
 	_, err := t.database.Exec("update tasks set list_id = ?, issue_number = ?, title = ?, description = ?, pull_request = ?, html_url = ? where id = ?;", listID, issueNumber, title, description, pullRequest, htmlURL, t.ID)
 	if err != nil {
@@ -116,7 +121,8 @@ func (t *Task) Update(listID int64, issueNumber sql.NullInt64, title, descriptio
 	return nil
 }
 
-// lastに追加する場合にはprevToTaskIDをnullで渡す
+// ChangeList change list which is belonged a task
+// If add task in bottom, transmit null to prevToTaskID
 func (t *Task) ChangeList(listID int64, prevToTaskID *int64) error {
 	transaction, err := t.database.Begin()
 	if err != nil {

@@ -32,6 +32,7 @@ func (h *Hub) GetRepository(ID int) (*github.Repository, error) {
 	return repo, nil
 }
 
+// CheckLabelPresent confirm label existen in github
 func CheckLabelPresent(token, owner, name, title string) (*github.Label, error) {
 	client := prepareClient(token)
 
@@ -46,6 +47,7 @@ func CheckLabelPresent(token, owner, name, title string) (*github.Label, error) 
 	return githubLabel, nil
 }
 
+// CreateGithubLabel create a new label in github
 func CreateGithubLabel(token, owner, name, title, color string) (*github.Label, error) {
 	client := prepareClient(token)
 
@@ -62,6 +64,7 @@ func CreateGithubLabel(token, owner, name, title, color string) (*github.Label, 
 	return githubLabel, nil
 }
 
+// UpdateGithubLabel update a exist label in github
 func UpdateGithubLabel(token, owner, name, originalTitle, title, color string) (*github.Label, error) {
 	client := prepareClient(token)
 
@@ -78,6 +81,7 @@ func UpdateGithubLabel(token, owner, name, originalTitle, title, color string) (
 	return githubLabel, nil
 }
 
+// CreateGithubIssue create a new issue in github
 func CreateGithubIssue(token, owner, name, title, description string, labels []string) (*github.Issue, error) {
 	client := prepareClient(token)
 
@@ -159,6 +163,7 @@ func ListLabels(token, owner, name string) ([]*github.Label, error) {
 	return labels, nil
 }
 
+// IsPullRequest return true when issue is pull request
 func IsPullRequest(issue *github.Issue) bool {
 	if issue.PullRequestLinks == nil {
 		return false

@@ -40,6 +40,8 @@ var cookieStore = sessions.NewCookieStore([]byte("session-keys"))
 var CheckCSRFToken = checkCSRF
 var LoginRequired = CheckLogin
 
+// CheckLogin authenticate user
+// If unauthorized, return 401
 func CheckLogin(r *http.Request) (*services.User, error) {
 	session, err := cookieStore.Get(r, Key)
 	if err != nil {
@@ -56,6 +58,7 @@ func CheckLogin(r *http.Request) (*services.User, error) {
 	return currentUser, nil
 }
 
+// GenerateCSRFToken generate new CSRF token
 func GenerateCSRFToken(c web.C, w http.ResponseWriter, r *http.Request) (string, error) {
 	session, err := cookieStore.Get(r, Key)
 	if err != nil {

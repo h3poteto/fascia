@@ -12,6 +12,7 @@ import (
 type ListOptions struct {
 }
 
+// ListOptionJSONFormat defined json format for a list option entity
 // TODO: renderで使う型，キャストメソッドも別packageにしたい
 type ListOptionJSONFormat struct {
 	ID     int64

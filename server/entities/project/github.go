@@ -222,7 +222,7 @@ func (p *Project) applyListToTask(issueTask *task.Task, issue *github.Issue) (*t
 	return issueTask, nil
 }
 
-func (u *Project) applyIssueInfoToTask(targetTask *task.Task, issue *github.Issue) (*task.Task, error) {
+func (p *Project) applyIssueInfoToTask(targetTask *task.Task, issue *github.Issue) (*task.Task, error) {
 	if targetTask == nil {
 		return nil, errors.New("target task is required")
 	}

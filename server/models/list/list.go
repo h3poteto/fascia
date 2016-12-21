@@ -8,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// List has list record
 type List struct {
 	ID           int64
 	ProjectID    int64
@@ -19,6 +20,7 @@ type List struct {
 	database     *sql.DB
 }
 
+// New returns a new list object
 func New(id int64, projectID int64, userID int64, title string, color string, optionID sql.NullInt64, isHidden bool) *List {
 	if projectID == 0 {
 		return nil
@@ -31,6 +33,7 @@ func New(id int64, projectID int64, userID int64, title string, color string, op
 	return list
 }
 
+// FindByID search a list according to id
 func FindByID(projectID int64, listID int64) (*List, error) {
 	database := db.SharedInstance().Connection
 	var id, userID int64
@@ -55,22 +58,23 @@ func FindByID(projectID int64, listID int64) (*List, error) {
 
 }
 
-func (u *List) initialize() {
-	u.database = db.SharedInstance().Connection
+func (l *List) initialize() {
+	l.database = db.SharedInstance().Connection
 }
 
-func (u *List) Save(tx *sql.Tx) error {
+// Save save list object to record
+func (l *List) Save(tx *sql.Tx) error {
 	var err error
 	var result sql.Result
 	if tx != nil {
-		result, err = tx.Exec("insert into lists (project_id, user_id, title, color, list_option_id, is_hidden, created_at) values (?, ?, ?, ?, ?, ?, now());", u.ProjectID, u.UserID, u.Title, u.Color, u.ListOptionID, u.IsHidden)
+		result, err = tx.Exec("insert into lists (project_id, user_id, title, color, list_option_id, is_hidden, created_at) values (?, ?, ?, ?, ?, ?, now());", l.ProjectID, l.UserID, l.Title, l.Color, l.ListOptionID, l.IsHidden)
 	} else {
-		result, err = u.database.Exec("insert into lists (project_id, user_id, title, color, list_option_id, is_hidden, created_at) values (?, ?, ?, ?, ?, ?, now());", u.ProjectID, u.UserID, u.Title, u.Color, u.ListOptionID, u.IsHidden)
+		result, err = l.database.Exec("insert into lists (project_id, user_id, title, color, list_option_id, is_hidden, created_at) values (?, ?, ?, ?, ?, ?, now());", l.ProjectID, l.UserID, l.Title, l.Color, l.ListOptionID, l.IsHidden)
 	}
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
-	u.ID, _ = result.LastInsertId()
+	l.ID, _ = result.LastInsertId()
 	return nil
 }
 

@@ -8,18 +8,21 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ListOption has list option record
 type ListOption struct {
 	ID       int64
 	Action   string
 	database *sql.DB
 }
 
+// New returns a new list option object
 func New(id int64, action string) *ListOption {
 	listOption := &ListOption{ID: id, Action: action}
 	listOption.initialize()
 	return listOption
 }
 
+// FindByAction search a list option according to action
 func FindByAction(action string) (*ListOption, error) {
 	database := db.SharedInstance().Connection
 
@@ -31,6 +34,7 @@ func FindByAction(action string) (*ListOption, error) {
 	return New(listOptionID, action), nil
 }
 
+// FindByID search a list option according to id
 func FindByID(id sql.NullInt64) (*ListOption, error) {
 	database := db.SharedInstance().Connection
 
@@ -46,6 +50,6 @@ func FindByID(id sql.NullInt64) (*ListOption, error) {
 	return New(id.Int64, action), nil
 }
 
-func (u *ListOption) initialize() {
-	u.database = db.SharedInstance().Connection
+func (l *ListOption) initialize() {
+	l.database = db.SharedInstance().Connection
 }
