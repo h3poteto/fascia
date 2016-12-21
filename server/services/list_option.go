@@ -4,10 +4,12 @@ import (
 	"github.com/h3poteto/fascia/server/entities/list_option"
 )
 
+// ListOption has a list option entity
 type ListOption struct {
 	ListOptionEntity *list_option.ListOption
 }
 
+// ListOptionAll returns all list options
 func ListOptionAll() ([]*ListOption, error) {
 	options, err := list_option.ListOptionAll()
 	if err != nil {
@@ -20,6 +22,7 @@ func ListOptionAll() ([]*ListOption, error) {
 	return listOptions, nil
 }
 
+// FindListOptionByID returns a list option service
 func FindListOptionByID(id int64) (*ListOption, error) {
 	option, err := list_option.FindByID(id)
 	if err != nil {
@@ -30,6 +33,7 @@ func FindListOptionByID(id int64) (*ListOption, error) {
 	}, nil
 }
 
+// FindListOptionByAction returns a list option service
 func FindListOptionByAction(action string) (*ListOption, error) {
 	option, err := list_option.FindByAction(action)
 	if err != nil {
@@ -40,6 +44,7 @@ func FindListOptionByAction(action string) (*ListOption, error) {
 	}, nil
 }
 
+// IsCloseAction returns either close action or other action
 func (l *ListOption) IsCloseAction() bool {
 	return l.ListOptionEntity.IsCloseAction()
 }

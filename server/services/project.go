@@ -14,35 +14,39 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Project has a project entity
 type Project struct {
 	ProjectEntity *project.Project
 	database      *sql.DB
 }
 
-func NewProjectService(entity *project.Project) *Project {
+// NewProject returns a project service
+func NewProject(entity *project.Project) *Project {
 	return &Project{
 		ProjectEntity: entity,
 		database:      db.SharedInstance().Connection,
 	}
 }
 
-// FindProject search project from projectID
+// FindProject search project according to project id
 func FindProject(projectID int64) (*Project, error) {
 	projectEntity, err := project.Find(projectID)
 	if err != nil {
 		return nil, err
 	}
-	return NewProjectService(projectEntity), nil
+	return NewProject(projectEntity), nil
 }
 
+// FindProjectByRepositoryID search project according to repository id
 func FindProjectByRepositoryID(repositoryID int64) (*Project, error) {
 	projectEntity, err := project.FindByRepositoryID(repositoryID)
 	if err != nil {
 		return nil, err
 	}
-	return NewProjectService(projectEntity), nil
+	return NewProject(projectEntity), nil
 }
 
+// CheckOwner check project owner as user
 func (p *Project) CheckOwner(userID int64) bool {
 	if p.ProjectEntity.ProjectModel.UserID != userID {
 		return false
@@ -87,6 +91,7 @@ func (p *Project) Create(userID int64, title string, description string, reposit
 	return entity, nil
 }
 
+// Update call update in entity
 func (p *Project) Update(title string, description string, showIssues bool, showPullRequests bool) error {
 	return p.ProjectEntity.Update(title, description, showIssues, showPullRequests)
 }
@@ -106,6 +111,7 @@ func (p *Project) CreateWebhook() error {
 	return repo.CreateWebhook(oauthToken, url)
 }
 
+// FetchGithub fetch all lists and all tasks
 func (p *Project) FetchGithub() (bool, error) {
 	repo, err := p.ProjectEntity.Repository()
 	// user自体はgithub連携していても，projectが連携していない可能性もあるのでチェック
@@ -230,6 +236,7 @@ func (p *Project) ApplyPullRequestChanges(body github.PullRequestEvent) error {
 	return err
 }
 
+// FetchCreatedInitialList fetch initial list to github
 func (p *Project) FetchCreatedInitialList() error {
 	repo, err := p.ProjectEntity.Repository()
 	if err != nil {
@@ -259,5 +266,4 @@ func (p *Project) FetchCreatedInitialList() error {
 		}
 	}
 	return nil
-
 }

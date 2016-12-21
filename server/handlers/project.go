@@ -8,7 +8,7 @@ import (
 )
 
 func CreateProject(userID int64, title string, description string, repositoryID int, oauthToken sql.NullString) (*services.Project, error) {
-	projectService := services.NewProjectService(nil)
+	projectService := services.NewProject(nil)
 	_, err := projectService.Create(userID, title, description, repositoryID, oauthToken)
 	if err != nil {
 		return nil, err

@@ -9,16 +9,19 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Task has a task entity
 type Task struct {
 	TaskEntity *task.Task
 }
 
+// NewTask returns a task service
 func NewTask(id, listID, projectID, userID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString) *Task {
 	return &Task{
 		TaskEntity: task.New(id, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL),
 	}
 }
 
+// FindTask search task and returns a task service
 func FindTask(listID, taskID int64) (*Task, error) {
 	t, err := task.Find(listID, taskID)
 	if err != nil {
@@ -29,6 +32,7 @@ func FindTask(listID, taskID int64) (*Task, error) {
 	}, nil
 }
 
+// Save save a task, and fetch task to github
 func (t *Task) Save() error {
 	err := t.TaskEntity.Save()
 	if err != nil {
@@ -59,6 +63,7 @@ func (t *Task) Save() error {
 	return nil
 }
 
+// Update update a task, and fetch task to github
 func (t *Task) Update(listID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString) error {
 	err := t.TaskEntity.Update(listID, issueNumber, title, description, pullRequest, htmlURL)
 	if err != nil {
@@ -88,6 +93,7 @@ func (t *Task) Update(listID int64, issueNumber sql.NullInt64, title, descriptio
 	return nil
 }
 
+// ChangeList change list which task belongs, and fetch github
 func (t *Task) ChangeList(listID int64, prevToTaskID *int64) error {
 	isReorder, err := t.TaskEntity.ChangeList(listID, prevToTaskID)
 	if err != nil {
@@ -117,6 +123,7 @@ func (t *Task) ChangeList(listID int64, prevToTaskID *int64) error {
 	return nil
 }
 
+// Delete delete a task
 func (t *Task) Delete() error {
 	return t.TaskEntity.Delete()
 }

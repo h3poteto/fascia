@@ -8,16 +8,19 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// User has a user entity
 type User struct {
 	UserEntity *user.User
 }
 
-func NewUserService(entity *user.User) *User {
+// NewUser returns a user service
+func NewUser(entity *user.User) *User {
 	return &User{
 		UserEntity: entity,
 	}
 }
 
+// RegistrationUser create a user with email, and password
 func RegistrationUser(email, password, passwordConfirm string) (*User, error) {
 	u, err := user.Registration(email, password, passwordConfirm)
 	if err != nil {
@@ -28,6 +31,7 @@ func RegistrationUser(email, password, passwordConfirm string) (*User, error) {
 	}, nil
 }
 
+// FindUser search a user
 func FindUser(id int64) (*User, error) {
 	entity, err := user.Find(id)
 	if err != nil {
@@ -38,6 +42,7 @@ func FindUser(id int64) (*User, error) {
 	}, nil
 }
 
+// FindUserByEmail search a user according to email
 func FindUserByEmail(email string) (*User, error) {
 	entity, err := user.FindByEmail(email)
 	if err != nil {
@@ -48,6 +53,7 @@ func FindUserByEmail(email string) (*User, error) {
 	}, nil
 }
 
+// LoginUser authenticate email and password
 func LoginUser(email, password string) (*User, error) {
 	entity, err := user.Login(email, password)
 	if err != nil {
@@ -58,6 +64,8 @@ func LoginUser(email, password string) (*User, error) {
 	}, nil
 }
 
+// FindOrCreateUserFromGithub authenticate with github, and if user already exist returns a user entity
+// If user does not exist, create a user and return a new user service
 func FindOrCreateUserFromGithub(token string) (*User, error) {
 	// github認証
 	ts := oauth2.StaticTokenSource(
@@ -88,6 +96,7 @@ func FindOrCreateUserFromGithub(token string) (*User, error) {
 	}, nil
 }
 
+// Projects returns a related projects
 func (u *User) Projects() ([]*Project, error) {
 	projectEntities, err := u.UserEntity.Projects()
 	if err != nil {
@@ -95,7 +104,7 @@ func (u *User) Projects() ([]*Project, error) {
 	}
 	var slice []*Project
 	for _, p := range projectEntities {
-		slice = append(slice, NewProjectService(p))
+		slice = append(slice, NewProject(p))
 	}
 	return slice, nil
 }

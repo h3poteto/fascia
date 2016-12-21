@@ -8,16 +8,19 @@ import (
 	"github.com/h3poteto/fascia/server/entities/repository"
 )
 
+// List has a list entity
 type List struct {
 	ListEntity *list.List
 }
 
+// NewList returns a list service
 func NewList(id, projectID, userID int64, title, color string, optionID sql.NullInt64, isHidden bool) *List {
 	return &List{
 		ListEntity: list.New(id, projectID, userID, title, color, optionID, isHidden),
 	}
 }
 
+// FindListByID returns a list service
 func FindListByID(projectID, listID int64) (*List, error) {
 	l, err := list.FindByID(projectID, listID)
 	if err != nil {
@@ -28,6 +31,7 @@ func FindListByID(projectID, listID int64) (*List, error) {
 	}, nil
 }
 
+// Save save list entity, and fetch created list to github
 func (l *List) Save() error {
 	err := l.ListEntity.Save(nil)
 	if err != nil {
@@ -78,6 +82,7 @@ func (l *List) fetchCreated(oauthToken string, repo *repository.Repository) erro
 	return nil
 }
 
+// Update save list entity, and fetch updated list to github
 func (l *List) Update(title, color string, optionID int64) error {
 	err := l.ListEntity.UpdateExceptInitList(title, color, optionID)
 	if err != nil {
@@ -129,10 +134,12 @@ func (l *List) fetchUpdated(oauthToken string, repo *repository.Repository, newT
 	return nil
 }
 
+// Hide change list visibility
 func (l *List) Hide() error {
 	return l.ListEntity.Hide()
 }
 
+// Display change list visibility
 func (l *List) Display() error {
 	return l.ListEntity.Display()
 }
