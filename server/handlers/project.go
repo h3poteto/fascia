@@ -7,6 +7,7 @@ import (
 	"github.com/h3poteto/fascia/server/services"
 )
 
+// CreateProject create a new project, and fetch github
 func CreateProject(userID int64, title string, description string, repositoryID int, oauthToken sql.NullString) (*services.Project, error) {
 	projectService := services.NewProject(nil)
 	_, err := projectService.Create(userID, title, description, repositoryID, oauthToken)
@@ -39,10 +40,12 @@ func CreateProject(userID int64, title string, description string, repositoryID 
 	return projectService, nil
 }
 
+// FindProject search a project according to project id
 func FindProject(projectID int64) (*services.Project, error) {
 	return services.FindProject(projectID)
 }
 
+// FindProjectByRepositoryID search a project according to repository id
 func FindProjectByRepositoryID(repositoryID int64) (*services.Project, error) {
 	return services.FindProjectByRepositoryID(repositoryID)
 }
