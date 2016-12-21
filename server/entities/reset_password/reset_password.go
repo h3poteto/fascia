@@ -14,11 +14,13 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ResetPassword has a reset password model object
 type ResetPassword struct {
 	ResetPasswordModel *reset_password.ResetPassword
 	database           *sql.DB
 }
 
+// New returns a reset password entity
 func New(id, userID int64, token string, expiresAt time.Time) *ResetPassword {
 	return &ResetPassword{
 		ResetPasswordModel: reset_password.New(id, userID, token, expiresAt),
@@ -26,6 +28,7 @@ func New(id, userID int64, token string, expiresAt time.Time) *ResetPassword {
 	}
 }
 
+// GenerateResetPassword generate new token and return a new reset password entity
 func GenerateResetPassword(userID int64, email string) (*ResetPassword, error) {
 	// tokenを生成
 	h := md5.New()
@@ -42,6 +45,7 @@ func GenerateResetPassword(userID int64, email string) (*ResetPassword, error) {
 	return New(0, userID, token, time.Now().AddDate(0, 0, 1)), nil
 }
 
+// FindAvailable find available reset password entity
 func FindAvailable(id int64, token string) (*ResetPassword, error) {
 	r, err := reset_password.FindAvailable(id, token)
 	if err != nil {
@@ -53,14 +57,17 @@ func FindAvailable(id int64, token string) (*ResetPassword, error) {
 	}, nil
 }
 
+// Authenticate call authenticate in model
 func Authenticate(id int64, token string) error {
 	return reset_password.Authenticate(id, token)
 }
 
+// Save call save in model
 func (r *ResetPassword) Save() error {
 	return r.ResetPasswordModel.Save()
 }
 
+// User returns a owner user entity
 func (r *ResetPassword) User() (*user.User, error) {
 	var userID int64
 	err := r.database.QueryRow("select user_id from reset_passwords where id = ?;", r.ResetPasswordModel.ID).Scan(&userID)
@@ -74,6 +81,7 @@ func (r *ResetPassword) User() (*user.User, error) {
 	return u, nil
 }
 
+// ChangeUserPassword change password in owner user record
 func (r *ResetPassword) ChangeUserPassword(password string) (*user.User, error) {
 	u, err := r.User()
 	if err != nil {

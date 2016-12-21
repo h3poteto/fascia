@@ -12,11 +12,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// User has a user model object
 type User struct {
 	UserModel *user.User
 	database  *sql.DB
 }
 
+// New returns a user entity
 func New(id int64, email string, provider sql.NullString, oauthToken sql.NullString, uuid sql.NullInt64, userName sql.NullString, avatar sql.NullString) *User {
 	return &User{
 		UserModel: user.New(id, email, provider, oauthToken, uuid, userName, avatar),
@@ -24,6 +26,7 @@ func New(id int64, email string, provider sql.NullString, oauthToken sql.NullStr
 	}
 }
 
+// Registration create a new user record
 func Registration(email, password, passwordConfirm string) (*User, error) {
 	u, err := user.Registration(email, password, passwordConfirm)
 	if err != nil {
@@ -35,6 +38,7 @@ func Registration(email, password, passwordConfirm string) (*User, error) {
 	}, nil
 }
 
+// Find returns a user entity
 func Find(id int64) (*User, error) {
 	u, err := user.Find(id)
 	if err != nil {
@@ -46,6 +50,7 @@ func Find(id int64) (*User, error) {
 	}, nil
 }
 
+// FindByEmail returns a user entity
 func FindByEmail(email string) (*User, error) {
 	u, err := user.FindByEmail(email)
 	if err != nil {
@@ -57,6 +62,7 @@ func FindByEmail(email string) (*User, error) {
 	}, nil
 }
 
+// Login authenticate email and password
 func Login(userEmail string, userPassword string) (*User, error) {
 	database := db.SharedInstance().Connection
 	var id int64
@@ -115,6 +121,7 @@ func FindOrCreateFromGithub(githubUser *github.User, token string, primaryEmail 
 	return u, nil
 }
 
+// HashPassword returns a password
 func HashPassword(password string) ([]byte, error) {
 	return user.HashPassword(password)
 }

@@ -78,6 +78,7 @@ func listsWithCloseAction(lists []list.List) []list.List {
 	return closeLists
 }
 
+// ReacquireIssue get again a issue from github
 func (p *Project) ReacquireIssue(issue *github.Issue) (*github.Issue, error) {
 	if len(issue.Labels) > 0 {
 		return issue, nil
@@ -94,6 +95,7 @@ func (p *Project) ReacquireIssue(issue *github.Issue) (*github.Issue, error) {
 	return repo.GetGithubIssue(oauthToken, *issue.Number)
 }
 
+// TaskApplyLabel change list to a task according to github labels
 func (p *Project) TaskApplyLabel(targetTask *task.Task, issue *github.Issue) error {
 	if targetTask == nil {
 		err := p.CreateNewTask(issue)
@@ -124,6 +126,9 @@ func (p *Project) TaskApplyLabel(targetTask *task.Task, issue *github.Issue) err
 	return nil
 }
 
+// ReopenTask open a task according to github issue
+// It is not necessary to change a task status in Database
+// It is enough to update issue information, and change label
 func (p *Project) ReopenTask(targetTask *task.Task, issue *github.Issue) error {
 	issueTask, err := p.applyListToTask(targetTask, issue)
 	if err != nil {
@@ -143,6 +148,7 @@ func (p *Project) ReopenTask(targetTask *task.Task, issue *github.Issue) error {
 	return nil
 }
 
+// CreateNewTask create a task from github issue
 func (p *Project) CreateNewTask(issue *github.Issue) error {
 	issueTask := task.New(
 		0,

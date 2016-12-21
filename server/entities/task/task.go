@@ -12,11 +12,13 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Task has a task model object
 type Task struct {
 	TaskModel *task.Task
 	database  *sql.DB
 }
 
+// New returns a task entity
 func New(id, listID, projectID, userID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString) *Task {
 	return &Task{
 		TaskModel: task.New(id, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL),
@@ -24,6 +26,7 @@ func New(id, listID, projectID, userID int64, issueNumber sql.NullInt64, title, 
 	}
 }
 
+// Find returns a task entity
 func Find(listID, taskID int64) (*Task, error) {
 	t, err := task.Find(listID, taskID)
 	if err != nil {
@@ -35,6 +38,7 @@ func Find(listID, taskID int64) (*Task, error) {
 	}, nil
 }
 
+// FindByIssueNumber returns a task entity
 func FindByIssueNumber(projectID int64, issueNumber int) (*Task, error) {
 	t, err := task.FindByIssueNumber(projectID, issueNumber)
 	if err != nil {
@@ -46,10 +50,12 @@ func FindByIssueNumber(projectID int64, issueNumber int) (*Task, error) {
 	}, nil
 }
 
+// Save call save in model
 func (t *Task) Save() error {
 	return t.TaskModel.Save()
 }
 
+// Update call update in model
 func (t *Task) Update(listID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString) error {
 	return t.TaskModel.Update(listID, issueNumber, title, description, pullRequest, htmlURL)
 }
@@ -68,10 +74,12 @@ func (t *Task) ChangeList(listID int64, prevToTaskID *int64) (bool, error) {
 	return isReorder, t.TaskModel.ChangeList(listID, prevToTaskID)
 }
 
+// Delete call delete in model
 func (t *Task) Delete() error {
 	return t.TaskModel.Delete()
 }
 
+// SyncIssue apply task information to github issue, and take issue to task
 func (t *Task) SyncIssue(repo *repository.Repository, token string) (*github.Issue, error) {
 	var listTitle, listColor sql.NullString
 	var listOptionID sql.NullInt64

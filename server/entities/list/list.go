@@ -13,11 +13,13 @@ import (
 	"github.com/pkg/errors"
 )
 
+// List has a list model object
 type List struct {
 	ListModel *list.List
 	database  *sql.DB
 }
 
+// New returns new list entity
 func New(id int64, projectID int64, userID int64, title string, color string, optionID sql.NullInt64, isHidden bool) *List {
 	return &List{
 		ListModel: list.New(id, projectID, userID, title, color, optionID, isHidden),
@@ -25,6 +27,7 @@ func New(id int64, projectID int64, userID int64, title string, color string, op
 	}
 }
 
+// FindByID returns a list entity
 func FindByID(projectID, listID int64) (*List, error) {
 	l, err := list.FindByID(projectID, listID)
 	if err != nil {
@@ -36,10 +39,13 @@ func FindByID(projectID, listID int64) (*List, error) {
 	}, nil
 }
 
+// Save call list model save
 func (l *List) Save(tx *sql.Tx) error {
 	return l.ListModel.Save(tx)
 }
 
+// UpdateExceptInitList update list except initial list
+// for example, ToDo, InProgress, and Done
 func (l *List) UpdateExceptInitList(title, color string, optionID int64) error {
 	// 初期リストに関しては一切編集を許可しない
 	// 色は変えられても良いが，titleとactionは変えられては困る
@@ -51,6 +57,7 @@ func (l *List) UpdateExceptInitList(title, color string, optionID int64) error {
 	return l.Update(title, color, optionID)
 }
 
+// Update update list
 func (l *List) Update(title, color string, optionID int64) error {
 	var listOptionID sql.NullInt64
 	listOption, err := list_option.FindByID(optionID)
@@ -68,15 +75,17 @@ func (l *List) Update(title, color string, optionID int64) error {
 	return nil
 }
 
+// Hide call list model hide
 func (l *List) Hide() error {
 	return l.ListModel.Hide()
 }
 
+// Display call list model display
 func (l *List) Display() error {
 	return l.ListModel.Display()
 }
 
-// Tasks list up related a list
+// Tasks list up related tasks
 func (l *List) Tasks() ([]*task.Task, error) {
 	var slice []*task.Task
 	rows, err := l.database.Query("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where list_id = ? order by display_index;", l.ListModel.ID)
@@ -102,7 +111,7 @@ func (l *List) Tasks() ([]*task.Task, error) {
 	return slice, nil
 }
 
-// ListOption
+// ListOption list up a related list option
 func (l *List) ListOption() (*list_option.ListOption, error) {
 	if !l.ListModel.ListOptionID.Valid {
 		return nil, errors.New("list has no list option")
@@ -114,6 +123,8 @@ func (l *List) ListOption() (*list_option.ListOption, error) {
 	return option, nil
 }
 
+// IsInitList return true when list is initial list
+// for example, ToDo, InProgress, and Done
 func (l *List) IsInitList() bool {
 	for _, elem := range config.Element("init_list").(map[interface{}]interface{}) {
 		if l.ListModel.Title.String == elem.(string) {
@@ -123,7 +134,7 @@ func (l *List) IsInitList() bool {
 	return false
 }
 
-// HasCloseAction check a list has close list_option
+// HasCloseAction check a list has close list option
 func (l *List) HasCloseAction() (bool, error) {
 	option, err := l.ListOption()
 	if err != nil {

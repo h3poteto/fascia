@@ -9,11 +9,13 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ListOption has a list option model object
 type ListOption struct {
 	ListOptionModel *list_option.ListOption
 	database        *sql.DB
 }
 
+// New returns a list option entity
 func New(id int64, action string) *ListOption {
 	return &ListOption{
 		ListOptionModel: list_option.New(id, action),
@@ -42,6 +44,7 @@ func ListOptionAll() ([]*ListOption, error) {
 	return slice, nil
 }
 
+// FindByID returns a list option
 func FindByID(id int64) (*ListOption, error) {
 	option, err := list_option.FindByID(sql.NullInt64{Int64: id, Valid: true})
 	if err != nil {
@@ -53,6 +56,7 @@ func FindByID(id int64) (*ListOption, error) {
 	}, nil
 }
 
+// FindByAction returns a list option
 func FindByAction(action string) (*ListOption, error) {
 	option, err := list_option.FindByAction(action)
 	if err != nil {
