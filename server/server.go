@@ -2,9 +2,9 @@ package server
 
 import (
 	"github.com/h3poteto/fascia/config"
-	"github.com/h3poteto/fascia/controllers"
-	"github.com/h3poteto/fascia/filters"
-	"github.com/h3poteto/fascia/modules/logging"
+	"github.com/h3poteto/fascia/lib/modules/logging"
+	"github.com/h3poteto/fascia/server/controllers"
+	"github.com/h3poteto/fascia/server/filters"
 
 	"flag"
 	"net"
@@ -106,7 +106,7 @@ func Routes(m *web.Mux) {
 // Serve start goji server
 func Serve() {
 	root := os.Getenv("GOJIROOT")
-	pongo2.DefaultSet = pongo2.NewSet("default", pongo2.MustNewLocalFileSystemLoader(filepath.Join(root, "views")))
+	pongo2.DefaultSet = pongo2.NewSet("default", pongo2.MustNewLocalFileSystemLoader(filepath.Join(root, "server/views")))
 	pongo2.RegisterFilter("suffixAssetsUpdate", filters.SuffixAssetsUpdate)
 	flag.Set("bind", ":9090")
 	mux := goji.DefaultMux

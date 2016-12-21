@@ -1,7 +1,7 @@
 package seed
 
 import (
-	"github.com/h3poteto/fascia/models/db"
+	"github.com/h3poteto/fascia/server/models/db"
 )
 
 // Seeds insert all seed data
