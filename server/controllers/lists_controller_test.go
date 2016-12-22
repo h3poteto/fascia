@@ -3,18 +3,18 @@ package controllers_test
 import (
 	"database/sql"
 	"encoding/json"
-	"github.com/h3poteto/fascia/controllers"
-	"github.com/h3poteto/fascia/db/seed"
-	"github.com/h3poteto/fascia/models/db"
-	"github.com/h3poteto/fascia/models/list"
-	"github.com/h3poteto/fascia/models/list_option"
-	. "github.com/h3poteto/fascia/server"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strconv"
 
+	"github.com/h3poteto/fascia/db/seed"
+	. "github.com/h3poteto/fascia/server"
+	"github.com/h3poteto/fascia/server/controllers"
+	"github.com/h3poteto/fascia/server/handlers"
+	"github.com/h3poteto/fascia/server/models/db"
+	"github.com/h3poteto/fascia/server/services"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/zenazn/goji/web"
@@ -72,10 +72,10 @@ var _ = Describe("ListsController", func() {
 		It("should exist in database", func() {
 			contents, _ := ParseJson(res)
 			parseContents := contents.(map[string]interface{})
-			newList, err := list.FindList(projectID, int64(parseContents["ID"].(float64)))
+			newList, err := handlers.FindList(projectID, int64(parseContents["ID"].(float64)))
 			Expect(err).To(BeNil())
-			Expect(newList.ID).To(BeEquivalentTo(parseContents["ID"]))
-			Expect(newList.Title.String).To(Equal("listTitle"))
+			Expect(newList.ListEntity.ListModel.ID).To(BeEquivalentTo(parseContents["ID"]))
+			Expect(newList.ListEntity.ListModel.Title.String).To(Equal("listTitle"))
 		})
 	})
 
@@ -86,13 +86,13 @@ var _ = Describe("ListsController", func() {
 		)
 		Context("when action is null", func() {
 			JustBeforeEach(func() {
-				newList := list.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
-				newList.Save(nil, nil)
+				newList := handlers.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
+				newList.Save()
 				values := url.Values{}
 				values.Add("title", "newListTitle")
 				values.Add("color", "008ed5")
 				values.Add("option_id", "0")
-				res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(newList.ID, 10), values)
+				res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(newList.ListEntity.ListModel.ID, 10), values)
 			})
 			It("should update", func() {
 				Expect(err).To(BeNil())
@@ -104,14 +104,14 @@ var _ = Describe("ListsController", func() {
 		})
 		Context("when action is close", func() {
 			JustBeforeEach(func() {
-				newList := list.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
-				newList.Save(nil, nil)
+				newList := handlers.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
+				newList.Save()
 				values := url.Values{}
-				closeListOption, _ := list_option.FindByAction("close")
+				closeListOption, _ := services.FindListOptionByAction("close")
 				values.Add("title", "newListTitle")
 				values.Add("color", "008ed5")
-				values.Add("option_id", strconv.FormatInt(closeListOption.ID, 10))
-				res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(newList.ID, 10), values)
+				values.Add("option_id", strconv.FormatInt(closeListOption.ListOptionEntity.ListOptionModel.ID, 10))
+				res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(newList.ListEntity.ListModel.ID, 10), values)
 			})
 			It("should update", func() {
 				Expect(err).To(BeNil())
@@ -147,41 +147,41 @@ var _ = Describe("ListsController", func() {
 	})
 
 	Describe("Hide", func() {
-		var newList *list.ListStruct
+		var newList *services.List
 		JustBeforeEach(func() {
-			newList = list.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
-			newList.Save(nil, nil)
+			newList = handlers.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
+			newList.Save()
 		})
 		It("should hide list", func() {
-			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(newList.ID, 10)+"/hide", url.Values{})
+			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(newList.ListEntity.ListModel.ID, 10)+"/hide", url.Values{})
 			Expect(err).To(BeNil())
 			var contents controllers.AllListJSONFormat
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
 			Expect(contents.Lists[3].IsHidden).To(BeTrue())
-			targetList, err := list.FindList(projectID, newList.ID)
+			targetList, err := handlers.FindList(projectID, newList.ListEntity.ListModel.ID)
 			Expect(err).To(BeNil())
-			Expect(targetList.IsHidden).To(BeTrue())
+			Expect(targetList.ListEntity.ListModel.IsHidden).To(BeTrue())
 		})
 	})
 
 	Describe("Display", func() {
-		var newList *list.ListStruct
+		var newList *services.List
 		JustBeforeEach(func() {
-			newList = list.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
-			newList.Save(nil, nil)
+			newList = handlers.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
+			newList.Save()
 			newList.Hide()
 		})
 		It("should display list", func() {
-			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(newList.ID, 10)+"/display", url.Values{})
+			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(newList.ListEntity.ListModel.ID, 10)+"/display", url.Values{})
 			Expect(err).To(BeNil())
 			var contents controllers.AllListJSONFormat
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
 			Expect(contents.Lists[3].IsHidden).To(BeFalse())
-			targetList, err := list.FindList(projectID, newList.ID)
+			targetList, err := handlers.FindList(projectID, newList.ListEntity.ListModel.ID)
 			Expect(err).To(BeNil())
-			Expect(targetList.IsHidden).To(BeFalse())
+			Expect(targetList.ListEntity.ListModel.IsHidden).To(BeFalse())
 		})
 	})
 })

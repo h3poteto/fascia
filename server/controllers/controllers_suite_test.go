@@ -2,17 +2,19 @@ package controllers_test
 
 import (
 	"encoding/json"
-	"github.com/flosch/pongo2"
-	. "github.com/h3poteto/fascia/controllers"
-	"github.com/h3poteto/fascia/filters"
-	"github.com/h3poteto/fascia/models/user"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
+
+	"github.com/flosch/pongo2"
+	. "github.com/h3poteto/fascia/server/controllers"
+	"github.com/h3poteto/fascia/server/filters"
+	"github.com/h3poteto/fascia/server/handlers"
+	"github.com/h3poteto/fascia/server/services"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
 func TestControllers(t *testing.T) {
@@ -47,14 +49,13 @@ func ParseResponse(res *http.Response) (string, int) {
 
 func LoginFaker(ts *httptest.Server, email string, password string) int64 {
 	CheckCSRFToken = func(r *http.Request, token string) bool { return true }
-	id, _ := user.Registration(email, password, password)
-	LoginRequired = func(r *http.Request) (*user.UserStruct, error) {
-		currentUser, _ := user.CurrentUser(id)
-		return currentUser, nil
+	user, _ := handlers.RegistrationUser(email, password, password)
+	LoginRequired = func(r *http.Request) (*services.User, error) {
+		return user, nil
 	}
 	values := url.Values{}
 	values.Add("email", email)
 	values.Add("password", password)
 	http.PostForm(ts.URL+"/sign_in", values)
-	return id
+	return user.UserEntity.UserModel.ID
 }

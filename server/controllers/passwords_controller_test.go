@@ -1,11 +1,11 @@
 package controllers_test
 
 import (
-	"github.com/h3poteto/fascia/controllers"
-	"github.com/h3poteto/fascia/models/db"
-	"github.com/h3poteto/fascia/models/reset_password"
-	"github.com/h3poteto/fascia/models/user"
 	. "github.com/h3poteto/fascia/server"
+	"github.com/h3poteto/fascia/server/controllers"
+	"github.com/h3poteto/fascia/server/handlers"
+	"github.com/h3poteto/fascia/server/models/db"
+	"github.com/h3poteto/fascia/server/services"
 
 	"net/http"
 	"net/http/httptest"
@@ -39,7 +39,8 @@ var _ = Describe("PasswordsController", func() {
 	JustBeforeEach(func() {
 		email = "hoge@example.com"
 		password = "hogehoge"
-		uid, _ = user.Registration(email, password, password)
+		user, _ := handlers.RegistrationUser(email, password, password)
+		uid = user.UserEntity.UserModel.ID
 	})
 
 	Describe("New", func() {
@@ -66,14 +67,14 @@ var _ = Describe("PasswordsController", func() {
 	})
 
 	Describe("Edit", func() {
-		var resetPassword *reset_password.ResetPasswordStruct
+		var resetPassword *services.ResetPassword
 		JustBeforeEach(func() {
-			resetPassword = reset_password.GenerateResetPassword(uid, email)
+			resetPassword, _ = handlers.GenerateResetPassword(uid, email)
 			resetPassword.Save()
 		})
 		Context("token is invalid", func() {
 			It("should internal server error", func() {
-				res, err := http.Get(ts.URL + "/passwords/" + strconv.FormatInt(resetPassword.ID, 10) + "/edit?token=sample")
+				res, err := http.Get(ts.URL + "/passwords/" + strconv.FormatInt(resetPassword.ResetPasswordEntity.ResetPasswordModel.ID, 10) + "/edit?token=sample")
 				Expect(err).To(BeNil())
 				doc, _ := goquery.NewDocumentFromResponse(res)
 				doc.Find("h2").Each(func(_ int, s *goquery.Selection) {
@@ -83,7 +84,7 @@ var _ = Describe("PasswordsController", func() {
 		})
 		Context("token is correct", func() {
 			It("should response is ok", func() {
-				res, err := http.Get(ts.URL + "/passwords/" + strconv.FormatInt(resetPassword.ID, 10) + "/edit?token=" + resetPassword.Token)
+				res, err := http.Get(ts.URL + "/passwords/" + strconv.FormatInt(resetPassword.ResetPasswordEntity.ResetPasswordModel.ID, 10) + "/edit?token=" + resetPassword.ResetPasswordEntity.ResetPasswordModel.Token)
 				Expect(err).To(BeNil())
 				_, status := ParseResponse(res)
 				Expect(status).To(Equal(http.StatusOK))
@@ -92,10 +93,10 @@ var _ = Describe("PasswordsController", func() {
 	})
 
 	Describe("Update", func() {
-		var resetPassword *reset_password.ResetPasswordStruct
+		var resetPassword *services.ResetPassword
 		JustBeforeEach(func() {
 			controllers.CheckCSRFToken = func(r *http.Request, token string) bool { return true }
-			resetPassword = reset_password.GenerateResetPassword(uid, email)
+			resetPassword, _ = handlers.GenerateResetPassword(uid, email)
 			resetPassword.Save()
 		})
 		Context("token is invalid", func() {
@@ -104,7 +105,7 @@ var _ = Describe("PasswordsController", func() {
 				values.Add("password", "fugafuga")
 				values.Add("password_confirm", "fugafuga")
 				values.Add("reset_token", "sample")
-				res, err := http.PostForm(ts.URL+"/passwords/"+strconv.FormatInt(resetPassword.ID, 10)+"/update", values)
+				res, err := http.PostForm(ts.URL+"/passwords/"+strconv.FormatInt(resetPassword.ResetPasswordEntity.ResetPasswordModel.ID, 10)+"/update", values)
 				Expect(err).To(BeNil())
 				doc, _ := goquery.NewDocumentFromResponse(res)
 				doc.Find("h2").Each(func(_ int, s *goquery.Selection) {
@@ -117,8 +118,8 @@ var _ = Describe("PasswordsController", func() {
 				values := url.Values{}
 				values.Add("password", "fugafuga")
 				values.Add("password_confirm", "fugafuga")
-				values.Add("reset_token", resetPassword.Token)
-				res, err := http.PostForm(ts.URL+"/passwords/"+strconv.FormatInt(resetPassword.ID, 10)+"/update", values)
+				values.Add("reset_token", resetPassword.ResetPasswordEntity.ResetPasswordModel.Token)
+				res, err := http.PostForm(ts.URL+"/passwords/"+strconv.FormatInt(resetPassword.ResetPasswordEntity.ResetPasswordModel.ID, 10)+"/update", values)
 				Expect(err).To(BeNil())
 				_, status := ParseResponse(res)
 				Expect(status).To(Equal(http.StatusOK))
