@@ -47,7 +47,7 @@ var _ = Describe("GithubController", func() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		database.Exec("update users set provider = ?, oauth_token =?, user_name = ?, uuid = ?, avatar_url = ? where email = ?;", "github", token, *githubUser.Login, *githubUser.ID, *githubUser.AvatarURL, userEmail)
+		database.Exec("update users set provider = ?, oauth_token = ?, user_name = ?, uuid = ?, avatar_url = ? where email = ?;", "github", token, *githubUser.Login, *githubUser.ID, *githubUser.AvatarURL, userEmail)
 
 	})
 	Describe("Repositories", func() {

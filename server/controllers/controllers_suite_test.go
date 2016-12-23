@@ -49,9 +49,12 @@ func ParseResponse(res *http.Response) (string, int) {
 
 func LoginFaker(ts *httptest.Server, email string, password string) int64 {
 	CheckCSRFToken = func(r *http.Request, token string) bool { return true }
-	user, _ := handlers.RegistrationUser(email, password, password)
+	user, err := handlers.RegistrationUser(email, password, password)
+	if err != nil {
+		panic(err)
+	}
 	LoginRequired = func(r *http.Request) (*services.User, error) {
-		return user, nil
+		return handlers.FindUser(user.UserEntity.UserModel.ID)
 	}
 	values := url.Values{}
 	values.Add("email", email)
