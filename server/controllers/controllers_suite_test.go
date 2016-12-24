@@ -54,7 +54,7 @@ func LoginFaker(ts *httptest.Server, email string, password string) int64 {
 		panic(err)
 	}
 	LoginRequired = func(r *http.Request) (*services.User, error) {
-		return handlers.FindUser(user.UserEntity.UserModel.ID)
+		handlers.FindUser(user.UserEntity.UserModel.ID)
 	}
 	values := url.Values{}
 	values.Add("email", email)
