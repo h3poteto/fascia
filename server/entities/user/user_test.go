@@ -2,16 +2,14 @@ package user_test
 
 import (
 	"database/sql"
-	"os"
 
-	"github.com/google/go-github/github"
 	"github.com/h3poteto/fascia/db/seed"
-	"github.com/h3poteto/fascia/models/db"
-	"github.com/h3poteto/fascia/models/project"
-	. "github.com/h3poteto/fascia/models/user"
+	. "github.com/h3poteto/fascia/server/entities/user"
+	"github.com/h3poteto/fascia/server/handlers"
+	"github.com/h3poteto/fascia/server/models/db"
+	"github.com/h3poteto/fascia/server/services"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"golang.org/x/oauth2"
 )
 
 var _ = Describe("User", func() {
@@ -20,27 +18,25 @@ var _ = Describe("User", func() {
 	)
 	BeforeEach(func() {
 		seed.Seeds()
+		database = db.SharedInstance().Connection
 	})
 	AfterEach(func() {
 		database.Exec("truncate table users;")
 		database.Exec("truncate table projects;")
 		database.Exec("truncate table list_options;")
 	})
-	JustBeforeEach(func() {
-		database = db.SharedInstance().Connection
-	})
 
 	Describe("Registration", func() {
 		email := "registration@example.com"
 		password := "hogehoge"
 		It("can regist", func() {
-			id, err := Registration(email, password, password)
+			user, err := Registration(email, password, password)
 			Expect(err).To(BeNil())
-			Expect(id).NotTo(Equal(int64(0)))
+			Expect(user.UserModel.ID).NotTo(Equal(int64(0)))
 		})
 		Context("after registration", func() {
 			BeforeEach(func() {
-				_, _ = Registration(email, password, password)
+				Registration(email, password, password)
 			})
 			It("should save user in database", func() {
 				rows, _ := database.Query("select id, email from users where email = ?;", email)
@@ -57,9 +53,9 @@ var _ = Describe("User", func() {
 				Expect(id).NotTo(Equal(int64(0)))
 			})
 			It("cannot double regist", func() {
-				id, err := Registration(email, password, password)
+				user, err := Registration(email, password, password)
 				Expect(err).NotTo(BeNil())
-				Expect(id).To(Equal(int64(0)))
+				Expect(user).To(BeNil())
 			})
 		})
 
@@ -69,14 +65,14 @@ var _ = Describe("User", func() {
 		email := "login@example.com"
 		password := "hogehoge"
 		BeforeEach(func() {
-			_, _ = Registration(email, password, password)
+			Registration(email, password, password)
 		})
 
 		Context("when send correctly login information", func() {
 			It("can login", func() {
 				currentUser, err := Login(email, password)
 				Expect(err).To(BeNil())
-				Expect(currentUser.Email).To(Equal(email))
+				Expect(currentUser.UserModel.Email).To(Equal(email))
 			})
 		})
 		Context("when send wrong login information", func() {
@@ -102,10 +98,11 @@ var _ = Describe("User", func() {
 		})
 	})
 
+	/* このテストはservice側で
 	Describe("FindOrCreateGithub", func() {
 		token := os.Getenv("TEST_TOKEN")
 		It("can regist through github", func() {
-			_, err := FindOrCreateGithub(token)
+			_, err := FindOrCreateFromGithub(token)
 			Expect(err).To(BeNil())
 		})
 		It("after regist through github, can search this user", func() {
@@ -129,17 +126,18 @@ var _ = Describe("User", func() {
 		})
 
 	})
+	*/
 
 	Describe("Projects", func() {
 		var (
-			newProject  *project.ProjectStruct
-			currentUser *UserStruct
+			newProject  *services.Project
+			currentUser *User
 		)
 
 		BeforeEach(func() {
 			email := "project@example.com"
 			password := "hogehoge"
-			_, _ = Registration(email, password, password)
+			Registration(email, password, password)
 			rows, _ := database.Query("select id, email from users where email = ?;", email)
 
 			var userid int64
@@ -151,20 +149,21 @@ var _ = Describe("User", func() {
 				}
 			}
 			var err error
-			newProject, err = project.Create(userid, "title", "desc", 0, sql.NullString{})
+			newProject, err = handlers.CreateProject(userid, "title", "desc", 0, sql.NullString{})
 			if err != nil {
 				panic(err)
 			}
-			currentUser = NewUser(userid, dbemail, sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
+			currentUser = New(userid, dbemail, sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
 		})
 		It("ユーザとプロジェクトが関連づいていること", func() {
 			projects, err := currentUser.Projects()
 			Expect(err).To(BeNil())
 			Expect(projects).NotTo(BeEmpty())
-			Expect(projects[0].ID).To(Equal(newProject.ID))
+			Expect(projects[0].ProjectModel.ID).To(Equal(newProject.ProjectEntity.ProjectModel.ID))
 		})
 	})
 
+	/* service側へ
 	Describe("CreateGithubUser", func() {
 		var result error
 		token := os.Getenv("TEST_TOKEN")
@@ -230,4 +229,5 @@ var _ = Describe("User", func() {
 			Expect(id).NotTo(Equal(int64(0)))
 		})
 	})
+	*/
 })

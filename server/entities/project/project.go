@@ -21,8 +21,12 @@ type Project struct {
 
 // New returns a project entity
 func New(id int64, userID int64, title string, description string, repositoryID sql.NullInt64, showIssues bool, showPullRequests bool) *Project {
+	p := project.New(id, userID, title, description, repositoryID, showIssues, showPullRequests)
+	if p == nil {
+		return nil
+	}
 	return &Project{
-		ProjectModel: project.New(id, userID, title, description, repositoryID, showIssues, showPullRequests),
+		ProjectModel: p,
 		database:     db.SharedInstance().Connection,
 	}
 }
