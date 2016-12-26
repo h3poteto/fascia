@@ -1,10 +1,11 @@
 package controllers_test
 
 import (
-	"github.com/h3poteto/fascia/controllers"
-	"github.com/h3poteto/fascia/models/db"
-	"github.com/h3poteto/fascia/models/user"
 	. "github.com/h3poteto/fascia/server"
+	"github.com/h3poteto/fascia/server/controllers"
+	"github.com/h3poteto/fascia/server/handlers"
+	"github.com/h3poteto/fascia/server/models/db"
+	"github.com/h3poteto/fascia/server/services"
 
 	"net/http"
 	"net/http/httptest"
@@ -79,10 +80,9 @@ var _ = Describe("SessionsController", func() {
 		})
 		Context("after registration", func() {
 			JustBeforeEach(func() {
-				id, _ := user.Registration("registration@example.com", "hogehoge", "hogehoge")
-				controllers.LoginRequired = func(r *http.Request) (*user.UserStruct, error) {
-					currentUser, _ := user.CurrentUser(id)
-					return currentUser, nil
+				user, _ := handlers.RegistrationUser("registration@example.com", "hogehoge", "hogehoge")
+				controllers.LoginRequired = func(r *http.Request) (*services.User, error) {
+					return user, nil
 				}
 			})
 			Context("when use correctly password", func() {

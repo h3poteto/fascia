@@ -1,9 +1,6 @@
 package controllers_test
 
 import (
-	"github.com/h3poteto/fascia/models/db"
-	. "github.com/h3poteto/fascia/server"
-
 	"database/sql"
 	"log"
 	"net/http"
@@ -11,6 +8,8 @@ import (
 	"os"
 
 	"github.com/google/go-github/github"
+	. "github.com/h3poteto/fascia/server"
+	"github.com/h3poteto/fascia/server/models/db"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/zenazn/goji/web"
@@ -48,7 +47,7 @@ var _ = Describe("GithubController", func() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		database.Exec("update users set provider = ?, oauth_token =?, user_name = ?, uuid = ?, avatar_url = ? where email = ?;", "github", token, *githubUser.Login, *githubUser.ID, *githubUser.AvatarURL, userEmail)
+		database.Exec("update users set provider = ?, oauth_token = ?, user_name = ?, uuid = ?, avatar_url = ? where email = ?;", "github", token, *githubUser.Login, *githubUser.ID, *githubUser.AvatarURL, userEmail)
 
 	})
 	Describe("Repositories", func() {

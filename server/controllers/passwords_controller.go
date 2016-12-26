@@ -180,7 +180,7 @@ func (u *Passwords) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	targetUser, err := handlers.ChangeUserPassword(id, editPasswordForm.ResetToken, editPasswordForm.Password)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("PasswordsController", "Update", c).Info("cannot authenticate reset password")
+		logging.SharedInstance().MethodInfo("PasswordsController", "Update", c).Infof("cannot authenticate reset password: %v", err)
 		InternalServerError(w, r)
 		return
 	}

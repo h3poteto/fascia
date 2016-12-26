@@ -1,12 +1,12 @@
 package controllers_test
 
 import (
-	"github.com/h3poteto/fascia/controllers"
 	"github.com/h3poteto/fascia/db/seed"
-	"github.com/h3poteto/fascia/models/db"
-	"github.com/h3poteto/fascia/models/list"
-	"github.com/h3poteto/fascia/models/task"
 	. "github.com/h3poteto/fascia/server"
+	"github.com/h3poteto/fascia/server/controllers"
+	"github.com/h3poteto/fascia/server/handlers"
+	"github.com/h3poteto/fascia/server/models/db"
+	"github.com/h3poteto/fascia/server/services"
 
 	"database/sql"
 	"encoding/json"
@@ -85,44 +85,44 @@ var _ = Describe("TasksController", func() {
 			var contents controllers.AllListJSONFormat
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
-			newTask, _ := task.FindTask(listID, int64(contents.Lists[3].ListTasks[0].ID))
-			Expect(newTask.ID).To(BeEquivalentTo(int64(contents.Lists[3].ListTasks[0].ID)))
-			Expect(newTask.Title).To(Equal("taskTitle"))
+			newTask, _ := handlers.FindTask(listID, int64(contents.Lists[3].ListTasks[0].ID))
+			Expect(newTask.TaskEntity.TaskModel.ID).To(BeEquivalentTo(int64(contents.Lists[3].ListTasks[0].ID)))
+			Expect(newTask.TaskEntity.TaskModel.Title).To(Equal("taskTitle"))
 		})
 	})
 
 	Describe("Show", func() {
-		var newTask *task.TaskStruct
+		var newTask *services.Task
 		JustBeforeEach(func() {
-			newTask = task.NewTask(0, listID, projectID, userID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
-			newTask.Save(nil, nil)
+			newTask = services.NewTask(0, listID, projectID, userID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
+			newTask.Save()
 		})
 		It("should receive a task", func() {
-			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(projectID, 10) + "/lists/" + strconv.FormatInt(listID, 10) + "/tasks/" + strconv.FormatInt(newTask.ID, 10))
+			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(projectID, 10) + "/lists/" + strconv.FormatInt(listID, 10) + "/tasks/" + strconv.FormatInt(newTask.TaskEntity.TaskModel.ID, 10))
 			Expect(err).To(BeNil())
 			var contents controllers.TaskJSONFormat
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
-			Expect(contents.Title).To(Equal(newTask.Title))
+			Expect(contents.Title).To(Equal(newTask.TaskEntity.TaskModel.Title))
 		})
 	})
 
 	Describe("MoveTask", func() {
 		var (
-			newTask *task.TaskStruct
-			newList *list.ListStruct
+			newTask *services.Task
+			newList *services.List
 		)
 		JustBeforeEach(func() {
-			newList = list.NewList(0, projectID, userID, "list2", "", sql.NullInt64{}, false)
-			newList.Save(nil, nil)
-			newTask = task.NewTask(0, listID, projectID, userID, sql.NullInt64{}, "taskTitle", "taskDescription", false, sql.NullString{})
-			newTask.Save(nil, nil)
+			newList = handlers.NewList(0, projectID, userID, "list2", "", sql.NullInt64{}, false)
+			newList.Save()
+			newTask = services.NewTask(0, listID, projectID, userID, sql.NullInt64{}, "taskTitle", "taskDescription", false, sql.NullString{})
+			newTask.Save()
 		})
 		It("should change list the task belongs", func() {
 			values := url.Values{}
-			values.Add("to_list_id", strconv.FormatInt(newList.ID, 10))
-			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(listID, 10)+"/tasks/"+strconv.FormatInt(newTask.ID, 10)+"/move_task", values)
+			values.Add("to_list_id", strconv.FormatInt(newList.ListEntity.ListModel.ID, 10))
+			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(listID, 10)+"/tasks/"+strconv.FormatInt(newTask.TaskEntity.TaskModel.ID, 10)+"/move_task", values)
 			Expect(err).To(BeNil())
 			var contents controllers.AllListJSONFormat
 			con, _ := ioutil.ReadAll(res.Body)
@@ -130,21 +130,21 @@ var _ = Describe("TasksController", func() {
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
 			// 初期リストが入るようになったのでそれ以降
 			Expect(contents.Lists[3].ListTasks).To(BeEmpty())
-			Expect(contents.Lists[4].ListTasks[0].ID).To(Equal(newTask.ID))
+			Expect(contents.Lists[4].ListTasks[0].ID).To(Equal(newTask.TaskEntity.TaskModel.ID))
 		})
 	})
 
 	Describe("Update", func() {
-		var newTask *task.TaskStruct
+		var newTask *services.Task
 		JustBeforeEach(func() {
-			newTask = task.NewTask(0, listID, projectID, userID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
-			newTask.Save(nil, nil)
+			newTask = services.NewTask(0, listID, projectID, userID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
+			newTask.Save()
 		})
 		It("should update a task", func() {
 			values := url.Values{}
 			values.Add("title", "updateTitle")
 			values.Add("description", "updateDescription")
-			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(listID, 10)+"/tasks/"+strconv.FormatInt(newTask.ID, 10), values)
+			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(listID, 10)+"/tasks/"+strconv.FormatInt(newTask.TaskEntity.TaskModel.ID, 10), values)
 			Expect(err).To(BeNil())
 			var contents controllers.AllListJSONFormat
 			con, _ := ioutil.ReadAll(res.Body)
@@ -156,14 +156,14 @@ var _ = Describe("TasksController", func() {
 	})
 
 	Describe("Delete", func() {
-		var newTask *task.TaskStruct
+		var newTask *services.Task
 		Context("When a task does not relate issue", func() {
 			JustBeforeEach(func() {
-				newTask = task.NewTask(0, listID, projectID, userID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
-				newTask.Save(nil, nil)
+				newTask = services.NewTask(0, listID, projectID, userID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
+				newTask.Save()
 			})
 			It("should delete a task", func() {
-				req, err := http.NewRequest(http.MethodDelete, ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(listID, 10)+"/tasks/"+strconv.FormatInt(newTask.ID, 10), nil)
+				req, err := http.NewRequest(http.MethodDelete, ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(listID, 10)+"/tasks/"+strconv.FormatInt(newTask.TaskEntity.TaskModel.ID, 10), nil)
 				res, err := http.DefaultClient.Do(req)
 				Expect(err).To(BeNil())
 				Expect(res.StatusCode).To(Equal(http.StatusOK))
@@ -171,11 +171,11 @@ var _ = Describe("TasksController", func() {
 		})
 		Context("When a task relate issue", func() {
 			JustBeforeEach(func() {
-				newTask = task.NewTask(0, listID, projectID, userID, sql.NullInt64{Int64: 1, Valid: true}, "sampleTask", "sampleDescription", false, sql.NullString{})
-				newTask.Save(nil, nil)
+				newTask = services.NewTask(0, listID, projectID, userID, sql.NullInt64{Int64: 1, Valid: true}, "sampleTask", "sampleDescription", false, sql.NullString{})
+				newTask.Save()
 			})
 			It("should not delete a task", func() {
-				req, err := http.NewRequest(http.MethodDelete, ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(listID, 10)+"/tasks/"+strconv.FormatInt(newTask.ID, 10), nil)
+				req, err := http.NewRequest(http.MethodDelete, ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(listID, 10)+"/tasks/"+strconv.FormatInt(newTask.TaskEntity.TaskModel.ID, 10), nil)
 				res, err := http.DefaultClient.Do(req)
 				Expect(err).To(BeNil())
 				Expect(res.StatusCode).To(Equal(http.StatusBadRequest))

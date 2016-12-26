@@ -32,7 +32,7 @@ func Authenticate(id int64, token string) error {
 	var targetID int64
 	err := database.QueryRow("select id from reset_passwords where id = ? and token = ? and expires_at > now();", id, token).Scan(&targetID)
 	if err != nil {
-		return errors.Wrap(err, "sql select error")
+		return errors.Wrap(err, "authenticate error")
 	}
 
 	return nil
@@ -45,7 +45,7 @@ func FindAvailable(id int64, token string) (*ResetPassword, error) {
 	database := db.SharedInstance().Connection
 	err := database.QueryRow("select user_id, expires_at from reset_passwords where id = ? and token = ? and expires_at > now();", id, token).Scan(&userID, &expiresAt)
 	if err != nil {
-		return nil, errors.Wrap(err, "sql select error")
+		return nil, errors.Wrap(err, "find available error")
 	}
 	return New(id, userID, token, expiresAt), nil
 }
@@ -58,7 +58,7 @@ func (r *ResetPassword) initialize() {
 func (r *ResetPassword) Save() error {
 	result, err := r.database.Exec("insert into reset_passwords (user_id, token, expires_at, created_at) values (?, ?, ?, now());", r.UserID, r.Token, r.ExpiresAt)
 	if err != nil {
-		return errors.Wrap(err, "sql execute error")
+		return errors.Wrap(err, "save error")
 	}
 	r.ID, _ = result.LastInsertId()
 	return nil

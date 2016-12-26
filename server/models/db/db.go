@@ -41,7 +41,7 @@ func New() *Database {
 	password = os.ExpandEnv(password)
 	database = os.ExpandEnv(database)
 	host = os.ExpandEnv(host)
-	db, err := sql.Open("mysql", username+":"+password+"@tcp("+host+":3306)/"+database+"?charset=utf8mb4")
+	db, err := sql.Open("mysql", username+":"+password+"@tcp("+host+":3306)/"+database+"?parseTime=true&charset=utf8mb4")
 	if err != nil {
 		panic(err)
 	}
