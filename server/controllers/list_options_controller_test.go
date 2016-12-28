@@ -4,7 +4,6 @@ import (
 	"github.com/h3poteto/fascia/db/seed"
 	. "github.com/h3poteto/fascia/server"
 	"github.com/h3poteto/fascia/server/controllers"
-	"github.com/h3poteto/fascia/server/models/db"
 
 	"encoding/json"
 	. "github.com/onsi/ginkgo"
@@ -27,9 +26,6 @@ var _ = Describe("ListOptionsController", func() {
 	})
 	AfterEach(func() {
 		ts.Close()
-		database := db.SharedInstance().Connection
-		database.Exec("truncate table users:")
-		database.Exec("truncate table list_options;")
 	})
 	JustBeforeEach(func() {
 		userID = LoginFaker(ts, "list_options@example.com", "hogehoge")

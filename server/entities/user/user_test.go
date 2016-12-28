@@ -20,11 +20,6 @@ var _ = Describe("User", func() {
 		seed.Seeds()
 		database = db.SharedInstance().Connection
 	})
-	AfterEach(func() {
-		database.Exec("truncate table users;")
-		database.Exec("truncate table projects;")
-		database.Exec("truncate table list_options;")
-	})
 
 	Describe("Registration", func() {
 		email := "registration@example.com"
@@ -98,36 +93,6 @@ var _ = Describe("User", func() {
 		})
 	})
 
-	/* このテストはservice側で
-	Describe("FindOrCreateGithub", func() {
-		token := os.Getenv("TEST_TOKEN")
-		It("can regist through github", func() {
-			_, err := FindOrCreateFromGithub(token)
-			Expect(err).To(BeNil())
-		})
-		It("after regist through github, can search this user", func() {
-			currentUser, _ := FindOrCreateGithub(token)
-			find_user, _ := FindOrCreateGithub(token)
-			Expect(find_user.ID).To(Equal(currentUser.ID))
-			Expect(find_user.ID).NotTo(BeZero())
-		})
-		Context("after regist with email address", func() {
-			email := "already_regist@example.com"
-			var currentUser *UserStruct
-			BeforeEach(func() {
-				Registration(email, "hogehoge", "hogehoge")
-				currentUser, _ = FindOrCreateGithub(token)
-			})
-			It("should update github information", func() {
-				Expect(currentUser.OauthToken.Valid).To(BeTrue())
-				Expect(currentUser.OauthToken.String).To(Equal(token))
-				Expect(currentUser.Uuid.Valid).To(BeTrue())
-			})
-		})
-
-	})
-	*/
-
 	Describe("Projects", func() {
 		var (
 			newProject  *services.Project
@@ -162,72 +127,4 @@ var _ = Describe("User", func() {
 			Expect(projects[0].ProjectModel.ID).To(Equal(newProject.ProjectEntity.ProjectModel.ID))
 		})
 	})
-
-	/* service側へ
-	Describe("CreateGithubUser", func() {
-		var result error
-		token := os.Getenv("TEST_TOKEN")
-		BeforeEach(func() {
-			newUser := NewUser(0, "", sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
-			ts := oauth2.StaticTokenSource(
-				&oauth2.Token{AccessToken: token},
-			)
-			tc := oauth2.NewClient(oauth2.NoContext, ts)
-			client := github.NewClient(tc)
-			githubUser, _, _ := client.Users.Get("")
-			result = newUser.CreateGithubUser(token, githubUser, "create_github_user@example.com")
-		})
-		It("ユーザが登録されること", func() {
-			rows, err := database.Query("select id, oauth_token from users where oauth_token = ?;", token)
-			Expect(err).To(BeNil())
-			var id int64
-			var oauthToken sql.NullString
-			for rows.Next() {
-				err := rows.Scan(&id, &oauthToken)
-				if err != nil {
-					panic(err)
-				}
-			}
-			Expect(result).To(BeNil())
-			Expect(oauthToken.Valid).To(BeTrue())
-			Expect(id).NotTo(Equal(int64(0)))
-		})
-	})
-
-	Describe("UpdateGithubUserInfo", func() {
-		email := "update_github_user_info@example.com"
-		token := os.Getenv("TEST_TOKEN")
-		var currentUser *UserStruct
-		var result error
-		BeforeEach(func() {
-			id, _ := Registration(email, "hogehoge", "hogehoge")
-			currentUser, _ = CurrentUser(id)
-			ts := oauth2.StaticTokenSource(
-				&oauth2.Token{AccessToken: token},
-			)
-			tc := oauth2.NewClient(oauth2.NoContext, ts)
-			client := github.NewClient(tc)
-			githubUser, _, _ := client.Users.Get("")
-			result = currentUser.UpdateGithubUserInfo(token, githubUser)
-		})
-		It("ユーザ情報がアップデートされること", func() {
-			rows, err := database.Query("select id, uuid, oauth_token from users where email = ?;", email)
-			Expect(err).To(BeNil())
-			var id int64
-			var oauthToken sql.NullString
-			var uuid sql.NullInt64
-			for rows.Next() {
-				err := rows.Scan(&id, &uuid, &oauthToken)
-				if err != nil {
-					panic(err)
-				}
-			}
-			Expect(result).To(BeNil())
-			Expect(oauthToken.Valid).To(BeTrue())
-			Expect(oauthToken.String).To(Equal(token))
-			Expect(uuid.Valid).To(BeTrue())
-			Expect(id).NotTo(Equal(int64(0)))
-		})
-	})
-	*/
 })

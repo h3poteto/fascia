@@ -1,5 +1,7 @@
+.*
 vendor
 bin
 *~
 config/bindata.go
+dockerfiles
 test

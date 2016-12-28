@@ -5,7 +5,6 @@ import (
 	. "github.com/h3poteto/fascia/server"
 	"github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/models/db"
 	"github.com/h3poteto/fascia/server/services"
 
 	"database/sql"
@@ -35,12 +34,6 @@ var _ = Describe("TasksController", func() {
 	})
 	AfterEach(func() {
 		ts.Close()
-		database := db.SharedInstance().Connection
-		database.Exec("truncate table users;")
-		database.Exec("truncate table projects;")
-		database.Exec("truncate table lists;")
-		database.Exec("truncate table tasks;")
-		database.Exec("truncate table list_options;")
 	})
 	JustBeforeEach(func() {
 		seed.Seeds()

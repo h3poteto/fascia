@@ -29,7 +29,6 @@ var _ = Describe("GithubController", func() {
 	})
 	AfterEach(func() {
 		ts.Close()
-		database.Exec("truncate table users;")
 	})
 	JustBeforeEach(func() {
 		LoginFaker(ts, userEmail, "hogehoge")

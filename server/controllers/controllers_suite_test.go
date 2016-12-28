@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/flosch/pongo2"
+	"github.com/h3poteto/fascia/db/seed"
 	. "github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/filters"
 	"github.com/h3poteto/fascia/server/handlers"
@@ -19,6 +20,12 @@ import (
 
 func TestControllers(t *testing.T) {
 	RegisterFailHandler(Fail)
+	AfterEach(func() {
+		err := seed.TruncateAll()
+		if err != nil {
+			panic(err)
+		}
+	})
 	RunSpecs(t, "Controllers Suite")
 }
 

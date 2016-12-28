@@ -1,11 +1,8 @@
 package reset_password_test
 
 import (
-	"database/sql"
-
 	. "github.com/h3poteto/fascia/server/entities/reset_password"
 	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/models/db"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -13,7 +10,6 @@ import (
 var _ = Describe("ResetPassword", func() {
 	var (
 		resetPassword *ResetPassword
-		database      *sql.DB
 		password      string
 		email         string
 	)
@@ -24,16 +20,11 @@ var _ = Describe("ResetPassword", func() {
 		if err != nil {
 			panic(err)
 		}
-		database = db.SharedInstance().Connection
 		resetPassword, err = GenerateResetPassword(user.UserEntity.UserModel.ID, email)
 		err = resetPassword.Save()
 		if err != nil {
 			panic(err)
 		}
-	})
-	AfterEach(func() {
-		database.Exec("truncate table users;")
-		database.Exec("truncate table reset_passwords;")
 	})
 
 	Describe("Authenticate", func() {

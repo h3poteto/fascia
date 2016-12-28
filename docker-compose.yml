@@ -24,7 +24,6 @@ services:
     build: dockerfiles/development/fascia
     env_file: .docker-env
     volumes:
-      - ~/.ssh:/root/.ssh
       - .:/go/src/github.com/h3poteto/fascia
     links:
       - mysql:mysql

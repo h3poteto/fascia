@@ -3,27 +3,14 @@ package repository_test
 import (
 	"crypto/hmac"
 	"crypto/sha1"
-	"database/sql"
 	"encoding/hex"
 	. "github.com/h3poteto/fascia/server/entities/repository"
-	"github.com/h3poteto/fascia/server/models/db"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Repository", func() {
-	var (
-		database *sql.DB
-	)
-	BeforeEach(func() {
-		database = db.SharedInstance().Connection
-	})
-	AfterEach(func() {
-		database.Exec("truncate table users;")
-		database.Exec("truncate table repositories;")
-	})
-
 	Describe("Save", func() {
 		repositoryID := int64(123456)
 		It("should create repository", func() {

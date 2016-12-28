@@ -27,7 +27,6 @@ var _ = Describe("RegistrationsController", func() {
 	})
 	AfterEach(func() {
 		ts.Close()
-		database.Exec("truncate table users;")
 	})
 	JustBeforeEach(func() {
 		database = db.SharedInstance().Connection

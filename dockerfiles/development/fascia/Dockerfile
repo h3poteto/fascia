@@ -1,20 +1,26 @@
-FROM golang:1.7.3-alpine
+FROM golang:1.7.4-alpine
 
-RUN apk add --no-cache \
+RUN set -x \
+    && apk add --no-cache \
     git \
     build-base \
-    openssh
+    mysql-client
 
 ENV GOPATH /go
 ENV GOJIROOT ${GOPATH}/src/github.com/h3poteto/fascia
-RUN mkdir -p ${GOJIROOT}
+ENV GOJIENV development
+
+RUN set -x \
+    && adduser -D -u 1000 go \
+    && echo 'go:password' | chpasswd \
+    && mkdir -p ${GOJIROOT} \
+    && chown -R go:go /go
 
 WORKDIR ${GOJIROOT}
+USER go
 
 RUN go get -u github.com/mattn/gom
 RUN go get -u github.com/jteeuwen/go-bindata/...
-
-ENV GOJIENV development
 
 EXPOSE 9090:9090
 

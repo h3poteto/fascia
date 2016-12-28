@@ -1,4 +1,4 @@
-package list_option_test
+package services_test
 
 import (
 	"github.com/h3poteto/fascia/db/seed"
@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestListOption(t *testing.T) {
+func TestServices(t *testing.T) {
 	RegisterFailHandler(Fail)
 	AfterEach(func() {
 		err := seed.TruncateAll()
@@ -16,5 +16,5 @@ func TestListOption(t *testing.T) {
 			panic(err)
 		}
 	})
-	RunSpecs(t, "ListOption Suite")
+	RunSpecs(t, "Services Suite")
 }
