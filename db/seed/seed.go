@@ -9,6 +9,21 @@ func Seeds() error {
 	return listOptions()
 }
 
+// TruncateAll remove all records in database
+func TruncateAll() error {
+	database := db.SharedInstance().Connection
+
+	tables := []string{"list_options", "tasks", "lists", "projects", "repositories", "reset_passwords", "users"}
+	for _, t := range tables {
+		_, err := database.Exec("TRUNCATE TABLE " + t + ";")
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func listOptions() error {
 	database := db.SharedInstance().Connection
 

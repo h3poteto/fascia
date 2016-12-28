@@ -29,13 +29,6 @@ var _ = Describe("List", func() {
 		projectService, _ = handlers.CreateProject(user.UserEntity.UserModel.ID, "title", "desc", 0, sql.NullString{})
 		newList = New(0, projectService.ProjectEntity.ProjectModel.ID, projectService.ProjectEntity.ProjectModel.UserID, "list title", "", sql.NullInt64{}, false)
 	})
-	AfterEach(func() {
-		database.Exec("truncate table users;")
-		database.Exec("truncate table projects;")
-		database.Exec("truncate table lists;")
-		database.Exec("truncate table tasks;")
-		database.Exec("truncate table list_options;")
-	})
 
 	Describe("Save", func() {
 		It("can registrate list", func() {

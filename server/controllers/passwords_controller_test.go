@@ -4,7 +4,6 @@ import (
 	. "github.com/h3poteto/fascia/server"
 	"github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/models/db"
 	"github.com/h3poteto/fascia/server/services"
 
 	"net/http"
@@ -32,9 +31,6 @@ var _ = Describe("PasswordsController", func() {
 	})
 	AfterEach(func() {
 		ts.Close()
-		database := db.SharedInstance().Connection
-		database.Exec("truncate table users;")
-		database.Exec("truncate table reset_passwords;")
 	})
 	JustBeforeEach(func() {
 		email = "hoge@example.com"

@@ -20,11 +20,6 @@ var _ = Describe("User", func() {
 		seed.Seeds()
 		database = db.SharedInstance().Connection
 	})
-	AfterEach(func() {
-		database.Exec("truncate table users;")
-		database.Exec("truncate table projects;")
-		database.Exec("truncate table list_options;")
-	})
 
 	Describe("Registration", func() {
 		email := "registration@example.com"

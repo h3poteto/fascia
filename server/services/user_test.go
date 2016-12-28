@@ -1,27 +1,14 @@
 package services_test
 
 import (
-	"database/sql"
-	"os"
-
-	"github.com/h3poteto/fascia/server/models/db"
 	. "github.com/h3poteto/fascia/server/services"
+	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("User", func() {
-	var (
-		database *sql.DB
-	)
-	BeforeEach(func() {
-		database = db.SharedInstance().Connection
-	})
-	AfterEach(func() {
-		database.Exec("truncate table users;")
-	})
-
 	Describe("FindOrCreateUserFromGithub", func() {
 		token := os.Getenv("TEST_TOKEN")
 		Context("after registration from github", func() {

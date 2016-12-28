@@ -30,13 +30,6 @@ var _ = Describe("Task", func() {
 		listService.Save()
 		newTask = New(0, listService.ListEntity.ListModel.ID, projectService.ProjectEntity.ProjectModel.ID, listService.ListEntity.ListModel.UserID, sql.NullInt64{}, "task title", "task description", false, sql.NullString{})
 	})
-	AfterEach(func() {
-		database.Exec("truncate table users;")
-		database.Exec("truncate table projects;")
-		database.Exec("truncate table lists;")
-		database.Exec("truncate table tasks;")
-		database.Exec("truncate table list_options;")
-	})
 
 	Describe("Save", func() {
 		It("can regist list", func() {

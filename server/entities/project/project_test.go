@@ -31,13 +31,6 @@ var _ = Describe("Project", func() {
 		uid = user.UserEntity.UserModel.ID
 		database = db.SharedInstance().Connection
 	})
-	AfterEach(func() {
-		database.Exec("truncate table users;")
-		database.Exec("truncate table projects;")
-		database.Exec("truncate table repositories;")
-		database.Exec("truncate table lists;")
-		database.Exec("truncate table list_options;")
-	})
 
 	Describe("Update", func() {
 		BeforeEach(func() {
