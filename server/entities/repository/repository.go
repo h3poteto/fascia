@@ -40,10 +40,10 @@ func FindByGithubRepoID(id int64) (*Repository, error) {
 }
 
 // CreateRepository create repository record based on github repository
-func CreateRepository(ID int, oauthToken string) (*Repository, error) {
+func CreateRepository(id int, oauthToken string) (*Repository, error) {
 	// confirm github
 	h := hub.New(oauthToken)
-	githubRepo, err := h.GetRepository(ID)
+	githubRepo, err := h.GetRepository(id)
 	if err != nil {
 		return nil, err
 	}
