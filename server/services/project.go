@@ -38,12 +38,17 @@ func FindProject(projectID int64) (*Project, error) {
 }
 
 // FindProjectByRepositoryID search project according to repository id
-func FindProjectByRepositoryID(repositoryID int64) (*Project, error) {
-	projectEntity, err := project.FindByRepositoryID(repositoryID)
+func FindProjectByRepositoryID(repositoryID int64) ([]*Project, error) {
+	projectEntities, err := project.FindByRepositoryID(repositoryID)
 	if err != nil {
 		return nil, err
 	}
-	return NewProject(projectEntity), nil
+	var slice []*Project
+	for _, e := range projectEntities {
+		p := NewProject(e)
+		slice = append(slice, p)
+	}
+	return slice, nil
 }
 
 // CheckOwner check project owner as user

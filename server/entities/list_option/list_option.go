@@ -27,13 +27,13 @@ func New(id int64, action string) *ListOption {
 func ListOptionAll() ([]*ListOption, error) {
 	database := db.SharedInstance().Connection
 	var slice []*ListOption
-	var id int64
-	var action string
 	rows, err := database.Query("select id, action from list_options;")
 	if err != nil {
 		return slice, errors.Wrap(err, "sql select error")
 	}
 	for rows.Next() {
+		var id int64
+		var action string
 		err = rows.Scan(&id, &action)
 		if err != nil {
 			return nil, errors.Wrap(err, "sql select error")

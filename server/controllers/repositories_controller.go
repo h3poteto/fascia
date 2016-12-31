@@ -7,10 +7,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"strings"
 
 	"github.com/google/go-github/github"
-	"github.com/pkg/errors"
 	"github.com/zenazn/goji/web"
 )
 
@@ -50,21 +48,10 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "repository authenticate failed", 404)
 			return
 		}
-		// TODO: project:repositoryは必ずしも1:1にならない．そのため，ここは複数project対応にする必要がある
-		projectService, err := handlers.FindProjectByRepositoryID(repo.RepositoryEntity.RepositoryModel.ID)
+		err = handlers.ApplyIssueChangesToRepository(repo, githubBody)
 		if err != nil {
-			logging.SharedInstance().MethodInfoWithStacktrace("Repositories", "Hook", err, c).Errorf("cannot find project: %v", err)
-			http.Error(w, "project not found", 404)
-			return
-		}
-		err = projectService.ApplyIssueChanges(githubBody)
-		if err != nil && !u.includeDuplicateError(err) {
-			if u.includeDuplicateError(err) {
-				logging.SharedInstance().MethodInfo("Repositories", "Hook", c).Warn(err)
-				return
-			}
-			logging.SharedInstance().MethodInfoWithStacktrace("Repositories", "Hook", err, c).Errorf("cannot handle issue event: %v", err)
-			http.Error(w, "Internal Server Error", 500)
+			logging.SharedInstance().MethodInfoWithStacktrace("Repositories", "Hook", err, c).Error("could not apply issue changes: %v", err)
+			http.Error(w, "could not apply issue changes", 500)
 			return
 		}
 		logging.SharedInstance().MethodInfo("Repositories", "Hook", c).Info("success apply issues event from webhook")
@@ -87,31 +74,14 @@ func (u *Repositories) Hook(c web.C, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		projectService, err := handlers.FindProjectByRepositoryID(repo.RepositoryEntity.RepositoryModel.ID)
+		err = handlers.ApplyPullRequestChangesToRepository(repo, githubBody)
 		if err != nil {
-			logging.SharedInstance().MethodInfoWithStacktrace("Repositories", "Hook", err, c).Errorf("cannot find project: %v", err)
-			http.Error(w, "project not found", 404)
-			return
-		}
-		err = projectService.ApplyPullRequestChanges(githubBody)
-		if err != nil {
-			if u.includeDuplicateError(err) {
-				logging.SharedInstance().MethodInfo("Repositories", "Hook", c).Warn(err)
-				return
-			}
-			logging.SharedInstance().MethodInfoWithStacktrace("Repositories", "Hook", err, c).Errorf("cannot handle pull request event: %v", err)
-			http.Error(w, "Internal Server Error", 500)
+			logging.SharedInstance().MethodInfoWithStacktrace("Repositories", "Hook", err, c).Errorf("could not apply pull request changes: %v", err)
+			http.Error(w, "could not apply pull request changes", 500)
 			return
 		}
 		logging.SharedInstance().MethodInfo("Repositories", "Hook", c).Info("success apply pull request event from webhook")
 	}
 
 	return
-}
-
-func (u *Repositories) includeDuplicateError(err error) bool {
-	if strings.Index(errors.Cause(err).Error(), "Error 1062") == 0 {
-		return true
-	}
-	return false
 }

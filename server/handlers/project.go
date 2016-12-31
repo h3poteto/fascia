@@ -46,6 +46,6 @@ func FindProject(projectID int64) (*services.Project, error) {
 }
 
 // FindProjectByRepositoryID search a project according to repository id
-func FindProjectByRepositoryID(repositoryID int64) (*services.Project, error) {
+func FindProjectByRepositoryID(repositoryID int64) ([]*services.Project, error) {
 	return services.FindProjectByRepositoryID(repositoryID)
 }
