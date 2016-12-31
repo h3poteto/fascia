@@ -14,6 +14,7 @@ func FindRepositoryByGithubRepoID(id int64) (*services.Repository, error) {
 	return services.FindRepositoryByGithubRepoID(id)
 }
 
+// ApplyIssueChangesToRepository apply updating information of issue to each task
 func ApplyIssueChangesToRepository(repository *services.Repository, githubBody github.IssuesEvent) error {
 	projectServices, err := services.FindProjectByRepositoryID(repository.RepositoryEntity.RepositoryModel.ID)
 	if err != nil {
@@ -32,6 +33,7 @@ func ApplyIssueChangesToRepository(repository *services.Repository, githubBody g
 	return nil
 }
 
+// ApplyPullRequestChangesToRepository apply updating information of pull request to each task
 func ApplyPullRequestChangesToRepository(repository *services.Repository, githubBody github.PullRequestEvent) error {
 
 	projectServices, err := services.FindProjectByRepositoryID(repository.RepositoryEntity.RepositoryModel.ID)
