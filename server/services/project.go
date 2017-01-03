@@ -108,6 +108,14 @@ func (p *Project) CreateWebhook() error {
 	if err != nil {
 		return err
 	}
+	// すでに存在する場合はupdateを叩く
+	hook, err := repo.SearchWebhook(oauthToken, url)
+	if err != nil {
+		return err
+	}
+	if hook != nil {
+		return repo.UpdateWebhook(oauthToken, url, hook)
+	}
 	return repo.CreateWebhook(oauthToken, url)
 }
 
