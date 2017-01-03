@@ -195,6 +195,7 @@ func EditWebhook(token, owner, name, secret, url string, hook *github.Hook) erro
 	return nil
 }
 
+// ListWebhooks list all webhooks in github repository
 func ListWebhooks(token, owner, name string) ([]*github.Hook, error) {
 	client := prepareClient(token)
 
