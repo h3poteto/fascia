@@ -48,21 +48,29 @@ func Find(projectID int64) (*Project, error) {
 	return project, nil
 }
 
-// FindByRepositoryID search a project according to repository id
-func FindByRepositoryID(repoID int64) (*Project, error) {
+// FindByRepositoryID search projects according to repository id
+func FindByRepositoryID(repoID int64) ([]*Project, error) {
 	database := db.SharedInstance().Connection
 
-	var id, userID int64
-	var repositoryID sql.NullInt64
-	var title string
-	var description string
-	var showIssues, showPullRequests bool
-	err := database.QueryRow("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where repository_id = ?;", repoID).Scan(&id, &userID, &repositoryID, &title, &description, &showIssues, &showPullRequests)
+	var slice []*Project
+	rows, err := database.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where repository_id = ?;", repoID)
 	if err != nil {
-		return nil, errors.Wrap(err, "sql select error")
+		return nil, errors.Wrap(err, "find project error")
 	}
-	project := New(id, userID, title, description, repositoryID, showIssues, showPullRequests)
-	return project, nil
+	for rows.Next() {
+		var id, userID int64
+		var repositoryID sql.NullInt64
+		var title string
+		var description string
+		var showIssues, showPullRequests bool
+		err = rows.Scan(&id, &userID, &repositoryID, &title, &description, &showIssues, &showPullRequests)
+		if err != nil {
+			return nil, errors.Wrap(err, "scan project error")
+		}
+		p := New(id, userID, title, description, repositoryID, showIssues, showPullRequests)
+		slice = append(slice, p)
+	}
+	return slice, nil
 }
 
 func (p *Project) initialize() {

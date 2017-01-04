@@ -38,12 +38,17 @@ func FindProject(projectID int64) (*Project, error) {
 }
 
 // FindProjectByRepositoryID search project according to repository id
-func FindProjectByRepositoryID(repositoryID int64) (*Project, error) {
-	projectEntity, err := project.FindByRepositoryID(repositoryID)
+func FindProjectByRepositoryID(repositoryID int64) ([]*Project, error) {
+	projectEntities, err := project.FindByRepositoryID(repositoryID)
 	if err != nil {
 		return nil, err
 	}
-	return NewProject(projectEntity), nil
+	var slice []*Project
+	for _, e := range projectEntities {
+		p := NewProject(e)
+		slice = append(slice, p)
+	}
+	return slice, nil
 }
 
 // CheckOwner check project owner as user
@@ -58,11 +63,14 @@ func (p *Project) CheckOwner(userID int64) bool {
 func (p *Project) Create(userID int64, title string, description string, repositoryID int, oauthToken sql.NullString) (*project.Project, error) {
 	var repoID sql.NullInt64
 	if repositoryID != 0 && oauthToken.Valid {
-		// TODO: repository:projectは1:多なので，unique制約に引っかかって失敗する可能性がある
-		// そのため先にselectをかけて存在しない場合のみcreateしたい
-		repo, err := repository.CreateRepository(repositoryID, oauthToken.String)
+		// repository:projectは1:多なので，repositoryがすでに存在している可能性はある
+		// そのため先にselectをかけて存在しない場合のみcreateする
+		repo, err := repository.FindByGithubRepoID(int64(repositoryID))
 		if err != nil {
-			return nil, err
+			repo, err = repository.CreateRepository(repositoryID, oauthToken.String)
+			if err != nil {
+				return nil, err
+			}
 		}
 		repoID = sql.NullInt64{Int64: repo.RepositoryModel.ID, Valid: true}
 	}

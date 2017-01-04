@@ -43,16 +43,21 @@ func Find(id int64) (*Project, error) {
 	}, nil
 }
 
-// FindByRepositoryID returns a project entity
-func FindByRepositoryID(repositoryID int64) (*Project, error) {
-	p, err := project.FindByRepositoryID(repositoryID)
+// FindByRepositoryID returns project entities
+func FindByRepositoryID(repositoryID int64) ([]*Project, error) {
+	projects, err := project.FindByRepositoryID(repositoryID)
 	if err != nil {
 		return nil, err
 	}
-	return &Project{
-		ProjectModel: p,
-		database:     db.SharedInstance().Connection,
-	}, nil
+	var slice []*Project
+	for _, m := range projects {
+		p := &Project{
+			ProjectModel: m,
+			database:     db.SharedInstance().Connection,
+		}
+		slice = append(slice, p)
+	}
+	return slice, nil
 }
 
 // Save call project model save
