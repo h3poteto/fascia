@@ -49,3 +49,27 @@ func (r *Repository) ListLabels(token string) ([]*github.Label, error) {
 func (r *Repository) CreateWebhook(token, url string) error {
 	return hub.CreateWebhook(token, r.RepositoryModel.Owner.String, r.RepositoryModel.Name.String, r.RepositoryModel.WebhookKey, url)
 }
+
+// UpdateWebhook update a exist webhook in github
+func (r *Repository) UpdateWebhook(token, url string, hook *github.Hook) error {
+	return hub.EditWebhook(token, r.RepositoryModel.Owner.String, r.RepositoryModel.Name.String, r.RepositoryModel.WebhookKey, url, hook)
+}
+
+func (r *Repository) listWebhooks(token string) ([]*github.Hook, error) {
+	return hub.ListWebhooks(token, r.RepositoryModel.Owner.String, r.RepositoryModel.Name.String)
+}
+
+// SearchWebhook search a webhook according to configured url
+func (r *Repository) SearchWebhook(token, url string) (*github.Hook, error) {
+	hooks, err := r.listWebhooks(token)
+	if err != nil {
+		return nil, err
+	}
+	for _, h := range hooks {
+		config := h.Config
+		if config["url"].(string) == url {
+			return h, nil
+		}
+	}
+	return nil, nil
+}

@@ -175,6 +175,51 @@ func IsPullRequest(issue *github.Issue) bool {
 func CreateWebhook(token, owner, name, secret, url string) error {
 	client := prepareClient(token)
 
+	hook := webHook(secret, url)
+	_, _, err := client.Repositories.CreateHook(owner, name, hook)
+	if err != nil {
+		return errors.Wrap(err, "CreateWebhook error")
+	}
+	return nil
+}
+
+// EditWebhook update a webhook in a github repository
+func EditWebhook(token, owner, name, secret, url string, hook *github.Hook) error {
+	client := prepareClient(token)
+
+	editHook := webHook(secret, url)
+	_, _, err := client.Repositories.EditHook(owner, name, *hook.ID, editHook)
+	if err != nil {
+		return errors.Wrap(err, "EditWebhook error")
+	}
+	return nil
+}
+
+// ListWebhooks list all webhooks in github repository
+func ListWebhooks(token, owner, name string) ([]*github.Hook, error) {
+	client := prepareClient(token)
+
+	listOptions := &github.ListOptions{
+		Page:    1,
+		PerPage: 100,
+	}
+	hooks, _, err := client.Repositories.ListHooks(owner, name, listOptions)
+	if err != nil {
+		return nil, errors.Wrap(err, "ListHooks error")
+	}
+	return hooks, nil
+}
+
+func prepareClient(token string) *github.Client {
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(oauth2.NoContext, ts)
+	client := github.NewClient(tc)
+	return client
+}
+
+func webHook(secret, url string) *github.Hook {
 	hookName := "web"
 	active := true
 	hookConfig := map[string]interface{}{
@@ -183,7 +228,7 @@ func CreateWebhook(token, owner, name, secret, url string) error {
 		"secret":       secret,
 	}
 
-	hook := github.Hook{
+	return &github.Hook{
 		Name: &hookName,
 		URL:  &url,
 		Events: []string{
@@ -199,18 +244,4 @@ func CreateWebhook(token, owner, name, secret, url string) error {
 		Active: &active,
 		Config: hookConfig,
 	}
-	_, _, err := client.Repositories.CreateHook(owner, name, &hook)
-	if err != nil {
-		return errors.Wrap(err, "response is error")
-	}
-	return nil
-}
-
-func prepareClient(token string) *github.Client {
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(oauth2.NoContext, ts)
-	client := github.NewClient(tc)
-	return client
 }
