@@ -60,7 +60,7 @@ class NewTaskModal extends React.Component {
               <Field name="description" id="description" component="textarea" placeholder="Task description" className="form-control" />
               <div className="form-action">
                 <button type="reset" className="pure-button pure-button-default" disabled={pristine || submitting} onClick={reset}>Reset</button>
-                <button type="submit" className="pure-button pure-button-primary" disabled={pristine || submitting}>Create List</button>
+                <button type="submit" className="pure-button pure-button-primary" disabled={pristine || submitting}>Create Task</button>
               </div>
             </fieldset>
           </form>
