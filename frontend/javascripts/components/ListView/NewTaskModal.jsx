@@ -79,7 +79,7 @@ NewTaskModal.propTypes = {
   onRequestClose: React.PropTypes.func.isRequired,
   action: React.PropTypes.func.isRequired,
   projectID: React.PropTypes.string.isRequired,
-  listID: React.PropTypes.string,
+  listID: React.PropTypes.number,
   isTaskModalOpen: React.PropTypes.bool.isRequired,
 }
 

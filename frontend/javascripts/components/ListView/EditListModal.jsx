@@ -34,7 +34,7 @@ class EditListModal extends React.Component {
     const initData = {
       'title': props.list.Title,
       'color': props.list.Color,
-      'option_id': props.list.OptionID,
+      'option_id': props.list.ListOptionID,
     }
 
     this.props.initialize(initData)
