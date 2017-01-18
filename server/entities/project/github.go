@@ -170,7 +170,6 @@ func (p *Project) CreateNewTask(issue *github.Issue) error {
 		return err
 	}
 	return nil
-
 }
 
 func (p *Project) applyListToTask(issueTask *task.Task, issue *github.Issue) (*task.Task, error) {

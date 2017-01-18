@@ -237,7 +237,12 @@ func (p *Project) ApplyPullRequestChanges(body github.PullRequestEvent) error {
 	if err != nil {
 		return err
 	}
+	// CreateNewTaskをするためには，*github.Issueである必要があるが，ここで取得できるのは*github.PullRequestのみなので，なんとかして変換する必要がある
+	// そのため問答無用で一度issueを取得し直す
 	issue, err := repo.GetGithubIssue(oauthToken, *body.Number)
+	if err != nil {
+		return err
+	}
 
 	switch *body.Action {
 	case "opened", "reopened":
