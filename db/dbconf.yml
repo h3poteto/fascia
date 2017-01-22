@@ -4,7 +4,7 @@ test:
     name: $DB_TEST_NAME
     user: $DB_USER
     password: $DB_PASSWORD
-    pool: 5
+    pool: 0
     open: tcp:$DATABASE_URL:3306*$DB_TEST_NAME/$DB_USER/$DB_PASSWORD
 
 development:
