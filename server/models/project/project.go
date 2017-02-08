@@ -106,3 +106,11 @@ func (p *Project) Update(title string, description string, showIssues bool, show
 
 	return nil
 }
+
+func (p *Project) Delete() error {
+	_, err := p.database.Exec("DELETE FROM projects WHERE id = ?;", p.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}

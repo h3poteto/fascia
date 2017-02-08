@@ -110,3 +110,11 @@ func (l *List) Display() error {
 	l.IsHidden = false
 	return nil
 }
+
+func (l *List) Delete() error {
+	_, err := l.database.Exec("DELETE FROM lists WHERE id = ?;", l.ID)
+	if err != nil {
+		return errors.Wrap(err, "list delete error")
+	}
+	return nil
+}

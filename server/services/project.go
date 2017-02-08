@@ -112,9 +112,12 @@ func (p *Project) CreateWebhook() error {
 	}
 
 	url := fmt.Sprintf("%s://%s/repositories/hooks/github", config.Element("protocol").(string), config.Element("fqdn"))
-	repo, err := p.ProjectEntity.Repository()
+	repo, find, err := p.ProjectEntity.Repository()
 	if err != nil {
 		return err
+	}
+	if !find {
+		return nil
 	}
 	// すでに存在する場合はupdateを叩く
 	hook, err := repo.SearchWebhook(oauthToken, url)
@@ -127,12 +130,39 @@ func (p *Project) CreateWebhook() error {
 	return repo.CreateWebhook(oauthToken, url)
 }
 
+func (p *Project) DeleteWebhook() error {
+	oauthToken, err := p.ProjectEntity.OauthToken()
+	if err != nil {
+		return err
+	}
+
+	url := fmt.Sprintf("%s://%s/repositories/hooks/github", config.Element("protocol").(string), config.Element("fqdn"))
+	repo, find, err := p.ProjectEntity.Repository()
+	if err != nil {
+		return err
+	}
+	if !find {
+		return nil
+	}
+	hook, err := repo.SearchWebhook(oauthToken, url)
+	if err != nil {
+		return err
+	}
+	if hook != nil {
+		return repo.DeleteWebhook(oauthToken, hook)
+	}
+	return nil
+}
+
 // FetchGithub fetch all lists and all tasks
 func (p *Project) FetchGithub() (bool, error) {
-	repo, err := p.ProjectEntity.Repository()
+	repo, find, err := p.ProjectEntity.Repository()
 	// user自体はgithub連携していても，projectが連携していない可能性もあるのでチェック
 	if err != nil {
 		return false, err
+	}
+	if !find {
+		return false, nil
 	}
 
 	oauthToken, err := p.ProjectEntity.OauthToken()
@@ -233,9 +263,12 @@ func (p *Project) ApplyPullRequestChanges(body github.PullRequestEvent) error {
 		return err
 	}
 
-	repo, err := p.ProjectEntity.Repository()
+	repo, find, err := p.ProjectEntity.Repository()
 	if err != nil {
 		return err
+	}
+	if !find {
+		return nil
 	}
 	// CreateNewTaskをするためには，*github.Issueである必要があるが，ここで取得できるのは*github.PullRequestのみなので，なんとかして変換する必要がある
 	// そのため問答無用で一度issueを取得し直す
@@ -259,9 +292,12 @@ func (p *Project) ApplyPullRequestChanges(body github.PullRequestEvent) error {
 
 // FetchCreatedInitialList fetch initial list to github
 func (p *Project) FetchCreatedInitialList() error {
-	repo, err := p.ProjectEntity.Repository()
+	repo, find, err := p.ProjectEntity.Repository()
 	if err != nil {
 		return err
+	}
+	if !find {
+		return nil
 	}
 
 	oauthToken, err := p.ProjectEntity.OauthToken()
@@ -285,6 +321,22 @@ func (p *Project) FetchCreatedInitialList() error {
 		if err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func (p *Project) DeleteLists() error {
+	err := p.ProjectEntity.DeleteLists()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *Project) Delete() error {
+	err := p.ProjectEntity.Delete()
+	if err != nil {
+		return err
 	}
 	return nil
 }

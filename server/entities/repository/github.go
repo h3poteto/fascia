@@ -73,3 +73,7 @@ func (r *Repository) SearchWebhook(token, url string) (*github.Hook, error) {
 	}
 	return nil, nil
 }
+
+func (r *Repository) DeleteWebhook(token string, hook *github.Hook) error {
+	return hub.DeleteWebhook(token, r.RepositoryModel.Owner.String, r.RepositoryModel.Name.String, hook)
+}

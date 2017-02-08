@@ -61,8 +61,13 @@ func (u *Projects) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	jsonProjects := make([]*ProjectJSONFormat, 0)
 	for _, p := range projects {
 		var repositoryID int64
-		repo, err := p.ProjectEntity.Repository()
-		if err == nil {
+		repo, find, err := p.ProjectEntity.Repository()
+		if err != nil {
+			logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Index", err, c).Error(err)
+			http.Error(w, "Internal server error", 500)
+			return
+		}
+		if find {
 			repositoryID = repo.RepositoryModel.ID
 		}
 		jsonProjects = append(jsonProjects, &ProjectJSONFormat{
@@ -101,8 +106,13 @@ func (u *Projects) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var repoID int64
-	repo, err := projectService.ProjectEntity.Repository()
-	if err == nil {
+	repo, find, err := projectService.ProjectEntity.Repository()
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Show", c).Error(err)
+		http.Error(w, "Internal server error", 500)
+		return
+	}
+	if find {
 		repoID = repo.RepositoryModel.ID
 	}
 	jsonProject := ProjectJSONFormat{
@@ -169,8 +179,13 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var repositoryID int64
-	repo, err := projectService.ProjectEntity.Repository()
-	if err == nil {
+	repo, find, err := projectService.ProjectEntity.Repository()
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Create", err, c).Error(err)
+		http.Error(w, "Internal server error", 500)
+		return
+	}
+	if find {
 		repositoryID = repo.RepositoryModel.ID
 	}
 	jsonProject := ProjectJSONFormat{
@@ -245,8 +260,13 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Update", c).Info("success to update project")
 	var repositoryID int64
-	repo, err := projectService.ProjectEntity.Repository()
-	if err == nil {
+	repo, find, err := projectService.ProjectEntity.Repository()
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Update", c).Error(err)
+		http.Error(w, "Internal server error", 500)
+		return
+	}
+	if find {
 		repositoryID = repo.RepositoryModel.ID
 	}
 	jsonProject := ProjectJSONFormat{
@@ -312,8 +332,13 @@ func (u *Projects) Settings(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Settings", c).Info("success to update project")
 	var repositoryID int64
-	repo, err := projectService.ProjectEntity.Repository()
-	if err == nil {
+	repo, find, err := projectService.ProjectEntity.Repository()
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Settings", c).Error(err)
+		http.Error(w, "Internal server error", 500)
+		return
+	}
+	if find {
 		repositoryID = repo.RepositoryModel.ID
 	}
 	jsonProject := ProjectJSONFormat{
@@ -410,8 +435,13 @@ func (u *Projects) Webhook(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = projectService.ProjectEntity.Repository()
+	_, find, err := projectService.ProjectEntity.Repository()
 	if err != nil {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook", c).Error(err)
+		http.Error(w, "Internal server error", 500)
+		return
+	}
+	if !find {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook", c).Warn("repository not found: %v", err)
 		http.Error(w, "repository not found", 404)
 		return
@@ -423,5 +453,36 @@ func (u *Projects) Webhook(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Webhook", c).Info("success to create webhook")
+	return
+}
+
+func (u *Projects) Destroy(c web.C, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	currentUser, err := LoginRequired(r)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Destroy", c).Infof("login error: %v", err)
+		http.Error(w, "not logined", 401)
+		return
+	}
+	projectID, err := strconv.ParseInt(c.URLParams["project_id"], 10, 64)
+	if err != nil {
+		err := errors.Wrap(err, "parse error")
+		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Destroy", err, c).Error(err)
+		http.Error(w, "project not found", 404)
+		return
+	}
+	projectService, err := handlers.FindProject(projectID)
+	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Destroy", c).Warnf("project not found: %v", err)
+		http.Error(w, "project not found", 404)
+		return
+	}
+
+	err = handlers.DestroyProject(projectID)
+	if err != nil {
+		logging.SharedInstance().MethodInfo("ProjectsController", "Destroy", c).Errorf("project destroy error: %v", err)
+		http.Error(w, "cannot destroy project", 500)
+		return
+	}
 	return
 }
