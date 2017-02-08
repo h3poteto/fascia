@@ -50,6 +50,7 @@ func FindProjectByRepositoryID(repositoryID int64) ([]*services.Project, error) 
 	return services.FindProjectByRepositoryID(repositoryID)
 }
 
+// DestroyProject delete project and delete webhook
 func DestroyProject(projectID int64) error {
 	projectService, err := FindProject(projectID)
 	if err != nil {

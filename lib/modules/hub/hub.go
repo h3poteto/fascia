@@ -210,6 +210,7 @@ func ListWebhooks(token, owner, name string) ([]*github.Hook, error) {
 	return hooks, nil
 }
 
+// DeleteWebhook delete a webhook in github repository
 func DeleteWebhook(token, owner, name string, hook *github.Hook) error {
 	client := prepareClient(token)
 

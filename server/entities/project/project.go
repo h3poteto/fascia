@@ -216,6 +216,7 @@ func (p *Project) Repository() (*repository.Repository, bool, error) {
 	return nil, false, nil
 }
 
+// DeleteLists delete all lists related a project
 func (p *Project) DeleteLists() error {
 	lists, err := p.Lists()
 	if err != nil {
@@ -239,6 +240,7 @@ func (p *Project) DeleteLists() error {
 	return noneList.Delete()
 }
 
+// Delete delete a project model
 func (p *Project) Delete() error {
 	err := p.ProjectModel.Delete()
 	if err != nil {

@@ -143,6 +143,7 @@ func (l *List) HasCloseAction() (bool, error) {
 	return option.IsCloseAction(), nil
 }
 
+// DeleteTasks delete all tasks related a list
 func (l *List) DeleteTasks() error {
 	_, err := l.database.Exec("DELETE FROM tasks WHERE list_id = ?;", l.ListModel.ID)
 	if err != nil {
@@ -151,6 +152,7 @@ func (l *List) DeleteTasks() error {
 	return nil
 }
 
+// Delete delete a list model
 func (l *List) Delete() error {
 	err := l.ListModel.Delete()
 	if err != nil {

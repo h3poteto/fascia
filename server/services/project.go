@@ -130,6 +130,7 @@ func (p *Project) CreateWebhook() error {
 	return repo.CreateWebhook(oauthToken, url)
 }
 
+// DeleteWebhook call DeleteWebhook if project has repository
 func (p *Project) DeleteWebhook() error {
 	oauthToken, err := p.ProjectEntity.OauthToken()
 	if err != nil {
@@ -325,6 +326,7 @@ func (p *Project) FetchCreatedInitialList() error {
 	return nil
 }
 
+// DeleteLists delete all lists related a project
 func (p *Project) DeleteLists() error {
 	err := p.ProjectEntity.DeleteLists()
 	if err != nil {
@@ -333,6 +335,7 @@ func (p *Project) DeleteLists() error {
 	return nil
 }
 
+// Delete delete a project record
 func (p *Project) Delete() error {
 	err := p.ProjectEntity.Delete()
 	if err != nil {

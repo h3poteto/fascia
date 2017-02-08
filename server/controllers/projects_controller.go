@@ -456,6 +456,7 @@ func (u *Projects) Webhook(c web.C, w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+// Destroy delete a project, all lists and tasks related to a project
 func (u *Projects) Destroy(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	currentUser, err := LoginRequired(r)
