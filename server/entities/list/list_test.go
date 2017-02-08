@@ -136,4 +136,29 @@ var _ = Describe("List", func() {
 		})
 	})
 
+	Describe("DeleteTasks", func() {
+		var taskService *services.Task
+		JustBeforeEach(func() {
+			newList.Save(nil)
+			taskService = services.NewTask(0, newList.ListModel.ID, projectService.ProjectEntity.ProjectModel.ID, newList.ListModel.UserID, sql.NullInt64{}, "task", "description", false, sql.NullString{})
+			taskService.Save()
+		})
+		It("should delete all tasks", func() {
+			err := newList.DeleteTasks()
+			Expect(err).To(BeNil())
+			tasks, _ := newList.Tasks()
+			Expect(len(tasks)).To(Equal(0))
+		})
+	})
+
+	Describe("Delete", func() {
+		JustBeforeEach(func() {
+			newList.Save(nil)
+		})
+		It("should delete list", func() {
+			err := newList.Delete()
+			Expect(err).To(BeNil())
+			Expect(newList.ListModel).To(BeNil())
+		})
+	})
 })
