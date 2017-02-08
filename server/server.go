@@ -70,6 +70,7 @@ func Routes(m *web.Mux) {
 	m.Post("/projects/:project_id/fetch_github", projects.FetchGithub)
 	m.Post("/projects/:project_id/settings", projects.Settings)
 	m.Post("/projects/:project_id/webhook", projects.Webhook)
+	m.Delete("/projects/:project_id", projects.Destroy)
 
 	github := &controllers.Github{}
 	m.Get("/github/repositories", github.Repositories)

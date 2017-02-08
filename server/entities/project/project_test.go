@@ -94,4 +94,35 @@ var _ = Describe("Project", func() {
 			})
 		})
 	})
+
+	Describe("DeleteLists", func() {
+		var (
+			newProject *Project
+		)
+		BeforeEach(func() {
+			tx, _ := db.SharedInstance().Connection.Begin()
+			newProject = New(0, uid, "new project", "description", sql.NullInt64{}, false, false)
+			newProject.Save(tx)
+			newProject.CreateInitialLists(tx)
+			tx.Commit()
+		})
+		It("should delete lists", func() {
+			err := newProject.DeleteLists()
+			Expect(err).To(BeNil())
+			lists, _ := newProject.Lists()
+			Expect(len(lists)).To(Equal(0))
+			noneList, _ := newProject.NoneList()
+			Expect(noneList).To(BeNil())
+		})
+	})
+
+	Describe("Delete", func() {
+		It("should delete project", func() {
+			newProject := New(0, uid, "new project", "description", sql.NullInt64{}, false, false)
+			newProject.Save(nil)
+			err := newProject.Delete()
+			Expect(err).To(BeNil())
+			Expect(newProject.ProjectModel).To(BeNil())
+		})
+	})
 })

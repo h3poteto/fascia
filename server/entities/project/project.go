@@ -193,17 +193,59 @@ func (p *Project) NoneList() (*list.List, error) {
 }
 
 // Repository returns a repository entity related this project
-func (p *Project) Repository() (*repository.Repository, error) {
+// If repository does not exist, return false
+func (p *Project) Repository() (*repository.Repository, bool, error) {
+	rows, err := p.database.Query("select repositories.id, repositories.repository_id, repositories.owner, repositories.name, repositories.webhook_key from projects inner join repositories on repositories.id = projects.repository_id where projects.id = ?;", p.ProjectModel.ID)
+	if err != nil {
+		return nil, false, errors.Wrap(err, "find repository error")
+	}
+
 	var id, repositoryID int64
 	var owner, name sql.NullString
 	var webhookKey string
-	err := p.database.QueryRow("select repositories.id, repositories.repository_id, repositories.owner, repositories.name, repositories.webhook_key from projects inner join repositories on repositories.id = projects.repository_id where projects.id = ?;", p.ProjectModel.ID).Scan(&id, &repositoryID, &owner, &name, &webhookKey)
-	if err != nil {
-		return nil, errors.Wrap(err, "sql select error")
+	for rows.Next() {
+		err = rows.Scan(&id, &repositoryID, &owner, &name, &webhookKey)
+		if err != nil {
+			return nil, false, errors.Wrap(err, "find repository error")
+		}
 	}
 	if id == p.ProjectModel.RepositoryID.Int64 && owner.Valid {
 		r := repository.New(id, repositoryID, owner.String, name.String, webhookKey)
-		return r, nil
+		return r, true, nil
 	}
-	return nil, errors.New("repository not found")
+	return nil, false, nil
+}
+
+// DeleteLists delete all lists related a project
+func (p *Project) DeleteLists() error {
+	lists, err := p.Lists()
+	if err != nil {
+		return err
+	}
+	for _, l := range lists {
+		err := l.DeleteTasks()
+		if err != nil {
+			return err
+		}
+		err = l.Delete()
+		if err != nil {
+			return err
+		}
+	}
+	noneList, err := p.NoneList()
+	err = noneList.DeleteTasks()
+	if err != nil {
+		return err
+	}
+	return noneList.Delete()
+}
+
+// Delete delete a project model
+func (p *Project) Delete() error {
+	err := p.ProjectModel.Delete()
+	if err != nil {
+		return err
+	}
+	p.ProjectModel = nil
+	return nil
 }

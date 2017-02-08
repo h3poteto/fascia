@@ -106,3 +106,12 @@ func (p *Project) Update(title string, description string, showIssues bool, show
 
 	return nil
 }
+
+// Delete delete a project model in record
+func (p *Project) Delete() error {
+	_, err := p.database.Exec("DELETE FROM projects WHERE id = ?;", p.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
