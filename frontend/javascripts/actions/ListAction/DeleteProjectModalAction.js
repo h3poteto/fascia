@@ -38,7 +38,7 @@ function requestDeleteProject() {
 }
 
 export const RECEIVE_DELETE_PROJECT = 'RECEIVE_DELETE_PROJECT'
-function receiveDeleteProject(body) {
+function receiveDeleteProject() {
   return {
     type: RECEIVE_DELETE_PROJECT,
   }

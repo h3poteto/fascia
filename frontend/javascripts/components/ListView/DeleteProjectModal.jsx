@@ -32,7 +32,7 @@ function validate(values, props) {
   return errors
 }
 
-const renderField = ({ name, input, label, type, meta: { touched, error } }) => {
+const renderField = ({input, type, meta: { touched, error } }) => {
   return (
     <div>
       <input type={type} {...input} className="form-control" />
@@ -46,7 +46,6 @@ class DeleteProjectModal extends React.Component {
     const {
       handleSubmit,
       pristine,
-      reset,
       submitting,
       onRequestClose,
       action,
@@ -56,12 +55,12 @@ class DeleteProjectModal extends React.Component {
 
     return (
       <Modal
-          isOpen={this.props.isDeleteProjectModalOpen}
+          isOpen={isDeleteProjectModalOpen}
           onRequestClose={onRequestClose}
           style={customStyles}
       >
         <div className="delete-project-form">
-          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(project.ID) })}>
+          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit(() => { action(project.ID) })}>
             <fieldset>
               <legend>Are you sure?</legend>
               <div className="delete-project-message pure-form-message">This action can not be undone.
@@ -79,6 +78,23 @@ class DeleteProjectModal extends React.Component {
       </Modal>
     )
   }
+}
+
+DeleteProjectModal.propTypes = {
+  handleSubmit: React.PropTypes.func.isRequired,
+  pristine: React.PropTypes.bool,
+  reset: React.PropTypes.func.isRequired,
+  submitting: React.PropTypes.bool,
+  onRequestClose: React.PropTypes.func.isRequired,
+  isDeleteProjectModalOpen: React.PropTypes.bool.isRequired,
+  action: React.PropTypes.func.isRequired,
+  project: React.PropTypes.object,
+}
+
+renderField.propTypes = {
+  input: React.PropTypes.shape().isRequired,
+  type: React.PropTypes.string.isRequired,
+  meta: React.PropTypes.shape().isRequired,
 }
 
 export default reduxForm({

@@ -232,6 +232,7 @@ ListView.propTypes = {
     openNewTaskModal: React.PropTypes.func.isRequired,
     openEditProjectModal: React.PropTypes.func.isRequired,
     openNewListModal: React.PropTypes.func.isRequired,
+    openDeleteProjectModal: React.PropTypes.func.isRequired,
   }),
   newListModalActions: React.PropTypes.shape({
     closeNewListModal: React.PropTypes.func.isRequired,
@@ -256,6 +257,10 @@ ListView.propTypes = {
     fetchUpdateTask: React.PropTypes.func.isRequired,
     fetchDeleteTask: React.PropTypes.func.isRequired,
   }),
+  deleteProjectModalActions: React.PropTypes.shape({
+    closeDeleteProjectModal: React.PropTypes.func.isRequired,
+    fetchDeleteProject: React.PropTypes.func.isRequired,
+  }),
   params: React.PropTypes.shape({
     projectID: React.PropTypes.string.isRequired,
   }),
@@ -267,6 +272,7 @@ ListView.propTypes = {
     isProjectEditModalOpen: React.PropTypes.bool.isRequired,
     isTaskShowModalOpen: React.PropTypes.bool.isRequired,
     isEditTaskModalVisible: React.PropTypes.bool.isRequired,
+    isDeleteProjectModalOpen: React.PropTypes.bool.isRequired,
     lists: React.PropTypes.array,
     listOptions: React.PropTypes.array,
     noneList: React.PropTypes.object,
