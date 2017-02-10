@@ -442,3 +442,10 @@ export function openShowTaskModal(task) {
     task: task
   }
 }
+
+export const OPEN_DELETE_PROJECT = 'OPEN_DELETE_PROJECT'
+export function openDeleteProjectModal() {
+  return {
+    type: OPEN_DELETE_PROJECT,
+  }
+}
