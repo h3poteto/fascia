@@ -269,18 +269,23 @@
 }
 
 .delete-project-form {
+
   input {
     width: 100%;
   }
+
   .delete-project-message {
     width: 400px;
+
     .confirm {
       padding-top: 12px;
       padding-bottom: 8px;
     }
   }
+
   .form-action {
     margin: 12px 0px 0px;
+
     button {
       width: 100%;
     }
