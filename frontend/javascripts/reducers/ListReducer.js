@@ -195,6 +195,15 @@ export default function ListReducer(state = initState, action) {
     return Object.assign({}, state, {
       isDeleteProjectModalOpen: false
     })
+  case deleteProjectModalActions.REQUEST_DELETE_PROJECT:
+    return Object.assign({}, state, {
+      isLoading: true
+    })
+  case deleteProjectModalActions.RECEIVE_DELETE_PROJECT:
+    return Object.assign({}, state, {
+      isLoading: false,
+      isDeleteProjectModalOpen: false
+    })
 
 
     //------------------------------------

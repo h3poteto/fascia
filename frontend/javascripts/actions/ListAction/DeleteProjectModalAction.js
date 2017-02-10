@@ -1,4 +1,5 @@
 import Request from 'superagent'
+import { browserHistory } from 'react-router'
 
 export const UNAUTHORIZED = 'UNAUTHORIZED'
 function unauthorized() {
@@ -29,5 +30,36 @@ export function closeDeleteProjectModal() {
   }
 }
 
-export function fetchDeleteProject() {
+export const REQUEST_DELETE_PROJECT = 'REQUEST_DELETE_PROJECT'
+function requestDeleteProject() {
+  return {
+    type: REQUEST_DELETE_PROJECT,
+  }
+}
+
+export const RECEIVE_DELETE_PROJECT = 'RECEIVE_DELETE_PROJECT'
+function receiveDeleteProject(body) {
+  return {
+    type: RECEIVE_DELETE_PROJECT,
+  }
+}
+
+export function fetchDeleteProject(projectID) {
+  return dispatch => {
+    dispatch(requestDeleteProject())
+    return Request
+      .del(`/projects/${projectID}`)
+      .end((err, res)=> {
+        if (res.ok) {
+          dispatch(receiveDeleteProject(res.body))
+          browserHistory.push('/')
+        } else if (res.unauthorized) {
+          dispatch(unauthorized())
+        } else if (res.notFound) {
+          dispatch(notFound())
+        } else {
+          dispatch(serverError())
+        }
+      })
+  }
 }

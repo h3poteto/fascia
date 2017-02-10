@@ -61,7 +61,7 @@ class DeleteProjectModal extends React.Component {
           style={customStyles}
       >
         <div className="delete-project-form">
-          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(projectID) })}>
+          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(project.ID) })}>
             <fieldset>
               <legend>Are you sure?</legend>
               <div className="delete-project-message pure-form-message">This action can not be undone.
