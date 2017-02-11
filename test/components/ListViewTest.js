@@ -25,7 +25,7 @@ describe('ListView', () => {
       expect(output.type).toBe('div')
       expect(output.props.id).toBe('lists')
 
-      let [ , , , , , , , projectTitleWrapper, items, noneList ] = output.props.children
+      let [ , , , , , , , , projectTitleWrapper, items, noneList ] = output.props.children
       let [ , projectTitle ] = projectTitleWrapper.props.children
       let [ title ] = projectTitle.props.children
       expect(title).toBe('testProject')
@@ -86,7 +86,7 @@ describe('ListView', () => {
     it('should not render issues', () => {
       const { output } = setup(state)
 
-      let [ , , , , , , , , items, noneList ] = output.props.children
+      let [ , , , , , , , , , items, noneList ] = output.props.children
       let [list ] = items.props.children
       let [ , , firstTasks ] = list[0].props.children
       let [ firstListTasks ] = firstTasks.props.children
@@ -103,7 +103,7 @@ describe('ListView', () => {
     it('should not render pull requests', () => {
       const { output } = setup(state)
 
-      let [ , , , , , , , , items, noneList ] = output.props.children
+      let [ , , , , , , , , , items, noneList ] = output.props.children
       let [list ] = items.props.children
       let [ , , firstTasks ] = list[0].props.children
       let [ firstListTasks ] = firstTasks.props.children
@@ -121,7 +121,7 @@ describe('ListView', () => {
       it('should not render github action buttons', () => {
         const { output } = setup(state)
 
-        let [ , , , , , , , projectTitleWrapper ] = output.props.children
+        let [ , , , , , , , , projectTitleWrapper ] = output.props.children
         let [ operation ] = projectTitleWrapper.props.children
         expect(operation.props.children.props.children).toBe(undefined)
       })
@@ -131,7 +131,7 @@ describe('ListView', () => {
       it('should not render github action buttons', () => {
         const { output } = setup(state)
 
-        let [ , , , , , , , projectTitleWrapper ] = output.props.children
+        let [ , , , , , , , , projectTitleWrapper ] = output.props.children
         let [ operation ] = projectTitleWrapper.props.children
         expect(operation.props.children.props.children.length).toBe(3)
       })
@@ -144,7 +144,7 @@ describe('ListView', () => {
       it('should hide a list', () => {
         const { output } = setup(state)
 
-        let [ , , , , , , , , items ] = output.props.children
+        let [ , , , , , , , , , items ] = output.props.children
         let [ list ] = items.props.children
         let [ listMenu, listTitle, listLoading ] = list[0].props.children
 
@@ -158,7 +158,7 @@ describe('ListView', () => {
       it('should display a list', () => {
         const { output } = setup(state)
 
-        let [ , , , , , , , , items ] = output.props.children
+        let [ , , , , , , , , , items ] = output.props.children
         let [ list ] = items.props.children
         let [ listMenu, listTitle, tasks ] = list[0].props.children
         expect(listMenu.props.className).toBe('fascia-list-menu')
