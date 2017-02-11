@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "watch": "gulp watch",
-    "js-release": "NODE_ENV=production gulp build-release",
-    "sass-release": "gulp sass-release",
+    "compile": "webpack -p",
+    "watch": "webpack -w -p",
+    "release-compile": "NODE_ENV=production webpack -p",
     "test": "mocha --compilers js:babel-core/register --recursive --require ./test/support/domSetup.js",
     "test:watch": "npm test -- --watch",
     "eslint": "eslint --ext [jsx,js] ./frontend/javascripts/"
@@ -27,50 +27,34 @@
     ]
   },
   "devDependencies": {
-    "babel": "^6.5.2",
-    "babel-core": "^6.17.0",
     "babel-eslint": "^7.1.1",
-    "babel-polyfill": "^6.16.0",
-    "babel-preset-es2015": "^6.16.0",
-    "babel-preset-react": "^6.16.0",
-    "babelify": "^7.3.0",
-    "browserify": "^13.1.0",
     "eslint": "^3.11.1",
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jsx-a11y": "^3.0.1",
     "eslint-plugin-react": "^6.7.1",
     "event-stream": "^3.3.4",
     "expect": "^1.20.2",
-    "gulp": "^3.9.1",
-    "gulp-duration": "0.0.0",
-    "gulp-if": "^2.0.1",
-    "gulp-load-plugins": "^1.2.4",
-    "gulp-plumber": "^1.1.0",
-    "gulp-sass": "^2.2.0",
-    "gulp-sourcemaps": "^1.6.0",
-    "gulp-tap": "^0.1.3",
-    "gulp-uglify": "^1.5.4",
-    "gulp-util": "^3.0.7",
     "html-truncate": "^1.2.1",
     "jsdom": "~8.1.0",
     "mocha": "~2.4.5",
     "nock": "~7.2.2",
     "react-addons-test-utils": "^15.3.2",
     "spinners": "^1.2.2",
-    "superagent": "~1.8.0-beta.2",
-    "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0",
-    "watchify": "^3.7.0"
-  },
-  "browserify": {
-    "entryScripts": [
-      "./frontend/javascripts/bundle.js"
-    ]
+    "superagent": "~1.8.0-beta.2"
   },
   "dependencies": {
+    "babel-core": "^6.22.1",
+    "babel-loader": "^6.2.10",
+    "babel-preset-es2015": "^6.22.0",
+    "babel-preset-react": "^6.22.0",
+    "copy-webpack-plugin": "^4.0.1",
+    "css-loader": "^0.26.1",
+    "extract-text-webpack-plugin": "^1.0.1",
     "font-awesome": "~4.5.0",
-    "markdown-it": "^8.0.0",
+    "json-loader": "^0.5.4",
+    "markdown-it": "^8.2.2",
     "markdown-it-checkbox": "^1.1.0",
+    "node-sass": "^4.5.0",
     "octicons": "~3.5.0",
     "purecss": "~0.6.0",
     "react": "^15.3.2",
@@ -82,6 +66,9 @@
     "redux": "^3.6.0",
     "redux-form": "^6.2.1",
     "redux-logger": "^2.7.0",
-    "redux-thunk": "^2.1.0"
+    "redux-thunk": "^2.1.0",
+    "sass-loader": "^4.1.1",
+    "style-loader": "^0.13.1",
+    "webpack": "^1.14.0"
   }
 }
