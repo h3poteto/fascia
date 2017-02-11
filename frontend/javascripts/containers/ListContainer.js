@@ -4,6 +4,7 @@ import * as editListModalActions from '../actions/ListAction/EditListModalAction
 import * as newTaskModalActions from '../actions/ListAction/NewTaskModalAction.js'
 import * as editProjectModalActions from '../actions/ListAction/EditProjectModalAction.js'
 import * as showTaskModalActions from '../actions/ListAction/ShowTaskModalAction.js'
+import * as deleteProjectModalActions from '../actions/ListAction/DeleteProjectModalAction.js'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import ListView from '../components/ListView.jsx'
@@ -16,7 +17,8 @@ function mapDispatchToProps(dispatch) {
     editListModalActions: bindActionCreators(editListModalActions, dispatch),
     newTaskModalActions: bindActionCreators(newTaskModalActions, dispatch),
     editProjectModalActions: bindActionCreators(editProjectModalActions, dispatch),
-    showTaskModalActions: bindActionCreators(showTaskModalActions, dispatch)
+    showTaskModalActions: bindActionCreators(showTaskModalActions, dispatch),
+    deleteProjectModalActions: bindActionCreators(deleteProjectModalActions, dispatch),
   }
 }
 

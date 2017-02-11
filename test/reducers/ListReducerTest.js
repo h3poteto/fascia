@@ -19,6 +19,7 @@ function sharedExampleInitState(action) {
     isProjectEditModalOpen: false,
     isTaskShowModalOpen: false,
     isEditTaskModalVisible: false,
+    isDeleteProjectModalOpen: false,
     isLoading: false,
     lists: [],
     noneList: {ID: 0, ListTasks: []},

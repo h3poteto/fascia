@@ -8,6 +8,8 @@ export function initState() {
       isListEditModalOpen: false,
       isProjectEditModalOpen: false,
       isTaskShowModalOpen: false,
+      isDeleteProjectModalOpen: false,
+      isEditTaskModalVisible: false,
       isLoading: false,
       newList: {title: "", color: "0effff"},
       newTask: {title: ""},
@@ -70,33 +72,56 @@ export function initState() {
       error: null
     },
     params: {
-      projectID: 1
+      projectID: '1'
     },
     listActions: {
       fetchLists: expect.createSpy(),
       fetchProject: expect.createSpy(),
       fetchListOptions: expect.createSpy(),
       closeFlash: expect.createSpy(),
+      showPullRequests: expect.createSpy(),
+      showIssues: expect.createSpy(),
+      fetchProjectGithub: expect.createSpy(),
+      openEditListModal: expect.createSpy(),
+      taskDragOver: expect.createSpy(),
       taskDrop: expect.createSpy(),
-      openNewListModal: expect.createSpy(),
+      taskDragLeave: expect.createSpy(),
+      displayList: expect.createSpy(),
+      hideList: expect.createSpy(),
       taskDragStart: expect.createSpy(),
-      openNewTaskModal: expect.createSpy()
+      openShowTaskModal: expect.createSpy(),
+      openNewTaskModal: expect.createSpy(),
+      openEditProjectModal: expect.createSpy(),
+      openNewListModal: expect.createSpy(),
+      openDeleteProjectModal: expect.createSpy(),
     },
     newListModalActions: {
-      closeNewListModal: expect.createSpy()
+      closeNewListModal: expect.createSpy(),
+      fetchCreateList: expect.createSpy()
     },
     newTaskModalActions: {
-      closeNewTaskModal: expect.createSpy()
+      closeNewTaskModal: expect.createSpy(),
+      fetchCreateTask: expect.createSpy()
     },
     editListModalActions: {
-      closeEditListModal: expect.createSpy()
+      closeEditListModal: expect.createSpy(),
+      fetchUpdateList: expect.createSpy()
     },
     editProjectModalActions: {
-      closeEditProjectModal: expect.createSpy()
+      closeEditProjectModal: expect.createSpy(),
+      fetchUpdateProject: expect.createSpy(),
+      createWebhook: expect.createSpy()
     },
     showTaskModalActions: {
-      closeShowTaskModal: expect.createSpy()
-    }
+      closeShowTaskModal: expect.createSpy(),
+      changeEditMode: expect.createSpy(),
+      fetchUpdateTask: expect.createSpy(),
+      fetchDeleteTask: expect.createSpy()
+    },
+    deleteProjectModalActions: {
+      closeDeleteProjectModal: expect.createSpy(),
+      fetchDeleteProject: expect.createSpy()
+    },
   }
 }
 

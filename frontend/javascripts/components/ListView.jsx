@@ -6,6 +6,7 @@ import EditProjectModal from './ListView/EditProjectModal.jsx'
 import WholeLoading from './ListView/WholeLoading.jsx'
 import ListLoading from './ListView/ListLoading.jsx'
 import ShowTaskModal from './ListView/ShowTaskModal.jsx'
+import DeleteProjectModal from './ListView/DeleteProjectModal.jsx'
 
 class ListView extends React.Component {
   constructor(props) {
@@ -117,6 +118,7 @@ class ListView extends React.Component {
       isProjectEditModalOpen,
       isTaskShowModalOpen,
       isEditTaskModalVisible,
+      isDeleteProjectModalOpen,
       lists,
       listOptions,
       noneList,
@@ -171,11 +173,18 @@ class ListView extends React.Component {
             action={this.props.showTaskModalActions.fetchUpdateTask}
             fetchDeleteTask={this.props.showTaskModalActions.fetchDeleteTask}
         />
+        <DeleteProjectModal
+            isDeleteProjectModalOpen={isDeleteProjectModalOpen}
+            project={project}
+            onRequestClose={this.props.deleteProjectModalActions.closeDeleteProjectModal}
+            action={this.props.deleteProjectModalActions.fetchDeleteProject}
+        />
         <div className="title-wrapper">
           <div className="project-operation">
             {this.projectOperations(project)}
           </div>
-          <h3 className="project-title">{project != null ? project.Title : ''}<span className="fascia-project-menu" onClick={() => this.props.listActions.openEditProjectModal(project)}><i title="Edit project" className="fa fa-pencil"></i></span></h3>
+          <h3 className="project-title">{project != null ? project.Title : ''}<span className="fascia-project-menu" onClick={()=> this.props.listActions.openDeleteProjectModal()}><i title="Delete project" className="fa fa-trash"></i></span><span className="fascia-project-menu" onClick={() => this.props.listActions.openEditProjectModal(project)}><i title="Edit project" className="fa fa-pencil"></i></span>
+          </h3>
         </div>
         <div className="items">
           {lists.map(function(list, index) {
@@ -223,6 +232,7 @@ ListView.propTypes = {
     openNewTaskModal: React.PropTypes.func.isRequired,
     openEditProjectModal: React.PropTypes.func.isRequired,
     openNewListModal: React.PropTypes.func.isRequired,
+    openDeleteProjectModal: React.PropTypes.func.isRequired,
   }),
   newListModalActions: React.PropTypes.shape({
     closeNewListModal: React.PropTypes.func.isRequired,
@@ -247,6 +257,10 @@ ListView.propTypes = {
     fetchUpdateTask: React.PropTypes.func.isRequired,
     fetchDeleteTask: React.PropTypes.func.isRequired,
   }),
+  deleteProjectModalActions: React.PropTypes.shape({
+    closeDeleteProjectModal: React.PropTypes.func.isRequired,
+    fetchDeleteProject: React.PropTypes.func.isRequired,
+  }),
   params: React.PropTypes.shape({
     projectID: React.PropTypes.string.isRequired,
   }),
@@ -258,6 +272,7 @@ ListView.propTypes = {
     isProjectEditModalOpen: React.PropTypes.bool.isRequired,
     isTaskShowModalOpen: React.PropTypes.bool.isRequired,
     isEditTaskModalVisible: React.PropTypes.bool.isRequired,
+    isDeleteProjectModalOpen: React.PropTypes.bool.isRequired,
     lists: React.PropTypes.array,
     listOptions: React.PropTypes.array,
     noneList: React.PropTypes.object,

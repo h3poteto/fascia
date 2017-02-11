@@ -4,6 +4,7 @@ import * as editListModalActions from '../actions/ListAction/EditListModalAction
 import * as newTaskModalActions from '../actions/ListAction/NewTaskModalAction.js'
 import * as editProjectModalActions from '../actions/ListAction/EditProjectModalAction.js'
 import * as showTaskModalActions from '../actions/ListAction/ShowTaskModalAction.js'
+import * as deleteProjectModalActions from '../actions/ListAction/DeleteProjectModalAction.js'
 
 const initState = {
   isListModalOpen: false,
@@ -12,6 +13,7 @@ const initState = {
   isProjectEditModalOpen: false,
   isTaskShowModalOpen: false,
   isEditTaskModalVisible: false,
+  isDeleteProjectModalOpen: false,
   lists: [],
   listOptions: [],
   noneList: {ID: 0, ListTasks: []},
@@ -175,6 +177,34 @@ export default function ListReducer(state = initState, action) {
       isProjectEditModalOpen: false,
       isLoading: false
     })
+
+    //------------------------------------
+    // deleteProjectModalActions
+    //------------------------------------
+  case deleteProjectModalActions.NOT_FOUND:
+    return Object.assign({}, state, {
+      error: 'Error Not Found',
+      isLoading: false
+    })
+  case deleteProjectModalActions.SERVER_ERROR:
+    return Object.assign({}, state, {
+      error: 'Internal Server Error',
+      isLoading: false
+    })
+  case deleteProjectModalActions.CLOSE_DELETE_PROJECT:
+    return Object.assign({}, state, {
+      isDeleteProjectModalOpen: false
+    })
+  case deleteProjectModalActions.REQUEST_DELETE_PROJECT:
+    return Object.assign({}, state, {
+      isLoading: true
+    })
+  case deleteProjectModalActions.RECEIVE_DELETE_PROJECT:
+    return Object.assign({}, state, {
+      isLoading: false,
+      isDeleteProjectModalOpen: false
+    })
+
 
     //------------------------------------
     // showTaskModalActions
@@ -533,6 +563,10 @@ export default function ListReducer(state = initState, action) {
   case listActions.OPEN_EDIT_PROJECT:
     return Object.assign({}, state, {
       isProjectEditModalOpen: true
+    })
+  case listActions.OPEN_DELETE_PROJECT:
+    return Object.assign({}, state, {
+      isDeleteProjectModalOpen: true
     })
 
   default:
