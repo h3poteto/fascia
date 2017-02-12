@@ -48,6 +48,7 @@ class NewListModal extends React.Component {
           isOpen={this.props.isListModalOpen}
           onRequestClose={onRequestClose}
           style={customStyles}
+          contentLabel="NewListModal"
       >
         <div className="list-form">
           <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(projectID, values) })}>

@@ -75,6 +75,7 @@ class EditListModal extends React.Component {
           isOpen={this.props.isListEditModalOpen}
           onRequestClose={onRequestClose}
           style={customStyles}
+          contentLabel="EditListModal"
       >
         <div className="list-form">
           <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(project.ID, list.ID, values) })}>

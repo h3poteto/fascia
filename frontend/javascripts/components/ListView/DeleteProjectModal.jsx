@@ -58,6 +58,7 @@ class DeleteProjectModal extends React.Component {
           isOpen={isDeleteProjectModalOpen}
           onRequestClose={onRequestClose}
           style={customStyles}
+          contentLabel="DeleteProjectModal"
       >
         <div className="delete-project-form">
           <form className="pure-form pure-form-stacked" onSubmit={handleSubmit(() => { action(project.ID) })}>
