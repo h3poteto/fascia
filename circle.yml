@@ -22,8 +22,7 @@ dependencies:
     - go get -u github.com/jteeuwen/go-bindata/...
   override:
     - npm install
-    - npm run-script js-release
-    - npm run-script sass-release
+    - npm run-script release-compile
     - gom install
     - rsync -azC --delete ./ "$REPO"
     - cd "$REPO" && go generate
