@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <title>{% block title %}Fascia{% endblock %}</title>
     <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href={{ "/stylesheets/pure-min.css" | suffixAssetsUpdate }} media="all">
-    <link rel="stylesheet" href={{ "/stylesheets/octicons.css" | suffixAssetsUpdate }} media="all">
-    <link rel="stylesheet" href={{ "/stylesheets/font-awesome.css" | suffixAssetsUpdate }} media="all">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/octicons/4.4.0/font/octicons.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href={{ "/stylesheets/application.css" | suffixAssetsUpdate }} media="all">
 
   </head>
@@ -14,6 +12,7 @@
     <div id="content">
       {% block content %}{% endblock %}
     </div>
+    <script src="https://use.fontawesome.com/080be9d465.js"></script>
     <script type="text/javascript" src={{ "/javascripts/bundle.js" | suffixAssetsUpdate }}></script>
     <script>
      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
