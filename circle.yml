@@ -14,9 +14,6 @@ dependencies:
     - "vendor"
     - "~/go"
   pre:
-    - sudo rm -rf /usr/local/go
-    - curl -L https://storage.googleapis.com/golang/go1.7.4.linux-amd64.tar.gz > go1.7.4.linux-amd64.tar.gz
-    - sudo tar -C /usr/local -xzf go1.7.4.linux-amd64.tar.gz
     - mkdir -p "$REPO"
     - go get github.com/mattn/gom
     - go get -u github.com/jteeuwen/go-bindata/...
