@@ -29,8 +29,8 @@ class ListView extends React.Component {
 
   componentDidMount() {
     let maxHeight = window.innerHeight * 0.7
-    let stylesheet = document.styleSheets.item(4)
-    var idx = document.styleSheets[4].cssRules.length
+    let stylesheet = document.styleSheets.item(2)
+    var idx = stylesheet.cssRules.length
     stylesheet.insertRule('#lists .fascia-task { max-height: ' + maxHeight + 'px; }', idx)
 
   }

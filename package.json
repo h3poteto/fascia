@@ -50,12 +50,11 @@
     "copy-webpack-plugin": "^4.0.1",
     "css-loader": "^0.26.1",
     "extract-text-webpack-plugin": "^1.0.1",
-    "font-awesome": "~4.5.0",
+    "file-loader": "^0.10.0",
     "json-loader": "^0.5.4",
     "markdown-it": "^8.2.2",
     "markdown-it-checkbox": "^1.1.0",
     "node-sass": "^4.5.0",
-    "octicons": "~3.5.0",
     "purecss": "~0.6.0",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
@@ -69,6 +68,7 @@
     "redux-thunk": "^2.1.0",
     "sass-loader": "^4.1.1",
     "style-loader": "^0.13.1",
+    "url-loader": "^0.5.7",
     "webpack": "^1.14.0"
   }
 }

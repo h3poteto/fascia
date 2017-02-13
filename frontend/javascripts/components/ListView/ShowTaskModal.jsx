@@ -135,6 +135,7 @@ class ShowTaskModal extends React.Component {
           isOpen={isShowTaskModalOpen}
           onRequestClose={onRequestClose}
           style={customStyles}
+          contentLabel="ShowTaskModal"
       >
         <div className="task-detail">
           <div className="task-controll">

@@ -48,6 +48,7 @@ class NewProjectModal extends React.Component {
           isOpen={this.props.isModalOpen}
           onRequestClose={onRequestClose}
           style={customStyles}
+          contentLabel="NewProjectModal"
       >
         <div className="project-form">
           <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(values) })}>
