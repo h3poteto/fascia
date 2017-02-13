@@ -5,3 +5,5 @@ bin
 config/bindata.go
 dockerfiles
 test
+frontend
+node_modules
