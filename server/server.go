@@ -29,7 +29,7 @@ func Routes(m *web.Mux) {
 	// assets
 	m.Get("/stylesheets/*", http.FileServer(http.Dir(filepath.Join(rootDir, "public/assets/"))))
 	m.Get("/javascripts/*", http.FileServer(http.Dir(filepath.Join(rootDir, "public/assets/"))))
-	m.Get("/images/*", http.FileServer(http.Dir(filepath.Join(rootDir, "frontend/"))))
+	m.Get("/images/*", http.FileServer(http.Dir(filepath.Join(rootDir, "public/assets/"))))
 	m.Get("/fonts/*", http.FileServer(http.Dir(filepath.Join(rootDir, "public/assets/"))))
 	// routing
 	root := &controllers.Root{}
