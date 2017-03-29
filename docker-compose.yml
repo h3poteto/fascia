@@ -21,10 +21,14 @@ services:
       "npm install && \
       npm run-script watch"
   go:
-    build: dockerfiles/development/fascia
+    image: h3poteto/golang
     env_file: .docker-env
+    environment:
+      GOJIROOT: /go/src/github.com/h3poteto/fascia
+      GOJIENV: development
     volumes:
       - .:/go/src/github.com/h3poteto/fascia
+    working_dir: /go/src/github.com/h3poteto/fascia
     links:
       - mysql:mysql
       - node:node

@@ -1,0 +1,43 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: h3poteto/golang
+        environment:
+          GOJIROOT: /go/src/github.com/h3poteto/fascia
+          GOJIENV: test
+          DATABASE_URL: 127.0.0.1
+          DB_TEST_NAME: fascia_test
+          DB_USER: root
+      - image: mysql:5.7
+        environment:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+
+    working_directory: /go/src/github.com/h3poteto/fascia
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restoring cache - vendor
+          keys:
+            - vendor-{{ checksum "Gomfile.lock" }}
+      - run:
+          name: Gom install
+          command: gom install
+      - run:
+          name: Generate binary file
+          command: go generate
+      - save_cache:
+          name: Saving cache - vendor
+          key: vendor-{{ checksum "Gomfile.lock" }}
+          paths:
+            - "vendor"
+      - run:
+          name: Create database
+          command: mysql -u root -h 127.0.0.1 -e "CREATE DATABASE $DB_TEST_NAME CHARACTER SET utf8mb4;"
+      - run:
+          name: Migration database
+          command: gom exec goose -env test up
+      - run:
+          name: Test
+          command: gom exec ginkgo -r ./
+
