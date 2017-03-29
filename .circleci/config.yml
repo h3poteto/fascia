@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: h3poteto/golang
+      - image: h3poteto/golang-node
         environment:
           GOJIROOT: /go/src/github.com/h3poteto/fascia
           GOJIENV: test
@@ -16,10 +16,20 @@ jobs:
     working_directory: /go/src/github.com/h3poteto/fascia
     steps:
       - checkout
+      - run:
+          name: Check golang version
+          command: go version
+      - run:
+          name: Check node version
+          command: node --version
       - restore_cache:
           name: Restoring cache - vendor
           keys:
             - vendor-{{ checksum "Gomfile.lock" }}
+      - restore_cache:
+          nomae: Restoring cache - node_modules
+          keys:
+            - node_modules-{{ checksum "package.json" }}
       - run:
           name: Gom install
           command: gom install
@@ -32,12 +42,23 @@ jobs:
           paths:
             - "vendor"
       - run:
+          name: npm install
+          command: npm install
+      - save_cache:
+          name: Saving cache - node_modules
+          key: node_modules-{{ checksum "package.json" }}
+          paths:
+            - "node_modules"
+      - run:
           name: Create database
           command: mysql -u root -h 127.0.0.1 -e "CREATE DATABASE $DB_TEST_NAME CHARACTER SET utf8mb4;"
       - run:
           name: Migration database
           command: gom exec goose -env test up
       - run:
-          name: Test
+          name: Server test
           command: gom exec ginkgo -r ./
+      - run:
+          name: Frontend test
+          command: npm run test
 
