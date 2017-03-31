@@ -34,11 +34,11 @@ jobs:
             - node_modules-{{ checksum "package.json" }}
             - node_modules-
       - run:
-          name: Go packages install
-          command: gom install
-      - run:
-          name: Generate binary file
+          name: Generate assets file
           command: go generate
+      - run:
+          name: Go packages install
+          command: .circleci/scripts/gom_install.sh
       - save_cache:
           name: Saving cache - vendor
           key: vendor-{{ checksum "Gomfile.lock" }}
@@ -67,7 +67,7 @@ jobs:
       - deploy:
           name: conditionally run a deploy job
           command: |
-            if [ "${CIRCLE_BRANCH}" == "iss-323" ]; then
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
               curl --user ${CIRCLE_API_TOKEN}: \
                 --data build_parameters[CIRCLE_JOB]=deploy \
                 --data revision=$CIRCLE_SHA1 \
@@ -81,7 +81,7 @@ jobs:
     working_directory: /go/src/github.com/h3poteto/fascia
     branches:
       only:
-        - iss-323
+        - master
     steps:
       - checkout
       - setup_remote_docker:
