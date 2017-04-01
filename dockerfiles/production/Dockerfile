@@ -1,19 +1,9 @@
-FROM golang:1.8-alpine
+FROM h3poteto/golang:latest
 
-RUN set -x \
-    && apk add --no-cache \
-    git \
-    mysql-client \
-    build-base
-
+USER root
 ENV GOPATH /go
 ENV GOJIROOT ${GOPATH}/src/github.com/h3poteto/fascia
 ENV GOJIENV production
-
-RUN set -x \
-    && adduser -D -u 1000 go \
-    && echo 'go:password' | chpasswd \
-    && mkdir -p ${GOJIROOT}
 
 WORKDIR ${GOJIROOT}
 
