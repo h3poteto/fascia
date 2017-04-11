@@ -13,10 +13,12 @@ services:
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "true"
   node:
-    build: dockerfiles/development/node
+    image: node:6.10-alpine
+    user: node
     volumes:
       - .:/var/opt/app
-    entrypoint: bash -c
+    working_dir: /var/opt/app
+    entrypoint: sh -c
     command: |
       "npm install && \
       npm run-script watch"
