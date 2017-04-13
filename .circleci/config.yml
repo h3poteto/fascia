@@ -53,6 +53,13 @@ jobs:
           paths:
             - "node_modules"
       - run:
+          name: Checking mysql connection
+          command: |
+            for i in $(seq $HEALTH_CHECK_RETRY_LIMIT)
+            do
+              mysql -u root -h 127.0.0.1 -e 'show databases' || (sleep $HEALTH_CHECK_RETRY_WAIT; false) && break
+            done
+      - run:
           name: Create database
           command: mysql -u root -h 127.0.0.1 -e "CREATE DATABASE $DB_TEST_NAME CHARACTER SET utf8mb4;"
       - run:
