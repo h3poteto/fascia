@@ -5,6 +5,10 @@ ENV GOPATH /go
 ENV GOJIROOT ${GOPATH}/src/github.com/h3poteto/fascia
 ENV GOJIENV production
 
+RUN set -x \
+    && apk add --no-cache \
+    curl
+
 WORKDIR ${GOJIROOT}
 
 COPY . ${GOJIROOT}
