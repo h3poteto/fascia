@@ -42,11 +42,6 @@ services:
       # TODO: productionリリース時にはproductionに
       # STAGE: 'production'
       # FORCE_RENEW: 'true'
-    healthcheck:
-      test: ["CMD", "curl", "-H", "Host: fascia.io", "-f", "https://localhost"]
-      interval: 20s
-      timeout: 10s
-      retries: 3
     deploy:
       replicas: 2
       update_config:
