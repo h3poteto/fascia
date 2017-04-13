@@ -3,7 +3,7 @@ vendor
 bin
 *~
 config/bindata.go
-dockerfiles
+production
 test
 frontend
 node_modules

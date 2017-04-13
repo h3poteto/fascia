@@ -115,7 +115,7 @@ jobs:
           command: npm run release-compile
       - run:
           name: Build production docker image
-          command: docker build -f dockerfiles/production/Dockerfile -t h3poteto/fascia .
+          command: docker build -t h3poteto/fascia .
       - run:
           name: Docker login
           command: docker login -u $DOCKER_USER -p $DOCKER_PASS

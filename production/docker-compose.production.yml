@@ -1,0 +1,54 @@
+version: '3'
+services:
+  go:
+    image: h3poteto/fascia
+    environment:
+      DATABASE_URL: $DATABASE_URL
+      DB_USER: $DB_USER
+      DB_NAME: $DB_NAME
+      DB_PASSWORD: $DB_PASSWORD
+      CLIENT_ID: $CLIENT_ID
+      CLIENT_SECRET: $CLIENT_SECRET
+      SLACK_URL: $SLACK_URL
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9090"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 5
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 20s
+    stop_grace_period: 20s
+  https-portal:
+    image: steveltn/https-portal:1
+    ports:
+      - '80:80'
+      - '443:443'
+    depends_on:
+      - go
+    volumes:
+      - ./fascia.http.conf.erb:/var/lib/nginx-conf/fascia.io.conf.erb:ro
+    environment:
+      DOMAINS: 'fascia.io -> http://go:9090'
+      WORKER_PROCESS: 4
+      # TODO: productionリリース時にはproductionに
+      # STAGE: 'production'
+      # FORCE_RENEW: 'true'
+    healthcheck:
+      test: ["CMD", "curl", "-H", "Host: fascia.io", "-f", "https://localhost"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 20s
+    stop_grace_period: 10s
