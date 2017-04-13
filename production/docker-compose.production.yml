@@ -35,7 +35,8 @@ services:
     depends_on:
       - go
     volumes:
-      - ./fascia.http.conf.erb:/var/lib/nginx-conf/fascia.io.conf.erb:ro
+      - ./fascia.io.conf.erb:/var/lib/nginx-conf/fascia.io.conf.erb:ro
+      - ./fascia.io.ssl.conf.erb:/var/lib/nginx-conf/fascia.io.ssl.conf.erb:ro
     environment:
       DOMAINS: 'fascia.io -> http://go:9090'
       WORKER_PROCESS: 4
