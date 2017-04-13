@@ -68,7 +68,7 @@ func sendMail(address string, title string, htmlBody string, rawBody string) (r 
 		address = config.Element("mail").(map[interface{}]interface{})["to"].(string)
 	}
 
-	svc := ses.New(session.New())
+	svc := ses.New(session.New(), config.AWS())
 
 	params := &ses.SendEmailInput{
 		Destination: &ses.Destination{
