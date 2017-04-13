@@ -9,6 +9,9 @@ jobs:
           DATABASE_URL: 127.0.0.1
           DB_TEST_NAME: fascia_test
           DB_USER: root
+          # MySQLの起動チェック用
+          HEALTH_CHECK_RETRY_LIMIT: 10
+          HEALTH_CHECK_RETRY_WAIT: 3
         user: root
       - image: mysql:5.7
         environment:
