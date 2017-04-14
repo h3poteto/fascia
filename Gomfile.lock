@@ -18,7 +18,7 @@ gom 'github.com/aws/aws-sdk-go/aws', :commit => 'baba9e786eae5ba978f2007f8e71855
 gom 'github.com/aws/aws-sdk-go/aws/session', :commit => 'baba9e786eae5ba978f2007f8e718557b29157c8'
 gom 'github.com/aws/aws-sdk-go/service/ses', :commit => 'baba9e786eae5ba978f2007f8e718557b29157c8'
 gom 'github.com/goji/glogrus', :commit => '92ccdaf5e752d8c8d61733f574a9f637c5b2d40c'
-gom 'github.com/pkg/errors', :commit => '645ef00459ed84a119197bfb8d8205042c6df63d', :tag => 'v0.8.0'
+gom 'github.com/pkg/errors', :commit => 'ff09b135c25aae272398c51a07235b90a75aa4f0'
 gom 'github.com/asaskevich/govalidator', :commit => '2c14e1cca90af49b3b21fe2d7aaa8cc7f9da2ff8'
 gom 'github.com/rs/cors', :commit => 'a62a804a8a009876ca59105f7899938a1349f4b3'
 gom 'github.com/spf13/cobra/cobra', :commit => '5deb57bbca49eb370538fc295ba4b2988f9f5e09'
