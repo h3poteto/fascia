@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
+	"github.com/h3poteto/fascia/server/entities/project"
 	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/validators"
+	"github.com/h3poteto/fascia/server/views"
 
 	"encoding/json"
 	"net/http"
@@ -33,16 +35,6 @@ type SettingsProjectForm struct {
 	ShowPullRequests bool `param:"show_pull_requests"`
 }
 
-type ProjectJSONFormat struct {
-	ID               int64
-	UserID           int64
-	Title            string
-	Description      string
-	ShowIssues       bool
-	ShowPullRequests bool
-	RepositoryID     int64
-}
-
 func (u *Projects) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	currentUser, err := LoginRequired(r)
@@ -58,28 +50,18 @@ func (u *Projects) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "cannot find projects", 500)
 		return
 	}
-	jsonProjects := make([]*ProjectJSONFormat, 0)
+
+	var projectEntities []*project.Project
 	for _, p := range projects {
-		var repositoryID int64
-		repo, find, err := p.ProjectEntity.Repository()
-		if err != nil {
-			logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Index", err, c).Error(err)
-			http.Error(w, "Internal server error", 500)
-			return
-		}
-		if find {
-			repositoryID = repo.RepositoryModel.ID
-		}
-		jsonProjects = append(jsonProjects, &ProjectJSONFormat{
-			ID:               p.ProjectEntity.ProjectModel.ID,
-			UserID:           p.ProjectEntity.ProjectModel.UserID,
-			Title:            p.ProjectEntity.ProjectModel.Title,
-			Description:      p.ProjectEntity.ProjectModel.Description,
-			ShowIssues:       p.ProjectEntity.ProjectModel.ShowIssues,
-			ShowPullRequests: p.ProjectEntity.ProjectModel.ShowPullRequests,
-			RepositoryID:     repositoryID,
-		})
+		projectEntities = append(projectEntities, p.ProjectEntity)
 	}
+	jsonProjects, err := views.ParseProjectsJson(projectEntities)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Index", err, c).Error(err)
+		http.Error(w, "Internal server error", 500)
+		return
+	}
+
 	encoder.Encode(jsonProjects)
 }
 
@@ -105,24 +87,12 @@ func (u *Projects) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "project not found", 404)
 		return
 	}
-	var repoID int64
-	repo, find, err := projectService.ProjectEntity.Repository()
+
+	jsonProject, err := views.ParseProjectJson(projectService.ProjectEntity)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Show", c).Error(err)
 		http.Error(w, "Internal server error", 500)
 		return
-	}
-	if find {
-		repoID = repo.RepositoryModel.ID
-	}
-	jsonProject := ProjectJSONFormat{
-		ID:               projectService.ProjectEntity.ProjectModel.ID,
-		UserID:           projectService.ProjectEntity.ProjectModel.UserID,
-		Title:            projectService.ProjectEntity.ProjectModel.Title,
-		Description:      projectService.ProjectEntity.ProjectModel.Description,
-		ShowIssues:       projectService.ProjectEntity.ProjectModel.ShowIssues,
-		ShowPullRequests: projectService.ProjectEntity.ProjectModel.ShowPullRequests,
-		RepositoryID:     repoID,
 	}
 	encoder.Encode(jsonProject)
 	return
@@ -178,24 +148,12 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "save failed", 500)
 		return
 	}
-	var repositoryID int64
-	repo, find, err := projectService.ProjectEntity.Repository()
+
+	jsonProject, err := views.ParseProjectJson(projectService.ProjectEntity)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Create", err, c).Error(err)
 		http.Error(w, "Internal server error", 500)
 		return
-	}
-	if find {
-		repositoryID = repo.RepositoryModel.ID
-	}
-	jsonProject := ProjectJSONFormat{
-		ID:               projectService.ProjectEntity.ProjectModel.ID,
-		UserID:           projectService.ProjectEntity.ProjectModel.UserID,
-		Title:            projectService.ProjectEntity.ProjectModel.Title,
-		Description:      projectService.ProjectEntity.ProjectModel.Description,
-		ShowIssues:       projectService.ProjectEntity.ProjectModel.ShowIssues,
-		ShowPullRequests: projectService.ProjectEntity.ProjectModel.ShowPullRequests,
-		RepositoryID:     repositoryID,
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Create", c).Info("success to create project")
 	encoder.Encode(jsonProject)
@@ -259,24 +217,12 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Update", c).Info("success to update project")
-	var repositoryID int64
-	repo, find, err := projectService.ProjectEntity.Repository()
+
+	jsonProject, err := views.ParseProjectJson(projectService.ProjectEntity)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Update", c).Error(err)
 		http.Error(w, "Internal server error", 500)
 		return
-	}
-	if find {
-		repositoryID = repo.RepositoryModel.ID
-	}
-	jsonProject := ProjectJSONFormat{
-		ID:               projectService.ProjectEntity.ProjectModel.ID,
-		UserID:           projectService.ProjectEntity.ProjectModel.UserID,
-		Title:            projectService.ProjectEntity.ProjectModel.Title,
-		Description:      projectService.ProjectEntity.ProjectModel.Description,
-		ShowIssues:       projectService.ProjectEntity.ProjectModel.ShowIssues,
-		ShowPullRequests: projectService.ProjectEntity.ProjectModel.ShowPullRequests,
-		RepositoryID:     repositoryID,
 	}
 	encoder.Encode(jsonProject)
 }
@@ -331,24 +277,12 @@ func (u *Projects) Settings(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Settings", c).Info("success to update project")
-	var repositoryID int64
-	repo, find, err := projectService.ProjectEntity.Repository()
+
+	jsonProject, err := views.ParseProjectJson(projectService.ProjectEntity)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Settings", c).Error(err)
 		http.Error(w, "Internal server error", 500)
 		return
-	}
-	if find {
-		repositoryID = repo.RepositoryModel.ID
-	}
-	jsonProject := ProjectJSONFormat{
-		ID:               projectService.ProjectEntity.ProjectModel.ID,
-		UserID:           projectService.ProjectEntity.ProjectModel.UserID,
-		Title:            projectService.ProjectEntity.ProjectModel.Title,
-		Description:      projectService.ProjectEntity.ProjectModel.Description,
-		ShowIssues:       projectService.ProjectEntity.ProjectModel.ShowIssues,
-		ShowPullRequests: projectService.ProjectEntity.ProjectModel.ShowPullRequests,
-		RepositoryID:     repositoryID,
 	}
 	encoder.Encode(jsonProject)
 }
