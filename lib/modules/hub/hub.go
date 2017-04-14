@@ -3,9 +3,11 @@ package hub
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
 
+	"context"
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
+	"time"
 )
 
 // Hub has github client struct
@@ -25,7 +27,9 @@ func New(token string) *Hub {
 
 // GetRepository returns a repository struct
 func (h *Hub) GetRepository(ID int) (*github.Repository, error) {
-	repo, _, err := h.client.Repositories.GetByID(ID)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	repo, _, err := h.client.Repositories.GetByID(ctx, ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "response error")
 	}
@@ -36,7 +40,9 @@ func (h *Hub) GetRepository(ID int) (*github.Repository, error) {
 func CheckLabelPresent(token, owner, name, title string) (*github.Label, error) {
 	client := prepareClient(token)
 
-	githubLabel, response, err := client.Issues.GetLabel(owner, name, title)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	githubLabel, response, err := client.Issues.GetLabel(ctx, owner, name, title)
 	logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent").Debugf("respone of geting github label: %+v", response)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("hub", "CheckLabelPresent").Debugf("cannot find github label: %v", name)
@@ -55,7 +61,9 @@ func CreateGithubLabel(token, owner, name, title, color string) (*github.Label, 
 		Name:  &title,
 		Color: &color,
 	}
-	githubLabel, response, err := client.Issues.CreateLabel(owner, name, label)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	githubLabel, response, err := client.Issues.CreateLabel(ctx, owner, name, label)
 	logging.SharedInstance().MethodInfo("hub", "CreateGithubLabel").Debugf("response of creating github label: %+v\n", response)
 	if err != nil {
 		return nil, errors.Wrap(err, "response is error")
@@ -72,7 +80,9 @@ func UpdateGithubLabel(token, owner, name, originalTitle, title, color string) (
 		Name:  &title,
 		Color: &color,
 	}
-	githubLabel, response, err := client.Issues.EditLabel(owner, name, originalTitle, label)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	githubLabel, response, err := client.Issues.EditLabel(ctx, owner, name, originalTitle, label)
 	logging.SharedInstance().MethodInfo("hub", "UpddateGithubLabel").Debugf("response of updating github label: %+v", response)
 	if err != nil {
 		return nil, errors.Wrap(err, "response is error")
@@ -90,7 +100,9 @@ func CreateGithubIssue(token, owner, name, title, description string, labels []s
 		Body:   &description,
 		Labels: &labels,
 	}
-	githubIssue, response, err := client.Issues.Create(owner, name, issueRequest)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	githubIssue, response, err := client.Issues.Create(ctx, owner, name, issueRequest)
 	logging.SharedInstance().MethodInfo("hub", "CreateGithubIssue").Debugf("response of creating github issue: %+v\n", response)
 	if err != nil {
 		return nil, errors.Wrap(err, "response is error")
@@ -110,7 +122,9 @@ func EditGithubIssue(token, owner, name, title, description, state string, issue
 		Labels: &labels,
 	}
 
-	issue, response, err := client.Issues.Edit(owner, name, issueNumber, issueRequest)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	issue, response, err := client.Issues.Edit(ctx, owner, name, issueNumber, issueRequest)
 	logging.SharedInstance().MethodInfo("hub", "EditGithubIssue").Debugf("response of edit github issue: %+v", response)
 	if err != nil {
 		return false, errors.Wrap(err, "response is error")
@@ -123,7 +137,9 @@ func EditGithubIssue(token, owner, name, title, description, state string, issue
 func GetGithubIssue(token, owner, name string, number int) (*github.Issue, error) {
 	client := prepareClient(token)
 
-	issue, _, err := client.Issues.Get(owner, name, number)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	issue, _, err := client.Issues.Get(ctx, owner, name, number)
 	if err != nil {
 		return nil, errors.Wrap(err, "response is error")
 	}
@@ -140,11 +156,16 @@ func GetGithubIssues(token, owner, name string) ([]*github.Issue, []*github.Issu
 	closedIssueOption := github.IssueListByRepoOptions{
 		State: "closed",
 	}
-	opneIssues, _, err := client.Issues.ListByRepo(owner, name, &openIssueOption)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	opneIssues, _, err := client.Issues.ListByRepo(ctx, owner, name, &openIssueOption)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "response is error")
 	}
-	closedIssues, _, err := client.Issues.ListByRepo(owner, name, &closedIssueOption)
+	ctx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	closedIssues, _, err := client.Issues.ListByRepo(ctx, owner, name, &closedIssueOption)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "response is error")
 	}
@@ -156,7 +177,9 @@ func GetGithubIssues(token, owner, name string) ([]*github.Issue, []*github.Issu
 func ListLabels(token, owner, name string) ([]*github.Label, error) {
 	client := prepareClient(token)
 
-	labels, _, err := client.Issues.ListLabels(owner, name, nil)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	labels, _, err := client.Issues.ListLabels(ctx, owner, name, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "response is error")
 	}
@@ -176,7 +199,9 @@ func CreateWebhook(token, owner, name, secret, url string) error {
 	client := prepareClient(token)
 
 	hook := webHook(secret, url)
-	_, _, err := client.Repositories.CreateHook(owner, name, hook)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	_, _, err := client.Repositories.CreateHook(ctx, owner, name, hook)
 	if err != nil {
 		return errors.Wrap(err, "CreateWebhook error")
 	}
@@ -188,7 +213,9 @@ func EditWebhook(token, owner, name, secret, url string, hook *github.Hook) erro
 	client := prepareClient(token)
 
 	editHook := webHook(secret, url)
-	_, _, err := client.Repositories.EditHook(owner, name, *hook.ID, editHook)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	_, _, err := client.Repositories.EditHook(ctx, owner, name, *hook.ID, editHook)
 	if err != nil {
 		return errors.Wrap(err, "EditWebhook error")
 	}
@@ -203,7 +230,9 @@ func ListWebhooks(token, owner, name string) ([]*github.Hook, error) {
 		Page:    1,
 		PerPage: 100,
 	}
-	hooks, _, err := client.Repositories.ListHooks(owner, name, listOptions)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	hooks, _, err := client.Repositories.ListHooks(ctx, owner, name, listOptions)
 	if err != nil {
 		return nil, errors.Wrap(err, "ListHooks error")
 	}
@@ -214,7 +243,9 @@ func ListWebhooks(token, owner, name string) ([]*github.Hook, error) {
 func DeleteWebhook(token, owner, name string, hook *github.Hook) error {
 	client := prepareClient(token)
 
-	_, err := client.Repositories.DeleteHook(owner, name, *hook.ID)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	_, err := client.Repositories.DeleteHook(ctx, owner, name, *hook.ID)
 	if err != nil {
 		return errors.Wrap(err, "DeleteWebhook error")
 	}

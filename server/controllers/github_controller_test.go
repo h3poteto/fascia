@@ -1,11 +1,13 @@
 package controllers_test
 
 import (
+	"context"
 	"database/sql"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"time"
 
 	"github.com/google/go-github/github"
 	. "github.com/h3poteto/fascia/server"
@@ -42,7 +44,9 @@ var _ = Describe("GithubController", func() {
 		)
 		tc := oauth2.NewClient(oauth2.NoContext, ts)
 		client := github.NewClient(tc)
-		githubUser, _, err := client.Users.Get("")
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		githubUser, _, err := client.Users.Get(ctx, "")
 		if err != nil {
 			log.Fatal(err)
 		}
