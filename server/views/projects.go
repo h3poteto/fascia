@@ -14,7 +14,7 @@ type Project struct {
 	RepositoryID     int64  `json:RepositoryID`
 }
 
-func ParseProjectJson(project *project.Project) (*Project, error) {
+func ParseProjectJSON(project *project.Project) (*Project, error) {
 	var repositoryID int64
 	repo, find, err := project.Repository()
 	if err != nil {
@@ -35,10 +35,10 @@ func ParseProjectJson(project *project.Project) (*Project, error) {
 	}, nil
 }
 
-func ParseProjectsJson(projects []*project.Project) ([]*Project, error) {
+func ParseProjectsJSON(projects []*project.Project) ([]*Project, error) {
 	results := make([]*Project, 0)
 	for _, p := range projects {
-		parse, err := ParseProjectJson(p)
+		parse, err := ParseProjectJSON(p)
 		if err != nil {
 			return nil, err
 		}

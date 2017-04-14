@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/entities/task"
 	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/services"
 	"github.com/h3poteto/fascia/server/validators"
+	"github.com/h3poteto/fascia/server/views"
 
 	"database/sql"
 	"encoding/json"
@@ -35,17 +35,6 @@ type MoveTaskForm struct {
 type EditTaskForm struct {
 	Title       string `param:"title"`
 	Description string `param:"description"`
-}
-
-type TaskJSONFormat struct {
-	ID          int64
-	ListID      int64
-	UserID      int64
-	IssueNumber int64
-	Title       string
-	Description string
-	HTMLURL     string
-	PullRequest bool
 }
 
 func (u *Tasks) Create(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -159,15 +148,11 @@ func (u *Tasks) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 
 	encoder := json.NewEncoder(w)
-	jsonTask := TaskJSONFormat{
-		ID:          task.TaskEntity.TaskModel.ID,
-		ListID:      task.TaskEntity.TaskModel.ListID,
-		UserID:      task.TaskEntity.TaskModel.UserID,
-		IssueNumber: task.TaskEntity.TaskModel.IssueNumber.Int64,
-		Title:       task.TaskEntity.TaskModel.Title,
-		Description: task.TaskEntity.TaskModel.Description,
-		HTMLURL:     task.TaskEntity.TaskModel.HTMLURL.String,
-		PullRequest: task.TaskEntity.TaskModel.PullRequest,
+	jsonTask, err := views.ParseTaskJSON(task.TaskEntity)
+	if err != nil {
+		logging.SharedInstance().MethodInfoWithStacktrace("TasksController", "Show", err, c).Error(err)
+		http.Error(w, "task error", 500)
+		return
 	}
 	logging.SharedInstance().MethodInfo("TasksController", "Show", c).Info("success to get task")
 	encoder.Encode(jsonTask)
@@ -428,30 +413,8 @@ func setTask(c web.C, w http.ResponseWriter, list *services.List) (*services.Tas
 	return task, 200, nil
 }
 
-// TaskFormatToJSON convert task model's array to json
-func TaskFormatToJSON(tasks []*task.Task) []*TaskJSONFormat {
-	jsonTasks := make([]*TaskJSONFormat, 0)
-	for _, t := range tasks {
-		jsonTasks = append(jsonTasks, &TaskJSONFormat{
-			ID:          t.TaskModel.ID,
-			ListID:      t.TaskModel.ListID,
-			UserID:      t.TaskModel.UserID,
-			IssueNumber: t.TaskModel.IssueNumber.Int64,
-			Title:       t.TaskModel.Title,
-			Description: t.TaskModel.Description,
-			HTMLURL:     t.TaskModel.HTMLURL.String,
-			PullRequest: t.TaskModel.PullRequest,
-		})
-	}
-	return jsonTasks
-}
-
-func allListsResponse(projectService *services.Project) (*AllListJSONFormat, error) {
+func allListsResponse(projectService *services.Project) (*views.AllLists, error) {
 	allLists, err := projectService.ProjectEntity.Lists()
-	if err != nil {
-		return nil, err
-	}
-	jsonLists, err := ListsFormatToJSON(allLists)
 	if err != nil {
 		return nil, err
 	}
@@ -459,10 +422,5 @@ func allListsResponse(projectService *services.Project) (*AllListJSONFormat, err
 	if err != nil {
 		return nil, err
 	}
-	jsonNoneList, err := ListFormatToJSON(noneList)
-	if err != nil {
-		return nil, err
-	}
-	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
-	return &jsonAllLists, nil
+	return views.ParseAllListsJSON(noneList, allLists)
 }

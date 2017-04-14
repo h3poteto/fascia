@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/entities/list"
 	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/validators"
+	"github.com/h3poteto/fascia/server/views"
 
 	"database/sql"
 	"encoding/json"
@@ -28,23 +28,6 @@ type EditListForm struct {
 	Title    string `param:"title"`
 	Color    string `param:"color"`
 	OptionID int64  `param:"option_id"`
-}
-
-type ListJSONFormat struct {
-	ID           int64
-	ProjectID    int64
-	UserID       int64
-	Title        string
-	ListTasks    []*TaskJSONFormat
-	Color        string
-	ListOptionID int64
-	IsHidden     bool
-	IsInitList   bool
-}
-
-type AllListJSONFormat struct {
-	Lists    []*ListJSONFormat
-	NoneList *ListJSONFormat
 }
 
 func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -75,25 +58,19 @@ func (u *Lists) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "lists not found", 500)
 		return
 	}
-	jsonLists, err := ListsFormatToJSON(lists)
-	if err != nil {
-		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Index", err, c).Error(err)
-		http.Error(w, "lists format error", 500)
-		return
-	}
 	noneList, err := projectService.ProjectEntity.NoneList()
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Index", err, c).Error(err)
 		http.Error(w, "none list not found", 500)
 		return
 	}
-	jsonNoneList, err := ListFormatToJSON(noneList)
+
+	jsonAllLists, err := views.ParseAllListsJSON(noneList, lists)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Index", err, c).Error(err)
-		http.Error(w, "list format error", 500)
+		http.Error(w, "parse error", 500)
 		return
 	}
-	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 	encoder.Encode(jsonAllLists)
 	logging.SharedInstance().MethodInfo("ListsController", "Index", c).Info("success to get lists")
 	return
@@ -153,7 +130,7 @@ func (u *Lists) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed save", 500)
 		return
 	}
-	jsonList, err := ListFormatToJSON(list.ListEntity)
+	jsonList, err := views.ParseListJSON(list.ListEntity)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Create", err, c).Error(err)
 		http.Error(w, "list format error", 500)
@@ -233,7 +210,7 @@ func (u *Lists) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "save failed", 500)
 		return
 	}
-	jsonList, err := ListFormatToJSON(targetList.ListEntity)
+	jsonList, err := views.ParseListJSON(targetList.ListEntity)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Update", err, c).Error(err)
 		http.Error(w, "list format error", 500)
@@ -294,25 +271,19 @@ func (u *Lists) Hide(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "lists not found", 500)
 		return
 	}
-	jsonLists, err := ListsFormatToJSON(lists)
-	if err != nil {
-		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Hide", err, c).Error(err)
-		http.Error(w, "list format error", 500)
-		return
-	}
 	noneList, err := projectService.ProjectEntity.NoneList()
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Hide", err, c).Error(err)
 		http.Error(w, "none list not found", 500)
 		return
 	}
-	jsonNoneList, err := ListFormatToJSON(noneList)
+
+	jsonAllLists, err := views.ParseAllListsJSON(noneList, lists)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Hide", err, c).Error(err)
-		http.Error(w, "lists format error", 500)
+		http.Error(w, "parse error", 500)
 		return
 	}
-	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 	logging.SharedInstance().MethodInfo("ListsController", "Hide", c).Info("success to hide list")
 	encoder.Encode(jsonAllLists)
 	return
@@ -368,58 +339,19 @@ func (u *Lists) Display(c web.C, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "lists not found", 500)
 		return
 	}
-	jsonLists, err := ListsFormatToJSON(lists)
-	if err != nil {
-		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Display", err, c).Error(err)
-		http.Error(w, "lists format error", 500)
-		return
-	}
 	noneList, err := projectService.ProjectEntity.NoneList()
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Display", err, c).Error(err)
 		http.Error(w, "none list not found", 500)
 		return
 	}
-	jsonNoneList, err := ListFormatToJSON(noneList)
+	jsonAllLists, err := views.ParseAllListsJSON(noneList, lists)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Display", err, c).Error(err)
-		http.Error(w, "list format error", 500)
+		http.Error(w, "parse error", 500)
 		return
 	}
-	jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 	logging.SharedInstance().MethodInfo("ListsController", "Display", c).Info("success to display list")
 	encoder.Encode(jsonAllLists)
 	return
-}
-
-// ListsFormatToJSON convert lists models's array to json
-func ListsFormatToJSON(lists []*list.List) ([]*ListJSONFormat, error) {
-	var jsonLists []*ListJSONFormat
-	for _, l := range lists {
-		list, err := ListFormatToJSON(l)
-		if err != nil {
-			return nil, err
-		}
-		jsonLists = append(jsonLists, list)
-	}
-	return jsonLists, nil
-}
-
-// ListFormatToJSON convert a list model to json
-func ListFormatToJSON(list *list.List) (*ListJSONFormat, error) {
-	tasks, err := list.Tasks()
-	if err != nil {
-		return nil, err
-	}
-	return &ListJSONFormat{
-		ID:           list.ListModel.ID,
-		ProjectID:    list.ListModel.ProjectID,
-		UserID:       list.ListModel.UserID,
-		Title:        list.ListModel.Title.String,
-		ListTasks:    TaskFormatToJSON(tasks),
-		Color:        list.ListModel.Color.String,
-		ListOptionID: list.ListModel.ListOptionID.Int64,
-		IsHidden:     list.ListModel.IsHidden,
-		IsInitList:   list.IsInitList(),
-	}, nil
 }

@@ -30,7 +30,7 @@ func (u *ListOptions) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	for _, o := range listOptionAll {
 		optionEntities = append(optionEntities, o.ListOptionEntity)
 	}
-	jsonOptions, err := views.ParseListOptionsJson(optionEntities)
+	jsonOptions, err := views.ParseListOptionsJSON(optionEntities)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListOptionsController", "Index", err, c).Error(err)
 		http.Error(w, "list options error", 500)

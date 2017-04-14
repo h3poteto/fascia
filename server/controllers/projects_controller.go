@@ -55,7 +55,7 @@ func (u *Projects) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	for _, p := range projects {
 		projectEntities = append(projectEntities, p.ProjectEntity)
 	}
-	jsonProjects, err := views.ParseProjectsJson(projectEntities)
+	jsonProjects, err := views.ParseProjectsJSON(projectEntities)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Index", err, c).Error(err)
 		http.Error(w, "Internal server error", 500)
@@ -88,7 +88,7 @@ func (u *Projects) Show(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonProject, err := views.ParseProjectJson(projectService.ProjectEntity)
+	jsonProject, err := views.ParseProjectJSON(projectService.ProjectEntity)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Show", c).Error(err)
 		http.Error(w, "Internal server error", 500)
@@ -149,7 +149,7 @@ func (u *Projects) Create(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonProject, err := views.ParseProjectJson(projectService.ProjectEntity)
+	jsonProject, err := views.ParseProjectJSON(projectService.ProjectEntity)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Create", err, c).Error(err)
 		http.Error(w, "Internal server error", 500)
@@ -218,7 +218,7 @@ func (u *Projects) Update(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Update", c).Info("success to update project")
 
-	jsonProject, err := views.ParseProjectJson(projectService.ProjectEntity)
+	jsonProject, err := views.ParseProjectJSON(projectService.ProjectEntity)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Update", c).Error(err)
 		http.Error(w, "Internal server error", 500)
@@ -278,7 +278,7 @@ func (u *Projects) Settings(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	logging.SharedInstance().MethodInfo("ProjectsController", "Settings", c).Info("success to update project")
 
-	jsonProject, err := views.ParseProjectJson(projectService.ProjectEntity)
+	jsonProject, err := views.ParseProjectJSON(projectService.ProjectEntity)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Settings", c).Error(err)
 		http.Error(w, "Internal server error", 500)
@@ -321,25 +321,18 @@ func (u *Projects) FetchGithub(c web.C, w http.ResponseWriter, r *http.Request) 
 			http.Error(w, "lists not found", 500)
 			return
 		}
-		jsonLists, err := ListsFormatToJSON(lists)
-		if err != nil {
-			logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "FetchGithub", err, c).Error(err)
-			http.Error(w, "lists format error", 500)
-			return
-		}
 		noneList, err := projectService.ProjectEntity.NoneList()
 		if err != nil {
 			logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "FetchGithub", err, c).Error(err)
 			http.Error(w, "none list not found", 500)
 			return
 		}
-		jsonNoneList, err := ListFormatToJSON(noneList)
+		jsonAllLists, err := views.ParseAllListsJSON(noneList, lists)
 		if err != nil {
 			logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "FetchGithub", err, c).Error(err)
-			http.Error(w, "list format error", 500)
+			http.Error(w, "parse error", 500)
 			return
 		}
-		jsonAllLists := AllListJSONFormat{Lists: jsonLists, NoneList: jsonNoneList}
 		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub", c).Info("success to fetch github")
 		encoder.Encode(jsonAllLists)
 		return
