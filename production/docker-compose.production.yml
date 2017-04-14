@@ -36,13 +36,11 @@ services:
       - go
     volumes:
       - ./fascia.io.conf.erb:/var/lib/nginx-conf/fascia.io.conf.erb:ro
-      - ./fascia.io.ssl.conf.erb:/var/lib/nginx-conf/fascia.io.ssl.conf.erb:ro
     environment:
       DOMAINS: 'fascia.io -> http://go:9090'
       WORKER_PROCESS: 4
-      # TODO: productionリリース時にはproductionに
-      # STAGE: 'production'
-      # FORCE_RENEW: 'true'
+      STAGE: 'production'
+      FORCE_RENEW: 'true'
     deploy:
       replicas: 2
       update_config:
