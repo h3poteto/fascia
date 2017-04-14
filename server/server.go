@@ -107,7 +107,7 @@ func Routes(m *web.Mux) {
 // Serve start goji server
 func Serve() {
 	root := os.Getenv("GOJIROOT")
-	pongo2.DefaultSet = pongo2.NewSet("default", pongo2.MustNewLocalFileSystemLoader(filepath.Join(root, "server/views")))
+	pongo2.DefaultSet = pongo2.NewSet("default", pongo2.MustNewLocalFileSystemLoader(filepath.Join(root, "server/templates")))
 	pongo2.RegisterFilter("suffixAssetsUpdate", filters.SuffixAssetsUpdate)
 	flag.Set("bind", ":9090")
 	mux := goji.DefaultMux

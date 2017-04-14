@@ -31,7 +31,7 @@ func TestControllers(t *testing.T) {
 
 var _ = BeforeSuite(func() {
 	pongo2.RegisterFilter("suffixAssetsUpdate", filters.SuffixAssetsUpdate)
-	pongo2.DefaultSet = pongo2.NewSet("test", pongo2.MustNewLocalFileSystemLoader("../views"))
+	pongo2.DefaultSet = pongo2.NewSet("test", pongo2.MustNewLocalFileSystemLoader("../templates"))
 })
 
 func ParseJson(res *http.Response) (interface{}, int) {
