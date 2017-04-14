@@ -232,22 +232,23 @@ func (p *Project) ApplyIssueChanges(body github.IssuesEvent) error {
 	fmt.Println("debug log: ", p.ProjectEntity)
 	fmt.Println("debug log: ", *body.Issue)
 	targetTask, _ := task.FindByIssueNumber(p.ProjectEntity.ProjectModel.ID, *body.Issue.Number)
-	var err error
+
+	// create時点ではlabelsが空の状態でhookが飛んできている場合がある
+	// editedの場合であってもwebhookにはchangeだけしか載っておらず，最新の状態は載っていない場合がある
+	// そのため一度issueの情報を取得し直す必要がある
+	issue, err := p.ProjectEntity.ReacquireIssue(body.Issue)
+	if err != nil {
+		return err
+	}
 	switch *body.Action {
 	case "opened", "reopened":
-		// create時点ではlabelsが空の状態でhookが飛んできている場合がある
-		// そのためlabelsが空だった場合には，一度labelsを取得しなおす処理を呼んでおく
-		issue, err := p.ProjectEntity.ReacquireIssue(body.Issue)
-		if err != nil {
-			return err
-		}
 		if targetTask == nil {
 			err = p.ProjectEntity.CreateNewTask(issue)
 		} else {
 			err = p.ProjectEntity.ReopenTask(targetTask, issue)
 		}
 	case "closed", "labeled", "unlabeled", "edited":
-		err = p.ProjectEntity.TaskApplyLabel(targetTask, body.Issue)
+		err = p.ProjectEntity.TaskApplyLabel(targetTask, issue)
 	}
 	return err
 }

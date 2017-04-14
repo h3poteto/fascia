@@ -80,9 +80,6 @@ func listsWithCloseAction(lists []list.List) []list.List {
 
 // ReacquireIssue get again a issue from github
 func (p *Project) ReacquireIssue(issue *github.Issue) (*github.Issue, error) {
-	if len(issue.Labels) > 0 {
-		return issue, nil
-	}
 	oauthToken, err := p.OauthToken()
 	if err != nil {
 		return nil, err
