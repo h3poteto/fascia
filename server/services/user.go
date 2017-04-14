@@ -3,9 +3,11 @@ package services
 import (
 	"github.com/h3poteto/fascia/server/entities/user"
 
+	"context"
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
+	"time"
 )
 
 // User has a user entity
@@ -73,13 +75,17 @@ func FindOrCreateUserFromGithub(token string) (*User, error) {
 	)
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 	client := github.NewClient(tc)
-	githubUser, _, err := client.Users.Get("")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	githubUser, _, err := client.Users.Get(ctx, "")
 	if err != nil {
 		return nil, errors.Wrap(err, "github api error")
 	}
 
 	// TODO: primaryじゃないEmailも保存しておいてログインブロックに使いたい
-	emails, _, _ := client.Users.ListEmails(nil)
+	ctx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	emails, _, _ := client.Users.ListEmails(ctx, nil)
 	var primaryEmail string
 	for _, email := range emails {
 		if *email.Primary {

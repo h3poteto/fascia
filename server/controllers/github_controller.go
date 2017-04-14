@@ -3,8 +3,10 @@ package controllers
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
 
+	"context"
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
@@ -50,7 +52,9 @@ func (u *Github) Repositories(c web.C, w http.ResponseWriter, r *http.Request) {
 				PerPage: 50,
 			},
 		}
-		repos, res, err := client.Repositories.List("", repositoryOption)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		repos, res, err := client.Repositories.List(ctx, "", repositoryOption)
 		nextPage = res.NextPage
 		if err != nil {
 			err := errors.Wrap(err, "repository error")
