@@ -6,7 +6,7 @@ import (
 
 type listCreate struct {
 	Title string `valid:"stringlength(1|255)"`
-	Color string `valid:"hexadecimal,stringlength=6"`
+	Color string `valid:"hexadecimal,stringlength(6|6)"`
 }
 
 type listUpdate struct {
