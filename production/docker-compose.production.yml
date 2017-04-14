@@ -42,7 +42,7 @@ services:
       STAGE: 'production'
       FORCE_RENEW: 'true'
     deploy:
-      replicas: 2
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 20s
