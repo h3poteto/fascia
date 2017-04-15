@@ -16,14 +16,12 @@ COPY . ${GOJIROOT}
 RUN chown -R go:go ${GOPATH}
 USER go
 
-# We need goose when deploy new application
-# So, gom install is required
 RUN set -x \
    && go get github.com/mattn/gom \
    && go get -u github.com/jteeuwen/go-bindata/... \
-   && gom install \
+   && dep ensure \
    && go generate \
-   && gom build -o bin/fascia
+   && go build -o bin/fascia
 
 EXPOSE 9090:9090
 
