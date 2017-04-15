@@ -29,7 +29,7 @@ jobs:
       - restore_cache:
           name: Restoring cache - vendor
           keys:
-            - vendor-{{ checksum "Gomfile" }}-{{ checksum "Gomfile.lock" }}
+            - vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           name: Restoring cache - node_modules
           keys:
@@ -40,10 +40,10 @@ jobs:
           command: go generate
       - run:
           name: Go packages install
-          command: .circleci/scripts/gom_install.sh
+          command: .circleci/scripts/dep_ensure.sh
       - save_cache:
           name: Saving cache - vendor
-          key: vendor-{{ checksum "Gomfile" }}-{{ checksum "Gomfile.lock" }}
+          key: vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
           paths:
             - "vendor"
       - run:
@@ -66,10 +66,10 @@ jobs:
           command: mysql -u root -h 127.0.0.1 -e "CREATE DATABASE $DB_TEST_NAME CHARACTER SET utf8mb4;"
       - run:
           name: Migration database
-          command: gom exec goose -env test up
+          command: goose -env test up
       - run:
           name: Server test
-          command: gom exec ginkgo -r ./
+          command: ginkgo -r ./
       - run:
           name: Frontend test
           command: npm run test
