@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: h3poteto/golang-node
+      - image: h3poteto/golang-node:v1.0
         environment:
           GOJIROOT: /go/src/github.com/h3poteto/fascia
           GOJIENV: test
@@ -85,7 +85,7 @@ jobs:
 
   deploy:
     docker:
-      - image: h3poteto/golang-node
+      - image: h3poteto/golang-node:v1.0
         user: root
     working_directory: /go/src/github.com/h3poteto/fascia
     branches:
