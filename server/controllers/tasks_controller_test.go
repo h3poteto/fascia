@@ -3,9 +3,9 @@ package controllers_test
 import (
 	"github.com/h3poteto/fascia/db/seed"
 	. "github.com/h3poteto/fascia/server"
-	"github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/services"
+	"github.com/h3poteto/fascia/server/views"
 
 	"database/sql"
 	"encoding/json"
@@ -67,7 +67,7 @@ var _ = Describe("TasksController", func() {
 		})
 		It("can registration", func() {
 			Expect(err).To(BeNil())
-			var contents controllers.AllListJSONFormat
+			var contents views.AllLists
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
@@ -75,7 +75,7 @@ var _ = Describe("TasksController", func() {
 			Expect(contents.Lists[3].ListTasks[0].Title).To(Equal("taskTitle"))
 		})
 		It("should exist in database", func() {
-			var contents controllers.AllListJSONFormat
+			var contents views.AllLists
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
 			newTask, _ := handlers.FindTask(listID, int64(contents.Lists[3].ListTasks[0].ID))
@@ -93,7 +93,7 @@ var _ = Describe("TasksController", func() {
 		It("should receive a task", func() {
 			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(projectID, 10) + "/lists/" + strconv.FormatInt(listID, 10) + "/tasks/" + strconv.FormatInt(newTask.TaskEntity.TaskModel.ID, 10))
 			Expect(err).To(BeNil())
-			var contents controllers.TaskJSONFormat
+			var contents views.Task
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
@@ -117,7 +117,7 @@ var _ = Describe("TasksController", func() {
 			values.Add("to_list_id", strconv.FormatInt(newList.ListEntity.ListModel.ID, 10))
 			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(listID, 10)+"/tasks/"+strconv.FormatInt(newTask.TaskEntity.TaskModel.ID, 10)+"/move_task", values)
 			Expect(err).To(BeNil())
-			var contents controllers.AllListJSONFormat
+			var contents views.AllLists
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
@@ -139,7 +139,7 @@ var _ = Describe("TasksController", func() {
 			values.Add("description", "updateDescription")
 			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(listID, 10)+"/tasks/"+strconv.FormatInt(newTask.TaskEntity.TaskModel.ID, 10), values)
 			Expect(err).To(BeNil())
-			var contents controllers.AllListJSONFormat
+			var contents views.AllLists
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))

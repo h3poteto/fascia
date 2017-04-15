@@ -3,7 +3,7 @@ package controllers_test
 import (
 	"github.com/h3poteto/fascia/db/seed"
 	. "github.com/h3poteto/fascia/server"
-	"github.com/h3poteto/fascia/server/controllers"
+	"github.com/h3poteto/fascia/server/views"
 
 	"encoding/json"
 	. "github.com/onsi/ginkgo"
@@ -36,7 +36,7 @@ var _ = Describe("ListOptionsController", func() {
 		JustBeforeEach(func() {
 			res, err := http.Get(ts.URL + "/list_options")
 			Expect(err).To(BeNil())
-			var contents []controllers.ListOptionJSONFormat
+			var contents []views.ListOption
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
