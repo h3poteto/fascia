@@ -11,9 +11,9 @@ import (
 
 	"github.com/h3poteto/fascia/db/seed"
 	. "github.com/h3poteto/fascia/server"
-	"github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/services"
+	"github.com/h3poteto/fascia/server/views"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/zenazn/goji/web"
@@ -130,7 +130,7 @@ var _ = Describe("ListsController", func() {
 		It("should receive lists", func() {
 			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(projectID, 10) + "/lists")
 			Expect(err).To(BeNil())
-			var contents controllers.AllListJSONFormat
+			var contents views.AllLists
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
 			Expect(res.StatusCode).To(Equal(http.StatusOK))
@@ -149,7 +149,7 @@ var _ = Describe("ListsController", func() {
 		It("should hide list", func() {
 			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(newList.ListEntity.ListModel.ID, 10)+"/hide", url.Values{})
 			Expect(err).To(BeNil())
-			var contents controllers.AllListJSONFormat
+			var contents views.AllLists
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
 			Expect(contents.Lists[3].IsHidden).To(BeTrue())
@@ -169,7 +169,7 @@ var _ = Describe("ListsController", func() {
 		It("should display list", func() {
 			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(newList.ListEntity.ListModel.ID, 10)+"/display", url.Values{})
 			Expect(err).To(BeNil())
-			var contents controllers.AllListJSONFormat
+			var contents views.AllLists
 			con, _ := ioutil.ReadAll(res.Body)
 			json.Unmarshal(con, &contents)
 			Expect(contents.Lists[3].IsHidden).To(BeFalse())
