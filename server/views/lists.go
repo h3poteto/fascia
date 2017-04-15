@@ -4,6 +4,7 @@ import (
 	"github.com/h3poteto/fascia/server/entities/list"
 )
 
+// List provides a response structure for list
 type List struct {
 	ID           int64   `json:ID`
 	ProjectID    int64   `json:ProjectID`
@@ -16,11 +17,13 @@ type List struct {
 	IsInitList   bool    `json:IsInitList`
 }
 
+// AllLists providers a response structure for lists and none lists
 type AllLists struct {
 	Lists    []*List `json:Lists`
 	NoneList *List   `json:NoneList`
 }
 
+// ParseListJSON returns a List struct for response
 func ParseListJSON(list *list.List) (*List, error) {
 	tasks, err := list.Tasks()
 	if err != nil {
@@ -43,6 +46,7 @@ func ParseListJSON(list *list.List) (*List, error) {
 	}, nil
 }
 
+// ParseListsJSON returns some List structs for response
 func ParseListsJSON(lists []*list.List) ([]*List, error) {
 	var results []*List
 	for _, l := range lists {
@@ -55,6 +59,7 @@ func ParseListsJSON(lists []*list.List) ([]*List, error) {
 	return results, nil
 }
 
+// ParseAllListsJSON returns a AllLists struct for response
 func ParseAllListsJSON(noneList *list.List, lists []*list.List) (*AllLists, error) {
 	jsonNone, err := ParseListJSON(noneList)
 	if err != nil {

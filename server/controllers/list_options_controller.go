@@ -26,7 +26,7 @@ func (u *ListOptions) Index(c web.C, w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 
 	listOptionAll, err := handlers.ListOptionAll()
-	optionEntities := make([]*list_option.ListOption, 0)
+	var optionEntities []*list_option.ListOption
 	for _, o := range listOptionAll {
 		optionEntities = append(optionEntities, o.ListOptionEntity)
 	}

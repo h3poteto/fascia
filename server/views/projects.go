@@ -4,6 +4,7 @@ import (
 	"github.com/h3poteto/fascia/server/entities/project"
 )
 
+// Project provides a response structure for project
 type Project struct {
 	ID               int64  `json:ID`
 	UserID           int64  `json:UserID`
@@ -14,6 +15,7 @@ type Project struct {
 	RepositoryID     int64  `json:RepositoryID`
 }
 
+// ParseProjectJSON returns a project struct for response
 func ParseProjectJSON(project *project.Project) (*Project, error) {
 	var repositoryID int64
 	repo, find, err := project.Repository()
@@ -35,8 +37,9 @@ func ParseProjectJSON(project *project.Project) (*Project, error) {
 	}, nil
 }
 
+// ParseProjectsJSON returns some projects structs for response
 func ParseProjectsJSON(projects []*project.Project) ([]*Project, error) {
-	results := make([]*Project, 0)
+	var results []*Project
 	for _, p := range projects {
 		parse, err := ParseProjectJSON(p)
 		if err != nil {

@@ -4,6 +4,7 @@ import (
 	"github.com/h3poteto/fascia/server/entities/task"
 )
 
+// Task provides a response structure for task
 type Task struct {
 	ID          int64  `json:ID`
 	ListID      int64  `json:ListID`
@@ -15,6 +16,7 @@ type Task struct {
 	PullRequest bool   `json:PullRequest`
 }
 
+// ParseTaskJSON returns a Task struct for response
 func ParseTaskJSON(task *task.Task) (*Task, error) {
 	return &Task{
 		ID:          task.TaskModel.ID,
@@ -28,8 +30,9 @@ func ParseTaskJSON(task *task.Task) (*Task, error) {
 	}, nil
 }
 
+// ParseTasksJSON returns some Task structs for response
 func ParseTasksJSON(tasks []*task.Task) ([]*Task, error) {
-	results := make([]*Task, 0)
+	var results []*Task
 	for _, t := range tasks {
 		parse, err := ParseTaskJSON(t)
 		if err != nil {
