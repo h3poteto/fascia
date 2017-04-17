@@ -4,32 +4,27 @@ import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
 
 	"context"
-	"encoding/json"
 	"net/http"
 	"time"
 
 	"github.com/google/go-github/github"
+	"github.com/labstack/echo"
 	"github.com/pkg/errors"
-	"github.com/zenazn/goji/web"
 	"golang.org/x/oauth2"
 )
 
 type Github struct {
 }
 
-func (u *Github) Repositories(c web.C, w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	currentUser, err := LoginRequired(r)
+func (u *Github) Repositories(c echo.Context) error {
+	currentUser, err := LoginRequired(c)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("GithubController", "Repositories", c).Infof("login error: %v", err)
-		http.Error(w, "not logined", 401)
-		return
+		return c.JSON(http.StatusUnauthorized, &JSONError{message: "not logined"})
 	}
-	encoder := json.NewEncoder(w)
 	if !currentUser.UserEntity.UserModel.OauthToken.Valid {
 		logging.SharedInstance().MethodInfo("GithubController", "Repositories", c).Info("user did not have oauth")
-		encoder.Encode(nil)
-		return
+		return c.JSON(http.StatusOK, nil)
 	}
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: currentUser.UserEntity.UserModel.OauthToken.String},
@@ -59,12 +54,11 @@ func (u *Github) Repositories(c web.C, w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			err := errors.Wrap(err, "repository error")
 			logging.SharedInstance().MethodInfoWithStacktrace("GithubController", "Repositories", err, c).Error(err)
-			http.Error(w, err.Error(), 500)
-			return
+			return err
 		}
 		repositories = append(repositories, repos...)
 
 	}
 	logging.SharedInstance().MethodInfo("GithubController", "Repositories", c).Info("success to get repositories")
-	encoder.Encode(repositories)
+	return c.JSON(http.StatusOK, repositories)
 }

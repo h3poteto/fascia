@@ -8,9 +8,8 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/johntdyer/slackrus"
+	"github.com/labstack/echo"
 	"github.com/pkg/errors"
-	"github.com/zenazn/goji/web"
-	"github.com/zenazn/goji/web/middleware"
 )
 
 type LogStruct struct {
@@ -25,7 +24,7 @@ type Stacktrace interface {
 var sharedInstance *LogStruct = New()
 
 func New() *LogStruct {
-	goenv := os.Getenv("GOJIENV")
+	goenv := os.Getenv("APPENV")
 	log := logrus.New()
 	log.Out = os.Stdout
 	if goenv == "production" {
@@ -48,10 +47,10 @@ func SharedInstance() *LogStruct {
 }
 
 // MethodInfo is prepare logrus entry with fields
-func (u *LogStruct) MethodInfo(model string, action string, context ...web.C) *logrus.Entry {
+func (u *LogStruct) MethodInfo(model string, action string, context ...echo.Context) *logrus.Entry {
 	requestID := "null"
 	if len(context) > 0 {
-		requestID = middleware.GetReqID(context[0])
+		requestID = context[0].Response().Header().Get(echo.HeaderXRequestID)
 	}
 
 	return u.Log.WithFields(logrus.Fields{
@@ -63,10 +62,10 @@ func (u *LogStruct) MethodInfo(model string, action string, context ...web.C) *l
 }
 
 // MethodInfoWithStacktrace is prepare logrus entry with fields
-func (u *LogStruct) MethodInfoWithStacktrace(model string, action string, err error, context ...web.C) *logrus.Entry {
+func (u *LogStruct) MethodInfoWithStacktrace(model string, action string, err error, context ...echo.Context) *logrus.Entry {
 	requestID := "null"
 	if len(context) > 0 {
-		requestID = middleware.GetReqID(context[0])
+		requestID = context[0].Response().Header().Get(echo.HeaderXRequestID)
 	}
 
 	stackErr, ok := err.(Stacktrace)
@@ -89,8 +88,8 @@ func (u *LogStruct) MethodInfoWithStacktrace(model string, action string, err er
 }
 
 // PanicRecover send error and stacktrace
-func (u *LogStruct) PanicRecover(context web.C) *logrus.Entry {
-	requestID := middleware.GetReqID(context)
+func (u *LogStruct) PanicRecover(context echo.Context) *logrus.Entry {
+	requestID := context.Response().Header().Get(echo.HeaderXRequestID)
 	buf := make([]byte, 1<<16)
 	runtime.Stack(buf, false)
 	return u.Log.WithFields(logrus.Fields{

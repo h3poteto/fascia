@@ -26,8 +26,8 @@ services:
     image: h3poteto/golang
     env_file: .docker-env
     environment:
-      GOJIROOT: /go/src/github.com/h3poteto/fascia
-      GOJIENV: development
+      APPROOT: /go/src/github.com/h3poteto/fascia
+      APPENV: development
     volumes:
       - .:/go/src/github.com/h3poteto/fascia
     working_dir: /go/src/github.com/h3poteto/fascia

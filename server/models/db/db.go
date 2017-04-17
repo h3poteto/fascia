@@ -20,8 +20,8 @@ var sharedInstance = New()
 
 // New is create Database object with connection pool
 func New() *Database {
-	env := os.Getenv("GOJIENV")
-	root := os.Getenv("GOJIROOT")
+	env := os.Getenv("APPENV")
+	root := os.Getenv("APPROOT")
 	path := filepath.Join(root, "db/dbconf.yml")
 	buf, err := ioutil.ReadFile(path)
 	if err != nil {
