@@ -8,11 +8,9 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/flosch/pongo2"
-	"github.com/goji/param"
-	"github.com/gorilla/sessions"
+	"github.com/ipfans/echo-session"
+	"github.com/labstack/echo"
 	"github.com/pkg/errors"
-	"github.com/zenazn/goji/web"
 	"golang.org/x/oauth2"
 )
 
@@ -25,129 +23,98 @@ type SignInForm struct {
 	Token    string `param:"token"`
 }
 
-func (u *Sessions) SignIn(c web.C, w http.ResponseWriter, r *http.Request) {
+func (u *Sessions) SignIn(c echo.Context) error {
 	url := githubOauthConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
 
-	token, err := GenerateCSRFToken(c, w, r)
+	token, err := GenerateCSRFToken(c)
 	if err != nil {
-		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "SignIn", err, c).Errorf("CSRF error: %v", err)
-		InternalServerError(w, r)
-		return
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Errorf("CSRF error: %v", err)
+		return err
 	}
-	tpl, err := pongo2.DefaultSet.FromFile("sign_in.html.tpl")
-	if err != nil {
-		err := errors.Wrap(err, "template error")
-		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "SignIn", err, c).Error(err)
-		InternalServerError(w, r)
-		return
-	}
-	tpl.ExecuteWriter(pongo2.Context{"title": "SignIn", "oauthURL": url, "token": token}, w)
+
+	return c.Render(http.StatusOK, "sign_in.html.tpl", map[string]interface{}{
+		"title":    "SignIn",
+		"oauthURL": url,
+		"token":    token,
+	})
 }
 
-func (u *Sessions) NewSession(c web.C, w http.ResponseWriter, r *http.Request) {
+func (u *Sessions) NewSession(c echo.Context) error {
 	// 旧セッションの削除
-	session, err := cookieStore.Get(r, "fascia")
-	if err != nil {
-		err := errors.Wrap(err, "session error")
-		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "NewSession", err, c).Error(err)
-		InternalServerError(w, r)
-		return
-	}
-	session.Options = &sessions.Options{MaxAge: -1}
-	err = session.Save(r, w)
-	if err != nil {
-		err := errors.Wrap(err, "session error")
-		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "NewSession", err, c).Error(err)
-		InternalServerError(w, r)
-		return
-	}
-	err = r.ParseForm()
-	if err != nil {
-		err := errors.Wrap(err, "wrong form")
-		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "NewSession", err, c).Error(err)
-		BadRequest(w, r)
-		return
-	}
+	s := session.Default(c)
+	s.Clear()
+	s.Save()
+
 	var signInForm SignInForm
-	err = param.Parse(r.PostForm, &signInForm)
+	err := c.Bind(signInForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
-		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "NewSession", err, c).Error(err)
-		InternalServerError(w, r)
-		return
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
 	}
 
-	if !CheckCSRFToken(r, signInForm.Token) {
+	if !CheckCSRFToken(c, signInForm.Token) {
 		err := errors.New("cannot verify CSRF token")
-		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "NewSession", err, c).Error(err)
-		InternalServerError(w, r)
-		return
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
 	}
 
 	userService, err := handlers.LoginUser(template.HTMLEscapeString(signInForm.Email), template.HTMLEscapeString(signInForm.Password))
 	if err != nil {
-		logging.SharedInstance().MethodInfo("SessionsController", "NewSession", c).Infof("login error: %v", err)
-		http.Redirect(w, r, "/sign_in", 302)
-		return
+		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
+		return c.Redirect(http.StatusFound, "/sign_in")
 	}
-	logging.SharedInstance().MethodInfo("SessionsController", "NewSession", c).Debugf("login success: %+v", userService)
-	session, err = cookieStore.Get(r, "fascia")
-	session.Options = &sessions.Options{Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int)}
-	session.Values["current_user_id"] = userService.UserEntity.UserModel.ID
-	err = session.Save(r, w)
-	if err != nil {
-		err := errors.Wrap(err, "session error")
-		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "NewSessions", err, c).Error(err)
-		InternalServerError(w, r)
-		return
-	}
-	logging.SharedInstance().MethodInfo("SessionsController", "NewSession", c).Info("login success")
-	http.Redirect(w, r, "/", 302)
-	return
-}
+	logging.SharedInstance().Controller(c).Debugf("login success: %+v", userService)
 
-func (u *Sessions) SignOut(c web.C, w http.ResponseWriter, r *http.Request) {
-	session, err := cookieStore.Get(r, "fascia")
-	if err != nil {
-		err := errors.Wrap(err, "session error")
-		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "SignOut", err, c).Error(err)
-		InternalServerError(w, r)
-		return
-	}
-	session.Options = &sessions.Options{MaxAge: -1}
-	err = session.Save(r, w)
-	if err != nil {
-		err := errors.Wrap(err, "session error")
-		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "SignOut", err, c).Error(err)
-		InternalServerError(w, r)
-		return
-	}
-	logging.SharedInstance().MethodInfo("SessionsController", "SignOut", c).Info("logout success")
-	http.Redirect(w, r, "/sign_in", 302)
-	return
-}
-
-func (u *Sessions) Update(c web.C, w http.ResponseWriter, r *http.Request) {
-	userService, err := LoginRequired(r)
-	if err != nil {
-		logging.SharedInstance().MethodInfo("SessionsController", "Update", c).Infof("login error: %v", err)
-		http.Error(w, "Authentication Error", 401)
-		return
-	}
-	logging.SharedInstance().MethodInfo("SessionsController", "Update", c).Info("login success")
-	session, err := cookieStore.Get(r, "fascia")
-	session.Options = &sessions.Options{
+	s.Options(session.Options{
 		Path:   "/",
 		MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int),
-	}
-	session.Values["current_user_id"] = userService.UserEntity.UserModel.ID
-	err = session.Save(r, w)
+	})
+	s.Set("current_user_id", userService.UserEntity.UserModel.ID)
+
+	err = s.Save()
 	if err != nil {
 		err := errors.Wrap(err, "session error")
-		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "Update", err, c).Error(err)
-		InternalServerError(w, r)
-		return
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
 	}
-	logging.SharedInstance().MethodInfo("SessionsController", "Update", c).Info("session update success")
-	return
+	logging.SharedInstance().Controller(c).Info("login success")
+	return c.Redirect(http.StatusFound, "/")
+}
+
+func (u *Sessions) SignOut(c echo.Context) error {
+	s := session.Default(c)
+	s.Clear()
+	err := s.Save()
+	if err != nil {
+		err := errors.Wrap(err, "session error")
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
+	}
+	logging.SharedInstance().Controller(c).Info("logout success")
+	return c.Redirect(http.StatusFound, "/sign_in")
+}
+
+func (u *Sessions) Update(c echo.Context) error {
+	userService, err := LoginRequired(c)
+	if err != nil {
+		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
+		return NewJSONError(err, http.StatusUnauthorized, c)
+	}
+	logging.SharedInstance().Controller(c).Info("login success")
+
+	s := session.Default(c)
+	s.Options(session.Options{
+		Path:   "/",
+		MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int),
+	})
+	s.Set("current_user_id", userService.UserEntity.UserModel.ID)
+	err = s.Save()
+	if err != nil {
+		err := errors.Wrap(err, "session error")
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
+	}
+	logging.SharedInstance().Controller(c).Info("session update success")
+	return c.JSON(http.StatusOK, nil)
 }
