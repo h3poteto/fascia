@@ -23,21 +23,21 @@ func (u *Oauth) Github(c echo.Context) error {
 	s.Save()
 
 	code := c.QueryParam("code")
-	logging.SharedInstance().MethodInfo("OauthController", "Github", c).Debugf("github callback param: %+v", code)
+	logging.SharedInstance().Controller(c).Debugf("github callback param: %+v", code)
 	token, err := githubOauthConf.Exchange(oauth2.NoContext, code)
-	logging.SharedInstance().MethodInfo("OautController", "Github", c).Debugf("token: %v", token)
+	logging.SharedInstance().Controller(c).Debugf("token: %v", token)
 	if err != nil {
 		err := errors.Wrap(err, "oauth token error")
-		logging.SharedInstance().MethodInfoWithStacktrace("OauthController", "Github", err, c).Error(err)
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
 
 	userService, err := handlers.FindOrCreateUserFromGithub(token.AccessToken)
 	if err != nil {
-		logging.SharedInstance().MethodInfoWithStacktrace("OauthController", "Github", err, c).Error(err)
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return c.Redirect(http.StatusFound, "/sign_in")
 	}
-	logging.SharedInstance().MethodInfo("OauthController", "Github", c).Debugf("login success: %+v", userService)
+	logging.SharedInstance().Controller(c).Debugf("login success: %+v", userService)
 	s.Options(session.Options{
 		Path:   "/",
 		MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int),
@@ -46,10 +46,10 @@ func (u *Oauth) Github(c echo.Context) error {
 	err = s.Save()
 	if err != nil {
 		err := errors.Wrap(err, "session error")
-		logging.SharedInstance().MethodInfoWithStacktrace("OauthController", "Github", err, c).Error(err)
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	logging.SharedInstance().MethodInfo("OauthController", "Github", c).Info("github login success")
+	logging.SharedInstance().Controller(c).Info("github login success")
 
 	// iosからのセッションの場合はリダイレクト先を変更
 	cookie, err := c.Cookie("fascia-ios")

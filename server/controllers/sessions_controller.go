@@ -28,7 +28,7 @@ func (u *Sessions) SignIn(c echo.Context) error {
 
 	token, err := GenerateCSRFToken(c)
 	if err != nil {
-		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "SignIn", err, c).Errorf("CSRF error: %v", err)
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Errorf("CSRF error: %v", err)
 		return err
 	}
 
@@ -49,22 +49,22 @@ func (u *Sessions) NewSession(c echo.Context) error {
 	err := c.Bind(signInForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
-		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "NewSession", err, c).Error(err)
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
 
 	if !CheckCSRFToken(c, signInForm.Token) {
 		err := errors.New("cannot verify CSRF token")
-		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "NewSession", err, c).Error(err)
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
 
 	userService, err := handlers.LoginUser(template.HTMLEscapeString(signInForm.Email), template.HTMLEscapeString(signInForm.Password))
 	if err != nil {
-		logging.SharedInstance().MethodInfo("SessionsController", "NewSession", c).Infof("login error: %v", err)
+		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
 		return c.Redirect(http.StatusFound, "/sign_in")
 	}
-	logging.SharedInstance().MethodInfo("SessionsController", "NewSession", c).Debugf("login success: %+v", userService)
+	logging.SharedInstance().Controller(c).Debugf("login success: %+v", userService)
 
 	s.Options(session.Options{
 		Path:   "/",
@@ -75,10 +75,10 @@ func (u *Sessions) NewSession(c echo.Context) error {
 	err = s.Save()
 	if err != nil {
 		err := errors.Wrap(err, "session error")
-		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "NewSessions", err, c).Error(err)
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	logging.SharedInstance().MethodInfo("SessionsController", "NewSession", c).Info("login success")
+	logging.SharedInstance().Controller(c).Info("login success")
 	return c.Redirect(http.StatusFound, "/")
 }
 
@@ -88,20 +88,20 @@ func (u *Sessions) SignOut(c echo.Context) error {
 	err := s.Save()
 	if err != nil {
 		err := errors.Wrap(err, "session error")
-		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "SignOut", err, c).Error(err)
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	logging.SharedInstance().MethodInfo("SessionsController", "SignOut", c).Info("logout success")
+	logging.SharedInstance().Controller(c).Info("logout success")
 	return c.Redirect(http.StatusFound, "/sign_in")
 }
 
 func (u *Sessions) Update(c echo.Context) error {
 	userService, err := LoginRequired(c)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("SessionsController", "Update", c).Infof("login error: %v", err)
+		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
 		return NewJSONError(err, http.StatusUnauthorized, c)
 	}
-	logging.SharedInstance().MethodInfo("SessionsController", "Update", c).Info("login success")
+	logging.SharedInstance().Controller(c).Info("login success")
 
 	s := session.Default(c)
 	s.Options(session.Options{
@@ -112,9 +112,9 @@ func (u *Sessions) Update(c echo.Context) error {
 	err = s.Save()
 	if err != nil {
 		err := errors.Wrap(err, "session error")
-		logging.SharedInstance().MethodInfoWithStacktrace("SessionsController", "Update", err, c).Error(err)
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	logging.SharedInstance().MethodInfo("SessionsController", "Update", c).Info("session update success")
+	logging.SharedInstance().Controller(c).Info("session update success")
 	return c.JSON(http.StatusOK, nil)
 }

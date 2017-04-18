@@ -46,7 +46,7 @@ func SharedInstance() *LogStruct {
 }
 
 // MethodInfo is prepare logrus entry with fields
-func (u *LogStruct) MethodInfo(model string, action string, _ ...echo.Context) *logrus.Entry {
+func (u *LogStruct) MethodInfo(model string, action string) *logrus.Entry {
 	return u.Log.WithFields(logrus.Fields{
 		"time":   time.Now(),
 		"model":  model,
@@ -55,7 +55,7 @@ func (u *LogStruct) MethodInfo(model string, action string, _ ...echo.Context) *
 }
 
 // MethodInfoWithStacktrace is prepare logrus entry with fields
-func (u *LogStruct) MethodInfoWithStacktrace(model string, action string, err error, _ ...echo.Context) *logrus.Entry {
+func (u *LogStruct) MethodInfoWithStacktrace(model string, action string, err error) *logrus.Entry {
 	stackErr, ok := err.(stackTracer)
 	if !ok {
 		panic("oops, err does not implement Stacktrace")

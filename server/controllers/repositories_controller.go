@@ -25,7 +25,7 @@ func (u *Repositories) Hook(c echo.Context) error {
 
 	if eventType == "" || signature == "" || deliveryID == "" {
 		// TODO: ここエラーにしてslcak通知ほしいかも
-		logging.SharedInstance().MethodInfo("Repositories", "Hook", c).Infof("could not find header information: %+v", c.Request().Header)
+		logging.SharedInstance().Controller(c).Errorf("could not find header information: %+v", c.Request().Header)
 		return NewJSONError(errors.New("event, signature, or delivery_id is not exist"), http.StatusNotFound, c)
 	}
 
@@ -38,19 +38,19 @@ func (u *Repositories) Hook(c echo.Context) error {
 
 		repo, err := handlers.FindRepositoryByGithubRepoID(id)
 		if err != nil {
-			logging.SharedInstance().MethodInfoWithStacktrace("Repositories", "Hook", err, c).Errorf("could not find repository: %v", err)
+			logging.SharedInstance().ControllerWithStacktrace(err, c).Errorf("could not find repository: %v", err)
 			return NewJSONError(err, http.StatusNotFound, c)
 		}
 		if err := repo.Authenticate(signature, data); err != nil {
-			logging.SharedInstance().MethodInfo("Repositories", "Hook", c).Infof("cannot authenticate to repository: %v", err)
+			logging.SharedInstance().Controller(c).Infof("cannot authenticate to repository: %v", err)
 			return NewJSONError(err, http.StatusNotFound, c)
 		}
 		err = handlers.ApplyIssueChangesToRepository(repo, githubBody)
 		if err != nil {
-			logging.SharedInstance().MethodInfoWithStacktrace("Repositories", "Hook", err, c).Error("could not apply issue changes: %v", err)
+			logging.SharedInstance().ControllerWithStacktrace(err, c).Error("could not apply issue changes: %v", err)
 			return err
 		}
-		logging.SharedInstance().MethodInfo("Repositories", "Hook", c).Info("success apply issues event from webhook")
+		logging.SharedInstance().Controller(c).Info("success apply issues event from webhook")
 
 	case "pull_request":
 		var githubBody github.PullRequestEvent
@@ -60,20 +60,20 @@ func (u *Repositories) Hook(c echo.Context) error {
 
 		repo, err := handlers.FindRepositoryByGithubRepoID(id)
 		if err != nil {
-			logging.SharedInstance().MethodInfoWithStacktrace("Repositories", "Hook", err, c).Errorf("could not find repository: %v", err)
+			logging.SharedInstance().ControllerWithStacktrace(err, c).Errorf("could not find repository: %v", err)
 			return NewJSONError(err, http.StatusNotFound, c)
 		}
 		if err := repo.Authenticate(signature, data); err != nil {
-			logging.SharedInstance().MethodInfo("Repositories", "Hook", c).Infof("cannot authenticate to repository: %v", err)
+			logging.SharedInstance().Controller(c).Infof("cannot authenticate to repository: %v", err)
 			return NewJSONError(err, http.StatusNotFound, c)
 		}
 
 		err = handlers.ApplyPullRequestChangesToRepository(repo, githubBody)
 		if err != nil {
-			logging.SharedInstance().MethodInfoWithStacktrace("Repositories", "Hook", err, c).Errorf("could not apply pull request changes: %v", err)
+			logging.SharedInstance().ControllerWithStacktrace(err, c).Errorf("could not apply pull request changes: %v", err)
 			return err
 		}
-		logging.SharedInstance().MethodInfo("Repositories", "Hook", c).Info("success apply pull request event from webhook")
+		logging.SharedInstance().Controller(c).Info("success apply pull request event from webhook")
 	}
 
 	return c.JSON(http.StatusOK, nil)

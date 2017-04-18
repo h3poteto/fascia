@@ -25,7 +25,7 @@ func (u *Webviews) SignIn(c echo.Context) error {
 
 	token, err := GenerateCSRFToken(c)
 	if err != nil {
-		logging.SharedInstance().MethodInfoWithStacktrace("WebviewsController", "SignIn", err, c).Errorf("CSRF error: %v", err)
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Errorf("CSRF error: %v", err)
 		return err
 	}
 
@@ -52,29 +52,29 @@ func (u *Webviews) NewSession(c echo.Context) error {
 	err := s.Save()
 	if err != nil {
 		err := errors.Wrap(err, "session error")
-		logging.SharedInstance().MethodInfoWithStacktrace("WebviewsController", "NewSession", err, c).Error(err)
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
 	var signInForm SignInForm
 	err = c.Bind(signInForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
-		logging.SharedInstance().MethodInfoWithStacktrace("WebviewsController", "NewSession", err, c).Error(err)
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
 
 	if !CheckCSRFToken(c, signInForm.Token) {
 		err := errors.New("cannot verify CSRF token")
-		logging.SharedInstance().MethodInfoWithStacktrace("WebviewsController", "NewSession", err, c).Error(err)
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
 
 	userService, err := handlers.LoginUser(template.HTMLEscapeString(signInForm.Email), template.HTMLEscapeString(signInForm.Password))
 	if err != nil {
-		logging.SharedInstance().MethodInfo("WebviewsController", "NewSession", c).Infof("login error: %v", err)
+		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
 		return c.Redirect(http.StatusFound, "/webviews/sign_in")
 	}
-	logging.SharedInstance().MethodInfo("WebviewsController", "NewSession", c).Debugf("login success: %+v", userService)
+	logging.SharedInstance().Controller(c).Debugf("login success: %+v", userService)
 	s.Options(session.Options{
 		Path:   "/",
 		MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int),
@@ -83,10 +83,10 @@ func (u *Webviews) NewSession(c echo.Context) error {
 	err = s.Save()
 	if err != nil {
 		err := errors.Wrap(err, "session error")
-		logging.SharedInstance().MethodInfoWithStacktrace("WebviewsController", "NewSessions", err, c).Error(err)
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	logging.SharedInstance().MethodInfo("WebviewsController", "NewSession", c).Info("login success")
+	logging.SharedInstance().Controller(c).Info("login success")
 	return c.Redirect(http.StatusFound, "/webviews/callback")
 }
 

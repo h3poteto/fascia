@@ -23,7 +23,7 @@ func (u *Github) Repositories(c echo.Context) error {
 		return NewJSONError(err, http.StatusUnauthorized, c)
 	}
 	if !currentUser.UserEntity.UserModel.OauthToken.Valid {
-		logging.SharedInstance().MethodInfo("GithubController", "Repositories", c).Info("user did not have oauth")
+		logging.SharedInstance().Controller(c).Info("user did not have oauth")
 		return c.JSON(http.StatusOK, nil)
 	}
 	ts := oauth2.StaticTokenSource(
@@ -53,12 +53,12 @@ func (u *Github) Repositories(c echo.Context) error {
 		nextPage = res.NextPage
 		if err != nil {
 			err := errors.Wrap(err, "repository error")
-			logging.SharedInstance().MethodInfoWithStacktrace("GithubController", "Repositories", err, c).Error(err)
+			logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 			return err
 		}
 		repositories = append(repositories, repos...)
 
 	}
-	logging.SharedInstance().MethodInfo("GithubController", "Repositories", c).Info("success to get repositories")
+	logging.SharedInstance().Controller(c).Info("success to get repositories")
 	return c.JSON(http.StatusOK, repositories)
 }
