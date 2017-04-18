@@ -16,9 +16,8 @@ type LogStruct struct {
 	Log *logrus.Logger
 }
 
-// Stacktrace provide stacktrace for pkg/errors
-type Stacktrace interface {
-	Stacktrace() []errors.Frame
+type stackTracer interface {
+	StackTrace() errors.StackTrace
 }
 
 var sharedInstance *LogStruct = New()
@@ -57,11 +56,11 @@ func (u *LogStruct) MethodInfo(model string, action string, _ ...echo.Context) *
 
 // MethodInfoWithStacktrace is prepare logrus entry with fields
 func (u *LogStruct) MethodInfoWithStacktrace(model string, action string, err error, _ ...echo.Context) *logrus.Entry {
-	stackErr, ok := err.(Stacktrace)
+	stackErr, ok := err.(stackTracer)
 	if !ok {
 		panic("oops, err does not implement Stacktrace")
 	}
-	st := stackErr.Stacktrace()
+	st := stackErr.StackTrace()
 	traceLength := len(st)
 	if traceLength > 5 {
 		traceLength = 5
@@ -101,11 +100,11 @@ func (u *LogStruct) Controller(context echo.Context) *logrus.Entry {
 func (u *LogStruct) ControllerWithStacktrace(err error, context echo.Context) *logrus.Entry {
 	requestID := context.Response().Header().Get(echo.HeaderXRequestID)
 
-	stackErr, ok := err.(Stacktrace)
+	stackErr, ok := err.(stackTracer)
 	if !ok {
 		panic("oops, err does not implement Stacktrace")
 	}
-	st := stackErr.Stacktrace()
+	st := stackErr.StackTrace()
 	traceLength := len(st)
 	if traceLength > 5 {
 		traceLength = 5
