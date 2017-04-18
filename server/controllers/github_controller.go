@@ -19,8 +19,8 @@ type Github struct {
 func (u *Github) Repositories(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("GithubController", "Repositories", c).Infof("login error: %v", err)
-		return c.JSON(http.StatusUnauthorized, &JSONError{message: "not logined"})
+		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
+		return NewJSONError(err, http.StatusUnauthorized, c)
 	}
 	if !currentUser.UserEntity.UserModel.OauthToken.Valid {
 		logging.SharedInstance().MethodInfo("GithubController", "Repositories", c).Info("user did not have oauth")

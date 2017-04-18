@@ -154,3 +154,7 @@ func PanicRecover() echo.MiddlewareFunc {
 		}
 	}
 }
+
+// もしかしたらerrors.Wrapすることでstacktraceが取れて
+// それを使ったエラーハンドリングをしたらまとめて取れるかもしれない
+// 要検証

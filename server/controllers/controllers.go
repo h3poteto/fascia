@@ -20,7 +20,16 @@ import (
 )
 
 type JSONError struct {
-	message string `json:message`
+	Code    int    `json:code`
+	Message string `json:message`
+}
+
+func NewJSONError(err error, code int, c echo.Context) error {
+	c.JSON(code, &JSONError{
+		Code:    code,
+		Message: http.StatusText(code),
+	})
+	return err
 }
 
 var githubOauthConf = &oauth2.Config{

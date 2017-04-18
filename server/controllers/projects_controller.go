@@ -37,7 +37,7 @@ func (u *Projects) Index(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Index", c).Infof("login error: %v", err)
-		return c.JSON(http.StatusUnauthorized, &JSONError{message: "not logined"})
+		return NewJSONError(err, http.StatusUnauthorized, c)
 	}
 	projects, err := currentUser.Projects()
 	if err != nil {
@@ -62,18 +62,18 @@ func (u *Projects) Show(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Show", c).Infof("login error: %v", err)
-		return c.JSON(http.StatusUnauthorized, JSONError{message: "not logined"})
+		return NewJSONError(err, http.StatusUnauthorized, c)
 	}
 	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
 		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Show", err, c).Error(err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	projectService, err := handlers.FindProject(projectID)
 	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Show", c).Warnf("project not found: %v", err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 
 	jsonProject, err := views.ParseProjectJSON(projectService.ProjectEntity)
@@ -88,7 +88,7 @@ func (u *Projects) Create(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Create", c).Infof("login error: %v", err)
-		return c.JSON(http.StatusUnauthorized, &JSONError{message: "not logined"})
+		return NewJSONError(err, http.StatusUnauthorized, c)
 	}
 
 	var newProjectForm NewProjectForm
@@ -107,7 +107,7 @@ func (u *Projects) Create(c echo.Context) error {
 	)
 	if err != nil || !valid {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Create", c).Infof("validation error: %v", err)
-		return c.JSON(http.StatusUnprocessableEntity, &JSONError{message: "validation error"})
+		return NewJSONError(err, http.StatusUnprocessableEntity, c)
 	}
 
 	projectService, err := handlers.CreateProject(
@@ -137,18 +137,18 @@ func (u *Projects) Update(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Update", c).Infof("login error: %v", err)
-		return c.JSON(http.StatusUnauthorized, &JSONError{message: "not logined"})
+		return NewJSONError(err, http.StatusUnauthorized, c)
 	}
 	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
 		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Update", err, c).Error(err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	projectService, err := handlers.FindProject(projectID)
 	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Update", c).Warnf("project not found: %v", err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 
 	var editProjectForm EditProjectForm
@@ -166,7 +166,7 @@ func (u *Projects) Update(c echo.Context) error {
 	)
 	if err != nil || !valid {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Update", c).Infof("validation error: %v", err)
-		return c.JSON(http.StatusUnprocessableEntity, &JSONError{message: "validation error"})
+		return NewJSONError(err, http.StatusUnprocessableEntity, c)
 	}
 
 	if err := projectService.Update(editProjectForm.Title, editProjectForm.Description, projectService.ProjectEntity.ProjectModel.ShowIssues, projectService.ProjectEntity.ProjectModel.ShowPullRequests); err != nil {
@@ -187,18 +187,18 @@ func (u *Projects) Settings(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Settings", c).Infof("login error: %v", err)
-		return c.JSON(http.StatusUnauthorized, &JSONError{message: "not logined"})
+		return NewJSONError(err, http.StatusUnauthorized, c)
 	}
 	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
 		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Settings", err, c).Error(err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	projectService, err := handlers.FindProject(projectID)
 	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Settings", c).Warnf("project not found: %v", err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 
 	var settingsProjectForm SettingsProjectForm
@@ -232,18 +232,18 @@ func (u *Projects) FetchGithub(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub", c).Infof("login error: %v", err)
-		return c.JSON(http.StatusUnauthorized, &JSONError{message: "not logined"})
+		return NewJSONError(err, http.StatusUnauthorized, c)
 	}
 	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
 		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "FetchGithub", err, c).Error(err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	projectService, err := handlers.FindProject(projectID)
 	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
 		logging.SharedInstance().MethodInfo("ProjectsController", "FetchGithub", c).Warnf("project not found: %v", err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	_, err = projectService.FetchGithub()
 	if err != nil {
@@ -275,18 +275,18 @@ func (u *Projects) Webhook(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook", c).Infof("login error: %v", err)
-		return c.JSON(http.StatusUnauthorized, &JSONError{message: "not logined"})
+		return NewJSONError(err, http.StatusUnauthorized, c)
 	}
 	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
 		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Webhook", err, c).Error(err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	projectService, err := handlers.FindProject(projectID)
 	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook", c).Warnf("project not found: %v", err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 
 	_, find, err := projectService.ProjectEntity.Repository()
@@ -296,7 +296,7 @@ func (u *Projects) Webhook(c echo.Context) error {
 	}
 	if !find {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Webhook", c).Warn("repository not found: %v", err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "repository not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	err = projectService.CreateWebhook()
 	if err != nil {
@@ -312,18 +312,18 @@ func (u *Projects) Destroy(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Destroy", c).Infof("login error: %v", err)
-		return c.JSON(http.StatusUnauthorized, &JSONError{message: "not logined"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
 		logging.SharedInstance().MethodInfoWithStacktrace("ProjectsController", "Destroy", err, c).Error(err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	projectService, err := handlers.FindProject(projectID)
 	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
 		logging.SharedInstance().MethodInfo("ProjectsController", "Destroy", c).Warnf("project not found: %v", err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 
 	err = handlers.DestroyProject(projectID)

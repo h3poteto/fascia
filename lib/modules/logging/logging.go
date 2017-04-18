@@ -47,27 +47,16 @@ func SharedInstance() *LogStruct {
 }
 
 // MethodInfo is prepare logrus entry with fields
-func (u *LogStruct) MethodInfo(model string, action string, context ...echo.Context) *logrus.Entry {
-	requestID := "null"
-	if len(context) > 0 {
-		requestID = context[0].Response().Header().Get(echo.HeaderXRequestID)
-	}
-
+func (u *LogStruct) MethodInfo(model string, action string, _ ...echo.Context) *logrus.Entry {
 	return u.Log.WithFields(logrus.Fields{
-		"time":      time.Now(),
-		"requestID": requestID,
-		"model":     model,
-		"action":    action,
+		"time":   time.Now(),
+		"model":  model,
+		"action": action,
 	})
 }
 
 // MethodInfoWithStacktrace is prepare logrus entry with fields
-func (u *LogStruct) MethodInfoWithStacktrace(model string, action string, err error, context ...echo.Context) *logrus.Entry {
-	requestID := "null"
-	if len(context) > 0 {
-		requestID = context[0].Response().Header().Get(echo.HeaderXRequestID)
-	}
-
+func (u *LogStruct) MethodInfoWithStacktrace(model string, action string, err error, _ ...echo.Context) *logrus.Entry {
 	stackErr, ok := err.(Stacktrace)
 	if !ok {
 		panic("oops, err does not implement Stacktrace")
@@ -80,7 +69,6 @@ func (u *LogStruct) MethodInfoWithStacktrace(model string, action string, err er
 
 	return u.Log.WithFields(logrus.Fields{
 		"time":       time.Now(),
-		"requestID":  requestID,
 		"model":      model,
 		"action":     action,
 		"stacktrace": fmt.Sprintf("%+v", st[0:traceLength]),
@@ -97,5 +85,36 @@ func (u *LogStruct) PanicRecover(context echo.Context) *logrus.Entry {
 		"requestID":  requestID,
 		"model":      "main",
 		"stacktrace": string(buf),
+	})
+}
+
+func (u *LogStruct) Controller(context echo.Context) *logrus.Entry {
+	requestID := context.Response().Header().Get(echo.HeaderXRequestID)
+
+	return u.Log.WithFields(logrus.Fields{
+		"time":      time.Now(),
+		"requestID": requestID,
+		"path":      context.Path(),
+	})
+}
+
+func (u *LogStruct) ControllerWithStacktrace(err error, context echo.Context) *logrus.Entry {
+	requestID := context.Response().Header().Get(echo.HeaderXRequestID)
+
+	stackErr, ok := err.(Stacktrace)
+	if !ok {
+		panic("oops, err does not implement Stacktrace")
+	}
+	st := stackErr.Stacktrace()
+	traceLength := len(st)
+	if traceLength > 5 {
+		traceLength = 5
+	}
+
+	return u.Log.WithFields(logrus.Fields{
+		"time":       time.Now(),
+		"requestID":  requestID,
+		"path":       context.Path(),
+		"stacktrace": fmt.Sprintf("%+v", st[0:traceLength]),
 	})
 }

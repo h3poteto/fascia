@@ -32,18 +32,18 @@ func (u *Lists) Index(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ListsController", "Index", c).Infof("login error: %v", err)
-		return c.JSON(http.StatusUnauthorized, &JSONError{message: "not logined"})
+		return NewJSONError(err, http.StatusUnauthorized, c)
 	}
 	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Index", err, c).Error(err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	projectService, err := handlers.FindProject(projectID)
 	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
 		logging.SharedInstance().MethodInfo("ListsController", "Index", c).Warnf("project not found: %v", err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	lists, err := projectService.ProjectEntity.Lists()
 	if err != nil {
@@ -69,19 +69,19 @@ func (u *Lists) Create(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ListsController", "Create", c).Infof("login error: %v", err)
-		return c.JSON(http.StatusUnauthorized, &JSONError{message: "not logined"})
+		return NewJSONError(err, http.StatusUnauthorized, c)
 	}
 
 	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Create", err, c).Error(err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	projectService, err := handlers.FindProject(projectID)
 	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
 		logging.SharedInstance().MethodInfo("ListsController", "Create", c).Warnf("project not found: %v", err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 
 	var newListForm NewListForm
@@ -96,7 +96,7 @@ func (u *Lists) Create(c echo.Context) error {
 	valid, err := validators.ListCreateValidation(newListForm.Title, newListForm.Color)
 	if err != nil || !valid {
 		logging.SharedInstance().MethodInfo("ListsController", "Create", c).Infof("validation error: %v", err)
-		return c.JSON(http.StatusUnprocessableEntity, &JSONError{message: "validation error"})
+		return NewJSONError(err, http.StatusUnprocessableEntity, c)
 	}
 
 	list := handlers.NewList(0, projectID, currentUser.UserEntity.UserModel.ID, newListForm.Title, newListForm.Color, sql.NullInt64{}, false)
@@ -118,30 +118,30 @@ func (u *Lists) Update(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ListsController", "Update", c).Infof("login error: %v", err)
-		return c.JSON(http.StatusUnauthorized, &JSONError{message: "not logined"})
+		return NewJSONError(err, http.StatusUnauthorized, c)
 	}
 
 	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Update", err, c).Error(err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	projectService, err := handlers.FindProject(projectID)
 	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
 		logging.SharedInstance().MethodInfo("ListsController", "Update", c).Warnf("project not found: %v", err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	listID, err := strconv.ParseInt(c.Param("list_id"), 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Update", err, c).Error(err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "list not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	targetList, err := handlers.FindList(projectID, listID)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Update", err, c).Error(err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "list not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 
 	var editListForm EditListForm
@@ -160,7 +160,7 @@ func (u *Lists) Update(c echo.Context) error {
 	)
 	if err != nil || !valid {
 		logging.SharedInstance().MethodInfo("ListsController", "Create", c).Infof("validation error: %v", err)
-		return c.JSON(http.StatusUnprocessableEntity, &JSONError{message: "validation error"})
+		return NewJSONError(err, http.StatusUnprocessableEntity, c)
 	}
 
 	if err := targetList.Update(editListForm.Title, editListForm.Color, editListForm.OptionID); err != nil {
@@ -181,29 +181,29 @@ func (u *Lists) Hide(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ListsController", "Hide", c).Infof("login error: %v", err)
-		return c.JSON(http.StatusUnauthorized, &JSONError{message: "not logined"})
+		return NewJSONError(err, http.StatusUnauthorized, c)
 	}
 	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Hide", err, c).Error(err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	projectService, err := handlers.FindProject(projectID)
 	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
 		logging.SharedInstance().MethodInfo("ListsController", "Hide", c).Warnf("project not found: %v", err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	listID, err := strconv.ParseInt(c.Param("list_id"), 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Hide", err, c).Error(err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "list not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	targetList, err := handlers.FindList(projectID, listID)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Hide", err, c).Error(err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "list not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 
 	if err = targetList.Hide(); err != nil {
@@ -237,29 +237,29 @@ func (u *Lists) Display(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ListsController", "Display", c).Infof("login error: %v", err)
-		return c.JSON(http.StatusUnauthorized, &JSONError{message: "not logined"})
+		return NewJSONError(err, http.StatusUnauthorized, c)
 	}
 	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Display", err, c).Error(err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	projectService, err := handlers.FindProject(projectID)
 	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
 		logging.SharedInstance().MethodInfo("ListsController", "Display", c).Warnf("project not found: %v", err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	listID, err := strconv.ParseInt(c.Param("list_id"), 10, 64)
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Display", err, c).Error(err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "list not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	targetList, err := handlers.FindList(projectID, listID)
 	if err != nil {
 		logging.SharedInstance().MethodInfoWithStacktrace("ListsController", "Display", err, c).Error(err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "list not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 
 	if err = targetList.Display(); err != nil {

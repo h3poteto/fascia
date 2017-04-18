@@ -99,7 +99,7 @@ func (u *Sessions) Update(c echo.Context) error {
 	userService, err := LoginRequired(c)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("SessionsController", "Update", c).Infof("login error: %v", err)
-		return c.JSON(http.StatusUnauthorized, &JSONError{message: "not logined"})
+		return NewJSONError(err, http.StatusUnauthorized, c)
 	}
 	logging.SharedInstance().MethodInfo("SessionsController", "Update", c).Info("login success")
 

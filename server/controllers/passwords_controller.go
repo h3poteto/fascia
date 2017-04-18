@@ -99,7 +99,7 @@ func (u *Passwords) Edit(c echo.Context) error {
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
 		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "Edit", err, c).Error(err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "reset password not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	if err := services.AuthenticateResetPassword(id, resetToken); err != nil {
 		logging.SharedInstance().MethodInfo("PasswordsController", "Edit", c).Info("cannot authenticate reset password: %v", err)
@@ -132,7 +132,7 @@ func (u *Passwords) Update(c echo.Context) error {
 	if err != nil {
 		err := errors.Wrap(err, "parse error")
 		logging.SharedInstance().MethodInfoWithStacktrace("PasswordsController", "Update", err, c).Error(err)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "reset password not found"})
+		return NewJSONError(err, http.StatusNotFound, c)
 	}
 
 	valid, err := validators.PasswordUpdateValidation(editPasswordForm.ResetToken, editPasswordForm.Password, editPasswordForm.PasswordConfirm)

@@ -17,7 +17,7 @@ func (u *ListOptions) Index(c echo.Context) error {
 	_, err := LoginRequired(c)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("ListOptionsController", "Index", c).Infof("login error: %v", err)
-		return c.JSON(http.StatusUnauthorized, &JSONError{message: "not logined"})
+		return NewJSONError(err, http.StatusUnauthorized, c)
 	}
 
 	listOptionAll, err := handlers.ListOptionAll()

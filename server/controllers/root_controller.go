@@ -29,7 +29,7 @@ func (u *Root) Index(c echo.Context) error {
 		projectService, err := handlers.FindProject(projectID)
 		if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
 			logging.SharedInstance().MethodInfo("RootController", "Index", c).Warnf("project not found: %v", err)
-			return c.JSON(http.StatusNotFound, &JSONError{message: "project not found"})
+			return NewJSONError(err, http.StatusNotFound, c)
 		}
 	}
 	return c.Render(http.StatusOK, "home.html.tpl", map[string]interface{}{

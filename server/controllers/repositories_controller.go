@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/go-github/github"
 	"github.com/labstack/echo"
+	"github.com/pkg/errors"
 )
 
 // Repositories defines repositories_controller methods
@@ -23,8 +24,9 @@ func (u *Repositories) Hook(c echo.Context) error {
 	deliveryID := c.Request().Header.Get("X-GitHub-Delivery")
 
 	if eventType == "" || signature == "" || deliveryID == "" {
+		// TODO: ここエラーにしてslcak通知ほしいかも
 		logging.SharedInstance().MethodInfo("Repositories", "Hook", c).Infof("could not find header information: %+v", c.Request().Header)
-		return c.JSON(http.StatusNotFound, &JSONError{message: "event, signature, or delivery_id is not exist"})
+		return NewJSONError(errors.New("event, signature, or delivery_id is not exist"), http.StatusNotFound, c)
 	}
 
 	switch eventType {
@@ -37,11 +39,11 @@ func (u *Repositories) Hook(c echo.Context) error {
 		repo, err := handlers.FindRepositoryByGithubRepoID(id)
 		if err != nil {
 			logging.SharedInstance().MethodInfoWithStacktrace("Repositories", "Hook", err, c).Errorf("could not find repository: %v", err)
-			return c.JSON(http.StatusNotFound, &JSONError{message: "repository not found"})
+			return NewJSONError(err, http.StatusNotFound, c)
 		}
 		if err := repo.Authenticate(signature, data); err != nil {
 			logging.SharedInstance().MethodInfo("Repositories", "Hook", c).Infof("cannot authenticate to repository: %v", err)
-			return c.JSON(http.StatusNotFound, &JSONError{message: "repository not found"})
+			return NewJSONError(err, http.StatusNotFound, c)
 		}
 		err = handlers.ApplyIssueChangesToRepository(repo, githubBody)
 		if err != nil {
@@ -59,11 +61,11 @@ func (u *Repositories) Hook(c echo.Context) error {
 		repo, err := handlers.FindRepositoryByGithubRepoID(id)
 		if err != nil {
 			logging.SharedInstance().MethodInfoWithStacktrace("Repositories", "Hook", err, c).Errorf("could not find repository: %v", err)
-			return c.JSON(http.StatusNotFound, &JSONError{message: "repository not found"})
+			return NewJSONError(err, http.StatusNotFound, c)
 		}
 		if err := repo.Authenticate(signature, data); err != nil {
 			logging.SharedInstance().MethodInfo("Repositories", "Hook", c).Infof("cannot authenticate to repository: %v", err)
-			return c.JSON(http.StatusNotFound, &JSONError{message: "repository not found"})
+			return NewJSONError(err, http.StatusNotFound, c)
 		}
 
 		err = handlers.ApplyPullRequestChangesToRepository(repo, githubBody)
