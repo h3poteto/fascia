@@ -1,10 +1,4 @@
-memo = "1cd58e11597bdb77fd38c15d705c0e86aed064d7f1958143ad5d01b0442e7cbf"
-
-[[projects]]
-  branch = "master"
-  name = "fknsrs.biz/p/echo-logrus"
-  packages = ["."]
-  revision = "9a7e6e11e56b86acf9433023b21166b75d596899"
+memo = "6119519c015c816e6bad287894f3c5e636bd1c96ecd6dd81865a718f32c90538"
 
 [[projects]]
   name = "github.com/PuerkitoBio/goquery"
