@@ -92,6 +92,7 @@ func (u *LogStruct) Controller(context echo.Context) *logrus.Entry {
 
 	return u.Log.WithFields(logrus.Fields{
 		"time":      time.Now(),
+		"method":    context.Request().Method,
 		"requestID": requestID,
 		"path":      context.Path(),
 	})
@@ -112,6 +113,7 @@ func (u *LogStruct) ControllerWithStacktrace(err error, context echo.Context) *l
 
 	return u.Log.WithFields(logrus.Fields{
 		"time":       time.Now(),
+		"method":     context.Request().Method,
 		"requestID":  requestID,
 		"path":       context.Path(),
 		"stacktrace": fmt.Sprintf("%+v", st[0:traceLength]),
