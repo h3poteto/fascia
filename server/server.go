@@ -6,6 +6,7 @@ import (
 	"github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/filters"
 
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -123,11 +124,10 @@ func Serve() {
 			echo.HeaderAcceptEncoding,
 		},
 	}))
-	// TODO: customize logger
 	sessionKey := os.Getenv("SECRET")
 	store := session.NewCookieStore([]byte(sessionKey))
 	e.Use(session.Sessions("fascia", store))
-	e.Use(middleware.Logger())
+	e.Use(customizeLogger())
 	e.Use(PanicRecover())
 	e.Use(middleware.RequestID())
 	Routes(e)
@@ -155,6 +155,13 @@ func PanicRecover() echo.MiddlewareFunc {
 	}
 }
 
-// もしかしたらerrors.Wrapすることでstacktraceが取れて
-// それを使ったエラーハンドリングをしたらまとめて取れるかもしれない
-// 要検証
+func customizeLogger() echo.MiddlewareFunc {
+	return middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: printColored("status") + "=${status} " + printColored("method") + "=${method} " + printColored("path") + "=${uri} " + printColored("requestID") + "=${id} " + printColored("latency") + "=${latency_human} " + printColored("time") + "=${time_rfc3339_nano}\n",
+		Output: os.Stdout,
+	})
+}
+
+func printColored(str string) string {
+	return fmt.Sprintf("\x1b[%dm%s\x1b[0m", 34, str)
+}
