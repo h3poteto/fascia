@@ -18,14 +18,14 @@ type Lists struct {
 }
 
 type NewListForm struct {
-	Title string `param:"title"`
-	Color string `param:"color"`
+	Title string `form:"title"`
+	Color string `form:"color"`
 }
 
 type EditListForm struct {
-	Title    string `param:"title"`
-	Color    string `param:"color"`
-	OptionID int64  `param:"option_id"`
+	Title    string `form:"title"`
+	Color    string `form:"color"`
+	OptionID int64  `form:"option_id"`
 }
 
 func (u *Lists) Index(c echo.Context) error {
@@ -84,7 +84,7 @@ func (u *Lists) Create(c echo.Context) error {
 		return NewJSONError(err, http.StatusNotFound, c)
 	}
 
-	var newListForm NewListForm
+	newListForm := new(NewListForm)
 	err = c.Bind(newListForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
@@ -144,7 +144,7 @@ func (u *Lists) Update(c echo.Context) error {
 		return NewJSONError(err, http.StatusNotFound, c)
 	}
 
-	var editListForm EditListForm
+	editListForm := new(EditListForm)
 	err = c.Bind(editListForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")

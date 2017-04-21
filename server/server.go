@@ -13,12 +13,12 @@ import (
 	"github.com/echo-contrib/pongor"
 	"github.com/flosch/pongo2"
 	_ "github.com/flosch/pongo2-addons"
-	"github.com/ipfans/echo-session"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/pkg/errors"
 )
 
+// Routes defines all routes
 func Routes(e *echo.Echo) {
 	rootDir := os.Getenv("APPROOT")
 	// robots
@@ -101,16 +101,8 @@ func Routes(e *echo.Echo) {
 
 // Serve start echo server
 func Serve() {
-	root := os.Getenv("APPROOT")
-	pongo2.RegisterFilter("suffixAssetsUpdate", filters.SuffixAssetsUpdate)
-	pongorOption := pongor.PongorOption{
-		Directory: filepath.Join(root, "server/templates"),
-		Reload:    false,
-	}
-	r := pongor.GetRenderer(pongorOption)
-
 	e := echo.New()
-	e.Renderer = r
+	e.Renderer = PongoRenderer()
 	fqdn := config.Element("fqdn").(interface{})
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{
@@ -124,9 +116,7 @@ func Serve() {
 			echo.HeaderAcceptEncoding,
 		},
 	}))
-	sessionKey := os.Getenv("SECRET")
-	store := session.NewCookieStore([]byte(sessionKey))
-	e.Use(session.Sessions("fascia", store))
+
 	e.Use(customizeLogger())
 	e.Use(PanicRecover())
 	e.Use(middleware.RequestID())
@@ -134,6 +124,18 @@ func Serve() {
 	e.Logger.Fatal(e.Start(":9090"))
 }
 
+// PongoRenderer prepare pongo2, pongo2filter, and pongor
+func PongoRenderer() *pongor.Renderer {
+	root := os.Getenv("APPROOT")
+	pongo2.RegisterFilter("suffixAssetsUpdate", filters.SuffixAssetsUpdate)
+	pongorOption := pongor.PongorOption{
+		Directory: filepath.Join(root, "server/templates"),
+		Reload:    false,
+	}
+	return pongor.GetRenderer(pongorOption)
+}
+
+// PanicRecover prepare original panic recover using logrus
 func PanicRecover() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {

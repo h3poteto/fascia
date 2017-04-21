@@ -12,12 +12,15 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/ipfans/echo-session"
+	"github.com/gorilla/sessions"
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/github"
 )
+
+// Key defines session's key
+const Key = "fascia"
 
 type JSONError struct {
 	Code    int    `json:code`
@@ -39,15 +42,26 @@ var githubOauthConf = &oauth2.Config{
 	Endpoint:     github.Endpoint,
 }
 
+var cookieStore = sessions.NewCookieStore([]byte(os.Getenv("SECRET")))
+
 // ここテストでstubするために関数ポインタをグローバル変数に代入しておきます．もしインスタンスメソッドではない関数をstubする方法があれば，書き換えて構わない．
+// CheckCSRFToken check token in session
 var CheckCSRFToken = checkCSRF
+
+// LoginRequired check login session
 var LoginRequired = CheckLogin
+
+// GenerateCSRFToken prepare new CSRF token
+var GenerateCSRFToken = generateCSRF
 
 // CheckLogin authenticate user
 // If unauthorized, return 401
 func CheckLogin(c echo.Context) (*services.User, error) {
-	session := session.Default(c)
-	id := session.Get("current_user_id")
+	session, err := cookieStore.Get(c.Request(), Key)
+	if err != nil {
+		return nil, errors.New("cookie error")
+	}
+	id := session.Values["current_user_id"]
 	if id == nil {
 		return nil, errors.New("not logined")
 	}
@@ -58,18 +72,21 @@ func CheckLogin(c echo.Context) (*services.User, error) {
 	return currentUser, nil
 }
 
-// GenerateCSRFToken generate new CSRF token
-func GenerateCSRFToken(c echo.Context) (string, error) {
-	session := session.Default(c)
+// generateCSRF generate new CSRF token
+func generateCSRF(c echo.Context) (string, error) {
+	session, err := cookieStore.Get(c.Request(), Key)
+	if err != nil {
+		return "", errors.Wrap(err, "cookie error")
+	}
 
 	// 現在時間とソルトからトークンを生成
 	h := md5.New()
 	io.WriteString(h, strconv.FormatInt(time.Now().Unix(), 10))
 	io.WriteString(h, "secret_key_salt")
 	token := fmt.Sprintf("%x", h.Sum(nil))
-	session.Set("token", token)
+	session.Values["token"] = token
 
-	err := session.Save()
+	err = cookieStore.Save(c.Request(), c.Response(), session)
 	if err != nil {
 		return "", errors.Wrap(err, "cookie error")
 	}
@@ -77,9 +94,12 @@ func GenerateCSRFToken(c echo.Context) (string, error) {
 }
 
 func checkCSRF(c echo.Context, token string) bool {
-	session := session.Default(c)
+	session, err := cookieStore.Get(c.Request(), Key)
+	if err != nil {
+		return false
+	}
 
-	if session.Get("token") != token {
+	if session.Values["token"] != token {
 		return false
 	}
 	return true

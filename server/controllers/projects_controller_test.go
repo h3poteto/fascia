@@ -2,7 +2,7 @@ package controllers_test
 
 import (
 	"github.com/h3poteto/fascia/db/seed"
-	. "github.com/h3poteto/fascia/server"
+	. "github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/services"
 	"github.com/h3poteto/fascia/server/views"
@@ -10,56 +10,58 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strconv"
+	"strings"
 
+	"github.com/labstack/echo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/zenazn/goji/web"
 )
 
 var _ = Describe("ProjectsController", func() {
 	var (
-		ts     *httptest.Server
+		e      *echo.Echo
+		rec    *httptest.ResponseRecorder
 		userID int64
 	)
 	BeforeEach(func() {
-		m := web.New()
-		Routes(m)
-		ts = httptest.NewServer(m)
-	})
-	AfterEach(func() {
-		ts.Close()
+		e = echo.New()
+		rec = httptest.NewRecorder()
 	})
 	JustBeforeEach(func() {
 		seed.Seeds()
-		userID = LoginFaker(ts, "projects@example.com", "hogehoge")
+		userID = LoginFaker("projects@example.com", "hogehoge")
 	})
 
 	Describe("Create", func() {
 		var (
-			res *http.Response
 			err error
 		)
 		JustBeforeEach(func() {
-			values := url.Values{}
-			values.Add("title", "projectTitle")
-			res, err = http.PostForm(ts.URL+"/projects", values)
+			f := make(url.Values)
+			f.Set("title", "projectTitle")
+			req, _ := http.NewRequest(echo.POST, "/projects", strings.NewReader(f.Encode()))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+			c := e.NewContext(req, rec)
+			resource := Projects{}
+			err = resource.Create(c)
 		})
 		It("can registration", func() {
 			Expect(err).To(BeNil())
-			contents, status := ParseJson(res)
-			Expect(status).To(Equal(http.StatusOK))
+			var contents interface{}
+			json.Unmarshal(rec.Body.Bytes(), &contents)
+			Expect(rec.Code).To(Equal(http.StatusOK))
 			Expect(contents).NotTo(BeNil())
 			Expect(contents).To(HaveKey("ID"))
 			Expect(contents).To(HaveKey("UserID"))
 			Expect(contents).To(HaveKeyWithValue("Title", "projectTitle"))
 		})
 		It("should exist in database", func() {
-			contents, _ := ParseJson(res)
+			var contents interface{}
+			json.Unmarshal(rec.Body.Bytes(), &contents)
 			parseContents := contents.(map[string]interface{})
 			newProject, err := handlers.FindProject(int64(parseContents["ID"].(float64)))
 			Expect(err).To(BeNil())
@@ -67,7 +69,8 @@ var _ = Describe("ProjectsController", func() {
 			Expect(newProject.ProjectEntity.ProjectModel.Title).To(Equal("projectTitle"))
 		})
 		It("should have list which have list_option", func() {
-			contents, _ := ParseJson(res)
+			var contents interface{}
+			json.Unmarshal(rec.Body.Bytes(), &contents)
 			parseContents := contents.(map[string]interface{})
 			newProject, _ := handlers.FindProject(int64(parseContents["ID"].(float64)))
 			lists, err := newProject.ProjectEntity.Lists()
@@ -81,19 +84,18 @@ var _ = Describe("ProjectsController", func() {
 
 	Describe("Index", func() {
 		JustBeforeEach(func() {
-			values := url.Values{}
-			values.Add("title", "project1")
-			_, _ = http.PostForm(ts.URL+"/projects", values)
-			values.Set("title", "project2")
-			_, _ = http.PostForm(ts.URL+"/projects", values)
+			handlers.CreateProject(userID, "project1", "", 0, sql.NullString{})
+			handlers.CreateProject(userID, "project2", "", 0, sql.NullString{})
 		})
 		It("should receive projects", func() {
-			res, err := http.Get(ts.URL + "/projects")
+			c := e.NewContext(new(http.Request), rec)
+			c.SetPath("/projects")
+			resource := Projects{}
+			err := resource.Index(c)
 			Expect(err).To(BeNil())
 			var resp []views.Project
-			con, _ := ioutil.ReadAll(res.Body)
-			json.Unmarshal(con, &resp)
-			Expect(res.StatusCode).To(Equal(http.StatusOK))
+			json.Unmarshal(rec.Body.Bytes(), &resp)
+			Expect(rec.Code).To(Equal(http.StatusOK))
 			Expect(resp[0].Title).To(Equal("project1"))
 			Expect(resp[1].Title).To(Equal("project2"))
 		})
@@ -105,12 +107,16 @@ var _ = Describe("ProjectsController", func() {
 			newProject, _ = handlers.CreateProject(userID, "title", "desc", 0, sql.NullString{})
 		})
 		It("should receive project title", func() {
-			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(newProject.ProjectEntity.ProjectModel.ID, 10) + "/show")
+			c := e.NewContext(new(http.Request), rec)
+			c.SetPath("/projects/:project_id/show")
+			c.SetParamNames("project_id")
+			c.SetParamValues(strconv.FormatInt(newProject.ProjectEntity.ProjectModel.ID, 10))
+			resource := Projects{}
+			err := resource.Show(c)
 			Expect(err).To(BeNil())
 			var resp views.Project
-			con, _ := ioutil.ReadAll(res.Body)
-			json.Unmarshal(con, &resp)
-			Expect(res.StatusCode).To(Equal(http.StatusOK))
+			json.Unmarshal(rec.Body.Bytes(), &resp)
+			Expect(rec.Code).To(Equal(http.StatusOK))
 			Expect(resp.Title).To(Equal("title"))
 		})
 	})
@@ -121,14 +127,19 @@ var _ = Describe("ProjectsController", func() {
 			newProject, _ = handlers.CreateProject(userID, "title", "desc", 0, sql.NullString{})
 		})
 		It("should receive new project", func() {
-			values := url.Values{}
-			values.Add("title", "newTitle")
-			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(newProject.ProjectEntity.ProjectModel.ID, 10), values)
+			f := make(url.Values)
+			f.Set("title", "newTitle")
+			req, _ := http.NewRequest(echo.POST, "/projects/:project_id", strings.NewReader(f.Encode()))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+			c := e.NewContext(req, rec)
+			c.SetParamNames("project_id")
+			c.SetParamValues(strconv.FormatInt(newProject.ProjectEntity.ProjectModel.ID, 10))
+			resource := Projects{}
+			err := resource.Update(c)
 			Expect(err).To(BeNil())
 			var resp views.Project
-			con, _ := ioutil.ReadAll(res.Body)
-			json.Unmarshal(con, &resp)
-			Expect(res.StatusCode).To(Equal(http.StatusOK))
+			json.Unmarshal(rec.Body.Bytes(), &resp)
+			Expect(rec.Code).To(Equal(http.StatusOK))
 			Expect(resp.Title).To(Equal("newTitle"))
 		})
 	})
@@ -139,29 +150,39 @@ var _ = Describe("ProjectsController", func() {
 			newProject, _ = handlers.CreateProject(userID, "title", "desc", 0, sql.NullString{})
 		})
 		It("should update show issues", func() {
-			values := url.Values{}
-			values.Add("show_issues", "false")
-			values.Add("show_pull_requests", "true")
-			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(newProject.ProjectEntity.ProjectModel.ID, 10)+"/settings", values)
+			f := make(url.Values)
+			f.Set("show_issues", "false")
+			f.Set("show_pull_requests", "true")
+			req, _ := http.NewRequest(echo.POST, "/projects/:project_id/settings", strings.NewReader(f.Encode()))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+			c := e.NewContext(req, rec)
+			c.SetParamNames("project_id")
+			c.SetParamValues(strconv.FormatInt(newProject.ProjectEntity.ProjectModel.ID, 10))
+			resource := Projects{}
+			err := resource.Settings(c)
 			Expect(err).To(BeNil())
 			var resp views.Project
-			con, _ := ioutil.ReadAll(res.Body)
-			json.Unmarshal(con, &resp)
-			Expect(res.StatusCode).To(Equal(http.StatusOK))
+			json.Unmarshal(rec.Body.Bytes(), &resp)
+			Expect(rec.Code).To(Equal(http.StatusOK))
 			fmt.Printf("response: %+v\n", resp)
 			Expect(resp.ShowIssues).To(BeFalse())
 			Expect(resp.ShowPullRequests).To(BeTrue())
 		})
 		It("should update show pull requests", func() {
-			values := url.Values{}
-			values.Add("show_issues", "true")
-			values.Add("show_pull_requests", "false")
-			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(newProject.ProjectEntity.ProjectModel.ID, 10)+"/settings", values)
+			f := make(url.Values)
+			f.Set("show_issues", "true")
+			f.Set("show_pull_requests", "false")
+			req, _ := http.NewRequest(echo.POST, "/projects/:project_id/settings", strings.NewReader(f.Encode()))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+			c := e.NewContext(req, rec)
+			c.SetParamNames("project_id")
+			c.SetParamValues(strconv.FormatInt(newProject.ProjectEntity.ProjectModel.ID, 10))
+			resource := Projects{}
+			err := resource.Settings(c)
 			Expect(err).To(BeNil())
 			var resp views.Project
-			con, _ := ioutil.ReadAll(res.Body)
-			json.Unmarshal(con, &resp)
-			Expect(res.StatusCode).To(Equal(http.StatusOK))
+			json.Unmarshal(rec.Body.Bytes(), &resp)
+			Expect(rec.Code).To(Equal(http.StatusOK))
 			Expect(resp.ShowIssues).To(BeTrue())
 			Expect(resp.ShowPullRequests).To(BeFalse())
 		})
