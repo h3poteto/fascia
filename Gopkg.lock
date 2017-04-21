@@ -1,4 +1,4 @@
-memo = "6119519c015c816e6bad287894f3c5e636bd1c96ecd6dd81865a718f32c90538"
+memo = "02d54fb29f29597a717c23566325dc408760ad9a21b6074f2d0b2fe4df5bb908"
 
 [[projects]]
   name = "github.com/PuerkitoBio/goquery"
@@ -29,12 +29,6 @@ memo = "6119519c015c816e6bad287894f3c5e636bd1c96ecd6dd81865a718f32c90538"
   packages = ["aws","aws/awserr","aws/awsutil","aws/client","aws/client/metadata","aws/corehandlers","aws/credentials","aws/credentials/ec2rolecreds","aws/credentials/endpointcreds","aws/credentials/stscreds","aws/defaults","aws/ec2metadata","aws/endpoints","aws/request","aws/session","aws/signer/v4","private/protocol","private/protocol/query","private/protocol/query/queryutil","private/protocol/rest","private/protocol/xml/xmlutil","service/ses","service/sts"]
   revision = "7be45195c3af1b54a609812f90c05a7e492e2491"
   version = "v1.8.12"
-
-[[projects]]
-  name = "github.com/boj/redistore"
-  packages = ["."]
-  revision = "fc113767cd6b051980f260d6dbe84b2740c46ab0"
-  version = "v1.2"
 
 [[projects]]
   name = "github.com/dgrijalva/jwt-go"
@@ -71,12 +65,6 @@ memo = "6119519c015c816e6bad287894f3c5e636bd1c96ecd6dd81865a718f32c90538"
   name = "github.com/flosch/pongo2-addons"
   packages = ["."]
   revision = "ada12dc6c96e991171ac7425c1e5b82dce4afd7f"
-
-[[projects]]
-  name = "github.com/garyburd/redigo"
-  packages = ["internal","redis"]
-  revision = "8873b2f1995f59d4bcdd2b0dc9858e2cb9bf0c13"
-  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/go-ini/ini"
@@ -131,12 +119,6 @@ memo = "6119519c015c816e6bad287894f3c5e636bd1c96ecd6dd81865a718f32c90538"
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
-
-[[projects]]
-  name = "github.com/ipfans/echo-session"
-  packages = ["."]
-  revision = "338575a2c858b243de024bd8502e138201c7e943"
-  version = "v3.0.0-rc1"
 
 [[projects]]
   name = "github.com/jmespath/go-jmespath"
@@ -239,12 +221,6 @@ memo = "6119519c015c816e6bad287894f3c5e636bd1c96ecd6dd81865a718f32c90538"
   name = "github.com/valyala/fasttemplate"
   packages = ["."]
   revision = "dcecefd839c4193db0d35b88ec65b4c12d360ab0"
-
-[[projects]]
-  name = "github.com/zenazn/goji"
-  packages = ["web"]
-  revision = "64eb34159fe53473206c2b3e70fe396a639452f2"
-  version = "v1.0"
 
 [[projects]]
   branch = "master"
