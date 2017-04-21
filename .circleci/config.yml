@@ -4,8 +4,8 @@ jobs:
     docker:
       - image: h3poteto/golang-node:v1.0
         environment:
-          GOJIROOT: /go/src/github.com/h3poteto/fascia
-          GOJIENV: test
+          APPROOT: /go/src/github.com/h3poteto/fascia
+          APPENV: test
           DATABASE_URL: 127.0.0.1
           DB_TEST_NAME: fascia_test
           DB_USER: root
