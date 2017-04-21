@@ -3,68 +3,67 @@ package controllers_test
 import (
 	"database/sql"
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/h3poteto/fascia/db/seed"
-	. "github.com/h3poteto/fascia/server"
+	. "github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/services"
 	"github.com/h3poteto/fascia/server/views"
+	"github.com/labstack/echo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/zenazn/goji/web"
 )
 
 var _ = Describe("ListsController", func() {
 	var (
-		ts        *httptest.Server
+		e         *echo.Echo
+		rec       *httptest.ResponseRecorder
 		projectID int64
 		userID    int64
 	)
 	BeforeEach(func() {
-		m := web.New()
-		Routes(m)
-		ts = httptest.NewServer(m)
-	})
-	AfterEach(func() {
-		ts.Close()
+		e = echo.New()
+		rec = httptest.NewRecorder()
 	})
 	JustBeforeEach(func() {
 		seed.Seeds()
-		userID = LoginFaker(ts, "lists@example.com", "hogehoge")
-		// projectを作っておく
-		values := url.Values{}
-		values.Add("title", "projectTitle")
-		res, _ := http.PostForm(ts.URL+"/projects", values)
-		contents, _ := ParseJson(res)
-		parseContents := contents.(map[string]interface{})
-		projectID = int64(parseContents["ID"].(float64))
+		userID = LoginFaker("lists@example.com", "hogehoge")
+		projectService, _ := handlers.CreateProject(userID, "projectTitle", "", 0, sql.NullString{})
+		projectID = projectService.ProjectEntity.ProjectModel.ID
 	})
 
 	Describe("Create", func() {
 		var (
-			res *http.Response
 			err error
 		)
 		JustBeforeEach(func() {
-			values := url.Values{}
-			values.Add("title", "listTitle")
-			values.Add("color", "008ed5")
-			res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists", values)
+			f := make(url.Values)
+			f.Set("title", "listTitle")
+			f.Set("color", "008ed5")
+			req, _ := http.NewRequest(echo.POST, "/projects/:project_id/lists", strings.NewReader(f.Encode()))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+			c := e.NewContext(req, rec)
+			c.SetParamNames("project_id")
+			c.SetParamValues(strconv.FormatInt(projectID, 10))
+			resource := Lists{}
+			err = resource.Create(c)
 		})
 		It("can registration", func() {
 			Expect(err).To(BeNil())
-			contents, status := ParseJson(res)
-			Expect(status).To(Equal(http.StatusOK))
+			var contents interface{}
+			json.Unmarshal(rec.Body.Bytes(), &contents)
+			Expect(rec.Code).To(Equal(http.StatusOK))
 			Expect(contents).NotTo(BeNil())
 			Expect(contents).To(HaveKey("ID"))
 		})
 		It("should exist in database", func() {
-			contents, _ := ParseJson(res)
+			var contents interface{}
+			json.Unmarshal(rec.Body.Bytes(), &contents)
 			parseContents := contents.(map[string]interface{})
 			newList, err := handlers.FindList(projectID, int64(parseContents["ID"].(float64)))
 			Expect(err).To(BeNil())
@@ -75,23 +74,29 @@ var _ = Describe("ListsController", func() {
 
 	Describe("Update", func() {
 		var (
-			res *http.Response
 			err error
 		)
 		Context("when action is null", func() {
 			JustBeforeEach(func() {
 				newList := handlers.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
 				newList.Save()
-				values := url.Values{}
-				values.Add("title", "newListTitle")
-				values.Add("color", "008ed5")
-				values.Add("option_id", "0")
-				res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(newList.ListEntity.ListModel.ID, 10), values)
+				f := make(url.Values)
+				f.Set("title", "newListTitle")
+				f.Set("color", "008ed5")
+				f.Set("option_id", "0")
+				req, _ := http.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id", strings.NewReader(f.Encode()))
+				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+				c := e.NewContext(req, rec)
+				c.SetParamNames("project_id", "list_id")
+				c.SetParamValues(strconv.FormatInt(projectID, 10), strconv.FormatInt(newList.ListEntity.ListModel.ID, 10))
+				resource := Lists{}
+				err = resource.Update(c)
 			})
 			It("should update", func() {
 				Expect(err).To(BeNil())
-				contents, status := ParseJson(res)
-				Expect(status).To(Equal(http.StatusOK))
+				var contents interface{}
+				json.Unmarshal(rec.Body.Bytes(), &contents)
+				Expect(rec.Code).To(Equal(http.StatusOK))
 				Expect(contents).NotTo(BeNil())
 				Expect(contents).To(HaveKey("ID"))
 			})
@@ -100,17 +105,25 @@ var _ = Describe("ListsController", func() {
 			JustBeforeEach(func() {
 				newList := handlers.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
 				newList.Save()
-				values := url.Values{}
 				closeListOption, _ := services.FindListOptionByAction("close")
-				values.Add("title", "newListTitle")
-				values.Add("color", "008ed5")
-				values.Add("option_id", strconv.FormatInt(closeListOption.ListOptionEntity.ListOptionModel.ID, 10))
-				res, err = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(newList.ListEntity.ListModel.ID, 10), values)
+				optionID := strconv.FormatInt(closeListOption.ListOptionEntity.ListOptionModel.ID, 10)
+				f := make(url.Values)
+				f.Set("title", "newListTitle")
+				f.Set("color", "008ed5")
+				f.Set("option_id", optionID)
+				req, _ := http.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id", strings.NewReader(f.Encode()))
+				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+				c := e.NewContext(req, rec)
+				c.SetParamNames("project_id", "list_id")
+				c.SetParamValues(strconv.FormatInt(projectID, 10), strconv.FormatInt(newList.ListEntity.ListModel.ID, 10))
+				resource := Lists{}
+				err = resource.Update(c)
 			})
 			It("should update", func() {
 				Expect(err).To(BeNil())
-				contents, status := ParseJson(res)
-				Expect(status).To(Equal(http.StatusOK))
+				var contents interface{}
+				json.Unmarshal(rec.Body.Bytes(), &contents)
+				Expect(rec.Code).To(Equal(http.StatusOK))
 				Expect(contents).NotTo(BeNil())
 				Expect(contents).To(HaveKey("ID"))
 			})
@@ -119,21 +132,22 @@ var _ = Describe("ListsController", func() {
 
 	Describe("Index", func() {
 		JustBeforeEach(func() {
-			values := url.Values{}
-			values.Add("title", "list1")
-			values.Add("color", "008ed5")
-			_, _ = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists", values)
-			values.Set("title", "list2")
-			values.Set("color", "008ed5")
-			_, _ = http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists", values)
+			listService := handlers.NewList(0, projectID, userID, "list1", "008ed5", sql.NullInt64{}, false)
+			listService.Save()
+			listService = handlers.NewList(0, projectID, userID, "list2", "008ed5", sql.NullInt64{}, false)
+			listService.Save()
 		})
 		It("should receive lists", func() {
-			res, err := http.Get(ts.URL + "/projects/" + strconv.FormatInt(projectID, 10) + "/lists")
+			c := e.NewContext(new(http.Request), rec)
+			c.SetPath("/projects/:project_id/lists")
+			c.SetParamNames("project_id")
+			c.SetParamValues(strconv.FormatInt(projectID, 10))
+			resource := Lists{}
+			err := resource.Index(c)
 			Expect(err).To(BeNil())
 			var contents views.AllLists
-			con, _ := ioutil.ReadAll(res.Body)
-			json.Unmarshal(con, &contents)
-			Expect(res.StatusCode).To(Equal(http.StatusOK))
+			json.Unmarshal(rec.Body.Bytes(), &contents)
+			Expect(rec.Code).To(Equal(http.StatusOK))
 			// 初期リストが入るようになったのでそれ以降
 			Expect(contents.Lists[3].Title).To(Equal("list1"))
 			Expect(contents.Lists[4].Title).To(Equal("list2"))
@@ -147,11 +161,15 @@ var _ = Describe("ListsController", func() {
 			newList.Save()
 		})
 		It("should hide list", func() {
-			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(newList.ListEntity.ListModel.ID, 10)+"/hide", url.Values{})
+			req, _ := http.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id/hide", nil)
+			c := e.NewContext(req, rec)
+			c.SetParamNames("project_id", "list_id")
+			c.SetParamValues(strconv.FormatInt(projectID, 10), strconv.FormatInt(newList.ListEntity.ListModel.ID, 10))
+			resource := Lists{}
+			err := resource.Hide(c)
 			Expect(err).To(BeNil())
 			var contents views.AllLists
-			con, _ := ioutil.ReadAll(res.Body)
-			json.Unmarshal(con, &contents)
+			json.Unmarshal(rec.Body.Bytes(), &contents)
 			Expect(contents.Lists[3].IsHidden).To(BeTrue())
 			targetList, err := handlers.FindList(projectID, newList.ListEntity.ListModel.ID)
 			Expect(err).To(BeNil())
@@ -167,11 +185,15 @@ var _ = Describe("ListsController", func() {
 			newList.Hide()
 		})
 		It("should display list", func() {
-			res, err := http.PostForm(ts.URL+"/projects/"+strconv.FormatInt(projectID, 10)+"/lists/"+strconv.FormatInt(newList.ListEntity.ListModel.ID, 10)+"/display", url.Values{})
+			req, _ := http.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id/display", nil)
+			c := e.NewContext(req, rec)
+			c.SetParamNames("project_id", "list_id")
+			c.SetParamValues(strconv.FormatInt(projectID, 10), strconv.FormatInt(newList.ListEntity.ListModel.ID, 10))
+			resource := Lists{}
+			err := resource.Display(c)
 			Expect(err).To(BeNil())
 			var contents views.AllLists
-			con, _ := ioutil.ReadAll(res.Body)
-			json.Unmarshal(con, &contents)
+			json.Unmarshal(rec.Body.Bytes(), &contents)
 			Expect(contents.Lists[3].IsHidden).To(BeFalse())
 			targetList, err := handlers.FindList(projectID, newList.ListEntity.ListModel.ID)
 			Expect(err).To(BeNil())

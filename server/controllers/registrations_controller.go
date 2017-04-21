@@ -17,10 +17,10 @@ type Registrations struct {
 }
 
 type SignUpForm struct {
-	Email           string `param:"email"`
-	Password        string `param:"password"`
-	PasswordConfirm string `param:"password_confirm"`
-	Token           string `param:"token"`
+	Email           string `json:"email" form:"email"`
+	Password        string `json:"password" form:"password"`
+	PasswordConfirm string `json:"password_confirm" form:"password_confirm"`
+	Token           string `json:"token" form:"token"`
 }
 
 func (u *Registrations) SignUp(c echo.Context) error {
@@ -40,9 +40,8 @@ func (u *Registrations) SignUp(c echo.Context) error {
 }
 
 func (u *Registrations) Registration(c echo.Context) error {
-	var signUpForm SignUpForm
-	err := c.Bind(signUpForm)
-	if err != nil {
+	signUpForm := new(SignUpForm)
+	if err := c.Bind(signUpForm); err != nil {
 		err := errors.Wrap(err, "wrong parameter")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err

@@ -1,69 +1,73 @@
 package controllers_test
 
 import (
-	. "github.com/h3poteto/fascia/server"
-	"github.com/h3poteto/fascia/server/controllers"
+	"github.com/h3poteto/fascia/server"
+	. "github.com/h3poteto/fascia/server/controllers"
+	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/models/db"
 
 	"database/sql"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 
+	"github.com/labstack/echo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/zenazn/goji/web"
 )
 
 var _ = Describe("RegistrationsController", func() {
 	var (
-		ts       *httptest.Server
+		e        *echo.Echo
+		rec      *httptest.ResponseRecorder
 		database *sql.DB
 	)
 	BeforeEach(func() {
-		m := web.New()
-		Routes(m)
-		ts = httptest.NewServer(m)
-	})
-	AfterEach(func() {
-		ts.Close()
+		e = echo.New()
+		rec = httptest.NewRecorder()
 	})
 	JustBeforeEach(func() {
 		database = db.SharedInstance().Connection
 	})
 
 	Describe("SignUp", func() {
+		JustBeforeEach(func() {
+			GenerateCSRFToken = func(c echo.Context) (string, error) { return "hoge", nil }
+			e.Renderer = server.PongoRenderer()
+		})
 		It("should correctly access", func() {
-			res, err := http.Get(ts.URL + "/sign_up")
+			c := e.NewContext(new(http.Request), rec)
+			c.SetPath("/sign_up")
+			resource := Registrations{}
+			err := resource.SignUp(c)
 			Expect(err).To(BeNil())
-			contents, status := ParseResponse(res)
-			Expect(status).To(Equal(http.StatusOK))
-			Expect(contents).NotTo(BeNil())
+			Expect(rec.Code).To(Equal(http.StatusOK))
+			Expect(rec.Body.String()).NotTo(BeNil())
 		})
 
 	})
 
 	Describe("Registration", func() {
 		JustBeforeEach(func() {
-			controllers.CheckCSRFToken = func(r *http.Request, token string) bool { return true }
+			CheckCSRFToken = func(c echo.Context, token string) bool { return true }
 		})
 
 		Context("パスワードと確認パスワードが一致しているとき", func() {
 			It("登録できること", func() {
-				values := url.Values{}
-				values.Add("email", "registration@example.com")
-				values.Add("password", "hogehoge")
-				values.Add("password_confirm", "hogehoge")
-				res, err := http.PostForm(ts.URL+"/sign_up", values)
+				f := make(url.Values)
+				f.Set("email", "registration@example.com")
+				f.Set("password", "hogehoge")
+				f.Set("password_confirm", "hogehoge")
+				req, _ := http.NewRequest(echo.POST, "/sign_up", strings.NewReader(f.Encode()))
+				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+				c := e.NewContext(req, rec)
+				resource := Registrations{}
+				err := resource.Registration(c)
 				Expect(err).To(BeNil())
-				Expect(res.Request.URL.Path).To(Equal("/sign_in"))
-			})
-			It("DBに登録されていること", func() {
-				values := url.Values{}
-				values.Add("email", "registration@example.com")
-				values.Add("password", "hogehoge")
-				values.Add("password_confirm", "hogehoge")
-				http.PostForm(ts.URL+"/sign_up", values)
+				Expect(rec.Code).To(Equal(http.StatusFound))
+				u, _ := rec.Result().Location()
+				Expect(u.Path).To(Equal("/sign_in"))
 				var id int64
 				rows, _ := database.Query("select id from users where email = ?;", "registration@example.com")
 				for rows.Next() {
@@ -77,20 +81,22 @@ var _ = Describe("RegistrationsController", func() {
 		})
 		Context("既に登録されているとき", func() {
 			JustBeforeEach(func() {
-				values := url.Values{}
-				values.Add("email", "registration@example.com")
-				values.Add("password", "hogehoge")
-				values.Add("password_confirm", "hogehoge")
-				http.PostForm(ts.URL+"/sign_up", values)
+				handlers.RegistrationUser("registration@example.com", "hogehoge", "hogehoge")
 			})
 			It("エラーになること", func() {
-				values := url.Values{}
-				values.Add("email", "registration@example.com")
-				values.Add("password", "hogehoge")
-				values.Add("password_confirm", "hogehoge")
-				res, err := http.PostForm(ts.URL+"/sign_up", values)
+				f := make(url.Values)
+				f.Set("email", "registration@example.com")
+				f.Set("password", "hogehoge")
+				f.Set("password_confirm", "hogehoge")
+				req, _ := http.NewRequest(echo.POST, "/sign_up", strings.NewReader(f.Encode()))
+				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+				c := e.NewContext(req, rec)
+				resource := Registrations{}
+				err := resource.Registration(c)
 				Expect(err).To(BeNil())
-				Expect(res.Request.URL.Path).To(Equal("/sign_up"))
+				Expect(rec.Code).To(Equal(http.StatusFound))
+				u, _ := rec.Result().Location()
+				Expect(u.Path).To(Equal("/sign_up"))
 			})
 		})
 	})

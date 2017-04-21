@@ -18,15 +18,15 @@ type Passwords struct {
 }
 
 type NewPasswordForm struct {
-	Email string `param:"email"`
-	Token string `param:"token"`
+	Email string `form:"email"`
+	Token string `form:"token"`
 }
 
 type EditPasswordForm struct {
-	Token           string `param:"token"`
-	ResetToken      string `param:"reset_token"`
-	Password        string `param:"password"`
-	PasswordConfirm string `param:"password_confirm"`
+	Token           string `form:"token"`
+	ResetToken      string `form:"reset_token"`
+	Password        string `form:"password"`
+	PasswordConfirm string `form:"password_confirm"`
 }
 
 // tokenを発行し，expireと合わせてreset_passwordモデルにDB保存する
@@ -46,7 +46,7 @@ func (u *Passwords) New(c echo.Context) error {
 }
 
 func (u *Passwords) Create(c echo.Context) error {
-	var newPasswordForm NewPasswordForm
+	newPasswordForm := new(NewPasswordForm)
 	err := c.Bind(newPasswordForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
@@ -102,7 +102,7 @@ func (u *Passwords) Edit(c echo.Context) error {
 		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	if err := services.AuthenticateResetPassword(id, resetToken); err != nil {
-		logging.SharedInstance().Controller(c).Info("cannot authenticate reset password: %v", err)
+		logging.SharedInstance().Controller(c).Infof("cannot authenticate reset password: %v", err)
 		return err
 	}
 	return c.Render(http.StatusOK, "edit_password.html.tpl", map[string]interface{}{
@@ -114,7 +114,7 @@ func (u *Passwords) Edit(c echo.Context) error {
 }
 
 func (u *Passwords) Update(c echo.Context) error {
-	var editPasswordForm EditPasswordForm
+	editPasswordForm := new(EditPasswordForm)
 	err := c.Bind(editPasswordForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameters")

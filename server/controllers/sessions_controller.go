@@ -8,7 +8,7 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/ipfans/echo-session"
+	"github.com/gorilla/sessions"
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
@@ -18,9 +18,9 @@ type Sessions struct {
 }
 
 type SignInForm struct {
-	Email    string `param:"email"`
-	Password string `param:"password"`
-	Token    string `param:"token"`
+	Email    string `form:"email"`
+	Password string `form:"password"`
+	Token    string `form:"token"`
 }
 
 func (u *Sessions) SignIn(c echo.Context) error {
@@ -41,12 +41,22 @@ func (u *Sessions) SignIn(c echo.Context) error {
 
 func (u *Sessions) NewSession(c echo.Context) error {
 	// 旧セッションの削除
-	s := session.Default(c)
-	s.Clear()
-	s.Save()
+	session, err := cookieStore.Get(c.Request(), Key)
+	if err != nil {
+		err := errors.Wrap(err, "session error")
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
+	}
+	session.Options = &sessions.Options{MaxAge: -1}
+	err = session.Save(c.Request(), c.Response())
+	if err != nil {
+		err := errors.Wrap(err, "session error")
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
+	}
 
-	var signInForm SignInForm
-	err := c.Bind(signInForm)
+	signInForm := new(SignInForm)
+	err = c.Bind(signInForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -66,13 +76,10 @@ func (u *Sessions) NewSession(c echo.Context) error {
 	}
 	logging.SharedInstance().Controller(c).Debugf("login success: %+v", userService)
 
-	s.Options(session.Options{
-		Path:   "/",
-		MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int),
-	})
-	s.Set("current_user_id", userService.UserEntity.UserModel.ID)
-
-	err = s.Save()
+	session, err = cookieStore.Get(c.Request(), Key)
+	session.Options = &sessions.Options{Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int)}
+	session.Values["current_user_id"] = userService.UserEntity.UserModel.ID
+	err = session.Save(c.Request(), c.Response())
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -83,9 +90,14 @@ func (u *Sessions) NewSession(c echo.Context) error {
 }
 
 func (u *Sessions) SignOut(c echo.Context) error {
-	s := session.Default(c)
-	s.Clear()
-	err := s.Save()
+	session, err := cookieStore.Get(c.Request(), Key)
+	if err != nil {
+		err := errors.Wrap(err, "session error")
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
+	}
+	session.Options = &sessions.Options{MaxAge: -1}
+	err = session.Save(c.Request(), c.Response())
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -103,13 +115,13 @@ func (u *Sessions) Update(c echo.Context) error {
 	}
 	logging.SharedInstance().Controller(c).Info("login success")
 
-	s := session.Default(c)
-	s.Options(session.Options{
+	session, err := cookieStore.Get(c.Request(), Key)
+	session.Options = &sessions.Options{
 		Path:   "/",
 		MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int),
-	})
-	s.Set("current_user_id", userService.UserEntity.UserModel.ID)
-	err = s.Save()
+	}
+	session.Values["current_user_id"] = userService.UserEntity.UserModel.ID
+	err = session.Save(c.Request(), c.Response())
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)

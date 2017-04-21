@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ipfans/echo-session"
+	"github.com/gorilla/sessions"
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
@@ -47,9 +47,14 @@ func (u *Webviews) SignIn(c echo.Context) error {
 
 // NewSession is a sign in action for mobile app
 func (u *Webviews) NewSession(c echo.Context) error {
-	s := session.Default(c)
-	s.Clear()
-	err := s.Save()
+	session, err := cookieStore.Get(c.Request(), Key)
+	if err != nil {
+		err := errors.Wrap(err, "session error")
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
+	}
+	session.Options = &sessions.Options{MaxAge: -1}
+	err = session.Save(c.Request(), c.Response())
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -75,12 +80,10 @@ func (u *Webviews) NewSession(c echo.Context) error {
 		return c.Redirect(http.StatusFound, "/webviews/sign_in")
 	}
 	logging.SharedInstance().Controller(c).Debugf("login success: %+v", userService)
-	s.Options(session.Options{
-		Path:   "/",
-		MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int),
-	})
-	s.Set("current_user_id", userService.UserEntity.UserModel.ID)
-	err = s.Save()
+	session, err = cookieStore.Get(c.Request(), Key)
+	session.Options = &sessions.Options{Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int)}
+	session.Values["current_user_id"] = userService.UserEntity.UserModel.ID
+	err = session.Save(c.Request(), c.Response())
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)

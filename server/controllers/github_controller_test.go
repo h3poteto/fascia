@@ -3,6 +3,7 @@ package controllers_test
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -10,30 +11,27 @@ import (
 	"time"
 
 	"github.com/google/go-github/github"
-	. "github.com/h3poteto/fascia/server"
+	. "github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/models/db"
+	"github.com/labstack/echo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/zenazn/goji/web"
 	"golang.org/x/oauth2"
 )
 
 var _ = Describe("GithubController", func() {
 	var (
-		ts       *httptest.Server
+		e        *echo.Echo
+		rec      *httptest.ResponseRecorder
 		database *sql.DB
 	)
 	userEmail := "github@example.com"
 	BeforeEach(func() {
-		m := web.New()
-		Routes(m)
-		ts = httptest.NewServer(m)
-	})
-	AfterEach(func() {
-		ts.Close()
+		e = echo.New()
+		rec = httptest.NewRecorder()
 	})
 	JustBeforeEach(func() {
-		LoginFaker(ts, userEmail, "hogehoge")
+		LoginFaker(userEmail, "hogehoge")
 		// Oauthのログインテストはリダイレクトまでしか実行できないため，OauthTokenは偽装しておくしかない
 		database = db.SharedInstance().Connection
 
@@ -55,10 +53,14 @@ var _ = Describe("GithubController", func() {
 	})
 	Describe("Repositories", func() {
 		It("should receive repositories", func() {
-			res, err := http.Get(ts.URL + "/github/repositories")
+			c := e.NewContext(new(http.Request), rec)
+			c.SetPath("/github/repositories")
+			resource := Github{}
+			err := resource.Repositories(c)
 			Expect(err).To(BeNil())
-			contents, status := ParseJson(res)
-			Expect(status).To(Equal(http.StatusOK))
+			Expect(rec.Code).To(Equal(http.StatusOK))
+			var contents interface{}
+			json.Unmarshal(rec.Body.Bytes(), &contents)
 			parseContents := contents.([]interface{})
 			Expect(parseContents[0]).NotTo(BeNil())
 		})

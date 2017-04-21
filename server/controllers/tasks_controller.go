@@ -19,20 +19,20 @@ type Tasks struct {
 }
 
 type NewTaskForm struct {
-	Title       string `param:"title"`
-	Description string `param:"description"`
+	Title       string `form:"title"`
+	Description string `form:"description"`
 }
 
 // MoveTaskForm is struct for move task
 type MoveTaskForm struct {
-	ToListID     int64 `param:"to_list_id"`
-	PrevToTaskID int64 `param:"prev_to_task_id"`
+	ToListID     int64 `form:"to_list_id"`
+	PrevToTaskID int64 `form:"prev_to_task_id"`
 }
 
 // EditTaskForm is struct for edit task
 type EditTaskForm struct {
-	Title       string `param:"title"`
-	Description string `param:"description"`
+	Title       string `form:"title"`
+	Description string `form:"description"`
 }
 
 func (u *Tasks) Create(c echo.Context) error {
@@ -53,7 +53,7 @@ func (u *Tasks) Create(c echo.Context) error {
 		}
 	}
 
-	var newTaskForm NewTaskForm
+	newTaskForm := new(NewTaskForm)
 	err = c.Bind(newTaskForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
@@ -162,7 +162,7 @@ func (u *Tasks) MoveTask(c echo.Context) error {
 		}
 	}
 
-	var moveTaskFrom MoveTaskForm
+	moveTaskFrom := new(MoveTaskForm)
 	err = c.Bind(moveTaskFrom)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
@@ -226,7 +226,7 @@ func (u *Tasks) Update(c echo.Context) error {
 		}
 	}
 
-	var editTaskForm EditTaskForm
+	editTaskForm := new(EditTaskForm)
 	err = c.Bind(editTaskForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")

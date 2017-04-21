@@ -2,44 +2,42 @@ package controllers_test
 
 import (
 	"github.com/h3poteto/fascia/db/seed"
-	. "github.com/h3poteto/fascia/server"
+	. "github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/views"
 
 	"encoding/json"
+	"github.com/labstack/echo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/zenazn/goji/web"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 )
 
 var _ = Describe("ListOptionsController", func() {
 	var (
-		ts     *httptest.Server
+		e      *echo.Echo
+		rec    *httptest.ResponseRecorder
 		userID int64
 	)
 	BeforeEach(func() {
-		m := web.New()
-		Routes(m)
-		ts = httptest.NewServer(m)
-	})
-	AfterEach(func() {
-		ts.Close()
+		e = echo.New()
+		rec = httptest.NewRecorder()
 	})
 	JustBeforeEach(func() {
-		userID = LoginFaker(ts, "list_options@example.com", "hogehoge")
+		userID = LoginFaker("list_options@example.com", "hogehoge")
 		seed.Seeds()
 	})
 
 	Describe("Index", func() {
 		JustBeforeEach(func() {
-			res, err := http.Get(ts.URL + "/list_options")
+			c := e.NewContext(new(http.Request), rec)
+			c.SetPath("/list_options")
+			resource := ListOptions{}
+			err := resource.Index(c)
 			Expect(err).To(BeNil())
 			var contents []views.ListOption
-			con, _ := ioutil.ReadAll(res.Body)
-			json.Unmarshal(con, &contents)
-			Expect(res.StatusCode).To(Equal(http.StatusOK))
+			json.Unmarshal(rec.Body.Bytes(), &contents)
+			Expect(rec.Code).To(Equal(http.StatusOK))
 			Expect(contents[0].Action).To(Equal("close"))
 			Expect(contents[1].Action).To(Equal("open"))
 		})

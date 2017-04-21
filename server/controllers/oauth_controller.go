@@ -7,7 +7,7 @@ import (
 
 	"net/http"
 
-	"github.com/ipfans/echo-session"
+	"github.com/gorilla/sessions"
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
@@ -18,9 +18,9 @@ type Oauth struct {
 
 func (u *Oauth) Github(c echo.Context) error {
 	// 旧セッションの削除
-	s := session.Default(c)
-	s.Clear()
-	s.Save()
+	session, err := cookieStore.Get(c.Request(), Key)
+	session.Options = &sessions.Options{MaxAge: -1}
+	session.Save(c.Request(), c.Response())
 
 	code := c.QueryParam("code")
 	logging.SharedInstance().Controller(c).Debugf("github callback param: %+v", code)
@@ -38,12 +38,10 @@ func (u *Oauth) Github(c echo.Context) error {
 		return c.Redirect(http.StatusFound, "/sign_in")
 	}
 	logging.SharedInstance().Controller(c).Debugf("login success: %+v", userService)
-	s.Options(session.Options{
-		Path:   "/",
-		MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int),
-	})
-	s.Set("current_user_id", userService.UserEntity.UserModel.ID)
-	err = s.Save()
+	session, err = cookieStore.Get(c.Request(), Key)
+	session.Options = &sessions.Options{Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int)}
+	session.Values["current_user_id"] = userService.UserEntity.UserModel.ID
+	err = session.Save(c.Request(), c.Response())
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)

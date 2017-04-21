@@ -18,19 +18,19 @@ type Projects struct {
 }
 
 type NewProjectForm struct {
-	Title        string `param:"title"`
-	Description  string `param:"description"`
-	RepositoryID int    `param:"repository_id"`
+	Title        string `form:"title"`
+	Description  string `form:"description"`
+	RepositoryID int    `form:"repository_id"`
 }
 
 type EditProjectForm struct {
-	Title       string `param:"title"`
-	Description string `param:"description"`
+	Title       string `form:"title"`
+	Description string `form:"description"`
 }
 
 type SettingsProjectForm struct {
-	ShowIssues       bool `param:"show_issues"`
-	ShowPullRequests bool `param:"show_pull_requests"`
+	ShowIssues       bool `form:"show_issues"`
+	ShowPullRequests bool `form:"show_pull_requests"`
 }
 
 func (u *Projects) Index(c echo.Context) error {
@@ -91,7 +91,7 @@ func (u *Projects) Create(c echo.Context) error {
 		return NewJSONError(err, http.StatusUnauthorized, c)
 	}
 
-	var newProjectForm NewProjectForm
+	newProjectForm := new(NewProjectForm)
 	err = c.Bind(newProjectForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
@@ -151,7 +151,7 @@ func (u *Projects) Update(c echo.Context) error {
 		return NewJSONError(err, http.StatusNotFound, c)
 	}
 
-	var editProjectForm EditProjectForm
+	editProjectForm := new(EditProjectForm)
 	err = c.Bind(editProjectForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
@@ -201,7 +201,7 @@ func (u *Projects) Settings(c echo.Context) error {
 		return NewJSONError(err, http.StatusNotFound, c)
 	}
 
-	var settingsProjectForm SettingsProjectForm
+	settingsProjectForm := new(SettingsProjectForm)
 	err = c.Bind(settingsProjectForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
