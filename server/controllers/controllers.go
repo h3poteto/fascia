@@ -19,6 +19,7 @@ import (
 	"golang.org/x/oauth2/github"
 )
 
+// Key defines session's key
 const Key = "fascia"
 
 type JSONError struct {
@@ -44,8 +45,13 @@ var githubOauthConf = &oauth2.Config{
 var cookieStore = sessions.NewCookieStore([]byte(os.Getenv("SECRET")))
 
 // ここテストでstubするために関数ポインタをグローバル変数に代入しておきます．もしインスタンスメソッドではない関数をstubする方法があれば，書き換えて構わない．
+// CheckCSRFToken check token in session
 var CheckCSRFToken = checkCSRF
+
+// LoginRequired check login session
 var LoginRequired = CheckLogin
+
+// GenerateCSRFToken prepare new CSRF token
 var GenerateCSRFToken = generateCSRF
 
 // CheckLogin authenticate user

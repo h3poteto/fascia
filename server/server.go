@@ -18,6 +18,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Routes defines all routes
 func Routes(e *echo.Echo) {
 	rootDir := os.Getenv("APPROOT")
 	// robots
@@ -123,6 +124,7 @@ func Serve() {
 	e.Logger.Fatal(e.Start(":9090"))
 }
 
+// PongoRenderer prepare pongo2, pongo2filter, and pongor
 func PongoRenderer() *pongor.Renderer {
 	root := os.Getenv("APPROOT")
 	pongo2.RegisterFilter("suffixAssetsUpdate", filters.SuffixAssetsUpdate)
@@ -133,6 +135,7 @@ func PongoRenderer() *pongor.Renderer {
 	return pongor.GetRenderer(pongorOption)
 }
 
+// PanicRecover prepare original panic recover using logrus
 func PanicRecover() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
