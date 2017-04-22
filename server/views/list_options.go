@@ -20,7 +20,7 @@ func ParseListOptionJSON(option *list_option.ListOption) (*ListOption, error) {
 
 // ParseListOptionsJSON returns some ListOption structs for response
 func ParseListOptionsJSON(options []*list_option.ListOption) ([]*ListOption, error) {
-	var results []*ListOption
+	results := []*ListOption{}
 	for _, o := range options {
 		parse, err := ParseListOptionJSON(o)
 		if err != nil {

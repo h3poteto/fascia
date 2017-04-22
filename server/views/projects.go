@@ -39,7 +39,7 @@ func ParseProjectJSON(project *project.Project) (*Project, error) {
 
 // ParseProjectsJSON returns some projects structs for response
 func ParseProjectsJSON(projects []*project.Project) ([]*Project, error) {
-	var results []*Project
+	results := []*Project{}
 	for _, p := range projects {
 		parse, err := ParseProjectJSON(p)
 		if err != nil {
