@@ -22,11 +22,13 @@ import (
 // Key defines session's key
 const Key = "fascia"
 
+// JSONError is a struct for http error
 type JSONError struct {
 	Code    int    `json:code`
 	Message string `json:message`
 }
 
+// NewJSONError render error json response and return error
 func NewJSONError(err error, code int, c echo.Context) error {
 	c.JSON(code, &JSONError{
 		Code:    code,
@@ -105,18 +107,21 @@ func checkCSRF(c echo.Context, token string) bool {
 	return true
 }
 
+// BadRequest render 400
 func BadRequest(c echo.Context) error {
 	return c.Render(http.StatusBadRequest, "400.html.tpl", map[string]interface{}{
 		"title": "BadRequest",
 	})
 }
 
+// NotFound render 404
 func NotFound(c echo.Context) error {
 	return c.Render(http.StatusNotFound, "404.html.tpl", map[string]interface{}{
 		"title": "NotFound",
 	})
 }
 
+// InternalServerError render 500
 func InternalServerError(c echo.Context) error {
 	return c.Render(http.StatusInternalServerError, "500.html.tpl", map[string]interface{}{
 		"title": "InternalServerError",

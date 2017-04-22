@@ -13,9 +13,11 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// Registrations is controlelr struct for registrations
 type Registrations struct {
 }
 
+// SignUpForm is struct for sign up
 type SignUpForm struct {
 	Email           string `json:"email" form:"email"`
 	Password        string `json:"password" form:"password"`
@@ -23,6 +25,7 @@ type SignUpForm struct {
 	Token           string `json:"token" form:"token"`
 }
 
+// SignUp render sign up form
 func (u *Registrations) SignUp(c echo.Context) error {
 	url := githubOauthConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
 
@@ -39,6 +42,7 @@ func (u *Registrations) SignUp(c echo.Context) error {
 	})
 }
 
+// Registration creates a new user
 func (u *Registrations) Registration(c echo.Context) error {
 	signUpForm := new(SignUpForm)
 	if err := c.Bind(signUpForm); err != nil {

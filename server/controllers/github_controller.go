@@ -13,9 +13,11 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// Github is controller struct for github
 type Github struct {
 }
 
+// Repositories returns github repositories
 func (u *Github) Repositories(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {

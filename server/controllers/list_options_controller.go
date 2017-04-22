@@ -10,9 +10,11 @@ import (
 	"github.com/labstack/echo"
 )
 
+// ListOptions is controlelr struct for list options
 type ListOptions struct {
 }
 
+// Index returns all list options
 func (u *ListOptions) Index(c echo.Context) error {
 	_, err := LoginRequired(c)
 	if err != nil {
