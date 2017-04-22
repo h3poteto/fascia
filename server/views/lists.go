@@ -48,7 +48,7 @@ func ParseListJSON(list *list.List) (*List, error) {
 
 // ParseListsJSON returns some List structs for response
 func ParseListsJSON(lists []*list.List) ([]*List, error) {
-	var results []*List
+	results := []*List{}
 	for _, l := range lists {
 		parse, err := ParseListJSON(l)
 		if err != nil {
