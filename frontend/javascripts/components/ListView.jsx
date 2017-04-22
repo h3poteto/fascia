@@ -166,7 +166,7 @@ class ListView extends React.Component {
         <ShowTaskModal
             isShowTaskModalOpen={isTaskShowModalOpen}
             isEditTaskModalVisible={isEditTaskModalVisible}
-            projectID={this.props.params.projectID}
+            project={project}
             task={selectedTask}
             onRequestClose={this.props.showTaskModalActions.closeShowTaskModal}
             changeEditMode={this.props.showTaskModalActions.changeEditMode}
