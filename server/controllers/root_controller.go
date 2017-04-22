@@ -11,9 +11,11 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// Root is controller struct
 type Root struct {
 }
 
+// Index render a top page
 func (u *Root) Index(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	// ログインしていない場合はaboutページを見せる
@@ -37,6 +39,7 @@ func (u *Root) Index(c echo.Context) error {
 	})
 }
 
+// About render a about
 func (u *Root) About(c echo.Context) error {
 	url := githubOauthConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
 	token, err := GenerateCSRFToken(c)
