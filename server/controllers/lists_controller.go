@@ -14,20 +14,24 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Lists is controller struct for lists
 type Lists struct {
 }
 
+// NewListForm is struct for new list
 type NewListForm struct {
 	Title string `form:"title"`
 	Color string `form:"color"`
 }
 
+// EditListForm is struct for edit list
 type EditListForm struct {
 	Title    string `form:"title"`
 	Color    string `form:"color"`
 	OptionID int64  `form:"option_id"`
 }
 
+// Index returns all lists
 func (u *Lists) Index(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
@@ -65,6 +69,7 @@ func (u *Lists) Index(c echo.Context) error {
 	return c.JSON(http.StatusOK, jsonAllLists)
 }
 
+// Create a new list
 func (u *Lists) Create(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
@@ -114,6 +119,7 @@ func (u *Lists) Create(c echo.Context) error {
 	return c.JSON(http.StatusOK, jsonList)
 }
 
+// Update a list
 func (u *Lists) Update(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
