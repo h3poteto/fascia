@@ -8,24 +8,24 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/johntdyer/slackrus"
+	"github.com/labstack/echo"
 	"github.com/pkg/errors"
-	"github.com/zenazn/goji/web"
-	"github.com/zenazn/goji/web/middleware"
 )
 
+// LogStruct provides logger object
 type LogStruct struct {
 	Log *logrus.Logger
 }
 
-// Stacktrace provide stacktrace for pkg/errors
-type Stacktrace interface {
-	Stacktrace() []errors.Frame
+type stackTracer interface {
+	StackTrace() errors.StackTrace
 }
 
 var sharedInstance *LogStruct = New()
 
+// New returns a LogStruct
 func New() *LogStruct {
-	goenv := os.Getenv("GOJIENV")
+	goenv := os.Getenv("APPENV")
 	log := logrus.New()
 	log.Out = os.Stdout
 	if goenv == "production" {
@@ -43,37 +43,27 @@ func New() *LogStruct {
 	return &LogStruct{Log: log}
 }
 
+// SharedInstance returns a singleton object
 func SharedInstance() *LogStruct {
 	return sharedInstance
 }
 
 // MethodInfo is prepare logrus entry with fields
-func (u *LogStruct) MethodInfo(model string, action string, context ...web.C) *logrus.Entry {
-	requestID := "null"
-	if len(context) > 0 {
-		requestID = middleware.GetReqID(context[0])
-	}
-
+func (u *LogStruct) MethodInfo(model string, action string) *logrus.Entry {
 	return u.Log.WithFields(logrus.Fields{
-		"time":      time.Now(),
-		"requestID": requestID,
-		"model":     model,
-		"action":    action,
+		"time":   time.Now(),
+		"model":  model,
+		"action": action,
 	})
 }
 
 // MethodInfoWithStacktrace is prepare logrus entry with fields
-func (u *LogStruct) MethodInfoWithStacktrace(model string, action string, err error, context ...web.C) *logrus.Entry {
-	requestID := "null"
-	if len(context) > 0 {
-		requestID = middleware.GetReqID(context[0])
-	}
-
-	stackErr, ok := err.(Stacktrace)
+func (u *LogStruct) MethodInfoWithStacktrace(model string, action string, err error) *logrus.Entry {
+	stackErr, ok := err.(stackTracer)
 	if !ok {
 		panic("oops, err does not implement Stacktrace")
 	}
-	st := stackErr.Stacktrace()
+	st := stackErr.StackTrace()
 	traceLength := len(st)
 	if traceLength > 5 {
 		traceLength = 5
@@ -81,7 +71,6 @@ func (u *LogStruct) MethodInfoWithStacktrace(model string, action string, err er
 
 	return u.Log.WithFields(logrus.Fields{
 		"time":       time.Now(),
-		"requestID":  requestID,
 		"model":      model,
 		"action":     action,
 		"stacktrace": fmt.Sprintf("%+v", st[0:traceLength]),
@@ -89,8 +78,8 @@ func (u *LogStruct) MethodInfoWithStacktrace(model string, action string, err er
 }
 
 // PanicRecover send error and stacktrace
-func (u *LogStruct) PanicRecover(context web.C) *logrus.Entry {
-	requestID := middleware.GetReqID(context)
+func (u *LogStruct) PanicRecover(context echo.Context) *logrus.Entry {
+	requestID := context.Response().Header().Get(echo.HeaderXRequestID)
 	buf := make([]byte, 1<<16)
 	runtime.Stack(buf, false)
 	return u.Log.WithFields(logrus.Fields{
@@ -98,5 +87,40 @@ func (u *LogStruct) PanicRecover(context web.C) *logrus.Entry {
 		"requestID":  requestID,
 		"model":      "main",
 		"stacktrace": string(buf),
+	})
+}
+
+// Controller is prepare logrus entry with fields
+func (u *LogStruct) Controller(context echo.Context) *logrus.Entry {
+	requestID := context.Response().Header().Get(echo.HeaderXRequestID)
+
+	return u.Log.WithFields(logrus.Fields{
+		"time":      time.Now(),
+		"method":    context.Request().Method,
+		"requestID": requestID,
+		"path":      context.Path(),
+	})
+}
+
+// ControllerWithStacktrace is prepare logrus entry with fields
+func (u *LogStruct) ControllerWithStacktrace(err error, context echo.Context) *logrus.Entry {
+	requestID := context.Response().Header().Get(echo.HeaderXRequestID)
+
+	stackErr, ok := err.(stackTracer)
+	if !ok {
+		panic("oops, err does not implement Stacktrace")
+	}
+	st := stackErr.StackTrace()
+	traceLength := len(st)
+	if traceLength > 5 {
+		traceLength = 5
+	}
+
+	return u.Log.WithFields(logrus.Fields{
+		"time":       time.Now(),
+		"method":     context.Request().Method,
+		"requestID":  requestID,
+		"path":       context.Path(),
+		"stacktrace": fmt.Sprintf("%+v", st[0:traceLength]),
 	})
 }

@@ -32,7 +32,7 @@ func ParseTaskJSON(task *task.Task) (*Task, error) {
 
 // ParseTasksJSON returns some Task structs for response
 func ParseTasksJSON(tasks []*task.Task) ([]*Task, error) {
-	var results []*Task
+	results := []*Task{}
 	for _, t := range tasks {
 		parse, err := ParseTaskJSON(t)
 		if err != nil {

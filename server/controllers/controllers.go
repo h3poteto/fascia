@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/services"
 
@@ -13,18 +12,29 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/flosch/pongo2"
 	"github.com/gorilla/sessions"
+	"github.com/labstack/echo"
 	"github.com/pkg/errors"
-	"github.com/zenazn/goji/web"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/github"
 )
 
+// Key defines session's key
 const Key = "fascia"
 
-type JsonError struct {
-	Error string
+// JSONError is a struct for http error
+type JSONError struct {
+	Code    int    `json:code`
+	Message string `json:message`
+}
+
+// NewJSONError render error json response and return error
+func NewJSONError(err error, code int, c echo.Context) error {
+	c.JSON(code, &JSONError{
+		Code:    code,
+		Message: http.StatusText(code),
+	})
+	return err
 }
 
 var githubOauthConf = &oauth2.Config{
@@ -34,16 +44,22 @@ var githubOauthConf = &oauth2.Config{
 	Endpoint:     github.Endpoint,
 }
 
-var cookieStore = sessions.NewCookieStore([]byte("session-keys"))
+var cookieStore = sessions.NewCookieStore([]byte(os.Getenv("SECRET")))
 
 // ここテストでstubするために関数ポインタをグローバル変数に代入しておきます．もしインスタンスメソッドではない関数をstubする方法があれば，書き換えて構わない．
+// CheckCSRFToken check token in session
 var CheckCSRFToken = checkCSRF
+
+// LoginRequired check login session
 var LoginRequired = CheckLogin
+
+// GenerateCSRFToken prepare new CSRF token
+var GenerateCSRFToken = generateCSRF
 
 // CheckLogin authenticate user
 // If unauthorized, return 401
-func CheckLogin(r *http.Request) (*services.User, error) {
-	session, err := cookieStore.Get(r, Key)
+func CheckLogin(c echo.Context) (*services.User, error) {
+	session, err := cookieStore.Get(c.Request(), Key)
 	if err != nil {
 		return nil, errors.New("cookie error")
 	}
@@ -58,9 +74,9 @@ func CheckLogin(r *http.Request) (*services.User, error) {
 	return currentUser, nil
 }
 
-// GenerateCSRFToken generate new CSRF token
-func GenerateCSRFToken(c web.C, w http.ResponseWriter, r *http.Request) (string, error) {
-	session, err := cookieStore.Get(r, Key)
+// generateCSRF generate new CSRF token
+func generateCSRF(c echo.Context) (string, error) {
+	session, err := cookieStore.Get(c.Request(), Key)
 	if err != nil {
 		return "", errors.Wrap(err, "cookie error")
 	}
@@ -72,15 +88,15 @@ func GenerateCSRFToken(c web.C, w http.ResponseWriter, r *http.Request) (string,
 	token := fmt.Sprintf("%x", h.Sum(nil))
 	session.Values["token"] = token
 
-	err = cookieStore.Save(r, w, session)
+	err = cookieStore.Save(c.Request(), c.Response(), session)
 	if err != nil {
 		return "", errors.Wrap(err, "cookie error")
 	}
 	return token, nil
 }
 
-func checkCSRF(r *http.Request, token string) bool {
-	session, err := cookieStore.Get(r, Key)
+func checkCSRF(c echo.Context, token string) bool {
+	session, err := cookieStore.Get(c.Request(), Key)
 	if err != nil {
 		return false
 	}
@@ -91,38 +107,23 @@ func checkCSRF(r *http.Request, token string) bool {
 	return true
 }
 
-func BadRequest(w http.ResponseWriter, r *http.Request) {
-	tpl, err := pongo2.DefaultSet.FromFile("400.html.tpl")
-	if err != nil {
-		err := errors.Wrap(err, "template error")
-		logging.SharedInstance().MethodInfoWithStacktrace("Controllers", "BadRequest", err).Error(err)
-		http.Error(w, "400 BadRequest", 400)
-		return
-	}
-	tpl.ExecuteWriter(pongo2.Context{"title": "BadRequest"}, w)
-	return
+// BadRequest render 400
+func BadRequest(c echo.Context) error {
+	return c.Render(http.StatusBadRequest, "400.html.tpl", map[string]interface{}{
+		"title": "BadRequest",
+	})
 }
 
-func NotFound(w http.ResponseWriter, r *http.Request) {
-	tpl, err := pongo2.DefaultSet.FromFile("404.html.tpl")
-	if err != nil {
-		err := errors.Wrap(err, "template error")
-		logging.SharedInstance().MethodInfoWithStacktrace("Controllers", "NotFound", err).Error(err)
-		http.Error(w, "404 NotFound", 404)
-		return
-	}
-	tpl.ExecuteWriter(pongo2.Context{"title": "NotFound"}, w)
-	return
+// NotFound render 404
+func NotFound(c echo.Context) error {
+	return c.Render(http.StatusNotFound, "404.html.tpl", map[string]interface{}{
+		"title": "NotFound",
+	})
 }
 
-func InternalServerError(w http.ResponseWriter, r *http.Request) {
-	tpl, err := pongo2.DefaultSet.FromFile("500.html.tpl")
-	if err != nil {
-		err := errors.Wrap(err, "template error")
-		logging.SharedInstance().MethodInfoWithStacktrace("Controllers", "InternalServerError", err).Error(err)
-		http.Error(w, "InternalServerError", 500)
-		return
-	}
-	tpl.ExecuteWriter(pongo2.Context{"title": "InternalServerError"}, w)
-	return
+// InternalServerError render 500
+func InternalServerError(c echo.Context) error {
+	return c.Render(http.StatusInternalServerError, "500.html.tpl", map[string]interface{}{
+		"title": "InternalServerError",
+	})
 }

@@ -13,7 +13,7 @@ import (
 )
 
 func Element(elem string) interface{} {
-	env := os.Getenv("GOJIENV")
+	env := os.Getenv("APPENV")
 	buf, err := Asset("settings.yml")
 	if err != nil {
 		panic(err)

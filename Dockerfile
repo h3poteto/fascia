@@ -2,16 +2,16 @@ FROM h3poteto/golang:latest
 
 USER root
 ENV GOPATH /go
-ENV GOJIROOT ${GOPATH}/src/github.com/h3poteto/fascia
-ENV GOJIENV production
+ENV APPROOT ${GOPATH}/src/github.com/h3poteto/fascia
+ENV APPENV production
 
 RUN set -x \
     && apk add --no-cache \
     curl
 
-WORKDIR ${GOJIROOT}
+WORKDIR ${APPROOT}
 
-COPY . ${GOJIROOT}
+COPY . ${APPROOT}
 
 RUN chown -R go:go ${GOPATH}
 USER go

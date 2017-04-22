@@ -1,64 +1,70 @@
 package controllers_test
 
 import (
-	. "github.com/h3poteto/fascia/server"
-	"github.com/h3poteto/fascia/server/controllers"
+	"github.com/h3poteto/fascia/server"
+	. "github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/services"
 
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strconv"
+	"strings"
 
-	"github.com/PuerkitoBio/goquery"
+	"github.com/labstack/echo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/zenazn/goji/web"
 )
 
 var _ = Describe("PasswordsController", func() {
 	var (
-		ts       *httptest.Server
+		e        *echo.Echo
+		rec      *httptest.ResponseRecorder
 		email    string
 		password string
 		uid      int64
 	)
 	BeforeEach(func() {
-		m := web.New()
-		Routes(m)
-		ts = httptest.NewServer(m)
-	})
-	AfterEach(func() {
-		ts.Close()
+		e = echo.New()
+		e.Renderer = server.PongoRenderer()
+		rec = httptest.NewRecorder()
 	})
 	JustBeforeEach(func() {
 		email = "hoge@example.com"
 		password = "hogehoge"
-		user, _ := handlers.RegistrationUser(email, password, password)
-		uid = user.UserEntity.UserModel.ID
+		uid = LoginFaker(email, password)
+		GenerateCSRFToken = func(c echo.Context) (string, error) { return "hoge", nil }
 	})
 
 	Describe("New", func() {
 		It("should correctly access", func() {
-			res, err := http.Get(ts.URL + "/passwords/new")
+			c := e.NewContext(new(http.Request), rec)
+			c.SetPath("/passwords/new")
+			resource := Passwords{}
+			err := resource.New(c)
 			Expect(err).To(BeNil())
-			contents, status := ParseResponse(res)
-			Expect(status).To(Equal(http.StatusOK))
-			Expect(contents).NotTo(BeNil())
+			Expect(rec.Code).To(Equal(http.StatusOK))
+			Expect(rec.Body.String()).NotTo(BeNil())
 		})
 	})
 
 	Describe("Create", func() {
 		JustBeforeEach(func() {
-			controllers.CheckCSRFToken = func(r *http.Request, token string) bool { return true }
+			CheckCSRFToken = func(c echo.Context, token string) bool { return true }
 		})
 		It("should create new reset password", func() {
-			values := url.Values{}
-			values.Add("email", "hogehoge@example.com")
-			res, err := http.PostForm(ts.URL+"/passwords/create", values)
+			f := make(url.Values)
+			f.Set("email", "hogehoge@example.com")
+			req, _ := http.NewRequest(echo.POST, "/passwords/create", strings.NewReader(f.Encode()))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+			c := e.NewContext(req, rec)
+			resource := Passwords{}
+			err := resource.Create(c)
 			Expect(err).To(BeNil())
-			Expect(res.Request.URL.Path).To(Equal("/sign_in"))
+			u, _ := rec.Result().Location()
+			Expect(u.Path).To(Equal("/sign_in"))
 		})
 	})
 
@@ -70,20 +76,29 @@ var _ = Describe("PasswordsController", func() {
 		})
 		Context("token is invalid", func() {
 			It("should internal server error", func() {
-				res, err := http.Get(ts.URL + "/passwords/" + strconv.FormatInt(resetPassword.ResetPasswordEntity.ResetPasswordModel.ID, 10) + "/edit?token=sample")
-				Expect(err).To(BeNil())
-				doc, _ := goquery.NewDocumentFromResponse(res)
-				doc.Find("h2").Each(func(_ int, s *goquery.Selection) {
-					Expect(s.Text()).To(Equal("Internal Server Error."))
-				})
+				q := make(url.Values)
+				q.Set("token", "sample")
+				req, _ := http.NewRequest(echo.GET, "/passwords/:id/edit?"+q.Encode(), nil)
+				c := e.NewContext(req, rec)
+				c.SetParamNames("id")
+				c.SetParamValues(strconv.FormatInt(resetPassword.ResetPasswordEntity.ResetPasswordModel.ID, 10))
+				resource := Passwords{}
+				err := resource.Edit(c)
+				Expect(err).NotTo(BeNil())
 			})
 		})
 		Context("token is correct", func() {
 			It("should response is ok", func() {
-				res, err := http.Get(ts.URL + "/passwords/" + strconv.FormatInt(resetPassword.ResetPasswordEntity.ResetPasswordModel.ID, 10) + "/edit?token=" + resetPassword.ResetPasswordEntity.ResetPasswordModel.Token)
+				q := make(url.Values)
+				q.Set("token", resetPassword.ResetPasswordEntity.ResetPasswordModel.Token)
+				req, _ := http.NewRequest(echo.GET, "/passwords/:id/edit?"+q.Encode(), nil)
+				c := e.NewContext(req, rec)
+				c.SetParamNames("id")
+				c.SetParamValues(strconv.FormatInt(resetPassword.ResetPasswordEntity.ResetPasswordModel.ID, 10))
+				resource := Passwords{}
+				err := resource.Edit(c)
 				Expect(err).To(BeNil())
-				_, status := ParseResponse(res)
-				Expect(status).To(Equal(http.StatusOK))
+				Expect(rec.Code).To(Equal(http.StatusOK))
 			})
 		})
 	})
@@ -91,35 +106,44 @@ var _ = Describe("PasswordsController", func() {
 	Describe("Update", func() {
 		var resetPassword *services.ResetPassword
 		JustBeforeEach(func() {
-			controllers.CheckCSRFToken = func(r *http.Request, token string) bool { return true }
+			CheckCSRFToken = func(c echo.Context, token string) bool { return true }
 			resetPassword, _ = handlers.GenerateResetPassword(uid, email)
 			resetPassword.Save()
 		})
 		Context("token is invalid", func() {
 			It("should internal server error", func() {
-				values := url.Values{}
-				values.Add("password", "fugafuga")
-				values.Add("password_confirm", "fugafuga")
-				values.Add("reset_token", "sample")
-				res, err := http.PostForm(ts.URL+"/passwords/"+strconv.FormatInt(resetPassword.ResetPasswordEntity.ResetPasswordModel.ID, 10)+"/update", values)
-				Expect(err).To(BeNil())
-				doc, _ := goquery.NewDocumentFromResponse(res)
-				doc.Find("h2").Each(func(_ int, s *goquery.Selection) {
-					Expect(s.Text()).To(Equal("Internal Server Error."))
-				})
+				f := make(url.Values)
+				f.Set("password", "fugafuga")
+				f.Set("password_confirm", "fugafuga")
+				f.Set("reset_token", "sample")
+				req, _ := http.NewRequest(echo.POST, "/passwords/:id/update", strings.NewReader(f.Encode()))
+				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+				c := e.NewContext(req, rec)
+				c.SetParamNames("id")
+				c.SetParamValues(strconv.FormatInt(resetPassword.ResetPasswordEntity.ResetPasswordModel.ID, 10))
+				resource := Passwords{}
+				err := resource.Update(c)
+				fmt.Println(err)
+				Expect(err).NotTo(BeNil())
 			})
 		})
 		Context("token is correct", func() {
 			It("should response is ok", func() {
-				values := url.Values{}
-				values.Add("password", "fugafuga")
-				values.Add("password_confirm", "fugafuga")
-				values.Add("reset_token", resetPassword.ResetPasswordEntity.ResetPasswordModel.Token)
-				res, err := http.PostForm(ts.URL+"/passwords/"+strconv.FormatInt(resetPassword.ResetPasswordEntity.ResetPasswordModel.ID, 10)+"/update", values)
+				f := make(url.Values)
+				f.Set("password", "fugafuga")
+				f.Set("password_confirm", "fugafuga")
+				f.Set("reset_token", resetPassword.ResetPasswordEntity.ResetPasswordModel.Token)
+				req, _ := http.NewRequest(echo.POST, "/passwords/:id/update", strings.NewReader(f.Encode()))
+				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+				c := e.NewContext(req, rec)
+				c.SetParamNames("id")
+				c.SetParamValues(strconv.FormatInt(resetPassword.ResetPasswordEntity.ResetPasswordModel.ID, 10))
+				resource := Passwords{}
+				err := resource.Update(c)
 				Expect(err).To(BeNil())
-				_, status := ParseResponse(res)
-				Expect(status).To(Equal(http.StatusOK))
-				Expect(res.Request.URL.Path).To(Equal("/sign_in"))
+				Expect(rec.Code).To(Equal(http.StatusFound))
+				u, _ := rec.Result().Location()
+				Expect(u.Path).To(Equal("/sign_in"))
 			})
 		})
 	})

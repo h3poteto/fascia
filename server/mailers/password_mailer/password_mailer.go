@@ -45,7 +45,7 @@ func Changed(address string) {
 }
 
 func production() bool {
-	env := os.Getenv("GOJIENV")
+	env := os.Getenv("APPENV")
 	if env == "production" {
 		return true
 	}
@@ -53,7 +53,7 @@ func production() bool {
 }
 
 func test() bool {
-	env := os.Getenv("GOJIENV")
+	env := os.Getenv("APPENV")
 	if env == "test" {
 		return true
 	}

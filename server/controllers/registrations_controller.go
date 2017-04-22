@@ -8,76 +8,62 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/flosch/pongo2"
-	"github.com/goji/param"
+	"github.com/labstack/echo"
 	"github.com/pkg/errors"
-	"github.com/zenazn/goji/web"
 	"golang.org/x/oauth2"
 )
 
+// Registrations is controlelr struct for registrations
 type Registrations struct {
 }
 
+// SignUpForm is struct for sign up
 type SignUpForm struct {
-	Email           string `param:"email"`
-	Password        string `param:"password"`
-	PasswordConfirm string `param:"password_confirm"`
-	Token           string `param:"token"`
+	Email           string `json:"email" form:"email"`
+	Password        string `json:"password" form:"password"`
+	PasswordConfirm string `json:"password_confirm" form:"password_confirm"`
+	Token           string `json:"token" form:"token"`
 }
 
-func (u *Registrations) SignUp(c web.C, w http.ResponseWriter, r *http.Request) {
+// SignUp render sign up form
+func (u *Registrations) SignUp(c echo.Context) error {
 	url := githubOauthConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
 
-	token, err := GenerateCSRFToken(c, w, r)
+	token, err := GenerateCSRFToken(c)
 	if err != nil {
-		logging.SharedInstance().MethodInfoWithStacktrace("RegistrationsController", "SignUp", err, c).Errorf("CSRF error: %v", err)
-		InternalServerError(w, r)
-		return
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Errorf("CSRF error: %v", err)
+		return err
 	}
 
-	tpl, err := pongo2.DefaultSet.FromFile("sign_up.html.tpl")
-	if err != nil {
-		err := errors.Wrap(err, "template error")
-		logging.SharedInstance().MethodInfoWithStacktrace("RegistrationsController", "SignUp", err, c).Error(err)
-		InternalServerError(w, r)
-		return
-	}
-	tpl.ExecuteWriter(pongo2.Context{"title": "SignUp", "oauthURL": url, "token": token}, w)
+	return c.Render(http.StatusOK, "sign_up.html.tpl", map[string]interface{}{
+		"title":    "SignUp",
+		"oauthURL": url,
+		"token":    token,
+	})
 }
 
-func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		err := errors.Wrap(err, "wrong form")
-		logging.SharedInstance().MethodInfoWithStacktrace("RegistrationsController", "SignUp", err, c).Error(err)
-		BadRequest(w, r)
-		return
-	}
-
-	var signUpForm SignUpForm
-	err = param.Parse(r.PostForm, &signUpForm)
-	if err != nil {
+// Registration creates a new user
+func (u *Registrations) Registration(c echo.Context) error {
+	signUpForm := new(SignUpForm)
+	if err := c.Bind(signUpForm); err != nil {
 		err := errors.Wrap(err, "wrong parameter")
-		logging.SharedInstance().MethodInfoWithStacktrace("RegistrationsController", "SignUp", err, c).Error(err)
-		InternalServerError(w, r)
-		return
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
 	}
-	logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", c).Debugf("post registration form: %+v", signUpForm)
+	logging.SharedInstance().Controller(c).Debugf("post registration form: %+v", signUpForm)
 
-	if !CheckCSRFToken(r, signUpForm.Token) {
+	if !CheckCSRFToken(c, signUpForm.Token) {
 		err := errors.New("cannot verify CSRF token")
-		logging.SharedInstance().MethodInfoWithStacktrace("RegistrationsController", "SignUp", err, c).Error(err)
-		InternalServerError(w, r)
-		return
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
 	}
 
 	// sign up
 	valid, err := validators.UserRegistrationValidation(signUpForm.Email, signUpForm.Password, signUpForm.PasswordConfirm)
 	// TODO: 失敗していることは何かしらの方法で伝えたい
 	if err != nil || !valid {
-		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", c).Infof("validation failed: %v", err)
-		http.Redirect(w, r, "/sign_up", 302)
-		return
+		logging.SharedInstance().Controller(c).Infof("validation failed: %v", err)
+		return c.Redirect(http.StatusFound, "/sign_up")
 	}
 	// TODO: ここCSRFのmiddlewareとかでなんとかならんかなぁ
 	_, err = handlers.RegistrationUser(
@@ -87,13 +73,11 @@ func (u *Registrations) Registration(c web.C, w http.ResponseWriter, r *http.Req
 	)
 	if err != nil {
 		// TODO: 登録情報が間違っていることを通知したい
-		logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", c).Infof("registration error: %v", err)
-		http.Redirect(w, r, "/sign_up", 302)
-		return
+		logging.SharedInstance().Controller(c).Infof("registration error: %v", err)
+		return c.Redirect(http.StatusFound, "/sign_up")
 	}
 
 	// TODO: 成功していることも伝えたい
-	logging.SharedInstance().MethodInfo("RegistrationsController", "SignUp", c).Info("registration success")
-	http.Redirect(w, r, "/sign_in", 302)
-	return
+	logging.SharedInstance().Controller(c).Info("registration success")
+	return c.Redirect(http.StatusFound, "/sign_in")
 }

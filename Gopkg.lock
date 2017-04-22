@@ -1,4 +1,4 @@
-memo = "fb086d9eef81d5ac8522c2d2e62ced69be35afe23611f7364d843338e3c3528a"
+memo = "02d54fb29f29597a717c23566325dc408760ad9a21b6074f2d0b2fe4df5bb908"
 
 [[projects]]
   name = "github.com/PuerkitoBio/goquery"
@@ -29,6 +29,18 @@ memo = "fb086d9eef81d5ac8522c2d2e62ced69be35afe23611f7364d843338e3c3528a"
   packages = ["aws","aws/awserr","aws/awsutil","aws/client","aws/client/metadata","aws/corehandlers","aws/credentials","aws/credentials/ec2rolecreds","aws/credentials/endpointcreds","aws/credentials/stscreds","aws/defaults","aws/ec2metadata","aws/endpoints","aws/request","aws/session","aws/signer/v4","private/protocol","private/protocol/query","private/protocol/query/queryutil","private/protocol/rest","private/protocol/xml/xmlutil","service/ses","service/sts"]
   revision = "7be45195c3af1b54a609812f90c05a7e492e2491"
   version = "v1.8.12"
+
+[[projects]]
+  name = "github.com/dgrijalva/jwt-go"
+  packages = ["."]
+  revision = "d2709f9f1f31ebcda9651b03077758c1f3a0018c"
+  version = "v3.0.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/echo-contrib/pongor"
+  packages = ["."]
+  revision = "028d35cc8d3d0c91a39887b33dfe633753575bff"
 
 [[projects]]
   branch = "master"
@@ -65,18 +77,6 @@ memo = "fb086d9eef81d5ac8522c2d2e62ced69be35afe23611f7364d843338e3c3528a"
   packages = ["."]
   revision = "a0583e0143b1624142adab07e0e97fe106d99561"
   version = "v1.3"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/goji/glogrus"
-  packages = ["."]
-  revision = "92ccdaf5e752d8c8d61733f574a9f637c5b2d40c"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/goji/param"
-  packages = ["."]
-  revision = "d7f49fd7d1ed53fd562e737a8b5bbcc7e3d925e2"
 
 [[projects]]
   branch = "master"
@@ -145,6 +145,30 @@ memo = "fb086d9eef81d5ac8522c2d2e62ced69be35afe23611f7364d843338e3c3528a"
   revision = "6f54ff6318409d31ff16261533ce2c8381a4fd5d"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/labstack/echo"
+  packages = [".","middleware"]
+  revision = "c3069d42c14d073a07fe6458fda46d65579492db"
+
+[[projects]]
+  name = "github.com/labstack/gommon"
+  packages = ["bytes","color","log","random"]
+  revision = "9cedb429ffbe71a32a3ae7c65fd109cb7ae07804"
+  version = "v0.2.0"
+
+[[projects]]
+  name = "github.com/mattn/go-colorable"
+  packages = ["."]
+  revision = "d228849504861217f796da67fae4f6e347643f15"
+  version = "v0.0.7"
+
+[[projects]]
+  name = "github.com/mattn/go-isatty"
+  packages = ["."]
+  revision = "fc9e8d8ef48496124e79ae0df75490096eccf6fe"
+  version = "v0.0.2"
+
+[[projects]]
   name = "github.com/onsi/ginkgo"
   packages = [".","config","internal/codelocation","internal/containernode","internal/failer","internal/leafnodes","internal/remote","internal/spec","internal/spec_iterator","internal/specrunner","internal/suite","internal/testingtproxy","internal/writer","reporters","reporters/stenographer","reporters/stenographer/support/go-colorable","reporters/stenographer/support/go-isatty","types"]
   revision = "77a8c1e5c40d6bb6c5eb4dd4bdce9763564f6298"
@@ -161,18 +185,6 @@ memo = "fb086d9eef81d5ac8522c2d2e62ced69be35afe23611f7364d843338e3c3528a"
   packages = ["."]
   revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
   version = "v0.8.0"
-
-[[projects]]
-  name = "github.com/rs/cors"
-  packages = ["."]
-  revision = "a62a804a8a009876ca59105f7899938a1349f4b3"
-  version = "v1.0"
-
-[[projects]]
-  name = "github.com/rs/xhandler"
-  packages = ["."]
-  revision = "d9d9599b6aaf6a058cb7b1f48291ded2cbd13390"
-  version = "v1.0"
 
 [[projects]]
   name = "github.com/russross/blackfriday"
@@ -199,15 +211,21 @@ memo = "fb086d9eef81d5ac8522c2d2e62ced69be35afe23611f7364d843338e3c3528a"
   revision = "e453343e6260b4a3a89f1f0e10a2fbb07f8d9750"
 
 [[projects]]
-  name = "github.com/zenazn/goji"
-  packages = [".","bind","graceful","graceful/listener","web","web/middleware","web/mutil"]
-  revision = "64eb34159fe53473206c2b3e70fe396a639452f2"
-  version = "v1.0"
+  branch = "master"
+  name = "github.com/valyala/bytebufferpool"
+  packages = ["."]
+  revision = "e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/valyala/fasttemplate"
+  packages = ["."]
+  revision = "dcecefd839c4193db0d35b88ec65b4c12d360ab0"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
-  packages = ["bcrypt","blowfish"]
+  packages = ["acme","acme/autocert","bcrypt","blowfish"]
   revision = "cbc3d0884eac986df6e78a039b8792e869bff863"
 
 [[projects]]

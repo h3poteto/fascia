@@ -4,32 +4,29 @@ import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
 
 	"context"
-	"encoding/json"
 	"net/http"
 	"time"
 
 	"github.com/google/go-github/github"
+	"github.com/labstack/echo"
 	"github.com/pkg/errors"
-	"github.com/zenazn/goji/web"
 	"golang.org/x/oauth2"
 )
 
+// Github is controller struct for github
 type Github struct {
 }
 
-func (u *Github) Repositories(c web.C, w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	currentUser, err := LoginRequired(r)
+// Repositories returns github repositories
+func (u *Github) Repositories(c echo.Context) error {
+	currentUser, err := LoginRequired(c)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("GithubController", "Repositories", c).Infof("login error: %v", err)
-		http.Error(w, "not logined", 401)
-		return
+		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
+		return NewJSONError(err, http.StatusUnauthorized, c)
 	}
-	encoder := json.NewEncoder(w)
 	if !currentUser.UserEntity.UserModel.OauthToken.Valid {
-		logging.SharedInstance().MethodInfo("GithubController", "Repositories", c).Info("user did not have oauth")
-		encoder.Encode(nil)
-		return
+		logging.SharedInstance().Controller(c).Info("user did not have oauth")
+		return c.JSON(http.StatusOK, nil)
 	}
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: currentUser.UserEntity.UserModel.OauthToken.String},
@@ -58,13 +55,12 @@ func (u *Github) Repositories(c web.C, w http.ResponseWriter, r *http.Request) {
 		nextPage = res.NextPage
 		if err != nil {
 			err := errors.Wrap(err, "repository error")
-			logging.SharedInstance().MethodInfoWithStacktrace("GithubController", "Repositories", err, c).Error(err)
-			http.Error(w, err.Error(), 500)
-			return
+			logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+			return err
 		}
 		repositories = append(repositories, repos...)
 
 	}
-	logging.SharedInstance().MethodInfo("GithubController", "Repositories", c).Info("success to get repositories")
-	encoder.Encode(repositories)
+	logging.SharedInstance().Controller(c).Info("success to get repositories")
+	return c.JSON(http.StatusOK, repositories)
 }
