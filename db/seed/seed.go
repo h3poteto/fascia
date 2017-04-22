@@ -37,22 +37,9 @@ func TruncateAll() error {
 
 func listOptions() error {
 	database := db.SharedInstance().Connection
-
-	_, err := database.Exec("SET GLOBAL foreign_key_checks = 0;")
-	if err != nil {
-		return err
-	}
-	_, err = database.Exec("TRUNCATE TABLE list_options;")
-	if err != nil {
-		return err
-	}
-	_, err = database.Exec("INSERT INTO list_options (action, created_at) values (?, now()), (?, now())",
+	_, err := database.Exec("INSERT INTO list_options (action, created_at) values (?, now()), (?, now())",
 		"open",
 		"close")
-	if err != nil {
-		return err
-	}
-	_, err = database.Exec("SET GLOBAL foreign_key_checks = 1;")
 	if err != nil {
 		return err
 	}
