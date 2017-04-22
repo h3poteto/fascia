@@ -11,6 +11,7 @@ services:
       CLIENT_SECRET: $CLIENT_SECRET
       SLACK_URL: $SLACK_URL
       AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
+      SECRET: $SECRET
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1:9090"]
       interval: 20s
