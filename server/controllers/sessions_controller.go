@@ -14,15 +14,18 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// Sessions is controller struct for sessions
 type Sessions struct {
 }
 
+// SignInForm is struct for new session
 type SignInForm struct {
 	Email    string `form:"email"`
 	Password string `form:"password"`
 	Token    string `form:"token"`
 }
 
+// SignIn renders a sign in form
 func (u *Sessions) SignIn(c echo.Context) error {
 	url := githubOauthConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
 
@@ -39,6 +42,7 @@ func (u *Sessions) SignIn(c echo.Context) error {
 	})
 }
 
+// NewSession login and create a session
 func (u *Sessions) NewSession(c echo.Context) error {
 	// 旧セッションの削除
 	session, err := cookieStore.Get(c.Request(), Key)
@@ -89,6 +93,7 @@ func (u *Sessions) NewSession(c echo.Context) error {
 	return c.Redirect(http.StatusFound, "/")
 }
 
+// SignOut delete a session and logout
 func (u *Sessions) SignOut(c echo.Context) error {
 	session, err := cookieStore.Get(c.Request(), Key)
 	if err != nil {
@@ -107,6 +112,7 @@ func (u *Sessions) SignOut(c echo.Context) error {
 	return c.Redirect(http.StatusFound, "/sign_in")
 }
 
+// Update a session
 func (u *Sessions) Update(c echo.Context) error {
 	userService, err := LoginRequired(c)
 	if err != nil {

@@ -15,9 +15,11 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Tasks is controller struct for tasks
 type Tasks struct {
 }
 
+// NewTaskForm is struct for new task
 type NewTaskForm struct {
 	Title       string `form:"title"`
 	Description string `form:"description"`
@@ -35,6 +37,7 @@ type EditTaskForm struct {
 	Description string `form:"description"`
 }
 
+// Create a new task
 func (u *Tasks) Create(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
@@ -133,6 +136,7 @@ func (u *Tasks) Show(c echo.Context) error {
 	return c.JSON(http.StatusOK, jsonTask)
 }
 
+// MoveTask move a task to another list
 func (u *Tasks) MoveTask(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {

@@ -13,9 +13,11 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// Oauth is controller struct for oauth
 type Oauth struct {
 }
 
+// Github catch callback from github for oauth login
 func (u *Oauth) Github(c echo.Context) error {
 	// 旧セッションの削除
 	session, err := cookieStore.Get(c.Request(), Key)

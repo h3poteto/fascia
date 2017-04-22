@@ -14,14 +14,17 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Passwords is controller struct for passwords
 type Passwords struct {
 }
 
+// NewPasswordForm is struct for new password
 type NewPasswordForm struct {
 	Email string `form:"email"`
 	Token string `form:"token"`
 }
 
+// EditPasswordForm is struct for edit password
 type EditPasswordForm struct {
 	Token           string `form:"token"`
 	ResetToken      string `form:"reset_token"`
@@ -29,10 +32,7 @@ type EditPasswordForm struct {
 	PasswordConfirm string `form:"password_confirm"`
 }
 
-// tokenを発行し，expireと合わせてreset_passwordモデルにDB保存する
-// idとtokenをメールで送る
-// idとtoken, expireがあっていたらpasswordの編集を許可する
-// passwordを新たに保存する
+// New renders a new password form
 func (u *Passwords) New(c echo.Context) error {
 	token, err := GenerateCSRFToken(c)
 	if err != nil {
@@ -45,6 +45,7 @@ func (u *Passwords) New(c echo.Context) error {
 	})
 }
 
+// Create a new password
 func (u *Passwords) Create(c echo.Context) error {
 	newPasswordForm := new(NewPasswordForm)
 	err := c.Bind(newPasswordForm)
@@ -88,6 +89,7 @@ func (u *Passwords) Create(c echo.Context) error {
 	return c.Redirect(http.StatusFound, "/sign_in")
 }
 
+// Edit renders a edit password form
 func (u *Passwords) Edit(c echo.Context) error {
 	token, err := GenerateCSRFToken(c)
 	if err != nil {
@@ -113,6 +115,7 @@ func (u *Passwords) Edit(c echo.Context) error {
 	})
 }
 
+// Update a password
 func (u *Passwords) Update(c echo.Context) error {
 	editPasswordForm := new(EditPasswordForm)
 	err := c.Bind(editPasswordForm)

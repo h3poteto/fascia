@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// LogStruct provides logger object
 type LogStruct struct {
 	Log *logrus.Logger
 }
@@ -22,6 +23,7 @@ type stackTracer interface {
 
 var sharedInstance *LogStruct = New()
 
+// New returns a LogStruct
 func New() *LogStruct {
 	goenv := os.Getenv("APPENV")
 	log := logrus.New()
@@ -41,6 +43,7 @@ func New() *LogStruct {
 	return &LogStruct{Log: log}
 }
 
+// SharedInstance returns a singleton object
 func SharedInstance() *LogStruct {
 	return sharedInstance
 }
@@ -87,6 +90,7 @@ func (u *LogStruct) PanicRecover(context echo.Context) *logrus.Entry {
 	})
 }
 
+// Controller is prepare logrus entry with fields
 func (u *LogStruct) Controller(context echo.Context) *logrus.Entry {
 	requestID := context.Response().Header().Get(echo.HeaderXRequestID)
 
@@ -98,6 +102,7 @@ func (u *LogStruct) Controller(context echo.Context) *logrus.Entry {
 	})
 }
 
+// ControllerWithStacktrace is prepare logrus entry with fields
 func (u *LogStruct) ControllerWithStacktrace(err error, context echo.Context) *logrus.Entry {
 	requestID := context.Response().Header().Get(echo.HeaderXRequestID)
 

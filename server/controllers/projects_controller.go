@@ -14,25 +14,30 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Projects is controller struct for projects
 type Projects struct {
 }
 
+// NewProjectForm is struct for new project
 type NewProjectForm struct {
 	Title        string `form:"title"`
 	Description  string `form:"description"`
 	RepositoryID int    `form:"repository_id"`
 }
 
+// EditProjectForm is struct for a project
 type EditProjectForm struct {
 	Title       string `form:"title"`
 	Description string `form:"description"`
 }
 
+// SettingsProjectForm is struct for change settings
 type SettingsProjectForm struct {
 	ShowIssues       bool `form:"show_issues"`
 	ShowPullRequests bool `form:"show_pull_requests"`
 }
 
+// Index returns all projects
 func (u *Projects) Index(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
@@ -58,6 +63,7 @@ func (u *Projects) Index(c echo.Context) error {
 	return c.JSON(http.StatusOK, jsonProjects)
 }
 
+// Show return a project detail
 func (u *Projects) Show(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
@@ -84,6 +90,7 @@ func (u *Projects) Show(c echo.Context) error {
 	return c.JSON(http.StatusOK, jsonProject)
 }
 
+// Create a new project
 func (u *Projects) Create(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
@@ -131,8 +138,7 @@ func (u *Projects) Create(c echo.Context) error {
 	return c.JSON(http.StatusOK, jsonProject)
 }
 
-// updateはrepository側の更新なしでいこう
-// そうしないと，タイトル編集できるって不一致が起こる
+// Update a project
 func (u *Projects) Update(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
@@ -183,6 +189,7 @@ func (u *Projects) Update(c echo.Context) error {
 	return c.JSON(http.StatusOK, jsonProject)
 }
 
+// Settings update project settings
 func (u *Projects) Settings(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
@@ -228,6 +235,7 @@ func (u *Projects) Settings(c echo.Context) error {
 	return c.JSON(http.StatusOK, jsonProject)
 }
 
+// FetchGithub import tasks and lists from github
 func (u *Projects) FetchGithub(c echo.Context) error {
 	currentUser, err := LoginRequired(c)
 	if err != nil {
