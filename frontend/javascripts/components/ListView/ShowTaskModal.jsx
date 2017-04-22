@@ -72,11 +72,19 @@ class ShowTaskModal extends React.Component {
     }
   }
 
-  taskForm(projectID, task, isEditTaskModalVisible, handleSubmit, action, pristine, submitting, reset) {
+  taskIcon(project) {
+    if (project.RepositoryID != undefined && project.RepositoryID != null && project.RepositoryID != 0) {
+      return <span className="octicon octicon-mark-github task-icon"></span>
+    } else {
+      return <img className="fascia-icon task-icon" src="/images/fascia-icon.png" />
+    }
+  }
+
+  taskForm(project, task, isEditTaskModalVisible, handleSubmit, action, pristine, submitting, reset) {
     if (isEditTaskModalVisible) {
       return (
         <div className="task-body task-form">
-          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(projectID, task.ListID, task.ID, values) })}>
+          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(project.ID, task.ListID, task.ID, values) })}>
             <fieldset>
               <legend>Edit Task</legend>
               <label htmlFor="title">Title</label>
@@ -95,7 +103,7 @@ class ShowTaskModal extends React.Component {
       return (
         <div className="task-body">
           <div className="task-title">
-            <span className="octicon octicon-mark-github task-icon"></span>
+            {this.taskIcon(project)}
             {task.Title}
             {this.issueNumber(task)}
           </div>
@@ -123,7 +131,7 @@ class ShowTaskModal extends React.Component {
       submitting,
       onRequestClose,
       action,
-      projectID,
+      project,
       task,
       fetchDeleteTask,
       isEditTaskModalVisible,
@@ -139,10 +147,10 @@ class ShowTaskModal extends React.Component {
       >
         <div className="task-detail">
           <div className="task-controll">
-            {this.deleteTask(projectID, task, fetchDeleteTask)}
+            {this.deleteTask(project.ID, task, fetchDeleteTask)}
             <i title="Edit task" className="fa fa-pencil" onClick={() => changeEditMode(this.props.task)}></i>
           </div>
-          {this.taskForm(projectID, task, isEditTaskModalVisible, handleSubmit, action, pristine, submitting, reset)}
+          {this.taskForm(project, task, isEditTaskModalVisible, handleSubmit, action, pristine, submitting, reset)}
         </div>
       </Modal>
     )
@@ -157,7 +165,7 @@ ShowTaskModal.propTypes = {
   submitting: React.PropTypes.bool.isRequired,
   onRequestClose: React.PropTypes.func.isRequired,
   action: React.PropTypes.func.isRequired,
-  projectID: React.PropTypes.string.isRequired,
+  project: React.PropTypes.object,
   task: React.PropTypes.object,
   isShowTaskModalOpen: React.PropTypes.bool.isRequired,
   isEditTaskModalVisible: React.PropTypes.bool,
