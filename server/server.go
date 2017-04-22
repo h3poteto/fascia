@@ -6,9 +6,12 @@ import (
 	"github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/filters"
 
+	"context"
 	"fmt"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"time"
 
 	"github.com/echo-contrib/pongor"
 	"github.com/flosch/pongo2"
@@ -121,7 +124,24 @@ func Serve() {
 	e.Use(PanicRecover())
 	e.Use(middleware.RequestID())
 	Routes(e)
-	e.Logger.Fatal(e.Start(":9090"))
+
+	// Start server in gorutine for graceful shutdown
+	go func() {
+		if err := e.Start(":9090"); err != nil {
+			e.Logger.Info("shutting down the server")
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shutdown the server with
+	// a timeout of 10 seconds.
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := e.Shutdown(ctx); err != nil {
+		e.Logger.Fatal(err)
+	}
 }
 
 // PongoRenderer prepare pongo2, pongo2filter, and pongor
