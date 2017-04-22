@@ -20,7 +20,7 @@ import (
 )
 
 // Key defines session's key
-const Key = "fascia"
+const Key = "fascia.io"
 
 // JSONError is a struct for http error
 type JSONError struct {
