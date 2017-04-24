@@ -4,6 +4,7 @@ import (
 	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/handlers"
+	"github.com/h3poteto/fascia/server/session"
 
 	"net/http"
 
@@ -20,9 +21,12 @@ type Oauth struct {
 // Github catch callback from github for oauth login
 func (u *Oauth) Github(c echo.Context) error {
 	// 旧セッションの削除
-	session, err := cookieStore.Get(c.Request(), Key)
-	session.Options = &sessions.Options{MaxAge: -1}
-	session.Save(c.Request(), c.Response())
+	err := session.SharedInstance().Clear(c.Request(), c.Response())
+	if err != nil {
+		err := errors.Wrap(err, "session error")
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
+	}
 
 	code := c.QueryParam("code")
 	logging.SharedInstance().Controller(c).Debugf("github callback param: %+v", code)
@@ -40,10 +44,9 @@ func (u *Oauth) Github(c echo.Context) error {
 		return c.Redirect(http.StatusFound, "/sign_in")
 	}
 	logging.SharedInstance().Controller(c).Debugf("login success: %+v", userService)
-	session, err = cookieStore.Get(c.Request(), Key)
-	session.Options = &sessions.Options{Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int)}
-	session.Values["current_user_id"] = userService.UserEntity.UserModel.ID
-	err = session.Save(c.Request(), c.Response())
+
+	option := &sessions.Options{Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int)}
+	err = session.SharedInstance().Set(c.Request(), c.Response(), "current_user_id", userService.UserEntity.UserModel.ID, option)
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)

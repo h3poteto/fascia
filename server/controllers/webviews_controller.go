@@ -4,6 +4,7 @@ import (
 	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/handlers"
+	"github.com/h3poteto/fascia/server/session"
 
 	"html/template"
 	"net/http"
@@ -47,14 +48,7 @@ func (u *Webviews) SignIn(c echo.Context) error {
 
 // NewSession is a sign in action for mobile app
 func (u *Webviews) NewSession(c echo.Context) error {
-	session, err := cookieStore.Get(c.Request(), Key)
-	if err != nil {
-		err := errors.Wrap(err, "session error")
-		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return err
-	}
-	session.Options = &sessions.Options{MaxAge: -1}
-	err = session.Save(c.Request(), c.Response())
+	err := session.SharedInstance().Clear(c.Request(), c.Response())
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -80,10 +74,9 @@ func (u *Webviews) NewSession(c echo.Context) error {
 		return c.Redirect(http.StatusFound, "/webviews/sign_in")
 	}
 	logging.SharedInstance().Controller(c).Debugf("login success: %+v", userService)
-	session, err = cookieStore.Get(c.Request(), Key)
-	session.Options = &sessions.Options{Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int)}
-	session.Values["current_user_id"] = userService.UserEntity.UserModel.ID
-	err = session.Save(c.Request(), c.Response())
+
+	option := &sessions.Options{Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int)}
+	err = session.SharedInstance().Set(c.Request(), c.Response(), "current_user_id", userService.UserEntity.UserModel.ID, option)
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
