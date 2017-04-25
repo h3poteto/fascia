@@ -8,6 +8,7 @@ import (
 
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -127,7 +128,12 @@ func Serve() {
 
 	// Start server in gorutine for graceful shutdown
 	go func() {
-		if err := e.Start(":9090"); err != nil {
+		s := &http.Server{
+			Addr:         ":9090",
+			ReadTimeout:  20 * time.Minute,
+			WriteTimeout: 20 * time.Minute,
+		}
+		if err := e.StartServer(s); err != nil {
 			e.Logger.Info("shutting down the server")
 		}
 	}()
