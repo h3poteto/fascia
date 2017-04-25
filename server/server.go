@@ -2,13 +2,14 @@ package server
 
 import (
 	"github.com/h3poteto/fascia/config"
-	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/filters"
+	"github.com/h3poteto/fascia/server/middlewares"
 
 	"context"
 	"fmt"
 	"net/http"
+
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -19,7 +20,6 @@ import (
 	_ "github.com/flosch/pongo2-addons"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"github.com/pkg/errors"
 )
 
 // Routes defines all routes
@@ -122,8 +122,8 @@ func Serve() {
 	}))
 
 	e.HTTPErrorHandler = ErrorLogging(e)
-	e.Use(customizeLogger())
-	e.Use(PanicRecover())
+	e.Use(middlewares.CustomizeLogger())
+	e.Use(middlewares.PanicRecover())
 	e.Use(middleware.RequestID())
 	Routes(e)
 
@@ -160,39 +160,6 @@ func PongoRenderer() *pongor.Renderer {
 		Reload:    false,
 	}
 	return pongor.GetRenderer(pongorOption)
-}
-
-// PanicRecover prepare original panic recover using logrus
-func PanicRecover() echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			defer func() {
-				if r := recover(); r != nil {
-					var err error
-					switch r := r.(type) {
-					case error:
-						err = r
-					default:
-						err = errors.Errorf("%v", r)
-					}
-					logging.SharedInstance().PanicRecover(c).Error(err)
-					c.Error(err)
-				}
-			}()
-			return next(c)
-		}
-	}
-}
-
-func customizeLogger() echo.MiddlewareFunc {
-	return middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: printColored("status") + "=${status} " + printColored("method") + "=${method} " + printColored("path") + "=${uri} " + printColored("requestID") + "=${id} " + printColored("latency") + "=${latency_human} " + printColored("time") + "=${time_rfc3339_nano}\n",
-		Output: os.Stdout,
-	})
-}
-
-func printColored(str string) string {
-	return fmt.Sprintf("\x1b[%dm%s\x1b[0m", 34, str)
 }
 
 type fundamental interface {
