@@ -8,18 +8,22 @@ import (
 	"os"
 )
 
+// Name is session name
 const Name = "fascia.io"
 
+// Session has session store
 type Session struct {
 	CookieStore *sessions.CookieStore
 }
 
 var sharedInstance = New()
 
+// SharedInstance make a singleton instance
 func SharedInstance() *Session {
 	return sharedInstance
 }
 
+// New returns a Session struct
 func New() *Session {
 	store := sessions.NewCookieStore([]byte(os.Getenv("SECRET")))
 	return &Session{
@@ -27,6 +31,7 @@ func New() *Session {
 	}
 }
 
+// Get a value from session
 func (u *Session) Get(r *http.Request, key string) (interface{}, error) {
 	s, err := u.CookieStore.Get(r, Name)
 	if err != nil {
@@ -36,6 +41,7 @@ func (u *Session) Get(r *http.Request, key string) (interface{}, error) {
 	return v, nil
 }
 
+// Set a value to session
 func (u *Session) Set(r *http.Request, w http.ResponseWriter, key string, value interface{}, option ...*sessions.Options) error {
 	s, err := u.CookieStore.Get(r, Name)
 	if err != nil {
@@ -48,6 +54,7 @@ func (u *Session) Set(r *http.Request, w http.ResponseWriter, key string, value 
 	return s.Save(r, w)
 }
 
+// Clear all session
 func (u *Session) Clear(r *http.Request, w http.ResponseWriter) error {
 	s, err := u.CookieStore.Get(r, Name)
 	if err != nil {
