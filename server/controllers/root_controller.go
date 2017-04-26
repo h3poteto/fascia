@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/handlers"
+	"github.com/h3poteto/fascia/server/middlewares"
 
 	"net/http"
 	"strconv"
@@ -17,7 +18,7 @@ type Root struct {
 
 // Index render a top page
 func (u *Root) Index(c echo.Context) error {
-	currentUser, err := LoginRequired(c)
+	currentUser, err := middlewares.CheckLogin(c)
 	// ログインしていない場合はaboutページを見せる
 	if err != nil {
 		logging.SharedInstance().Controller(c).Infof("login error: %v", err)

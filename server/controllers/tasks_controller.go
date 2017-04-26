@@ -2,14 +2,13 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/handlers"
+	"github.com/h3poteto/fascia/server/middlewares"
 	"github.com/h3poteto/fascia/server/services"
 	"github.com/h3poteto/fascia/server/validators"
 	"github.com/h3poteto/fascia/server/views"
 
 	"database/sql"
 	"net/http"
-	"strconv"
 
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
@@ -39,25 +38,17 @@ type EditTaskForm struct {
 
 // Create a new task
 func (u *Tasks) Create(c echo.Context) error {
-	currentUser, err := LoginRequired(c)
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
-		return NewJSONError(err, http.StatusUnauthorized, c)
-	}
-
-	projectService, parentList, statusCode, err := setProjectAndList(c, currentUser)
-	if err != nil {
+	lc, ok := c.(*middlewares.ListContext)
+	if !ok {
+		err := errors.New("Can not cast context")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		switch statusCode {
-		case 404:
-			return NewJSONError(err, http.StatusNotFound, c)
-		default:
-			return err
-		}
+		return err
 	}
+	projectService := lc.ProjectService
+	parentList := lc.ListService
 
 	newTaskForm := new(NewTaskForm)
-	err = c.Bind(newTaskForm)
+	err := c.Bind(newTaskForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -99,33 +90,13 @@ func (u *Tasks) Create(c echo.Context) error {
 
 // Show render json with task detail
 func (u *Tasks) Show(c echo.Context) error {
-	currentUser, err := LoginRequired(c)
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
-		return NewJSONError(err, http.StatusUnauthorized, c)
-	}
-
-	_, parentList, statusCode, err := setProjectAndList(c, currentUser)
-	if err != nil {
+	tc, ok := c.(*middlewares.TaskContext)
+	if !ok {
+		err := errors.New("Can not cast context")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		switch statusCode {
-		case 404:
-			return NewJSONError(err, http.StatusNotFound, c)
-		default:
-			return err
-		}
+		return err
 	}
-
-	task, statusCode, err := setTask(c, parentList)
-	if err != nil {
-		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		switch statusCode {
-		case 404:
-			return NewJSONError(err, http.StatusNotFound, c)
-		default:
-			return err
-		}
-	}
+	task := tc.TaskService
 
 	jsonTask, err := views.ParseTaskJSON(task.TaskEntity)
 	if err != nil {
@@ -138,36 +109,17 @@ func (u *Tasks) Show(c echo.Context) error {
 
 // MoveTask move a task to another list
 func (u *Tasks) MoveTask(c echo.Context) error {
-	currentUser, err := LoginRequired(c)
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
-		return NewJSONError(err, http.StatusUnauthorized, c)
-	}
-
-	projectService, parentList, statusCode, err := setProjectAndList(c, currentUser)
-	if err != nil {
+	tc, ok := c.(*middlewares.TaskContext)
+	if !ok {
+		err := errors.New("Can not cast context")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		switch statusCode {
-		case 404:
-			return NewJSONError(err, http.StatusNotFound, c)
-		default:
-			return err
-		}
+		return err
 	}
-
-	task, statusCode, err := setTask(c, parentList)
-	if err != nil {
-		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		switch statusCode {
-		case 404:
-			return NewJSONError(err, http.StatusNotFound, c)
-		default:
-			return err
-		}
-	}
+	projectService := tc.ProjectService
+	task := tc.TaskService
 
 	moveTaskFrom := new(MoveTaskForm)
-	err = c.Bind(moveTaskFrom)
+	err := c.Bind(moveTaskFrom)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -202,36 +154,17 @@ func (u *Tasks) MoveTask(c echo.Context) error {
 
 // Update a task
 func (u *Tasks) Update(c echo.Context) error {
-	currentUser, err := LoginRequired(c)
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("loging error: %v", err)
-		return NewJSONError(err, http.StatusUnauthorized, c)
-	}
-
-	projectService, parentList, statusCode, err := setProjectAndList(c, currentUser)
-	if err != nil {
+	tc, ok := c.(*middlewares.TaskContext)
+	if !ok {
+		err := errors.New("Can not cast context")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		switch statusCode {
-		case 404:
-			return NewJSONError(err, http.StatusNotFound, c)
-		default:
-			return err
-		}
+		return err
 	}
-
-	task, statusCode, err := setTask(c, parentList)
-	if err != nil {
-		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		switch statusCode {
-		case 404:
-			return NewJSONError(err, http.StatusNotFound, c)
-		default:
-			return err
-		}
-	}
+	projectService := tc.ProjectService
+	task := tc.TaskService
 
 	editTaskForm := new(EditTaskForm)
-	err = c.Bind(editTaskForm)
+	err := c.Bind(editTaskForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -269,35 +202,16 @@ func (u *Tasks) Update(c echo.Context) error {
 
 // Delete a task
 func (u *Tasks) Delete(c echo.Context) error {
-	currentUser, err := LoginRequired(c)
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("loging error: %v", err)
-		return NewJSONError(err, http.StatusUnauthorized, c)
-	}
-
-	projectService, parentList, statusCode, err := setProjectAndList(c, currentUser)
-	if err != nil {
+	tc, ok := c.(*middlewares.TaskContext)
+	if !ok {
+		err := errors.New("Can not cast context")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		switch statusCode {
-		case 404:
-			return NewJSONError(err, http.StatusNotFound, c)
-		default:
-			return err
-		}
+		return err
 	}
+	projectService := tc.ProjectService
+	task := tc.TaskService
 
-	task, statusCode, err := setTask(c, parentList)
-	if err != nil {
-		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		switch statusCode {
-		case 404:
-			return NewJSONError(err, http.StatusNotFound, c)
-		default:
-			return err
-		}
-	}
-
-	err = task.Delete()
+	err := task.Delete()
 	if err != nil {
 		logging.SharedInstance().Controller(c).Info(err)
 		return NewJSONError(err, http.StatusBadRequest, c)
@@ -308,42 +222,6 @@ func (u *Tasks) Delete(c echo.Context) error {
 	}
 	logging.SharedInstance().Controller(c).Info("success to delete a task")
 	return c.JSON(http.StatusOK, jsonAllLists)
-}
-
-func setProjectAndList(c echo.Context, currentUser *services.User) (*services.Project, *services.List, int, error) {
-	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
-	if err != nil {
-		err := errors.Wrap(err, "parse error")
-		return nil, nil, 404, err
-	}
-	projectService, err := handlers.FindProject(projectID)
-	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
-		return nil, nil, 404, err
-	}
-	listID, err := strconv.ParseInt(c.Param("list_id"), 10, 64)
-	if err != nil {
-		err := errors.Wrap(err, "parse error")
-		return nil, nil, 404, err
-	}
-	parentList, err := handlers.FindList(projectService.ProjectEntity.ProjectModel.ID, listID)
-	if err != nil {
-		return nil, nil, 404, err
-	}
-	return projectService, parentList, 200, nil
-}
-
-func setTask(c echo.Context, list *services.List) (*services.Task, int, error) {
-	taskID, err := strconv.ParseInt(c.Param("task_id"), 10, 64)
-	if err != nil {
-		err := errors.Wrap(err, "parse error")
-		return nil, 404, err
-	}
-	task, err := handlers.FindTask(list.ListEntity.ListModel.ID, taskID)
-	if err != nil {
-		return nil, 404, err
-	}
-
-	return task, 200, nil
 }
 
 func allListsResponse(projectService *services.Project) (*views.AllLists, error) {

@@ -3,12 +3,12 @@ package controllers
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/handlers"
+	"github.com/h3poteto/fascia/server/middlewares"
 	"github.com/h3poteto/fascia/server/validators"
 	"github.com/h3poteto/fascia/server/views"
 
 	"database/sql"
 	"net/http"
-	"strconv"
 
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
@@ -33,22 +33,14 @@ type EditListForm struct {
 
 // Index returns all lists
 func (u *Lists) Index(c echo.Context) error {
-	currentUser, err := LoginRequired(c)
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
-		return NewJSONError(err, http.StatusUnauthorized, c)
-	}
-	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
-	if err != nil {
-		err := errors.Wrap(err, "parse error")
+	pc, ok := c.(*middlewares.ProjectContext)
+	if !ok {
+		err := errors.New("Can not cast context")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return NewJSONError(err, http.StatusNotFound, c)
+		return err
 	}
-	projectService, err := handlers.FindProject(projectID)
-	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
-		logging.SharedInstance().Controller(c).Warnf("project not found: %v", err)
-		return NewJSONError(err, http.StatusNotFound, c)
-	}
+
+	projectService := pc.ProjectService
 	lists, err := projectService.ProjectEntity.Lists()
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -71,26 +63,17 @@ func (u *Lists) Index(c echo.Context) error {
 
 // Create a new list
 func (u *Lists) Create(c echo.Context) error {
-	currentUser, err := LoginRequired(c)
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
-		return NewJSONError(err, http.StatusUnauthorized, c)
-	}
-
-	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
-	if err != nil {
-		err := errors.Wrap(err, "parse error")
+	pc, ok := c.(*middlewares.ProjectContext)
+	if !ok {
+		err := errors.New("Can not cast context")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return NewJSONError(err, http.StatusNotFound, c)
+		return err
 	}
-	projectService, err := handlers.FindProject(projectID)
-	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
-		logging.SharedInstance().Controller(c).Warnf("project not found: %v", err)
-		return NewJSONError(err, http.StatusNotFound, c)
-	}
+	projectService := pc.ProjectService
+	currentUser := pc.CurrentUserService
 
 	newListForm := new(NewListForm)
-	err = c.Bind(newListForm)
+	err := c.Bind(newListForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -104,7 +87,7 @@ func (u *Lists) Create(c echo.Context) error {
 		return NewJSONError(err, http.StatusUnprocessableEntity, c)
 	}
 
-	list := handlers.NewList(0, projectID, currentUser.UserEntity.UserModel.ID, newListForm.Title, newListForm.Color, sql.NullInt64{}, false)
+	list := handlers.NewList(0, projectService.ProjectEntity.ProjectModel.ID, currentUser.UserEntity.UserModel.ID, newListForm.Title, newListForm.Color, sql.NullInt64{}, false)
 
 	if err := list.Save(); err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -121,37 +104,16 @@ func (u *Lists) Create(c echo.Context) error {
 
 // Update a list
 func (u *Lists) Update(c echo.Context) error {
-	currentUser, err := LoginRequired(c)
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
-		return NewJSONError(err, http.StatusUnauthorized, c)
-	}
-
-	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
-	if err != nil {
-		err := errors.Wrap(err, "parse error")
+	lc, ok := c.(*middlewares.ListContext)
+	if !ok {
+		err := errors.New("Can not cast context")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return NewJSONError(err, http.StatusNotFound, c)
+		return err
 	}
-	projectService, err := handlers.FindProject(projectID)
-	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
-		logging.SharedInstance().Controller(c).Warnf("project not found: %v", err)
-		return NewJSONError(err, http.StatusNotFound, c)
-	}
-	listID, err := strconv.ParseInt(c.Param("list_id"), 10, 64)
-	if err != nil {
-		err := errors.Wrap(err, "parse error")
-		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return NewJSONError(err, http.StatusNotFound, c)
-	}
-	targetList, err := handlers.FindList(projectID, listID)
-	if err != nil {
-		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return NewJSONError(err, http.StatusNotFound, c)
-	}
+	targetList := lc.ListService
 
 	editListForm := new(EditListForm)
-	err = c.Bind(editListForm)
+	err := c.Bind(editListForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -184,35 +146,16 @@ func (u *Lists) Update(c echo.Context) error {
 
 // Hide can hide a list
 func (u *Lists) Hide(c echo.Context) error {
-	currentUser, err := LoginRequired(c)
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
-		return NewJSONError(err, http.StatusUnauthorized, c)
-	}
-	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
-	if err != nil {
-		err := errors.Wrap(err, "parse error")
+	lc, ok := c.(*middlewares.ListContext)
+	if !ok {
+		err := errors.New("Can not cast context")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return NewJSONError(err, http.StatusNotFound, c)
+		return err
 	}
-	projectService, err := handlers.FindProject(projectID)
-	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
-		logging.SharedInstance().Controller(c).Warnf("project not found: %v", err)
-		return NewJSONError(err, http.StatusNotFound, c)
-	}
-	listID, err := strconv.ParseInt(c.Param("list_id"), 10, 64)
-	if err != nil {
-		err := errors.Wrap(err, "parse error")
-		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return NewJSONError(err, http.StatusNotFound, c)
-	}
-	targetList, err := handlers.FindList(projectID, listID)
-	if err != nil {
-		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return NewJSONError(err, http.StatusNotFound, c)
-	}
+	targetList := lc.ListService
+	projectService := lc.ProjectService
 
-	if err = targetList.Hide(); err != nil {
+	if err := targetList.Hide(); err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
@@ -240,35 +183,16 @@ func (u *Lists) Hide(c echo.Context) error {
 
 // Display can display a list
 func (u *Lists) Display(c echo.Context) error {
-	currentUser, err := LoginRequired(c)
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
-		return NewJSONError(err, http.StatusUnauthorized, c)
-	}
-	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
-	if err != nil {
-		err := errors.Wrap(err, "parse error")
+	lc, ok := c.(*middlewares.ListContext)
+	if !ok {
+		err := errors.New("Can not cast context")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return NewJSONError(err, http.StatusNotFound, c)
+		return err
 	}
-	projectService, err := handlers.FindProject(projectID)
-	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
-		logging.SharedInstance().Controller(c).Warnf("project not found: %v", err)
-		return NewJSONError(err, http.StatusNotFound, c)
-	}
-	listID, err := strconv.ParseInt(c.Param("list_id"), 10, 64)
-	if err != nil {
-		err := errors.Wrap(err, "parse error")
-		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return NewJSONError(err, http.StatusNotFound, c)
-	}
-	targetList, err := handlers.FindList(projectID, listID)
-	if err != nil {
-		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return NewJSONError(err, http.StatusNotFound, c)
-	}
+	projectService := lc.ProjectService
+	targetList := lc.ListService
 
-	if err = targetList.Display(); err != nil {
+	if err := targetList.Display(); err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}

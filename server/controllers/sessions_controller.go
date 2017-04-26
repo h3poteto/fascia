@@ -4,6 +4,7 @@ import (
 	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/handlers"
+	"github.com/h3poteto/fascia/server/middlewares"
 	"github.com/h3poteto/fascia/server/session"
 
 	"html/template"
@@ -100,18 +101,19 @@ func (u *Sessions) SignOut(c echo.Context) error {
 
 // Update a session
 func (u *Sessions) Update(c echo.Context) error {
-	userService, err := LoginRequired(c)
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
-		return NewJSONError(err, http.StatusUnauthorized, c)
+	uc, ok := c.(*middlewares.LoginContext)
+	if !ok {
+		err := errors.New("Can not cast context")
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
 	}
-	logging.SharedInstance().Controller(c).Info("login success")
+	userService := uc.CurrentUserService
 
 	option := &sessions.Options{
 		Path:   "/",
 		MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int),
 	}
-	err = session.SharedInstance().Set(c.Request(), c.Response(), "current_user_id", userService.UserEntity.UserModel.ID, option)
+	err := session.SharedInstance().Set(c.Request(), c.Response(), "current_user_id", userService.UserEntity.UserModel.ID, option)
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)

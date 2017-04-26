@@ -39,10 +39,12 @@ func Routes(e *echo.Echo) {
 	e.GET("/", root.Index)
 	e.GET("/projects/:project_id", root.Index)
 
+	login := e.Group("/")
+	login.Use(middlewares.Login())
 	sessions := &controllers.Sessions{}
 	e.GET("/sign_in", sessions.SignIn)
 	e.POST("/sign_in", sessions.NewSession)
-	e.POST("/session", sessions.Update)
+	login.POST("session", sessions.Update)
 	e.POST("/sign_out", sessions.SignOut)
 
 	registrations := &controllers.Registrations{}
@@ -64,35 +66,44 @@ func Routes(e *echo.Echo) {
 	e.POST("/webviews/sign_in", webviews.NewSession)
 	e.GET("/webviews/callback", webviews.Callback)
 
-	projects := &controllers.Projects{}
-	e.POST("/projects", projects.Create)
-	e.GET("/projects", projects.Index)
-	e.POST("/projects/:project_id", projects.Update)
-	e.GET("/projects/:project_id/show", projects.Show)
-	e.POST("/projects/:project_id/fetch_github", projects.FetchGithub)
-	e.POST("/projects/:project_id/settings", projects.Settings)
-	e.POST("/projects/:project_id/webhook", projects.Webhook)
-	e.DELETE("/projects/:project_id", projects.Destroy)
-
 	github := &controllers.Github{}
-	e.GET("/github/repositories", github.Repositories)
+	login.GET("github/repositories", github.Repositories)
+
+	projects := &controllers.Projects{}
+	login.POST("projects", projects.Create)
+	login.GET("projects", projects.Index)
+
+	p := login.Group("projects")
+	p.Use(middlewares.Project())
+	p.POST("/:project_id", projects.Update)
+	p.GET("/:project_id/show", projects.Show)
+	p.POST("/:project_id/fetch_github", projects.FetchGithub)
+	p.POST("/:project_id/settings", projects.Settings)
+	p.POST("/:project_id/webhook", projects.Webhook)
+	p.DELETE("/:project_id", projects.Destroy)
 
 	lists := &controllers.Lists{}
-	e.GET("/projects/:project_id/lists", lists.Index)
-	e.POST("/projects/:project_id/lists", lists.Create)
-	e.POST("/projects/:project_id/lists/:list_id", lists.Update)
-	e.POST("/projects/:project_id/lists/:list_id/hide", lists.Hide)
-	e.POST("/projects/:project_id/lists/:list_id/display", lists.Display)
+	p.GET("/:project_id/lists", lists.Index)
+	p.POST("/:project_id/lists", lists.Create)
+
+	l := p.Group("/:project_id/lists")
+	l.Use(middlewares.List())
+	l.POST("/:list_id", lists.Update)
+	l.POST("/:list_id/hide", lists.Hide)
+	l.POST("/:list_id/display", lists.Display)
 
 	tasks := &controllers.Tasks{}
-	e.POST("/projects/:project_id/lists/:list_id/tasks", tasks.Create)
-	e.GET("/projects/:project_id/lists/:list_id/tasks/:task_id", tasks.Show)
-	e.POST("/projects/:project_id/lists/:list_id/tasks/:task_id/move_task", tasks.MoveTask)
-	e.POST("/projects/:project_id/lists/:list_id/tasks/:task_id", tasks.Update)
-	e.DELETE("/projects/:project_id/lists/:list_id/tasks/:task_id", tasks.Delete)
+	l.POST("/:list_id/tasks", tasks.Create)
+
+	t := l.Group("/:list_id/tasks")
+	t.Use(middlewares.Task())
+	t.GET("/:task_id", tasks.Show)
+	t.POST("/:task_id/move_task", tasks.MoveTask)
+	t.POST("/:task_id", tasks.Update)
+	t.DELETE("/:task_id", tasks.Delete)
 
 	listOptions := &controllers.ListOptions{}
-	e.GET("/list_options", listOptions.Index)
+	login.GET("list_options", listOptions.Index)
 
 	repositories := &controllers.Repositories{}
 	e.POST("/repositories/hooks/github", repositories.Hook)
