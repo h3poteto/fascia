@@ -4,6 +4,7 @@ import (
 	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/handlers"
+	"github.com/h3poteto/fascia/server/session"
 
 	"html/template"
 	"net/http"
@@ -45,14 +46,7 @@ func (u *Sessions) SignIn(c echo.Context) error {
 // NewSession login and create a session
 func (u *Sessions) NewSession(c echo.Context) error {
 	// 旧セッションの削除
-	session, err := cookieStore.Get(c.Request(), Key)
-	if err != nil {
-		err := errors.Wrap(err, "session error")
-		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return err
-	}
-	session.Options = &sessions.Options{MaxAge: -1}
-	err = session.Save(c.Request(), c.Response())
+	err := session.SharedInstance().Clear(c.Request(), c.Response())
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -80,10 +74,8 @@ func (u *Sessions) NewSession(c echo.Context) error {
 	}
 	logging.SharedInstance().Controller(c).Debugf("login success: %+v", userService)
 
-	session, err = cookieStore.Get(c.Request(), Key)
-	session.Options = &sessions.Options{Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int)}
-	session.Values["current_user_id"] = userService.UserEntity.UserModel.ID
-	err = session.Save(c.Request(), c.Response())
+	option := &sessions.Options{Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int)}
+	err = session.SharedInstance().Set(c.Request(), c.Response(), "current_user_id", userService.UserEntity.UserModel.ID, option)
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -95,19 +87,13 @@ func (u *Sessions) NewSession(c echo.Context) error {
 
 // SignOut delete a session and logout
 func (u *Sessions) SignOut(c echo.Context) error {
-	session, err := cookieStore.Get(c.Request(), Key)
+	err := session.SharedInstance().Clear(c.Request(), c.Response())
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	session.Options = &sessions.Options{MaxAge: -1}
-	err = session.Save(c.Request(), c.Response())
-	if err != nil {
-		err := errors.Wrap(err, "session error")
-		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return err
-	}
+
 	logging.SharedInstance().Controller(c).Info("logout success")
 	return c.Redirect(http.StatusFound, "/sign_in")
 }
@@ -121,13 +107,11 @@ func (u *Sessions) Update(c echo.Context) error {
 	}
 	logging.SharedInstance().Controller(c).Info("login success")
 
-	session, err := cookieStore.Get(c.Request(), Key)
-	session.Options = &sessions.Options{
+	option := &sessions.Options{
 		Path:   "/",
 		MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int),
 	}
-	session.Values["current_user_id"] = userService.UserEntity.UserModel.ID
-	err = session.Save(c.Request(), c.Response())
+	err = session.SharedInstance().Set(c.Request(), c.Response(), "current_user_id", userService.UserEntity.UserModel.ID, option)
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
