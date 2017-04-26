@@ -32,6 +32,7 @@ var CheckCSRFToken = checkCSRF
 // GenerateCSRFToken prepare new CSRF token
 var GenerateCSRFToken = generateCSRF
 
+// NewJSONError prepare json error struct
 var NewJSONError = middlewares.NewJSONError
 
 // generateCSRF generate new CSRF token

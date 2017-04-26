@@ -7,7 +7,6 @@ import (
 	"github.com/h3poteto/fascia/server/middlewares"
 
 	"context"
-	"fmt"
 	"net/http"
 
 	"os"

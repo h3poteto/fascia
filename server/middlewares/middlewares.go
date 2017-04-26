@@ -30,26 +30,32 @@ func NewJSONError(err error, code int, c echo.Context) error {
 	return err
 }
 
+// LoginContext prepare login information for users
 type LoginContext struct {
 	echo.Context
 	CurrentUserService *services.User
 }
 
+// ProjectContext prepare a project service
 type ProjectContext struct {
 	LoginContext
 	ProjectService *services.Project
 }
 
+// ListContext prepare a list service
 type ListContext struct {
 	ProjectContext
 	ListService *services.List
 }
 
+// TaskContext prepare a task service
 type TaskContext struct {
 	ListContext
 	TaskService *services.Task
 }
 
+// Login requires login session
+// If unauthorized, return 401
 func Login() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -68,7 +74,6 @@ func Login() echo.MiddlewareFunc {
 }
 
 // CheckLogin authenticate user
-// If unauthorized, return 401
 func CheckLogin(c echo.Context) (*services.User, error) {
 	id, err := session.SharedInstance().Get(c.Request(), "current_user_id")
 	if id == nil {
@@ -81,6 +86,7 @@ func CheckLogin(c echo.Context) (*services.User, error) {
 	return currentUser, nil
 }
 
+// Project requires a project from project_id
 func Project() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -111,6 +117,7 @@ func Project() echo.MiddlewareFunc {
 	}
 }
 
+// List require a list from list_id
 func List() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -140,6 +147,7 @@ func List() echo.MiddlewareFunc {
 	}
 }
 
+// Task requires a task from task_id
 func Task() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -191,6 +199,7 @@ func PanicRecover() echo.MiddlewareFunc {
 	}
 }
 
+// CustomizeLogger prepqre my logger for echo
 func CustomizeLogger() echo.MiddlewareFunc {
 	return middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: printColored("status") + "=${status} " + printColored("method") + "=${method} " + printColored("path") + "=${uri} " + printColored("requestID") + "=${id} " + printColored("latency") + "=${latency_human} " + printColored("time") + "=${time_rfc3339_nano}\n",
