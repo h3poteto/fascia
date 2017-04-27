@@ -1,4 +1,4 @@
-{% extends "layouts/webview.html.tpl" %}
+{% extends "../layouts/webview.html.tpl" %}
 
 {% block content %}
 <div class="session">
