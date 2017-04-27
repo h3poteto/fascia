@@ -121,6 +121,7 @@ func Serve() {
 		},
 	}))
 
+	e.HTTPErrorHandler = ErrorLogging(e)
 	e.Use(customizeLogger())
 	e.Use(PanicRecover())
 	e.Use(middleware.RequestID())
@@ -192,4 +193,22 @@ func customizeLogger() echo.MiddlewareFunc {
 
 func printColored(str string) string {
 	return fmt.Sprintf("\x1b[%dm%s\x1b[0m", 34, str)
+}
+
+type fundamental interface {
+	StackTrace() errors.StackTrace
+}
+
+// ErrorLogging logging error and call default error handler in echo
+func ErrorLogging(e *echo.Echo) func(error, echo.Context) {
+	return func(err error, c echo.Context) {
+		// pkg/errorsにより生成されたエラーについては，各コントローラで適切にハンドリングすること
+		// ここでは予定外のエラーが発生した場合にログを飛ばしたい
+		// 予定外のエラーなので，errors.fundamental以外のエラーだけを拾えれば十分なはずである
+		_, ok := err.(fundamental)
+		if !ok {
+			logging.SharedInstance().Controller(c).Error(err)
+		}
+		e.DefaultHTTPErrorHandler(err, c)
+	}
 }
