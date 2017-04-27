@@ -21,20 +21,21 @@ import (
 
 var _ = Describe("ListsController", func() {
 	var (
-		e         *echo.Echo
-		rec       *httptest.ResponseRecorder
-		projectID int64
-		userID    int64
+		e       *echo.Echo
+		rec     *httptest.ResponseRecorder
+		project *services.Project
+		user    *services.User
 	)
+	email := "lists@example.com"
+	password := "hogehoge"
 	BeforeEach(func() {
 		e = echo.New()
 		rec = httptest.NewRecorder()
 	})
 	JustBeforeEach(func() {
 		seed.Seeds()
-		userID = LoginFaker("lists@example.com", "hogehoge")
-		projectService, _ := handlers.CreateProject(userID, "projectTitle", "", 0, sql.NullString{})
-		projectID = projectService.ProjectEntity.ProjectModel.ID
+		user, _ = handlers.RegistrationUser(email, password, password)
+		project, _ = handlers.CreateProject(user.UserEntity.UserModel.ID, "projectTitle", "", 0, sql.NullString{})
 	})
 
 	Describe("Create", func() {
@@ -48,8 +49,10 @@ var _ = Describe("ListsController", func() {
 			req, _ := http.NewRequest(echo.POST, "/projects/:project_id/lists", strings.NewReader(f.Encode()))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 			c := e.NewContext(req, rec)
+			_, c = LoginFaker(c, email, password)
+			c = ProjectContext(c, project)
 			c.SetParamNames("project_id")
-			c.SetParamValues(strconv.FormatInt(projectID, 10))
+			c.SetParamValues(strconv.FormatInt(project.ProjectEntity.ProjectModel.ID, 10))
 			resource := Lists{}
 			err = resource.Create(c)
 		})
@@ -65,7 +68,7 @@ var _ = Describe("ListsController", func() {
 			var contents interface{}
 			json.Unmarshal(rec.Body.Bytes(), &contents)
 			parseContents := contents.(map[string]interface{})
-			newList, err := handlers.FindList(projectID, int64(parseContents["ID"].(float64)))
+			newList, err := handlers.FindList(project.ProjectEntity.ProjectModel.ID, int64(parseContents["ID"].(float64)))
 			Expect(err).To(BeNil())
 			Expect(newList.ListEntity.ListModel.ID).To(BeEquivalentTo(parseContents["ID"]))
 			Expect(newList.ListEntity.ListModel.Title.String).To(Equal("listTitle"))
@@ -78,7 +81,7 @@ var _ = Describe("ListsController", func() {
 		)
 		Context("when action is null", func() {
 			JustBeforeEach(func() {
-				newList := handlers.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
+				newList := handlers.NewList(0, project.ProjectEntity.ProjectModel.ID, user.UserEntity.UserModel.ID, "listTitle", "", sql.NullInt64{}, false)
 				newList.Save()
 				f := make(url.Values)
 				f.Set("title", "newListTitle")
@@ -87,8 +90,11 @@ var _ = Describe("ListsController", func() {
 				req, _ := http.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id", strings.NewReader(f.Encode()))
 				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 				c := e.NewContext(req, rec)
+				_, c = LoginFaker(c, email, password)
+				c = ProjectContext(c, project)
+				c = ListContext(c, newList)
 				c.SetParamNames("project_id", "list_id")
-				c.SetParamValues(strconv.FormatInt(projectID, 10), strconv.FormatInt(newList.ListEntity.ListModel.ID, 10))
+				c.SetParamValues(strconv.FormatInt(project.ProjectEntity.ProjectModel.ID, 10), strconv.FormatInt(newList.ListEntity.ListModel.ID, 10))
 				resource := Lists{}
 				err = resource.Update(c)
 			})
@@ -103,7 +109,7 @@ var _ = Describe("ListsController", func() {
 		})
 		Context("when action is close", func() {
 			JustBeforeEach(func() {
-				newList := handlers.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
+				newList := handlers.NewList(0, project.ProjectEntity.ProjectModel.ID, user.UserEntity.UserModel.ID, "listTitle", "", sql.NullInt64{}, false)
 				newList.Save()
 				closeListOption, _ := services.FindListOptionByAction("close")
 				optionID := strconv.FormatInt(closeListOption.ListOptionEntity.ListOptionModel.ID, 10)
@@ -114,8 +120,11 @@ var _ = Describe("ListsController", func() {
 				req, _ := http.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id", strings.NewReader(f.Encode()))
 				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 				c := e.NewContext(req, rec)
+				_, c = LoginFaker(c, email, password)
+				c = ProjectContext(c, project)
+				c = ListContext(c, newList)
 				c.SetParamNames("project_id", "list_id")
-				c.SetParamValues(strconv.FormatInt(projectID, 10), strconv.FormatInt(newList.ListEntity.ListModel.ID, 10))
+				c.SetParamValues(strconv.FormatInt(project.ProjectEntity.ProjectModel.ID, 10), strconv.FormatInt(newList.ListEntity.ListModel.ID, 10))
 				resource := Lists{}
 				err = resource.Update(c)
 			})
@@ -132,16 +141,18 @@ var _ = Describe("ListsController", func() {
 
 	Describe("Index", func() {
 		JustBeforeEach(func() {
-			listService := handlers.NewList(0, projectID, userID, "list1", "008ed5", sql.NullInt64{}, false)
+			listService := handlers.NewList(0, project.ProjectEntity.ProjectModel.ID, user.UserEntity.UserModel.ID, "list1", "008ed5", sql.NullInt64{}, false)
 			listService.Save()
-			listService = handlers.NewList(0, projectID, userID, "list2", "008ed5", sql.NullInt64{}, false)
+			listService = handlers.NewList(0, project.ProjectEntity.ProjectModel.ID, user.UserEntity.UserModel.ID, "list2", "008ed5", sql.NullInt64{}, false)
 			listService.Save()
 		})
 		It("should receive lists", func() {
 			c := e.NewContext(new(http.Request), rec)
+			_, c = LoginFaker(c, email, password)
+			c = ProjectContext(c, project)
 			c.SetPath("/projects/:project_id/lists")
 			c.SetParamNames("project_id")
-			c.SetParamValues(strconv.FormatInt(projectID, 10))
+			c.SetParamValues(strconv.FormatInt(project.ProjectEntity.ProjectModel.ID, 10))
 			resource := Lists{}
 			err := resource.Index(c)
 			Expect(err).To(BeNil())
@@ -157,21 +168,24 @@ var _ = Describe("ListsController", func() {
 	Describe("Hide", func() {
 		var newList *services.List
 		JustBeforeEach(func() {
-			newList = handlers.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
+			newList = handlers.NewList(0, project.ProjectEntity.ProjectModel.ID, user.UserEntity.UserModel.ID, "listTitle", "", sql.NullInt64{}, false)
 			newList.Save()
 		})
 		It("should hide list", func() {
 			req, _ := http.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id/hide", nil)
 			c := e.NewContext(req, rec)
+			_, c = LoginFaker(c, email, password)
+			c = ProjectContext(c, project)
+			c = ListContext(c, newList)
 			c.SetParamNames("project_id", "list_id")
-			c.SetParamValues(strconv.FormatInt(projectID, 10), strconv.FormatInt(newList.ListEntity.ListModel.ID, 10))
+			c.SetParamValues(strconv.FormatInt(project.ProjectEntity.ProjectModel.ID, 10), strconv.FormatInt(newList.ListEntity.ListModel.ID, 10))
 			resource := Lists{}
 			err := resource.Hide(c)
 			Expect(err).To(BeNil())
 			var contents views.AllLists
 			json.Unmarshal(rec.Body.Bytes(), &contents)
 			Expect(contents.Lists[3].IsHidden).To(BeTrue())
-			targetList, err := handlers.FindList(projectID, newList.ListEntity.ListModel.ID)
+			targetList, err := handlers.FindList(project.ProjectEntity.ProjectModel.ID, newList.ListEntity.ListModel.ID)
 			Expect(err).To(BeNil())
 			Expect(targetList.ListEntity.ListModel.IsHidden).To(BeTrue())
 		})
@@ -180,22 +194,25 @@ var _ = Describe("ListsController", func() {
 	Describe("Display", func() {
 		var newList *services.List
 		JustBeforeEach(func() {
-			newList = handlers.NewList(0, projectID, userID, "listTitle", "", sql.NullInt64{}, false)
+			newList = handlers.NewList(0, project.ProjectEntity.ProjectModel.ID, user.UserEntity.UserModel.ID, "listTitle", "", sql.NullInt64{}, false)
 			newList.Save()
 			newList.Hide()
 		})
 		It("should display list", func() {
 			req, _ := http.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id/display", nil)
 			c := e.NewContext(req, rec)
+			_, c = LoginFaker(c, email, password)
+			c = ProjectContext(c, project)
+			c = ListContext(c, newList)
 			c.SetParamNames("project_id", "list_id")
-			c.SetParamValues(strconv.FormatInt(projectID, 10), strconv.FormatInt(newList.ListEntity.ListModel.ID, 10))
+			c.SetParamValues(strconv.FormatInt(project.ProjectEntity.ProjectModel.ID, 10), strconv.FormatInt(newList.ListEntity.ListModel.ID, 10))
 			resource := Lists{}
 			err := resource.Display(c)
 			Expect(err).To(BeNil())
 			var contents views.AllLists
 			json.Unmarshal(rec.Body.Bytes(), &contents)
 			Expect(contents.Lists[3].IsHidden).To(BeFalse())
-			targetList, err := handlers.FindList(projectID, newList.ListEntity.ListModel.ID)
+			targetList, err := handlers.FindList(project.ProjectEntity.ProjectModel.ID, newList.ListEntity.ListModel.ID)
 			Expect(err).To(BeNil())
 			Expect(targetList.ListEntity.ListModel.IsHidden).To(BeFalse())
 		})

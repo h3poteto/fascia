@@ -23,17 +23,19 @@ import (
 
 var _ = Describe("ProjectsController", func() {
 	var (
-		e      *echo.Echo
-		rec    *httptest.ResponseRecorder
-		userID int64
+		e    *echo.Echo
+		rec  *httptest.ResponseRecorder
+		user *services.User
 	)
+	email := "projects@example.com"
+	password := "hogehoge"
 	BeforeEach(func() {
 		e = echo.New()
 		rec = httptest.NewRecorder()
 	})
 	JustBeforeEach(func() {
 		seed.Seeds()
-		userID = LoginFaker("projects@example.com", "hogehoge")
+		user, _ = handlers.RegistrationUser(email, password, password)
 	})
 
 	Describe("Create", func() {
@@ -46,6 +48,7 @@ var _ = Describe("ProjectsController", func() {
 			req, _ := http.NewRequest(echo.POST, "/projects", strings.NewReader(f.Encode()))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 			c := e.NewContext(req, rec)
+			_, c = LoginFaker(c, email, password)
 			resource := Projects{}
 			err = resource.Create(c)
 		})
@@ -84,11 +87,12 @@ var _ = Describe("ProjectsController", func() {
 
 	Describe("Index", func() {
 		JustBeforeEach(func() {
-			handlers.CreateProject(userID, "project1", "", 0, sql.NullString{})
-			handlers.CreateProject(userID, "project2", "", 0, sql.NullString{})
+			handlers.CreateProject(user.UserEntity.UserModel.ID, "project1", "", 0, sql.NullString{})
+			handlers.CreateProject(user.UserEntity.UserModel.ID, "project2", "", 0, sql.NullString{})
 		})
 		It("should receive projects", func() {
 			c := e.NewContext(new(http.Request), rec)
+			_, c = LoginFaker(c, email, password)
 			c.SetPath("/projects")
 			resource := Projects{}
 			err := resource.Index(c)
@@ -104,10 +108,12 @@ var _ = Describe("ProjectsController", func() {
 	Describe("Show", func() {
 		var newProject *services.Project
 		JustBeforeEach(func() {
-			newProject, _ = handlers.CreateProject(userID, "title", "desc", 0, sql.NullString{})
+			newProject, _ = handlers.CreateProject(user.UserEntity.UserModel.ID, "title", "desc", 0, sql.NullString{})
 		})
 		It("should receive project title", func() {
 			c := e.NewContext(new(http.Request), rec)
+			_, c = LoginFaker(c, email, password)
+			c = ProjectContext(c, newProject)
 			c.SetPath("/projects/:project_id/show")
 			c.SetParamNames("project_id")
 			c.SetParamValues(strconv.FormatInt(newProject.ProjectEntity.ProjectModel.ID, 10))
@@ -124,7 +130,7 @@ var _ = Describe("ProjectsController", func() {
 	Describe("Update", func() {
 		var newProject *services.Project
 		JustBeforeEach(func() {
-			newProject, _ = handlers.CreateProject(userID, "title", "desc", 0, sql.NullString{})
+			newProject, _ = handlers.CreateProject(user.UserEntity.UserModel.ID, "title", "desc", 0, sql.NullString{})
 		})
 		It("should receive new project", func() {
 			f := make(url.Values)
@@ -132,6 +138,8 @@ var _ = Describe("ProjectsController", func() {
 			req, _ := http.NewRequest(echo.POST, "/projects/:project_id", strings.NewReader(f.Encode()))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 			c := e.NewContext(req, rec)
+			_, c = LoginFaker(c, email, password)
+			c = ProjectContext(c, newProject)
 			c.SetParamNames("project_id")
 			c.SetParamValues(strconv.FormatInt(newProject.ProjectEntity.ProjectModel.ID, 10))
 			resource := Projects{}
@@ -147,7 +155,7 @@ var _ = Describe("ProjectsController", func() {
 	Describe("Settings", func() {
 		var newProject *services.Project
 		JustBeforeEach(func() {
-			newProject, _ = handlers.CreateProject(userID, "title", "desc", 0, sql.NullString{})
+			newProject, _ = handlers.CreateProject(user.UserEntity.UserModel.ID, "title", "desc", 0, sql.NullString{})
 		})
 		It("should update show issues", func() {
 			f := make(url.Values)
@@ -156,6 +164,8 @@ var _ = Describe("ProjectsController", func() {
 			req, _ := http.NewRequest(echo.POST, "/projects/:project_id/settings", strings.NewReader(f.Encode()))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 			c := e.NewContext(req, rec)
+			_, c = LoginFaker(c, email, password)
+			c = ProjectContext(c, newProject)
 			c.SetParamNames("project_id")
 			c.SetParamValues(strconv.FormatInt(newProject.ProjectEntity.ProjectModel.ID, 10))
 			resource := Projects{}
@@ -175,6 +185,8 @@ var _ = Describe("ProjectsController", func() {
 			req, _ := http.NewRequest(echo.POST, "/projects/:project_id/settings", strings.NewReader(f.Encode()))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 			c := e.NewContext(req, rec)
+			_, c = LoginFaker(c, email, password)
+			c = ProjectContext(c, newProject)
 			c.SetParamNames("project_id")
 			c.SetParamValues(strconv.FormatInt(newProject.ProjectEntity.ProjectModel.ID, 10))
 			resource := Projects{}

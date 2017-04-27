@@ -4,7 +4,6 @@ import (
 	"github.com/h3poteto/fascia/server"
 	. "github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/services"
 
 	"net/http"
 	"net/http/httptest"
@@ -29,9 +28,6 @@ var _ = Describe("SessionsController", func() {
 	})
 
 	Describe("SignIn", func() {
-		JustBeforeEach(func() {
-			LoginRequired = CheckLogin
-		})
 		Context("/sign_in", func() {
 			It("should correctly access", func() {
 				c := e.NewContext(new(http.Request), rec)
@@ -68,7 +64,7 @@ var _ = Describe("SessionsController", func() {
 
 	Describe("NewSession", func() {
 		JustBeforeEach(func() {
-			CheckCSRFToken = func(e echo.Context, token string) bool { return true }
+			CSRFFaker()
 		})
 		Context("before registration", func() {
 			It("should not login", func() {
@@ -87,10 +83,7 @@ var _ = Describe("SessionsController", func() {
 		})
 		Context("after registration", func() {
 			JustBeforeEach(func() {
-				user, _ := handlers.RegistrationUser("registration@example.com", "hogehoge", "hogehoge")
-				LoginRequired = func(c echo.Context) (*services.User, error) {
-					return user, nil
-				}
+				handlers.RegistrationUser("registration@example.com", "hogehoge", "hogehoge")
 			})
 			Context("when use correctly password", func() {
 				It("can login", func() {
@@ -127,9 +120,6 @@ var _ = Describe("SessionsController", func() {
 	})
 
 	Describe("SignOut", func() {
-		JustBeforeEach(func() {
-			LoginFaker("sign_out@example.com", "hogehoge")
-		})
 		It("can logout", func() {
 			req, _ := http.NewRequest(echo.POST, "/sign_out", nil)
 			c := e.NewContext(req, rec)
@@ -143,11 +133,12 @@ var _ = Describe("SessionsController", func() {
 
 	Describe("Update", func() {
 		JustBeforeEach(func() {
-			LoginFaker("update@example.com", "hogehoge")
+			handlers.RegistrationUser("update@example.com", "hogehoge", "hogehoge")
 		})
 		It("can update session", func() {
 			req, _ := http.NewRequest(echo.POST, "/update", nil)
 			c := e.NewContext(req, rec)
+			_, c = LoginFaker(c, "update@example.com", "hogehoge")
 			resource := Sessions{}
 			err := resource.Update(c)
 			Expect(err).To(BeNil())
