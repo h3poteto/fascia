@@ -204,9 +204,10 @@ func ErrorLogging(e *echo.Echo) func(error, echo.Context) {
 	return func(err error, c echo.Context) {
 		// pkg/errorsにより生成されたエラーについては，各コントローラで適切にハンドリングすること
 		// ここでは予定外のエラーが発生した場合にログを飛ばしたい
-		// 予定外のエラーなので，errors.fundamental以外のエラーだけを拾えれば十分なはずである
-		_, ok := err.(fundamental)
-		if !ok {
+		// 予定外のエラーなので，errors.fundamentalとecho.HTTPError以外のエラーだけを拾えれば十分なはずである
+		_, isFundamental := err.(fundamental)
+		_, isHTTPError := err.(*echo.HTTPError)
+		if !isFundamental && !isHTTPError {
 			logging.SharedInstance().Controller(c).Error(err)
 		}
 		e.DefaultHTTPErrorHandler(err, c)
