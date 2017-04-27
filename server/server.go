@@ -131,7 +131,7 @@ func Serve() {
 		},
 	}))
 
-	e.HTTPErrorHandler = ErrorLogging(e)
+	e.HTTPErrorHandler = middlewares.ErrorLogging(e)
 	e.Use(middlewares.CustomizeLogger())
 	e.Use(middlewares.PanicRecover())
 	e.Use(middleware.RequestID())
@@ -170,23 +170,4 @@ func PongoRenderer() *pongor.Renderer {
 		Reload:    false,
 	}
 	return pongor.GetRenderer(pongorOption)
-}
-
-type fundamental interface {
-	StackTrace() errors.StackTrace
-}
-
-// ErrorLogging logging error and call default error handler in echo
-func ErrorLogging(e *echo.Echo) func(error, echo.Context) {
-	return func(err error, c echo.Context) {
-		// pkg/errorsにより生成されたエラーについては，各コントローラで適切にハンドリングすること
-		// ここでは予定外のエラーが発生した場合にログを飛ばしたい
-		// 予定外のエラーなので，errors.fundamentalとecho.HTTPError以外のエラーだけを拾えれば十分なはずである
-		_, isFundamental := err.(fundamental)
-		_, isHTTPError := err.(*echo.HTTPError)
-		if !isFundamental && !isHTTPError {
-			logging.SharedInstance().Controller(c).Error(err)
-		}
-		e.DefaultHTTPErrorHandler(err, c)
-	}
 }
