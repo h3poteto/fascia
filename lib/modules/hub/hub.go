@@ -25,6 +25,36 @@ func New(token string) *Hub {
 	return &Hub{client: client}
 }
 
+// AllRepositories returns all repositories in github account
+func (h *Hub) AllRepositories() ([]*github.Repository, error) {
+	nextPage := -1
+	var repositories []*github.Repository
+	for nextPage != 0 {
+		if nextPage < 0 {
+			nextPage = 0
+		}
+		repositoryOption := &github.RepositoryListOptions{
+			Type:      "all",
+			Sort:      "full_name",
+			Direction: "asc",
+			ListOptions: github.ListOptions{
+				Page:    nextPage,
+				PerPage: 50,
+			},
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+		repos, res, err := h.client.Repositories.List(ctx, "", repositoryOption)
+		nextPage = res.NextPage
+		if err != nil {
+			err := errors.Wrap(err, "repository error")
+			return nil, err
+		}
+		repositories = append(repositories, repos...)
+	}
+	return repositories, nil
+}
+
 // GetRepository returns a repository struct
 func (h *Hub) GetRepository(ID int) (*github.Repository, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
