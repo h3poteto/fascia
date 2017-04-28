@@ -34,7 +34,8 @@ var _ = Describe("PasswordsController", func() {
 	JustBeforeEach(func() {
 		email = "hoge@example.com"
 		password = "hogehoge"
-		uid = LoginFaker(email, password)
+		user, _ := handlers.RegistrationUser(email, password, password)
+		uid = user.UserEntity.UserModel.ID
 		GenerateCSRFToken = func(c echo.Context) (string, error) { return "hoge", nil }
 	})
 

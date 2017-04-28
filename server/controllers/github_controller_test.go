@@ -12,7 +12,9 @@ import (
 
 	"github.com/google/go-github/github"
 	. "github.com/h3poteto/fascia/server/controllers"
+	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/models/db"
+	"github.com/h3poteto/fascia/server/services"
 	"github.com/labstack/echo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -24,15 +26,15 @@ var _ = Describe("GithubController", func() {
 		e        *echo.Echo
 		rec      *httptest.ResponseRecorder
 		database *sql.DB
+		user     *services.User
 	)
 	userEmail := "github@example.com"
 	BeforeEach(func() {
 		e = echo.New()
 		rec = httptest.NewRecorder()
 	})
+	// Oauthのログインテストはリダイレクトまでしか実行できないため，OauthTokenは偽装しておくしかない
 	JustBeforeEach(func() {
-		LoginFaker(userEmail, "hogehoge")
-		// Oauthのログインテストはリダイレクトまでしか実行できないため，OauthTokenは偽装しておくしかない
 		database = db.SharedInstance().Connection
 
 		token := os.Getenv("TEST_TOKEN")
@@ -48,12 +50,15 @@ var _ = Describe("GithubController", func() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		user, _ = handlers.RegistrationUser(userEmail, "hogehoge", "hogehoge")
 		database.Exec("update users set provider = ?, oauth_token = ?, user_name = ?, uuid = ?, avatar_url = ? where email = ?;", "github", token, *githubUser.Login, *githubUser.ID, *githubUser.AvatarURL, userEmail)
 
 	})
 	Describe("Repositories", func() {
 		It("should receive repositories", func() {
+			user, _ = handlers.FindUserByEmail(userEmail)
 			c := e.NewContext(new(http.Request), rec)
+			_, c = LoginFaker(c, userEmail, "hogehoge")
 			c.SetPath("/github/repositories")
 			resource := Github{}
 			err := resource.Repositories(c)

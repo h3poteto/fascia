@@ -4,11 +4,11 @@ import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/entities/project"
 	"github.com/h3poteto/fascia/server/handlers"
+	"github.com/h3poteto/fascia/server/middlewares"
 	"github.com/h3poteto/fascia/server/validators"
 	"github.com/h3poteto/fascia/server/views"
 
 	"net/http"
-	"strconv"
 
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
@@ -39,11 +39,14 @@ type SettingsProjectForm struct {
 
 // Index returns all projects
 func (u *Projects) Index(c echo.Context) error {
-	currentUser, err := LoginRequired(c)
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
-		return NewJSONError(err, http.StatusUnauthorized, c)
+	uc, ok := c.(*middlewares.LoginContext)
+	if !ok {
+		err := errors.New("Can not cast context")
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
 	}
+
+	currentUser := uc.CurrentUserService
 	projects, err := currentUser.Projects()
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -65,23 +68,14 @@ func (u *Projects) Index(c echo.Context) error {
 
 // Show return a project detail
 func (u *Projects) Show(c echo.Context) error {
-	currentUser, err := LoginRequired(c)
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
-		return NewJSONError(err, http.StatusUnauthorized, c)
-	}
-	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
-	if err != nil {
-		err := errors.Wrap(err, "parse error")
+	pc, ok := c.(*middlewares.ProjectContext)
+	if !ok {
+		err := errors.New("Can not cast context")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return NewJSONError(err, http.StatusNotFound, c)
-	}
-	projectService, err := handlers.FindProject(projectID)
-	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
-		logging.SharedInstance().Controller(c).Warnf("project not found: %v", err)
-		return NewJSONError(err, http.StatusNotFound, c)
+		return err
 	}
 
+	projectService := pc.ProjectService
 	jsonProject, err := views.ParseProjectJSON(projectService.ProjectEntity)
 	if err != nil {
 		logging.SharedInstance().Controller(c).Error(err)
@@ -92,14 +86,16 @@ func (u *Projects) Show(c echo.Context) error {
 
 // Create a new project
 func (u *Projects) Create(c echo.Context) error {
-	currentUser, err := LoginRequired(c)
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
-		return NewJSONError(err, http.StatusUnauthorized, c)
+	uc, ok := c.(*middlewares.LoginContext)
+	if !ok {
+		err := errors.New("Can not cast context")
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
 	}
+	currentUser := uc.CurrentUserService
 
 	newProjectForm := new(NewProjectForm)
-	err = c.Bind(newProjectForm)
+	err := c.Bind(newProjectForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -140,25 +136,16 @@ func (u *Projects) Create(c echo.Context) error {
 
 // Update a project
 func (u *Projects) Update(c echo.Context) error {
-	currentUser, err := LoginRequired(c)
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
-		return NewJSONError(err, http.StatusUnauthorized, c)
-	}
-	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
-	if err != nil {
-		err := errors.Wrap(err, "parse error")
+	pc, ok := c.(*middlewares.ProjectContext)
+	if !ok {
+		err := errors.New("Can not cast context")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return NewJSONError(err, http.StatusNotFound, c)
+		return err
 	}
-	projectService, err := handlers.FindProject(projectID)
-	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
-		logging.SharedInstance().Controller(c).Warnf("project not found: %v", err)
-		return NewJSONError(err, http.StatusNotFound, c)
-	}
+	projectService := pc.ProjectService
 
 	editProjectForm := new(EditProjectForm)
-	err = c.Bind(editProjectForm)
+	err := c.Bind(editProjectForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -191,25 +178,16 @@ func (u *Projects) Update(c echo.Context) error {
 
 // Settings update project settings
 func (u *Projects) Settings(c echo.Context) error {
-	currentUser, err := LoginRequired(c)
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
-		return NewJSONError(err, http.StatusUnauthorized, c)
-	}
-	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
-	if err != nil {
-		err := errors.Wrap(err, "parse error")
+	pc, ok := c.(*middlewares.ProjectContext)
+	if !ok {
+		err := errors.New("Can not cast context")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return NewJSONError(err, http.StatusNotFound, c)
+		return err
 	}
-	projectService, err := handlers.FindProject(projectID)
-	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
-		logging.SharedInstance().Controller(c).Warnf("project not found: %v", err)
-		return NewJSONError(err, http.StatusNotFound, c)
-	}
+	projectService := pc.ProjectService
 
 	settingsProjectForm := new(SettingsProjectForm)
-	err = c.Bind(settingsProjectForm)
+	err := c.Bind(settingsProjectForm)
 	if err != nil {
 		err := errors.Wrap(err, "wrong parameter")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -237,23 +215,15 @@ func (u *Projects) Settings(c echo.Context) error {
 
 // FetchGithub import tasks and lists from github
 func (u *Projects) FetchGithub(c echo.Context) error {
-	currentUser, err := LoginRequired(c)
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
-		return NewJSONError(err, http.StatusUnauthorized, c)
-	}
-	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
-	if err != nil {
-		err := errors.Wrap(err, "parse error")
+	pc, ok := c.(*middlewares.ProjectContext)
+	if !ok {
+		err := errors.New("Can not cast context")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return NewJSONError(err, http.StatusNotFound, c)
+		return err
 	}
-	projectService, err := handlers.FindProject(projectID)
-	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
-		logging.SharedInstance().Controller(c).Warnf("project not found: %v", err)
-		return NewJSONError(err, http.StatusNotFound, c)
-	}
-	_, err = projectService.FetchGithub()
+	projectService := pc.ProjectService
+
+	_, err := projectService.FetchGithub()
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Errorf("github fetch error: %v", err)
 		return err
@@ -280,22 +250,13 @@ func (u *Projects) FetchGithub(c echo.Context) error {
 
 // Webhook create a new webhook in github repository
 func (u *Projects) Webhook(c echo.Context) error {
-	currentUser, err := LoginRequired(c)
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
-		return NewJSONError(err, http.StatusUnauthorized, c)
-	}
-	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
-	if err != nil {
-		err := errors.Wrap(err, "parse error")
+	pc, ok := c.(*middlewares.ProjectContext)
+	if !ok {
+		err := errors.New("Can not cast context")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return NewJSONError(err, http.StatusNotFound, c)
+		return err
 	}
-	projectService, err := handlers.FindProject(projectID)
-	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
-		logging.SharedInstance().Controller(c).Warnf("project not found: %v", err)
-		return NewJSONError(err, http.StatusNotFound, c)
-	}
+	projectService := pc.ProjectService
 
 	_, find, err := projectService.ProjectEntity.Repository()
 	if err != nil {
@@ -317,24 +278,15 @@ func (u *Projects) Webhook(c echo.Context) error {
 
 // Destroy delete a project, all lists and tasks related to a project
 func (u *Projects) Destroy(c echo.Context) error {
-	currentUser, err := LoginRequired(c)
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
-		return NewJSONError(err, http.StatusNotFound, c)
-	}
-	projectID, err := strconv.ParseInt(c.Param("project_id"), 10, 64)
-	if err != nil {
-		err := errors.Wrap(err, "parse error")
+	pc, ok := c.(*middlewares.ProjectContext)
+	if !ok {
+		err := errors.New("Can not cast context")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return NewJSONError(err, http.StatusNotFound, c)
+		return err
 	}
-	projectService, err := handlers.FindProject(projectID)
-	if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
-		logging.SharedInstance().Controller(c).Warnf("project not found: %v", err)
-		return NewJSONError(err, http.StatusNotFound, c)
-	}
+	projectService := pc.ProjectService
 
-	err = handlers.DestroyProject(projectID)
+	err := handlers.DestroyProject(projectService.ProjectEntity.ProjectModel.ID)
 	if err != nil {
 		logging.SharedInstance().Controller(c).Errorf("project destroy error: %v", err)
 		return err

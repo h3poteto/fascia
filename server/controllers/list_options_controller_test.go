@@ -3,6 +3,7 @@ package controllers_test
 import (
 	"github.com/h3poteto/fascia/db/seed"
 	. "github.com/h3poteto/fascia/server/controllers"
+	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/views"
 
 	"encoding/json"
@@ -15,22 +16,24 @@ import (
 
 var _ = Describe("ListOptionsController", func() {
 	var (
-		e      *echo.Echo
-		rec    *httptest.ResponseRecorder
-		userID int64
+		e   *echo.Echo
+		rec *httptest.ResponseRecorder
 	)
 	BeforeEach(func() {
 		e = echo.New()
 		rec = httptest.NewRecorder()
 	})
 	JustBeforeEach(func() {
-		userID = LoginFaker("list_options@example.com", "hogehoge")
 		seed.Seeds()
 	})
 
 	Describe("Index", func() {
 		JustBeforeEach(func() {
+			handlers.RegistrationUser("list_options@example.com", "hogehoge", "hogehoge")
+		})
+		It("should return", func() {
 			c := e.NewContext(new(http.Request), rec)
+			_, c = LoginFaker(c, "list_options@example.com", "hogehoge")
 			c.SetPath("/list_options")
 			resource := ListOptions{}
 			err := resource.Index(c)

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
+	"github.com/h3poteto/fascia/server/middlewares"
 
 	"context"
 	"net/http"
@@ -19,11 +20,13 @@ type Github struct {
 
 // Repositories returns github repositories
 func (u *Github) Repositories(c echo.Context) error {
-	currentUser, err := LoginRequired(c)
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
-		return NewJSONError(err, http.StatusUnauthorized, c)
+	uc, ok := c.(*middlewares.LoginContext)
+	if !ok {
+		err := errors.New("Can not cast context")
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
 	}
+	currentUser := uc.CurrentUserService
 	if !currentUser.UserEntity.UserModel.OauthToken.Valid {
 		logging.SharedInstance().Controller(c).Info("user did not have oauth")
 		return c.JSON(http.StatusOK, nil)

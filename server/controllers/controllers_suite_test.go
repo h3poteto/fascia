@@ -8,6 +8,7 @@ import (
 	. "github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/filters"
 	"github.com/h3poteto/fascia/server/handlers"
+	"github.com/h3poteto/fascia/server/middlewares"
 	"github.com/h3poteto/fascia/server/services"
 	"github.com/labstack/echo"
 	. "github.com/onsi/ginkgo"
@@ -30,14 +31,58 @@ var _ = BeforeSuite(func() {
 	pongo2.DefaultSet = pongo2.NewSet("test", pongo2.MustNewLocalFileSystemLoader("../templates"))
 })
 
-func LoginFaker(email string, password string) int64 {
+func CSRFFaker() {
 	CheckCSRFToken = func(c echo.Context, token string) bool { return true }
-	user, err := handlers.RegistrationUser(email, password, password)
+}
+
+func LoginFaker(c echo.Context, email string, password string) (*services.User, echo.Context) {
+	user, err := handlers.LoginUser(email, password)
 	if err != nil {
 		panic(err)
 	}
-	LoginRequired = func(c echo.Context) (*services.User, error) {
-		return handlers.FindUser(user.UserEntity.UserModel.ID)
+	var ctx echo.Context
+	ctx = &middlewares.LoginContext{
+		c,
+		user,
 	}
-	return user.UserEntity.UserModel.ID
+	return user, ctx
+}
+
+func ProjectContext(c echo.Context, p *services.Project) echo.Context {
+	lc, ok := c.(*middlewares.LoginContext)
+	if !ok {
+		panic("Cast context")
+	}
+	var ctx echo.Context
+	ctx = &middlewares.ProjectContext{
+		*lc,
+		p,
+	}
+	return ctx
+}
+
+func ListContext(c echo.Context, l *services.List) echo.Context {
+	pc, ok := c.(*middlewares.ProjectContext)
+	if !ok {
+		panic("Cast context")
+	}
+	var ctx echo.Context
+	ctx = &middlewares.ListContext{
+		*pc,
+		l,
+	}
+	return ctx
+}
+
+func TaskContext(c echo.Context, t *services.Task) echo.Context {
+	lc, ok := c.(*middlewares.ListContext)
+	if !ok {
+		panic("Cast context")
+	}
+	var ctx echo.Context
+	ctx = &middlewares.TaskContext{
+		*lc,
+		t,
+	}
+	return ctx
 }

@@ -1,8 +1,7 @@
 package controllers
 
 import (
-	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/services"
+	"github.com/h3poteto/fascia/server/middlewares"
 	"github.com/h3poteto/fascia/server/session"
 
 	"crypto/md5"
@@ -19,21 +18,6 @@ import (
 	"golang.org/x/oauth2/github"
 )
 
-// JSONError is a struct for http error
-type JSONError struct {
-	Code    int    `json:code`
-	Message string `json:message`
-}
-
-// NewJSONError render error json response and return error
-func NewJSONError(err error, code int, c echo.Context) error {
-	c.JSON(code, &JSONError{
-		Code:    code,
-		Message: http.StatusText(code),
-	})
-	return err
-}
-
 var githubOauthConf = &oauth2.Config{
 	ClientID:     os.Getenv("CLIENT_ID"),
 	ClientSecret: os.Getenv("CLIENT_SECRET"),
@@ -45,25 +29,11 @@ var githubOauthConf = &oauth2.Config{
 // CheckCSRFToken check token in session
 var CheckCSRFToken = checkCSRF
 
-// LoginRequired check login session
-var LoginRequired = CheckLogin
-
 // GenerateCSRFToken prepare new CSRF token
 var GenerateCSRFToken = generateCSRF
 
-// CheckLogin authenticate user
-// If unauthorized, return 401
-func CheckLogin(c echo.Context) (*services.User, error) {
-	id, err := session.SharedInstance().Get(c.Request(), "current_user_id")
-	if id == nil {
-		return nil, errors.New("not logined")
-	}
-	currentUser, err := handlers.FindUser(id.(int64))
-	if err != nil {
-		return nil, err
-	}
-	return currentUser, nil
-}
+// NewJSONError prepare json error struct
+var NewJSONError = middlewares.NewJSONError
 
 // generateCSRF generate new CSRF token
 func generateCSRF(c echo.Context) (string, error) {

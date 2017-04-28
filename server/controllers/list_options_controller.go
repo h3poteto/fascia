@@ -16,12 +16,6 @@ type ListOptions struct {
 
 // Index returns all list options
 func (u *ListOptions) Index(c echo.Context) error {
-	_, err := LoginRequired(c)
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
-		return NewJSONError(err, http.StatusUnauthorized, c)
-	}
-
 	listOptionAll, err := handlers.ListOptionAll()
 	var optionEntities []*list_option.ListOption
 	for _, o := range listOptionAll {
