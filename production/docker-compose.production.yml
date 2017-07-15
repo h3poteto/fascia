@@ -1,7 +1,7 @@
 version: '3'
 services:
   go:
-    image: h3poteto/fascia
+    image: 564677439943.dkr.ecr.ap-northeast-1.amazonaws.com/h3poteto/fascia:latest
     environment:
       DATABASE_URL: $DATABASE_URL
       DB_USER: $DB_USER
