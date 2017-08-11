@@ -80,11 +80,13 @@ func (u *LogStruct) MethodInfoWithStacktrace(model string, action string, err er
 // PanicRecover send error and stacktrace
 func (u *LogStruct) PanicRecover(context echo.Context) *logrus.Entry {
 	requestID := context.Response().Header().Get(echo.HeaderXRequestID)
+	userAgent := context.Request().Header.Get("User-Agent")
 	buf := make([]byte, 1<<16)
 	runtime.Stack(buf, false)
 	return u.Log.WithFields(logrus.Fields{
 		"time":       time.Now(),
 		"requestID":  requestID,
+		"User-Agent": userAgent,
 		"model":      "main",
 		"stacktrace": string(buf),
 	})
@@ -93,12 +95,13 @@ func (u *LogStruct) PanicRecover(context echo.Context) *logrus.Entry {
 // Controller is prepare logrus entry with fields
 func (u *LogStruct) Controller(context echo.Context) *logrus.Entry {
 	requestID := context.Response().Header().Get(echo.HeaderXRequestID)
-
+	userAgent := context.Request().Header.Get("User-Agent")
 	return u.Log.WithFields(logrus.Fields{
-		"time":      time.Now(),
-		"method":    context.Request().Method,
-		"requestID": requestID,
-		"path":      context.Path(),
+		"time":       time.Now(),
+		"method":     context.Request().Method,
+		"requestID":  requestID,
+		"User-Agent": userAgent,
+		"path":       context.Path(),
 	})
 }
 
