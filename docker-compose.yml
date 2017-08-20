@@ -13,7 +13,7 @@ services:
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "true"
   node:
-    image: node:6.10-alpine
+    image: node:7-alpine
     user: node
     volumes:
       - .:/var/opt/app
@@ -21,7 +21,7 @@ services:
     entrypoint: sh -c
     command: |
       "npm install && \
-      npm run-script watch"
+      npm run watch"
   go:
     image: h3poteto/golang:1.8.3
     env_file: .docker-env
