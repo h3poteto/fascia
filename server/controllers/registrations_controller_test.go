@@ -37,8 +37,8 @@ var _ = Describe("RegistrationsController", func() {
 			e.Renderer = server.PongoRenderer()
 		})
 		It("should correctly access", func() {
-			c := e.NewContext(new(http.Request), rec)
-			c.SetPath("/sign_up")
+			req := httptest.NewRequest(echo.GET, "/sign_up", nil)
+			c := e.NewContext(req, rec)
 			resource := Registrations{}
 			err := resource.SignUp(c)
 			Expect(err).To(BeNil())
@@ -59,7 +59,7 @@ var _ = Describe("RegistrationsController", func() {
 				f.Set("email", "registration@example.com")
 				f.Set("password", "hogehoge")
 				f.Set("password_confirm", "hogehoge")
-				req, _ := http.NewRequest(echo.POST, "/sign_up", strings.NewReader(f.Encode()))
+				req := httptest.NewRequest(echo.POST, "/sign_up", strings.NewReader(f.Encode()))
 				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 				c := e.NewContext(req, rec)
 				resource := Registrations{}
@@ -88,7 +88,7 @@ var _ = Describe("RegistrationsController", func() {
 				f.Set("email", "registration@example.com")
 				f.Set("password", "hogehoge")
 				f.Set("password_confirm", "hogehoge")
-				req, _ := http.NewRequest(echo.POST, "/sign_up", strings.NewReader(f.Encode()))
+				req := httptest.NewRequest(echo.POST, "/sign_up", strings.NewReader(f.Encode()))
 				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 				c := e.NewContext(req, rec)
 				resource := Registrations{}

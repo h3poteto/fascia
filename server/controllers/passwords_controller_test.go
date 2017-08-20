@@ -41,8 +41,8 @@ var _ = Describe("PasswordsController", func() {
 
 	Describe("New", func() {
 		It("should correctly access", func() {
-			c := e.NewContext(new(http.Request), rec)
-			c.SetPath("/passwords/new")
+			req := httptest.NewRequest(echo.GET, "/passwords/new", nil)
+			c := e.NewContext(req, rec)
 			resource := Passwords{}
 			err := resource.New(c)
 			Expect(err).To(BeNil())
@@ -58,7 +58,7 @@ var _ = Describe("PasswordsController", func() {
 		It("should create new reset password", func() {
 			f := make(url.Values)
 			f.Set("email", "hogehoge@example.com")
-			req, _ := http.NewRequest(echo.POST, "/passwords/create", strings.NewReader(f.Encode()))
+			req := httptest.NewRequest(echo.POST, "/passwords/create", strings.NewReader(f.Encode()))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 			c := e.NewContext(req, rec)
 			resource := Passwords{}
@@ -79,7 +79,7 @@ var _ = Describe("PasswordsController", func() {
 			It("should internal server error", func() {
 				q := make(url.Values)
 				q.Set("token", "sample")
-				req, _ := http.NewRequest(echo.GET, "/passwords/:id/edit?"+q.Encode(), nil)
+				req := httptest.NewRequest(echo.GET, "/passwords/:id/edit?"+q.Encode(), nil)
 				c := e.NewContext(req, rec)
 				c.SetParamNames("id")
 				c.SetParamValues(strconv.FormatInt(resetPassword.ResetPasswordEntity.ResetPasswordModel.ID, 10))
@@ -92,7 +92,7 @@ var _ = Describe("PasswordsController", func() {
 			It("should response is ok", func() {
 				q := make(url.Values)
 				q.Set("token", resetPassword.ResetPasswordEntity.ResetPasswordModel.Token)
-				req, _ := http.NewRequest(echo.GET, "/passwords/:id/edit?"+q.Encode(), nil)
+				req := httptest.NewRequest(echo.GET, "/passwords/:id/edit?"+q.Encode(), nil)
 				c := e.NewContext(req, rec)
 				c.SetParamNames("id")
 				c.SetParamValues(strconv.FormatInt(resetPassword.ResetPasswordEntity.ResetPasswordModel.ID, 10))
@@ -117,7 +117,7 @@ var _ = Describe("PasswordsController", func() {
 				f.Set("password", "fugafuga")
 				f.Set("password_confirm", "fugafuga")
 				f.Set("reset_token", "sample")
-				req, _ := http.NewRequest(echo.POST, "/passwords/:id/update", strings.NewReader(f.Encode()))
+				req := httptest.NewRequest(echo.POST, "/passwords/:id/update", strings.NewReader(f.Encode()))
 				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 				c := e.NewContext(req, rec)
 				c.SetParamNames("id")
@@ -134,7 +134,7 @@ var _ = Describe("PasswordsController", func() {
 				f.Set("password", "fugafuga")
 				f.Set("password_confirm", "fugafuga")
 				f.Set("reset_token", resetPassword.ResetPasswordEntity.ResetPasswordModel.Token)
-				req, _ := http.NewRequest(echo.POST, "/passwords/:id/update", strings.NewReader(f.Encode()))
+				req := httptest.NewRequest(echo.POST, "/passwords/:id/update", strings.NewReader(f.Encode()))
 				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 				c := e.NewContext(req, rec)
 				c.SetParamNames("id")

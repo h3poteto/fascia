@@ -1,12 +1,11 @@
-
-[[dependencies]]
+[[constraint]]
   branch = "master"
   name = "github.com/flosch/pongo2"
 
-[[dependencies]]
+[[constraint]]
   name = "github.com/ipfans/echo-session"
-  version = "v3.0.0-rc1"
+  version = "v3.1.1"
 
-[[dependencies]]
-  branch = "master"
+[[constraint]]
   name = "github.com/labstack/echo"
+  version = "v3.2.1"

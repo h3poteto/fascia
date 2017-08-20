@@ -45,7 +45,7 @@ var _ = Describe("ProjectsController", func() {
 		JustBeforeEach(func() {
 			f := make(url.Values)
 			f.Set("title", "projectTitle")
-			req, _ := http.NewRequest(echo.POST, "/projects", strings.NewReader(f.Encode()))
+			req := httptest.NewRequest(echo.POST, "/projects", strings.NewReader(f.Encode()))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
@@ -91,9 +91,9 @@ var _ = Describe("ProjectsController", func() {
 			handlers.CreateProject(user.UserEntity.UserModel.ID, "project2", "", 0, sql.NullString{})
 		})
 		It("should receive projects", func() {
-			c := e.NewContext(new(http.Request), rec)
+			req := httptest.NewRequest(echo.GET, "/projects", nil)
+			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
-			c.SetPath("/projects")
 			resource := Projects{}
 			err := resource.Index(c)
 			Expect(err).To(BeNil())
@@ -111,10 +111,10 @@ var _ = Describe("ProjectsController", func() {
 			newProject, _ = handlers.CreateProject(user.UserEntity.UserModel.ID, "title", "desc", 0, sql.NullString{})
 		})
 		It("should receive project title", func() {
-			c := e.NewContext(new(http.Request), rec)
+			req := httptest.NewRequest(echo.GET, "/projects/:project_id/show", nil)
+			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
 			c = ProjectContext(c, newProject)
-			c.SetPath("/projects/:project_id/show")
 			c.SetParamNames("project_id")
 			c.SetParamValues(strconv.FormatInt(newProject.ProjectEntity.ProjectModel.ID, 10))
 			resource := Projects{}
@@ -135,7 +135,7 @@ var _ = Describe("ProjectsController", func() {
 		It("should receive new project", func() {
 			f := make(url.Values)
 			f.Set("title", "newTitle")
-			req, _ := http.NewRequest(echo.POST, "/projects/:project_id", strings.NewReader(f.Encode()))
+			req := httptest.NewRequest(echo.POST, "/projects/:project_id", strings.NewReader(f.Encode()))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
@@ -161,7 +161,7 @@ var _ = Describe("ProjectsController", func() {
 			f := make(url.Values)
 			f.Set("show_issues", "false")
 			f.Set("show_pull_requests", "true")
-			req, _ := http.NewRequest(echo.POST, "/projects/:project_id/settings", strings.NewReader(f.Encode()))
+			req := httptest.NewRequest(echo.POST, "/projects/:project_id/settings", strings.NewReader(f.Encode()))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
@@ -182,7 +182,7 @@ var _ = Describe("ProjectsController", func() {
 			f := make(url.Values)
 			f.Set("show_issues", "true")
 			f.Set("show_pull_requests", "false")
-			req, _ := http.NewRequest(echo.POST, "/projects/:project_id/settings", strings.NewReader(f.Encode()))
+			req := httptest.NewRequest(echo.POST, "/projects/:project_id/settings", strings.NewReader(f.Encode()))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)

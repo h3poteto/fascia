@@ -52,7 +52,7 @@ var _ = Describe("TasksController", func() {
 		JustBeforeEach(func() {
 			f := make(url.Values)
 			f.Set("title", "taskTitle")
-			req, _ := http.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id/tasks", strings.NewReader(f.Encode()))
+			req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id/tasks", strings.NewReader(f.Encode()))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
@@ -87,12 +87,12 @@ var _ = Describe("TasksController", func() {
 			newTask.Save()
 		})
 		It("should receive a task", func() {
-			c := e.NewContext(new(http.Request), rec)
+			req := httptest.NewRequest(echo.GET, "/projects/:project_id/lists/:list_id/tasks/:task_id", nil)
+			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
 			c = ProjectContext(c, project)
 			c = ListContext(c, list)
 			c = TaskContext(c, newTask)
-			c.SetPath("/projects/:project_id/lists/:list_id/tasks/:task_id")
 			c.SetParamNames("project_id", "list_id", "task_id")
 			c.SetParamValues(strconv.FormatInt(project.ProjectEntity.ProjectModel.ID, 10), strconv.FormatInt(list.ListEntity.ListModel.ID, 10), strconv.FormatInt(newTask.TaskEntity.TaskModel.ID, 10))
 			resource := Tasks{}
@@ -119,7 +119,7 @@ var _ = Describe("TasksController", func() {
 		It("should change list the task belongs", func() {
 			f := make(url.Values)
 			f.Set("to_list_id", strconv.FormatInt(newList.ListEntity.ListModel.ID, 10))
-			req, _ := http.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id/tasks/:task_id/move_task", strings.NewReader(f.Encode()))
+			req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id/tasks/:task_id/move_task", strings.NewReader(f.Encode()))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
@@ -150,7 +150,7 @@ var _ = Describe("TasksController", func() {
 			f := make(url.Values)
 			f.Set("title", "updateTitle")
 			f.Set("description", "updateDescription")
-			req, _ := http.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id/tasks/:task_id", strings.NewReader(f.Encode()))
+			req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id/tasks/:task_id", strings.NewReader(f.Encode()))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
@@ -178,7 +178,7 @@ var _ = Describe("TasksController", func() {
 				newTask.Save()
 			})
 			It("should delete a task", func() {
-				req, _ := http.NewRequest(echo.DELETE, "/projects/:project_id/lists/:list_id/tasks/:task_id", nil)
+				req := httptest.NewRequest(echo.DELETE, "/projects/:project_id/lists/:list_id/tasks/:task_id", nil)
 				c := e.NewContext(req, rec)
 				_, c = LoginFaker(c, email, password)
 				c = ProjectContext(c, project)
@@ -198,7 +198,7 @@ var _ = Describe("TasksController", func() {
 				newTask.Save()
 			})
 			It("should not delete a task", func() {
-				req, _ := http.NewRequest(echo.DELETE, "/projects/:project_id/lists/:list_id/tasks/:task_id", nil)
+				req := httptest.NewRequest(echo.DELETE, "/projects/:project_id/lists/:list_id/tasks/:task_id", nil)
 				c := e.NewContext(req, rec)
 				_, c = LoginFaker(c, email, password)
 				c = ProjectContext(c, project)

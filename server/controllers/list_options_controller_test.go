@@ -32,9 +32,9 @@ var _ = Describe("ListOptionsController", func() {
 			handlers.RegistrationUser("list_options@example.com", "hogehoge", "hogehoge")
 		})
 		It("should return", func() {
-			c := e.NewContext(new(http.Request), rec)
+			req := httptest.NewRequest(echo.GET, "/list_options", nil)
+			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, "list_options@example.com", "hogehoge")
-			c.SetPath("/list_options")
 			resource := ListOptions{}
 			err := resource.Index(c)
 			Expect(err).To(BeNil())
