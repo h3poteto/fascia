@@ -40,7 +40,7 @@ func Changed(address string) {
 		logging.SharedInstance().MethodInfoWithStacktrace("PasswordMailer", "Changed", err).Error(err)
 		return
 	}
-	logging.SharedInstance().MethodInfo("PasswordMailer", "Changed").Debug("send mail response: %v", resp)
+	logging.SharedInstance().MethodInfo("PasswordMailer", "Changed").Debugf("send mail response: %v", resp)
 	logging.SharedInstance().MethodInfo("PasswordMailer", "Changed").Info("success to send mail")
 }
 

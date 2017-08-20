@@ -30,8 +30,8 @@ var _ = Describe("SessionsController", func() {
 	Describe("SignIn", func() {
 		Context("/sign_in", func() {
 			It("should correctly access", func() {
-				c := e.NewContext(new(http.Request), rec)
-				c.SetPath("/sign_in")
+				req := httptest.NewRequest(echo.GET, "/sign_in", nil)
+				c := e.NewContext(req, rec)
 				resource := Sessions{}
 				err := resource.SignIn(c)
 				Expect(err).To(BeNil())
@@ -41,8 +41,8 @@ var _ = Describe("SessionsController", func() {
 		})
 		Context("/", func() {
 			It("should redirect to top page", func() {
-				c := e.NewContext(new(http.Request), rec)
-				c.SetPath("/")
+				req := httptest.NewRequest(echo.GET, "/", nil)
+				c := e.NewContext(req, rec)
 				resource := Root{}
 				err := resource.Index(c)
 				Expect(err).To(BeNil())
@@ -71,7 +71,7 @@ var _ = Describe("SessionsController", func() {
 				f := make(url.Values)
 				f.Set("email", "sign_in@example.com")
 				f.Set("password", "hogehoge")
-				req, _ := http.NewRequest(echo.POST, "/sign_in", strings.NewReader(f.Encode()))
+				req := httptest.NewRequest(echo.POST, "/sign_in", strings.NewReader(f.Encode()))
 				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 				c := e.NewContext(req, rec)
 				resource := Sessions{}
@@ -90,7 +90,7 @@ var _ = Describe("SessionsController", func() {
 					f := make(url.Values)
 					f.Set("email", "registration@example.com")
 					f.Set("password", "hogehoge")
-					req, _ := http.NewRequest(echo.POST, "/sign_in", strings.NewReader(f.Encode()))
+					req := httptest.NewRequest(echo.POST, "/sign_in", strings.NewReader(f.Encode()))
 					req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 					c := e.NewContext(req, rec)
 					resource := Sessions{}
@@ -105,7 +105,7 @@ var _ = Describe("SessionsController", func() {
 					f := make(url.Values)
 					f.Set("email", "registration@example.com")
 					f.Set("password", "fugafuga")
-					req, _ := http.NewRequest(echo.POST, "/sign_in", strings.NewReader(f.Encode()))
+					req := httptest.NewRequest(echo.POST, "/sign_in", strings.NewReader(f.Encode()))
 					req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 					c := e.NewContext(req, rec)
 					resource := Sessions{}
@@ -121,7 +121,7 @@ var _ = Describe("SessionsController", func() {
 
 	Describe("SignOut", func() {
 		It("can logout", func() {
-			req, _ := http.NewRequest(echo.POST, "/sign_out", nil)
+			req := httptest.NewRequest(echo.POST, "/sign_out", nil)
 			c := e.NewContext(req, rec)
 			resource := Sessions{}
 			err := resource.SignOut(c)
@@ -136,7 +136,7 @@ var _ = Describe("SessionsController", func() {
 			handlers.RegistrationUser("update@example.com", "hogehoge", "hogehoge")
 		})
 		It("can update session", func() {
-			req, _ := http.NewRequest(echo.POST, "/update", nil)
+			req := httptest.NewRequest(echo.POST, "/update", nil)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, "update@example.com", "hogehoge")
 			resource := Sessions{}

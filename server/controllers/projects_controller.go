@@ -151,7 +151,7 @@ func (u *Projects) Update(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	logging.SharedInstance().Controller(c).Debug("post edit project parameter: %+v", editProjectForm)
+	logging.SharedInstance().Controller(c).Debugf("post edit project parameter: %+v", editProjectForm)
 
 	valid, err := validators.ProjectUpdateValidation(
 		editProjectForm.Title,
@@ -193,7 +193,7 @@ func (u *Projects) Settings(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	logging.SharedInstance().Controller(c).Debug("post edit project parameter: %+v", settingsProjectForm)
+	logging.SharedInstance().Controller(c).Debugf("post edit project parameter: %+v", settingsProjectForm)
 	if err := projectService.Update(
 		projectService.ProjectEntity.ProjectModel.Title,
 		projectService.ProjectEntity.ProjectModel.Description,

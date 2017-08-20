@@ -57,9 +57,9 @@ var _ = Describe("GithubController", func() {
 	Describe("Repositories", func() {
 		It("should receive repositories", func() {
 			user, _ = handlers.FindUserByEmail(userEmail)
-			c := e.NewContext(new(http.Request), rec)
+			req := httptest.NewRequest(echo.GET, "/github/repositories", nil)
+			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, userEmail, "hogehoge")
-			c.SetPath("/github/repositories")
 			resource := Github{}
 			err := resource.Repositories(c)
 			Expect(err).To(BeNil())
