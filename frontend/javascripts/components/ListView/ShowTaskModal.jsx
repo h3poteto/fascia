@@ -80,7 +80,7 @@ class ShowTaskModal extends React.Component {
     }
   }
 
-  taskForm(project, task, isEditTaskModalVisible, handleSubmit, action, pristine, submitting, reset) {
+  taskForm(project, task, isEditTaskModalVisible, handleSubmit, action, pristine, submitting, reset, changeEditMode) {
     if (isEditTaskModalVisible) {
       return (
         <div className="task-body task-form">
@@ -92,6 +92,7 @@ class ShowTaskModal extends React.Component {
               <label htmlFor="description">Description</label>
               <Field name="description" id="description" component="textarea" className="form-control" />
               <div className="form-action">
+                <button type="reset" className="pure-button pure-button-default" onClick={() => changeEditMode(task)}>Cancel</button>
                 <button type="reset" className="pure-button pure-button-default" disabled={pristine || submitting} onClick={reset}>Reset</button>
                 <button type="submit" className="pure-button pure-button-primary" disabled={pristine || submitting}>Update Task</button>
               </div>
@@ -150,7 +151,7 @@ class ShowTaskModal extends React.Component {
             {this.deleteTask(project.ID, task, fetchDeleteTask)}
             <i title="Edit task" className="fa fa-pencil" onClick={() => changeEditMode(this.props.task)}></i>
           </div>
-          {this.taskForm(project, task, isEditTaskModalVisible, handleSubmit, action, pristine, submitting, reset)}
+          {this.taskForm(project, task, isEditTaskModalVisible, handleSubmit, action, pristine, submitting, reset, changeEditMode)}
         </div>
       </Modal>
     )

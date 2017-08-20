@@ -226,7 +226,7 @@ export default function ListReducer(state = initState, action) {
     })
   case showTaskModalActions.CHANGE_EDIT_MODE:
     return Object.assign({}, state, {
-      isEditTaskModalVisible: true
+      isEditTaskModalVisible: !state.isEditTaskModalVisible,
     })
   case showTaskModalActions.REQUEST_UPDATE_TASK:
     return Object.assign({}, state, {
