@@ -1,4 +1,4 @@
-FROM h3poteto/golang:latest
+FROM h3poteto/golang:1.8.3
 
 USER root
 ENV GOPATH /go
