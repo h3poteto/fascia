@@ -108,6 +108,7 @@ func (u *LogStruct) Controller(context echo.Context) *logrus.Entry {
 // ControllerWithStacktrace is prepare logrus entry with fields
 func (u *LogStruct) ControllerWithStacktrace(err error, context echo.Context) *logrus.Entry {
 	requestID := context.Response().Header().Get(echo.HeaderXRequestID)
+	userAgent := context.Request().Header.Get("User-Agent")
 
 	stackErr, ok := err.(stackTracer)
 	if !ok {
@@ -123,6 +124,7 @@ func (u *LogStruct) ControllerWithStacktrace(err error, context echo.Context) *l
 		"time":       time.Now(),
 		"method":     context.Request().Method,
 		"requestID":  requestID,
+		"User-Agent": userAgent,
 		"path":       context.Path(),
 		"stacktrace": fmt.Sprintf("%+v", st[0:traceLength]),
 	})
