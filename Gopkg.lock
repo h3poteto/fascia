@@ -104,6 +104,12 @@
   version = "v1.1"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/h3poteto/pongo2echo"
+  packages = ["."]
+  revision = "4ba7573e8c1e88d7e18b24a04e24b5d9fb548005"
+
+[[projects]]
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
@@ -255,6 +261,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0adbf03ff3027a18fa90bd401052cef79d5d6194ebfdac2fdf073282dd5e4621"
+  inputs-digest = "5b0adb5c41e98d20df9b5631035457b5fc5376c5524762c18de9f6060db5749f"
   solver-name = "gps-cdcl"
   solver-version = 1

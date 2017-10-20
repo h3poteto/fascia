@@ -2,7 +2,6 @@ package server
 
 import (
 	"github.com/h3poteto/fascia/config"
-	"github.com/h3poteto/fascia/lib/modules/pongo2echo"
 	"github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/filters"
 	"github.com/h3poteto/fascia/server/middlewares"
@@ -15,6 +14,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/h3poteto/pongo2echo"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )
