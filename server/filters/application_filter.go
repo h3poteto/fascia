@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/flosch/pongo2"
 	_ "github.com/flosch/pongo2-addons"
+	_ "github.com/russross/blackfriday" // pongo2-addonsが依存するblackfridayが古いため明示的な依存を書く必要がある
 	"strconv"
 	"syscall"
 )

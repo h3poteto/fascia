@@ -6,10 +6,10 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/johntdyer/slackrus"
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 // LogStruct provides logger object

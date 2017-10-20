@@ -23,7 +23,7 @@ services:
       "npm install && \
       npm run watch"
   go:
-    image: h3poteto/golang:1.8.3
+    image: h3poteto/golang:1.9.1
     env_file: .docker-env
     environment:
       APPROOT: /go/src/github.com/h3poteto/fascia
