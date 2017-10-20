@@ -12,10 +12,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// https://github.com/skyflyer/echo-pongo-sample
-// https://github.com/o1egl/echox/blob/master/template/pongo.go
-
-// PongoRenderer implements custom pongo2 rendering engine for labstack's echo framework
+// Pongo2Echo implements custom pongo2 rendering engine for echo
 type Pongo2Echo struct {
 	dirs              []string
 	filters           []string
@@ -23,7 +20,7 @@ type Pongo2Echo struct {
 	contextProcessors []ContextProcessorFunc
 }
 
-// NewRenderer creates a new renderer
+// NewRenderer creates a new Pongo2Echo struct
 func NewRenderer() *Pongo2Echo {
 	p := &Pongo2Echo{}
 	p.templates = pongo2.NewSet("templates", p)
@@ -75,6 +72,7 @@ func (p *Pongo2Echo) RegisterTag(name string, parserFunc pongo2.TagParser) {
 	pongo2.RegisterTag(name, parserFunc)
 }
 
+// RegisterFilter registers a custom filter
 func (p *Pongo2Echo) RegisterFilter(name string, fn pongo2.FilterFunction) {
 	pongo2.RegisterFilter(name, fn)
 }
