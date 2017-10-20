@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: h3poteto/golang-node:1.8.3-7
+      - image: h3poteto/golang-node:1.9.1
         environment:
           APPROOT: /go/src/github.com/h3poteto/fascia
           APPENV: test
@@ -85,7 +85,7 @@ jobs:
 
   deploy:
     docker:
-      - image: h3poteto/golang-node:1.8.3-7
+      - image: h3poteto/golang-node:1.9.1
         user: root
         environment:
           AWS_ECR_REPOSITORY: 564677439943.dkr.ecr.ap-northeast-1.amazonaws.com/h3poteto/fascia

@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/h3poteto/fascia/config"
+	"github.com/h3poteto/fascia/lib/modules/pongo2echo"
 	"github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/filters"
 	"github.com/h3poteto/fascia/server/middlewares"
@@ -14,9 +15,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/echo-contrib/pongor"
-	"github.com/flosch/pongo2"
-	_ "github.com/flosch/pongo2-addons"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )
@@ -161,13 +159,12 @@ func Serve() {
 	}
 }
 
-// PongoRenderer prepare pongo2, pongo2filter, and pongor
-func PongoRenderer() *pongor.Renderer {
+// PongoRenderer prepare pongo2 through pongo2echo
+func PongoRenderer() *pongo2echo.Pongo2Echo {
+	render := pongo2echo.NewRenderer()
 	root := os.Getenv("APPROOT")
-	pongo2.RegisterFilter("suffixAssetsUpdate", filters.SuffixAssetsUpdate)
-	pongorOption := pongor.PongorOption{
-		Directory: filepath.Join(root, "server/templates"),
-		Reload:    false,
-	}
-	return pongor.GetRenderer(pongorOption)
+	render.RegisterFilter("suffixAssetsUpdate", filters.SuffixAssetsUpdate)
+	render.AddDirectory(filepath.Join(root, "server/templates"))
+
+	return render
 }
