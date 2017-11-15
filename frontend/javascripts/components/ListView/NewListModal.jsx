@@ -1,6 +1,7 @@
 import React from 'react'
 import Modal from 'react-modal'
 import { Field, reduxForm } from 'redux-form'
+import { GithubPicker } from 'react-color'
 
 const customStyles = {
   overlay: {
@@ -45,10 +46,10 @@ class NewListModal extends React.Component {
     } = this.props
     return (
       <Modal
-          isOpen={this.props.isListModalOpen}
-          onRequestClose={onRequestClose}
-          style={customStyles}
-          contentLabel="NewListModal"
+        isOpen={this.props.isListModalOpen}
+        onRequestClose={onRequestClose}
+        style={customStyles}
+        contentLabel="NewListModal"
       >
         <div className="list-form">
           <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(projectID, values) })}>
@@ -58,6 +59,9 @@ class NewListModal extends React.Component {
               <Field name="title" id="title" component="input" type="text" placeholder="List name" className="form-control" />
               <label htmlFor="color">Color</label>
               <Field name="color" id="color" component="input" type="text" placeholder="008ed4" className="form-control" />
+              <GithubPicker
+                onChangeComplete={(color) => this.props.array.push('color', color.hex.replace(/#/g, ""))}
+              />
               <div className="form-action">
                 <button type="reset" className="pure-button pure-button-default" disabled={pristine || submitting} onClick={reset}>Reset</button>
                 <button type="submit" className="pure-button pure-button-primary" disabled={pristine || submitting}>Create List</button>
