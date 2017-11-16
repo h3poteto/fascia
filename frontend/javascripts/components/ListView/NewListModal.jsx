@@ -42,6 +42,8 @@ class NewListModal extends React.Component {
       submitting,
       onRequestClose,
       action,
+      changeColor,
+      color,
       projectID,
     } = this.props
     return (
@@ -58,9 +60,17 @@ class NewListModal extends React.Component {
               <label htmlFor="title">Title</label>
               <Field name="title" id="title" component="input" type="text" placeholder="List name" className="form-control" />
               <label htmlFor="color">Color</label>
-              <Field name="color" id="color" component="input" type="text" placeholder="008ed4" className="form-control" />
+              <div className="color-control-group">
+                <div className="real-color" style={{backgroundColor: `#${color}`}}>　</div>
+                <Field name="color" id="color" component="input" type="text" placeholder="008ed4" onChange={(e) => changeColor(e.target.value)} />
+              </div>
               <GithubPicker
-                onChangeComplete={(color) => this.props.array.push('color', color.hex.replace(/#/g, ""))}
+                onChangeComplete={(color) => {
+                    this.props.array.removeAll('color')
+                    this.props.array.push('color', color.hex.replace(/#/g, ""))
+                    changeColor(color.hex.replace(/#/g, ""))
+                }
+                }
               />
               <div className="form-action">
                 <button type="reset" className="pure-button pure-button-default" disabled={pristine || submitting} onClick={reset}>Reset</button>
@@ -70,7 +80,7 @@ class NewListModal extends React.Component {
           </form>
         </div>
       </Modal>
-    )
+                    )
   }
 }
 

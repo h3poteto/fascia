@@ -23,6 +23,7 @@ const initState = {
   isTaskDraggingOver: false,
   taskDraggingFrom: null,
   taskDraggingTo: null,
+  color: '008ed4',
   isLoading: false,
   error: null
 }
@@ -32,35 +33,40 @@ export default function ListReducer(state = initState, action) {
     //-----------------------------------
     // newListModalActions
     //-----------------------------------
-  case newListModalActions.NOT_FOUND:
-    return Object.assign({}, state, {
-      error: 'Error Not Found',
-      isLoading: false
-    })
-  case newListModalActions.SERVER_ERROR:
-    return Object.assign({}, state, {
-      error: 'Internal Server Error',
-      isLoading: false
-    })
-  case newListModalActions.CLOSE_NEW_LIST:
-    return Object.assign({}, state, {
-      isListModalOpen: false
-    })
-  case newListModalActions.REQUEST_CREATE_LIST:
-    return Object.assign({}, state, {
-      isLoading: true
-    })
-  case newListModalActions.RECEIVE_CREATE_LIST:
-    var createdList = action.list
-    if (createdList.ListTasks == null) {
-      createdList.ListTasks = []
-    }
-    var lists = state.lists.concat([createdList])
-    return Object.assign({}, state, {
-      lists: lists,
-      isListModalOpen: false,
-      isLoading: false
-    })
+    case newListModalActions.NOT_FOUND:
+      return Object.assign({}, state, {
+        error: 'Error Not Found',
+        isLoading: false
+      })
+    case newListModalActions.SERVER_ERROR:
+      return Object.assign({}, state, {
+        error: 'Internal Server Error',
+        isLoading: false
+      })
+    case newListModalActions.CLOSE_NEW_LIST:
+      return Object.assign({}, state, {
+        isListModalOpen: false
+      })
+    case newListModalActions.REQUEST_CREATE_LIST:
+      return Object.assign({}, state, {
+        isLoading: true
+      })
+    case newListModalActions.RECEIVE_CREATE_LIST:
+      var createdList = action.list
+      if (createdList.ListTasks == null) {
+        createdList.ListTasks = []
+      }
+      var lists = state.lists.concat([createdList])
+      return Object.assign({}, state, {
+        lists: lists,
+        isListModalOpen: false,
+        isLoading: false
+      })
+    case newListModalActions.CHANGE_COLOR:
+      return Object.assign({}, state, {
+        color: action.color,
+      })
+
 
     //------------------------------------
     // editListModalActions

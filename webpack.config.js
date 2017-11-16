@@ -12,7 +12,7 @@ module.exports = {
     path: path.resolve(__dirname, './public/assets'),
     filename: '[name]'
   },
-
+  cache: true,
   resolve: {
     modules: [
       path.resolve(__dirname, './fronted/javascripts'),

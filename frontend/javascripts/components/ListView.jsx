@@ -126,6 +126,7 @@ class ListView extends React.Component {
       selectedList,
       taskDraggingFrom,
       taskDraggingTo,
+      color,
       selectedTask,
       error
     } = this.props.ListReducer
@@ -135,10 +136,12 @@ class ListView extends React.Component {
         <WholeLoading isLoading={isLoading} />
         {this.flash(error)}
         <NewListModal
-            isListModalOpen={isListModalOpen}
-            projectID={this.props.params.projectID}
-            onRequestClose={this.props.newListModalActions.closeNewListModal}
-            action={this.props.newListModalActions.fetchCreateList}
+          isListModalOpen={isListModalOpen}
+          projectID={this.props.params.projectID}
+          onRequestClose={this.props.newListModalActions.closeNewListModal}
+          action={this.props.newListModalActions.fetchCreateList}
+          changeColor={this.props.newListModalActions.changeColor}
+          color={color}
         />
         <NewTaskModal
             isTaskModalOpen={isTaskModalOpen}
