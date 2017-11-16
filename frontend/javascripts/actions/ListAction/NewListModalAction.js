@@ -68,7 +68,6 @@ export function fetchCreateList(projectID, params) {
 
 export const CHANGE_COLOR = 'CHANGE_COLOR'
 export function changeColor(color) {
-  console.log(color)
   return {
     type: CHANGE_COLOR,
     color: color,

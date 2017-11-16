@@ -1,6 +1,7 @@
 import React from 'react'
 import Modal from 'react-modal'
 import { Field, reduxForm } from 'redux-form'
+import { GithubPicker } from 'react-color'
 
 const customStyles = {
   overlay : {
@@ -69,13 +70,16 @@ class EditListModal extends React.Component {
       project,
       list,
       listOptions,
+      changeColor,
+      color,
     } = this.props
+
     return (
       <Modal
-          isOpen={this.props.isListEditModalOpen}
-          onRequestClose={onRequestClose}
-          style={customStyles}
-          contentLabel="EditListModal"
+        isOpen={this.props.isListEditModalOpen}
+        onRequestClose={onRequestClose}
+        style={customStyles}
+        contentLabel="EditListModal"
       >
         <div className="list-form">
           <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(project.ID, list.ID, values) })}>
@@ -84,7 +88,18 @@ class EditListModal extends React.Component {
               <label htmlFor="title">Title</label>
               <Field name="title" id="title" component="input" type="text" className="form-control" />
               <label htmlFor="color">Color</label>
-              <Field name="color" id="color" component="input" type="text" className="form-control" />
+              <div className="color-control-group">
+                <div className="real-color" style={{backgroundColor: `#${color}`}}>　</div>
+                <Field name="color" id="color" component="input" type="text" placeholder="008ed4" onChange={(e) => changeColor(e.target.value)} />
+              </div>
+              <GithubPicker
+                onChangeComplete={(color) => {
+                    this.props.array.removeAll('color')
+                    this.props.array.push('color', color.hex.replace(/#/g, ""))
+                    changeColor(color.hex.replace(/#/g, ""))
+                }
+                }
+              />
               {this.listAction(project, listOptions)}
               <div className="form-action">
                 <button type="reset" className="pure-button pure-button-default" disabled={pristine || submitting} onClick={reset}>Reset</button>

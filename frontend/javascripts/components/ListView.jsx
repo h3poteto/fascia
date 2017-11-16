@@ -135,6 +135,20 @@ class ListView extends React.Component {
       <div id="lists">
         <WholeLoading isLoading={isLoading} />
         {this.flash(error)}
+        <EditProjectModal
+          isProjectEditModalOpen={isProjectEditModalOpen}
+          projectID={this.props.params.projectID}
+          project={project}
+          onRequestClose={this.props.editProjectModalActions.closeEditProjectModal}
+          action={this.props.editProjectModalActions.fetchUpdateProject}
+          createWebhook={this.props.editProjectModalActions.createWebhook}
+        />
+        <DeleteProjectModal
+          isDeleteProjectModalOpen={isDeleteProjectModalOpen}
+          project={project}
+          onRequestClose={this.props.deleteProjectModalActions.closeDeleteProjectModal}
+          action={this.props.deleteProjectModalActions.fetchDeleteProject}
+        />
         <NewListModal
           isListModalOpen={isListModalOpen}
           projectID={this.props.params.projectID}
@@ -143,44 +157,32 @@ class ListView extends React.Component {
           changeColor={this.props.newListModalActions.changeColor}
           color={color}
         />
-        <NewTaskModal
-            isTaskModalOpen={isTaskModalOpen}
-            listID={selectedList.ID}
-            projectID={this.props.params.projectID}
-            onRequestClose={this.props.newTaskModalActions.closeNewTaskModal}
-            action={this.props.newTaskModalActions.fetchCreateTask}
-        />
-        <EditProjectModal
-            isProjectEditModalOpen={isProjectEditModalOpen}
-            projectID={this.props.params.projectID}
-            project={project}
-            onRequestClose={this.props.editProjectModalActions.closeEditProjectModal}
-            action={this.props.editProjectModalActions.fetchUpdateProject}
-            createWebhook={this.props.editProjectModalActions.createWebhook}
-        />
         <EditListModal
-            isListEditModalOpen={isListEditModalOpen}
-            list={selectedList}
-            project={project}
-            listOptions={listOptions}
-            onRequestClose={this.props.editListModalActions.closeEditListModal}
-            action={this.props.editListModalActions.fetchUpdateList}
+          isListEditModalOpen={isListEditModalOpen}
+          list={selectedList}
+          project={project}
+          listOptions={listOptions}
+          onRequestClose={this.props.editListModalActions.closeEditListModal}
+          action={this.props.editListModalActions.fetchUpdateList}
+          changeColor={this.props.editListModalActions.changeColor}
+          color={color}
+        />
+        <NewTaskModal
+          isTaskModalOpen={isTaskModalOpen}
+          listID={selectedList.ID}
+          projectID={this.props.params.projectID}
+          onRequestClose={this.props.newTaskModalActions.closeNewTaskModal}
+          action={this.props.newTaskModalActions.fetchCreateTask}
         />
         <ShowTaskModal
-            isShowTaskModalOpen={isTaskShowModalOpen}
-            isEditTaskModalVisible={isEditTaskModalVisible}
-            project={project}
-            task={selectedTask}
-            onRequestClose={this.props.showTaskModalActions.closeShowTaskModal}
-            changeEditMode={this.props.showTaskModalActions.changeEditMode}
-            action={this.props.showTaskModalActions.fetchUpdateTask}
-            fetchDeleteTask={this.props.showTaskModalActions.fetchDeleteTask}
-        />
-        <DeleteProjectModal
-            isDeleteProjectModalOpen={isDeleteProjectModalOpen}
-            project={project}
-            onRequestClose={this.props.deleteProjectModalActions.closeDeleteProjectModal}
-            action={this.props.deleteProjectModalActions.fetchDeleteProject}
+          isShowTaskModalOpen={isTaskShowModalOpen}
+          isEditTaskModalVisible={isEditTaskModalVisible}
+          project={project}
+          task={selectedTask}
+          onRequestClose={this.props.showTaskModalActions.closeShowTaskModal}
+          changeEditMode={this.props.showTaskModalActions.changeEditMode}
+          action={this.props.showTaskModalActions.fetchUpdateTask}
+          fetchDeleteTask={this.props.showTaskModalActions.fetchDeleteTask}
         />
         <div className="title-wrapper">
           <div className="project-operation">
@@ -191,10 +193,10 @@ class ListView extends React.Component {
         </div>
         <div className="items">
           {lists.map(function(list, index) {
-            return this.listItem(index, list, project, taskDraggingFrom, taskDraggingTo)
+             return this.listItem(index, list, project, taskDraggingFrom, taskDraggingTo)
            }, this)}
-           <button onClick={this.props.listActions.openNewListModal} className="pure-button button-large fascia-new-list pure-button-primary" type="button">New</button>
-           <div className="clearfix"></div>
+          <button onClick={this.props.listActions.openNewListModal} className="pure-button button-large fascia-new-list pure-button-primary" type="button">New</button>
+          <div className="clearfix"></div>
         </div>
         <div className="none-list-tasks" data-dropped-depth="0" data-id={noneList.ID} onDragOver={this.props.listActions.taskDragOver} onDrop={() => this.props.listActions.taskDrop(project.ID, taskDraggingFrom, taskDraggingTo)} onDragLeave={this.props.listActions.taskDragLeave}>
           <ul className="fascia-none-list-tasks" data-dropped-depth="1">

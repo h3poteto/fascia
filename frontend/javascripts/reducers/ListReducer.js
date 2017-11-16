@@ -71,43 +71,47 @@ export default function ListReducer(state = initState, action) {
     //------------------------------------
     // editListModalActions
     //------------------------------------
-  case editListModalActions.NOT_FOUND:
-    return Object.assign({}, state, {
-      error: 'Error Not Found',
-      isLoading: false
-    })
-  case editListModalActions.SERVER_ERROR:
-    return Object.assign({}, state, {
-      error: 'Internal Server Error',
-      isLoading: false
-    })
-  case editListModalActions.CLOSE_EDIT_LIST:
-    return Object.assign({}, state, {
-      isListEditModalOpen: action.isListEditModalOpen,
-      selectedList: {},
-    })
-  case editListModalActions.REQUEST_UPDATE_LIST:
-    return Object.assign({}, state, {
-      isLoading: true
-    })
-  case editListModalActions.RECEIVE_UPDATE_LIST: {
-    let updatedList = action.list
-    if (updatedList.ListTasks == null) {
-      updatedList.ListTasks = []
-    }
-    let lists = state.lists.map(function(list, _) {
-      if (list.ID == updatedList.ID) {
-        return updatedList
-      } else {
-        return list
+    case editListModalActions.NOT_FOUND:
+      return Object.assign({}, state, {
+        error: 'Error Not Found',
+        isLoading: false
+      })
+    case editListModalActions.SERVER_ERROR:
+      return Object.assign({}, state, {
+        error: 'Internal Server Error',
+        isLoading: false
+      })
+    case editListModalActions.CLOSE_EDIT_LIST:
+      return Object.assign({}, state, {
+        isListEditModalOpen: action.isListEditModalOpen,
+        selectedList: {},
+      })
+    case editListModalActions.REQUEST_UPDATE_LIST:
+      return Object.assign({}, state, {
+        isLoading: true
+      })
+    case editListModalActions.RECEIVE_UPDATE_LIST: {
+      let updatedList = action.list
+      if (updatedList.ListTasks == null) {
+        updatedList.ListTasks = []
       }
-    })
-    return Object.assign({}, state, {
-      lists: lists,
-      isListEditModalOpen: false,
-      isLoading: false
-    })
-  }
+      let lists = state.lists.map(function(list, _) {
+        if (list.ID == updatedList.ID) {
+          return updatedList
+        } else {
+          return list
+        }
+      })
+      return Object.assign({}, state, {
+        lists: lists,
+        isListEditModalOpen: false,
+        isLoading: false
+      })
+    }
+    case editListModalActions.CHANGE_COLOR:
+      return Object.assign({}, state, {
+        color: action.color,
+      })
     //------------------------------------
     // newTaskModalActions
     //------------------------------------
