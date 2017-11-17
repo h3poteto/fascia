@@ -30,7 +30,8 @@ function sharedExampleInitState(action) {
     isTaskDraggingOver: false,
     taskDraggingFrom: null,
     taskDraggingTo: null,
-    error: null
+    color: '008ed4',
+    error: null,
   })
 }
 
