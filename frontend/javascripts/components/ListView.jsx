@@ -242,6 +242,7 @@ ListView.propTypes = {
   newListModalActions: React.PropTypes.shape({
     closeNewListModal: React.PropTypes.func.isRequired,
     fetchCreateList: React.PropTypes.func.isRequired,
+    changeColor: React.PropTypes.func.isRequired,
   }),
   newTaskModalActions: React.PropTypes.shape({
     closeNewTaskModal: React.PropTypes.func.isRequired,
@@ -250,6 +251,7 @@ ListView.propTypes = {
   editListModalActions: React.PropTypes.shape({
     closeEditListModal: React.PropTypes.func.isRequired,
     fetchUpdateList: React.PropTypes.func.isRequired,
+    changeColor: React.PropTypes.func.isRequired,
   }),
   editProjectModalActions: React.PropTypes.shape({
     closeEditProjectModal: React.PropTypes.func.isRequired,
@@ -287,6 +289,7 @@ ListView.propTypes = {
     taskDraggingTo: React.PropTypes.object,
     selectedTask: React.PropTypes.object,
     error: React.PropTypes.string,
+    color: React.PropTypes.string,
   }),
 
 }

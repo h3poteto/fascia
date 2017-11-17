@@ -172,6 +172,7 @@ ShowTaskModal.propTypes = {
   isEditTaskModalVisible: React.PropTypes.bool,
   fetchDeleteTask: React.PropTypes.func.isRequired,
   changeEditMode: React.PropTypes.func.isRequired,
+  dirty: React.PropTypes.object,
 }
 
 export default reduxForm({

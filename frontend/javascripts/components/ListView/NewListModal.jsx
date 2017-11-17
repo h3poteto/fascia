@@ -67,8 +67,8 @@ class NewListModal extends React.Component {
               <GithubPicker
                 onChangeComplete={(color) => {
                     this.props.array.removeAll('color')
-                    this.props.array.push('color', color.hex.replace(/#/g, ""))
-                    changeColor(color.hex.replace(/#/g, ""))
+                    this.props.array.push('color', color.hex.replace(/#/g, ''))
+                    changeColor(color.hex.replace(/#/g, ''))
                 }
                 }
               />
@@ -94,6 +94,10 @@ NewListModal.propTypes = {
   action: React.PropTypes.func.isRequired,
   projectID: React.PropTypes.string.isRequired,
   isListModalOpen: React.PropTypes.bool.isRequired,
+  dirty: React.PropTypes.object,
+  array: React.PropTypes.object,
+  color: React.PropTypes.string,
+  changeColor: React.PropTypes.func,
 }
 
 export default reduxForm({
