@@ -3,7 +3,6 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
-  devtool: 'source-map',
   entry: {
     'javascripts/bundle.js': './frontend/javascripts/bundle.js',
     'stylesheets/application.css': './frontend/stylesheets/application.scss',
@@ -13,7 +12,7 @@ module.exports = {
     path: path.resolve(__dirname, './public/assets'),
     filename: '[name]'
   },
-
+  cache: true,
   resolve: {
     modules: [
       path.resolve(__dirname, './fronted/javascripts'),

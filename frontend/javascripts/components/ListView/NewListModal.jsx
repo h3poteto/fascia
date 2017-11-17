@@ -1,6 +1,8 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import Modal from 'react-modal'
 import { Field, reduxForm } from 'redux-form'
+import { GithubPicker } from 'react-color'
 
 const customStyles = {
   overlay: {
@@ -41,14 +43,16 @@ class NewListModal extends React.Component {
       submitting,
       onRequestClose,
       action,
+      changeColor,
+      color,
       projectID,
     } = this.props
     return (
       <Modal
-          isOpen={this.props.isListModalOpen}
-          onRequestClose={onRequestClose}
-          style={customStyles}
-          contentLabel="NewListModal"
+        isOpen={this.props.isListModalOpen}
+        onRequestClose={onRequestClose}
+        style={customStyles}
+        contentLabel="NewListModal"
       >
         <div className="list-form">
           <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(projectID, values) })}>
@@ -57,7 +61,18 @@ class NewListModal extends React.Component {
               <label htmlFor="title">Title</label>
               <Field name="title" id="title" component="input" type="text" placeholder="List name" className="form-control" />
               <label htmlFor="color">Color</label>
-              <Field name="color" id="color" component="input" type="text" placeholder="008ed4" className="form-control" />
+              <div className="color-control-group">
+                <div className="real-color" style={{backgroundColor: `#${color}`}}>　</div>
+                <Field name="color" id="color" component="input" type="text" placeholder="008ed4" onChange={(e) => changeColor(e.target.value)} />
+              </div>
+              <GithubPicker
+                onChangeComplete={(color) => {
+                    this.props.array.removeAll('color')
+                    this.props.array.push('color', color.hex.replace(/#/g, ''))
+                    changeColor(color.hex.replace(/#/g, ''))
+                }
+                }
+              />
               <div className="form-action">
                 <button type="reset" className="pure-button pure-button-default" disabled={pristine || submitting} onClick={reset}>Reset</button>
                 <button type="submit" className="pure-button pure-button-primary" disabled={pristine || submitting}>Create List</button>
@@ -66,20 +81,24 @@ class NewListModal extends React.Component {
           </form>
         </div>
       </Modal>
-    )
+                    )
   }
 }
 
 NewListModal.propTypes = {
-  initialize: React.PropTypes.func.isRequired,
-  handleSubmit: React.PropTypes.func.isRequired,
-  pristine: React.PropTypes.bool,
-  reset: React.PropTypes.func.isRequired,
-  submitting: React.PropTypes.bool.isRequired,
-  onRequestClose: React.PropTypes.func.isRequired,
-  action: React.PropTypes.func.isRequired,
-  projectID: React.PropTypes.string.isRequired,
-  isListModalOpen: React.PropTypes.bool.isRequired,
+  initialize: PropTypes.func.isRequired,
+  handleSubmit: PropTypes.func.isRequired,
+  pristine: PropTypes.bool,
+  reset: PropTypes.func.isRequired,
+  submitting: PropTypes.bool.isRequired,
+  onRequestClose: PropTypes.func.isRequired,
+  action: PropTypes.func.isRequired,
+  projectID: PropTypes.string.isRequired,
+  isListModalOpen: PropTypes.bool.isRequired,
+  dirty: PropTypes.object,
+  array: PropTypes.object,
+  color: PropTypes.string,
+  changeColor: PropTypes.func,
 }
 
 export default reduxForm({

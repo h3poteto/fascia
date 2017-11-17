@@ -211,6 +211,20 @@
   input, select {
     width: 298px;
   }
+  .color-control-group {
+    .real-color {
+      background-color: #008ed4;
+      display: inline-block;
+      line-height: 30px;
+      margin: 0.25em;
+      width: 30px;
+    }
+
+    input {
+      display: inline-block;
+      width: auto;
+    }
+  }
 }
 .task-form {
   color: rgb(119, 119, 119);
