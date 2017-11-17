@@ -213,13 +213,14 @@
   }
   .color-control-group {
     .real-color {
-      width: 30px;
       background-color: #008ed4;
+      display: inline-block;
       line-height: 30px;
       margin: 0.25em;
-      display: inline-block;
+      width: 30px;
     }
-    input[type="text"] {
+
+    input {
       display: inline-block;
       width: auto;
     }
