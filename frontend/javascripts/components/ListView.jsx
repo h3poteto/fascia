@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import NewListModal from './ListView/NewListModal.jsx'
 import NewTaskModal from './ListView/NewTaskModal.jsx'
 import EditListModal from './ListView/EditListModal.jsx'
@@ -218,78 +219,78 @@ class ListView extends React.Component {
 }
 
 ListView.propTypes = {
-  listActions: React.PropTypes.shape({
-    fetchLists: React.PropTypes.func.isRequired,
-    fetchProject: React.PropTypes.func.isRequired,
-    fetchListOptions: React.PropTypes.func.isRequired,
-    closeFlash: React.PropTypes.func.isRequired,
-    showPullRequests: React.PropTypes.func.isRequired,
-    showIssues: React.PropTypes.func.isRequired,
-    fetchProjectGithub: React.PropTypes.func.isRequired,
-    openEditListModal: React.PropTypes.func.isRequired,
-    taskDragOver: React.PropTypes.func.isRequired,
-    taskDrop: React.PropTypes.func.isRequired,
-    taskDragLeave: React.PropTypes.func.isRequired,
-    displayList: React.PropTypes.func.isRequired,
-    hideList: React.PropTypes.func.isRequired,
-    taskDragStart: React.PropTypes.func.isRequired,
-    openShowTaskModal: React.PropTypes.func.isRequired,
-    openNewTaskModal: React.PropTypes.func.isRequired,
-    openEditProjectModal: React.PropTypes.func.isRequired,
-    openNewListModal: React.PropTypes.func.isRequired,
-    openDeleteProjectModal: React.PropTypes.func.isRequired,
+  listActions: PropTypes.shape({
+    fetchLists: PropTypes.func.isRequired,
+    fetchProject: PropTypes.func.isRequired,
+    fetchListOptions: PropTypes.func.isRequired,
+    closeFlash: PropTypes.func.isRequired,
+    showPullRequests: PropTypes.func.isRequired,
+    showIssues: PropTypes.func.isRequired,
+    fetchProjectGithub: PropTypes.func.isRequired,
+    openEditListModal: PropTypes.func.isRequired,
+    taskDragOver: PropTypes.func.isRequired,
+    taskDrop: PropTypes.func.isRequired,
+    taskDragLeave: PropTypes.func.isRequired,
+    displayList: PropTypes.func.isRequired,
+    hideList: PropTypes.func.isRequired,
+    taskDragStart: PropTypes.func.isRequired,
+    openShowTaskModal: PropTypes.func.isRequired,
+    openNewTaskModal: PropTypes.func.isRequired,
+    openEditProjectModal: PropTypes.func.isRequired,
+    openNewListModal: PropTypes.func.isRequired,
+    openDeleteProjectModal: PropTypes.func.isRequired,
   }),
-  newListModalActions: React.PropTypes.shape({
-    closeNewListModal: React.PropTypes.func.isRequired,
-    fetchCreateList: React.PropTypes.func.isRequired,
-    changeColor: React.PropTypes.func.isRequired,
+  newListModalActions: PropTypes.shape({
+    closeNewListModal: PropTypes.func.isRequired,
+    fetchCreateList: PropTypes.func.isRequired,
+    changeColor: PropTypes.func.isRequired,
   }),
-  newTaskModalActions: React.PropTypes.shape({
-    closeNewTaskModal: React.PropTypes.func.isRequired,
-    fetchCreateTask: React.PropTypes.func.isRequired,
+  newTaskModalActions: PropTypes.shape({
+    closeNewTaskModal: PropTypes.func.isRequired,
+    fetchCreateTask: PropTypes.func.isRequired,
   }),
-  editListModalActions: React.PropTypes.shape({
-    closeEditListModal: React.PropTypes.func.isRequired,
-    fetchUpdateList: React.PropTypes.func.isRequired,
-    changeColor: React.PropTypes.func.isRequired,
+  editListModalActions: PropTypes.shape({
+    closeEditListModal: PropTypes.func.isRequired,
+    fetchUpdateList: PropTypes.func.isRequired,
+    changeColor: PropTypes.func.isRequired,
   }),
-  editProjectModalActions: React.PropTypes.shape({
-    closeEditProjectModal: React.PropTypes.func.isRequired,
-    fetchUpdateProject: React.PropTypes.func.isRequired,
-    createWebhook: React.PropTypes.func.isRequired,
+  editProjectModalActions: PropTypes.shape({
+    closeEditProjectModal: PropTypes.func.isRequired,
+    fetchUpdateProject: PropTypes.func.isRequired,
+    createWebhook: PropTypes.func.isRequired,
   }),
-  showTaskModalActions: React.PropTypes.shape({
-    closeShowTaskModal: React.PropTypes.func.isRequired,
-    changeEditMode: React.PropTypes.func.isRequired,
-    fetchUpdateTask: React.PropTypes.func.isRequired,
-    fetchDeleteTask: React.PropTypes.func.isRequired,
+  showTaskModalActions: PropTypes.shape({
+    closeShowTaskModal: PropTypes.func.isRequired,
+    changeEditMode: PropTypes.func.isRequired,
+    fetchUpdateTask: PropTypes.func.isRequired,
+    fetchDeleteTask: PropTypes.func.isRequired,
   }),
-  deleteProjectModalActions: React.PropTypes.shape({
-    closeDeleteProjectModal: React.PropTypes.func.isRequired,
-    fetchDeleteProject: React.PropTypes.func.isRequired,
+  deleteProjectModalActions: PropTypes.shape({
+    closeDeleteProjectModal: PropTypes.func.isRequired,
+    fetchDeleteProject: PropTypes.func.isRequired,
   }),
-  params: React.PropTypes.shape({
-    projectID: React.PropTypes.string.isRequired,
+  params: PropTypes.shape({
+    projectID: PropTypes.string.isRequired,
   }),
-  ListReducer: React.PropTypes.shape({
-    isLoading: React.PropTypes.bool.isRequired,
-    isListModalOpen: React.PropTypes.bool.isRequired,
-    isTaskModalOpen: React.PropTypes.bool.isRequired,
-    isListEditModalOpen: React.PropTypes.bool.isRequired,
-    isProjectEditModalOpen: React.PropTypes.bool.isRequired,
-    isTaskShowModalOpen: React.PropTypes.bool.isRequired,
-    isEditTaskModalVisible: React.PropTypes.bool.isRequired,
-    isDeleteProjectModalOpen: React.PropTypes.bool.isRequired,
-    lists: React.PropTypes.array,
-    listOptions: React.PropTypes.array,
-    noneList: React.PropTypes.object,
-    project: React.PropTypes.object,
-    selectedList: React.PropTypes.object,
-    taskDraggingFrom: React.PropTypes.object,
-    taskDraggingTo: React.PropTypes.object,
-    selectedTask: React.PropTypes.object,
-    error: React.PropTypes.string,
-    color: React.PropTypes.string,
+  ListReducer: PropTypes.shape({
+    isLoading: PropTypes.bool.isRequired,
+    isListModalOpen: PropTypes.bool.isRequired,
+    isTaskModalOpen: PropTypes.bool.isRequired,
+    isListEditModalOpen: PropTypes.bool.isRequired,
+    isProjectEditModalOpen: PropTypes.bool.isRequired,
+    isTaskShowModalOpen: PropTypes.bool.isRequired,
+    isEditTaskModalVisible: PropTypes.bool.isRequired,
+    isDeleteProjectModalOpen: PropTypes.bool.isRequired,
+    lists: PropTypes.array,
+    listOptions: PropTypes.array,
+    noneList: PropTypes.object,
+    project: PropTypes.object,
+    selectedList: PropTypes.object,
+    taskDraggingFrom: PropTypes.object,
+    taskDraggingTo: PropTypes.object,
+    selectedTask: PropTypes.object,
+    error: PropTypes.string,
+    color: PropTypes.string,
   }),
 
 }

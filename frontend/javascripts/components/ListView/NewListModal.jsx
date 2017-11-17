@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import Modal from 'react-modal'
 import { Field, reduxForm } from 'redux-form'
 import { GithubPicker } from 'react-color'
@@ -85,19 +86,19 @@ class NewListModal extends React.Component {
 }
 
 NewListModal.propTypes = {
-  initialize: React.PropTypes.func.isRequired,
-  handleSubmit: React.PropTypes.func.isRequired,
-  pristine: React.PropTypes.bool,
-  reset: React.PropTypes.func.isRequired,
-  submitting: React.PropTypes.bool.isRequired,
-  onRequestClose: React.PropTypes.func.isRequired,
-  action: React.PropTypes.func.isRequired,
-  projectID: React.PropTypes.string.isRequired,
-  isListModalOpen: React.PropTypes.bool.isRequired,
-  dirty: React.PropTypes.object,
-  array: React.PropTypes.object,
-  color: React.PropTypes.string,
-  changeColor: React.PropTypes.func,
+  initialize: PropTypes.func.isRequired,
+  handleSubmit: PropTypes.func.isRequired,
+  pristine: PropTypes.bool,
+  reset: PropTypes.func.isRequired,
+  submitting: PropTypes.bool.isRequired,
+  onRequestClose: PropTypes.func.isRequired,
+  action: PropTypes.func.isRequired,
+  projectID: PropTypes.string.isRequired,
+  isListModalOpen: PropTypes.bool.isRequired,
+  dirty: PropTypes.object,
+  array: PropTypes.object,
+  color: PropTypes.string,
+  changeColor: PropTypes.func,
 }
 
 export default reduxForm({

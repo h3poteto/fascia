@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import Modal from 'react-modal'
 import MarkdownIt from 'markdown-it'
 import MarkdownItCheckbox from 'markdown-it-checkbox'
@@ -159,20 +160,20 @@ class ShowTaskModal extends React.Component {
 }
 
 ShowTaskModal.propTypes = {
-  initialize: React.PropTypes.func.isRequired,
-  handleSubmit: React.PropTypes.func.isRequired,
-  pristine: React.PropTypes.bool,
-  reset: React.PropTypes.func.isRequired,
-  submitting: React.PropTypes.bool.isRequired,
-  onRequestClose: React.PropTypes.func.isRequired,
-  action: React.PropTypes.func.isRequired,
-  project: React.PropTypes.object,
-  task: React.PropTypes.object,
-  isShowTaskModalOpen: React.PropTypes.bool.isRequired,
-  isEditTaskModalVisible: React.PropTypes.bool,
-  fetchDeleteTask: React.PropTypes.func.isRequired,
-  changeEditMode: React.PropTypes.func.isRequired,
-  dirty: React.PropTypes.object,
+  initialize: PropTypes.func.isRequired,
+  handleSubmit: PropTypes.func.isRequired,
+  pristine: PropTypes.bool,
+  reset: PropTypes.func.isRequired,
+  submitting: PropTypes.bool.isRequired,
+  onRequestClose: PropTypes.func.isRequired,
+  action: PropTypes.func.isRequired,
+  project: PropTypes.object,
+  task: PropTypes.object,
+  isShowTaskModalOpen: PropTypes.bool.isRequired,
+  isEditTaskModalVisible: PropTypes.bool,
+  fetchDeleteTask: PropTypes.func.isRequired,
+  changeEditMode: PropTypes.func.isRequired,
+  dirty: PropTypes.object,
 }
 
 export default reduxForm({
