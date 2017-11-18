@@ -30,7 +30,7 @@ func (u *Oauth) Github(c echo.Context) error {
 
 	code := c.QueryParam("code")
 	logging.SharedInstance().Controller(c).Debugf("github callback param: %+v", code)
-	token, err := githubOauthConf.Exchange(oauth2.NoContext, code)
+	token, err := githubPublicConf.Exchange(oauth2.NoContext, code)
 	logging.SharedInstance().Controller(c).Debugf("token: %v", token)
 	if err != nil {
 		err := errors.Wrap(err, "oauth token error")

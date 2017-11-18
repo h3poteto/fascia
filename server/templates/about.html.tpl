@@ -37,7 +37,8 @@
               </div>
             </fieldset>
           </form>
-          <a href={{ oauthURL }}><span class="pure-button button-success session-button"><span class="octicon octicon-mark-github"></span> Sign In with Github</span></a>
+          <a href={{ publicURL }}><span class="pure-button button-success session-button"><span class="octicon octicon-mark-github"></span> Sign In with Github</span></a>
+          <span class="message">If you want to management private repository, <a href={{ privateURL }}>please click here</a>.</span>
         </div>
       </div>
     </article>

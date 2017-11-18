@@ -18,10 +18,17 @@ import (
 	"golang.org/x/oauth2/github"
 )
 
-var githubOauthConf = &oauth2.Config{
+var githubPrivateConf = &oauth2.Config{
 	ClientID:     os.Getenv("CLIENT_ID"),
 	ClientSecret: os.Getenv("CLIENT_SECRET"),
 	Scopes:       []string{"repo", "write:repo_hook", "user:email"},
+	Endpoint:     github.Endpoint,
+}
+
+var githubPublicConf = &oauth2.Config{
+	ClientID:     os.Getenv("CLIENT_ID"),
+	ClientSecret: os.Getenv("CLIENT_SECRET"),
+	Scopes:       []string{"public_repo", "write:repo_hook", "user:email"},
 	Endpoint:     github.Endpoint,
 }
 
