@@ -29,7 +29,8 @@ type SignInForm struct {
 
 // SignIn renders a sign in form
 func (u *Sessions) SignIn(c echo.Context) error {
-	url := githubOauthConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
+	privateURL := githubPrivateConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
+	publicURL := githubPublicConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
 
 	token, err := GenerateCSRFToken(c)
 	if err != nil {
@@ -38,9 +39,10 @@ func (u *Sessions) SignIn(c echo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, "sign_in.html.tpl", map[string]interface{}{
-		"title":    "SignIn",
-		"oauthURL": url,
-		"token":    token,
+		"title":      "SignIn",
+		"privateURL": privateURL,
+		"publicURL":  publicURL,
+		"token":      token,
 	})
 }
 

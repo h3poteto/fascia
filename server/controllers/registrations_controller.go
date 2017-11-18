@@ -27,7 +27,8 @@ type SignUpForm struct {
 
 // SignUp render sign up form
 func (u *Registrations) SignUp(c echo.Context) error {
-	url := githubOauthConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
+	privateURL := githubPrivateConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
+	publicURL := githubPublicConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
 
 	token, err := GenerateCSRFToken(c)
 	if err != nil {
@@ -36,9 +37,10 @@ func (u *Registrations) SignUp(c echo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, "sign_up.html.tpl", map[string]interface{}{
-		"title":    "SignUp",
-		"oauthURL": url,
-		"token":    token,
+		"title":      "SignUp",
+		"privateURL": privateURL,
+		"publicURL":  publicURL,
+		"token":      token,
 	})
 }
 

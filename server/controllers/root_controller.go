@@ -42,15 +42,17 @@ func (u *Root) Index(c echo.Context) error {
 
 // About render a about
 func (u *Root) About(c echo.Context) error {
-	url := githubOauthConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
+	privateURL := githubPrivateConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
+	publicURL := githubPublicConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
 	token, err := GenerateCSRFToken(c)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
 	return c.Render(http.StatusOK, "about.html.tpl", map[string]interface{}{
-		"title":    "Fascia",
-		"oauthURL": url,
-		"token":    token,
+		"title":      "Fascia",
+		"privateURL": privateURL,
+		"publicURL":  publicURL,
+		"token":      token,
 	})
 }

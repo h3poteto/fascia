@@ -9,6 +9,8 @@
   .main {
     color: rgb(255, 255, 255);
     text-align: center;
+    max-width: 345px;
+    margin: 0 auto;
   }
 
   .sign-in-board,
@@ -28,6 +30,11 @@
 
     .control-group {
       margin: 14px 0;
+    }
+
+    .message {
+      color: #666;
+      font-size: small;
     }
   }
 }
