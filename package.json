@@ -55,7 +55,7 @@
     "json-loader": "^0.5.4",
     "markdown-it": "^8.2.2",
     "markdown-it-checkbox": "^1.1.0",
-    "node-sass": "~4.5.0",
+    "node-sass": "^4.5.0",
     "purecss": "~0.6.0",
     "react": "^15.6.1",
     "react-color": "^2.13.8",
