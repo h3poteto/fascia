@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 class MenuView extends React.Component {
   constructor(props) {
@@ -36,8 +37,8 @@ class MenuView extends React.Component {
 }
 
 MenuView.propTypes = {
-  children: React.PropTypes.object.isRequired,
-  logout: React.PropTypes.func.isRequired,
+  children: PropTypes.object.isRequired,
+  logout: PropTypes.func.isRequired,
 }
 
 export default MenuView

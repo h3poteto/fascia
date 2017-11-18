@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 class WholeLoading extends React.Component {
   constructor(props) {
@@ -23,7 +24,7 @@ class WholeLoading extends React.Component {
 }
 
 WholeLoading.propTypes = {
-  isLoading: React.PropTypes.bool.isRequired,
+  isLoading: PropTypes.bool.isRequired,
 }
 
 export default WholeLoading

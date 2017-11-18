@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Link } from 'react-router'
 import truncate from 'html-truncate'
 import NewProjectModal from './ProjectView/NewProjectModal.jsx'
@@ -69,23 +70,23 @@ class ProjectView extends React.Component {
 }
 
 ProjectView.propTypes = {
-  projectActions: React.PropTypes.shape({
-    fetchProjects: React.PropTypes.func.isRequired,
-    fetchRepositories: React.PropTypes.func.isRequired,
-    fetchSession: React.PropTypes.func.isRequired,
-    closeFlash: React.PropTypes.func.isRequired,
-    openNewProjectModal: React.PropTypes.func.isRequired,
+  projectActions: PropTypes.shape({
+    fetchProjects: PropTypes.func.isRequired,
+    fetchRepositories: PropTypes.func.isRequired,
+    fetchSession: PropTypes.func.isRequired,
+    closeFlash: PropTypes.func.isRequired,
+    openNewProjectModal: PropTypes.func.isRequired,
   }),
-  newProjectModalActions: React.PropTypes.shape({
-    closeNewProjectModal: React.PropTypes.func.isRequired,
-    fetchCreateProject: React.PropTypes.func.isRequired,
+  newProjectModalActions: PropTypes.shape({
+    closeNewProjectModal: PropTypes.func.isRequired,
+    fetchCreateProject: PropTypes.func.isRequired,
   }),
-  ProjectReducer: React.PropTypes.shape({
-    isModalOpen: React.PropTypes.bool.isRequired,
-    projects: React.PropTypes.array,
-    isLoading: React.PropTypes.bool.isRequired,
-    error: React.PropTypes.string,
-    repositories: React.PropTypes.array,
+  ProjectReducer: PropTypes.shape({
+    isModalOpen: PropTypes.bool.isRequired,
+    projects: PropTypes.array,
+    isLoading: PropTypes.bool.isRequired,
+    error: PropTypes.string,
+    repositories: PropTypes.array,
   }),
 }
 

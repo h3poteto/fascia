@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import Modal from 'react-modal'
 import { Field, reduxForm } from 'redux-form'
 
@@ -82,20 +83,20 @@ class DeleteProjectModal extends React.Component {
 }
 
 DeleteProjectModal.propTypes = {
-  handleSubmit: React.PropTypes.func.isRequired,
-  pristine: React.PropTypes.bool,
-  reset: React.PropTypes.func.isRequired,
-  submitting: React.PropTypes.bool,
-  onRequestClose: React.PropTypes.func.isRequired,
-  isDeleteProjectModalOpen: React.PropTypes.bool.isRequired,
-  action: React.PropTypes.func.isRequired,
-  project: React.PropTypes.object,
+  handleSubmit: PropTypes.func.isRequired,
+  pristine: PropTypes.bool,
+  reset: PropTypes.func.isRequired,
+  submitting: PropTypes.bool,
+  onRequestClose: PropTypes.func.isRequired,
+  isDeleteProjectModalOpen: PropTypes.bool.isRequired,
+  action: PropTypes.func.isRequired,
+  project: PropTypes.object,
 }
 
 renderField.propTypes = {
-  input: React.PropTypes.shape().isRequired,
-  type: React.PropTypes.string.isRequired,
-  meta: React.PropTypes.shape().isRequired,
+  input: PropTypes.shape().isRequired,
+  type: PropTypes.string.isRequired,
+  meta: PropTypes.shape().isRequired,
 }
 
 export default reduxForm({

@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 class ListLoading extends React.Component {
   constructor(props) {
@@ -23,7 +24,7 @@ class ListLoading extends React.Component {
 }
 
 ListLoading.propTypes = {
-  isLoading: React.PropTypes.bool,
+  isLoading: PropTypes.bool,
 }
 
 export default ListLoading
