@@ -5,4 +5,5 @@ bin
 config/bindata.go
 production
 test
+frontend
 node_modules
