@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import Modal from 'react-modal'
 import { Field, reduxForm } from 'redux-form'
 
@@ -92,17 +93,17 @@ class EditProjectModal extends React.Component {
 }
 
 EditProjectModal.propTypes = {
-  initialize: React.PropTypes.func.isRequired,
-  handleSubmit: React.PropTypes.func.isRequired,
-  pristine: React.PropTypes.bool,
-  reset: React.PropTypes.func.isRequired,
-  submitting: React.PropTypes.bool.isRequired,
-  onRequestClose: React.PropTypes.func.isRequired,
-  action: React.PropTypes.func.isRequired,
-  projectID: React.PropTypes.string.isRequired,
-  project: React.PropTypes.object,
-  isProjectEditModalOpen: React.PropTypes.bool.isRequired,
-  createWebhook: React.PropTypes.func.isRequired,
+  initialize: PropTypes.func.isRequired,
+  handleSubmit: PropTypes.func.isRequired,
+  pristine: PropTypes.bool,
+  reset: PropTypes.func.isRequired,
+  submitting: PropTypes.bool.isRequired,
+  onRequestClose: PropTypes.func.isRequired,
+  action: PropTypes.func.isRequired,
+  projectID: PropTypes.string.isRequired,
+  project: PropTypes.object,
+  isProjectEditModalOpen: PropTypes.bool.isRequired,
+  createWebhook: PropTypes.func.isRequired,
 }
 
 export default reduxForm({

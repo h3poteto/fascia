@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import Modal from 'react-modal'
 import { Field, reduxForm } from 'redux-form'
 
@@ -72,16 +73,16 @@ class NewTaskModal extends React.Component {
 }
 
 NewTaskModal.propTypes = {
-  initialize: React.PropTypes.func.isRequired,
-  handleSubmit: React.PropTypes.func.isRequired,
-  pristine: React.PropTypes.bool,
-  reset: React.PropTypes.func.isRequired,
-  submitting: React.PropTypes.bool.isRequired,
-  onRequestClose: React.PropTypes.func.isRequired,
-  action: React.PropTypes.func.isRequired,
-  projectID: React.PropTypes.string.isRequired,
-  listID: React.PropTypes.number,
-  isTaskModalOpen: React.PropTypes.bool.isRequired,
+  initialize: PropTypes.func.isRequired,
+  handleSubmit: PropTypes.func.isRequired,
+  pristine: PropTypes.bool,
+  reset: PropTypes.func.isRequired,
+  submitting: PropTypes.bool.isRequired,
+  onRequestClose: PropTypes.func.isRequired,
+  action: PropTypes.func.isRequired,
+  projectID: PropTypes.string.isRequired,
+  listID: PropTypes.number,
+  isTaskModalOpen: PropTypes.bool.isRequired,
 }
 
 export default reduxForm({
