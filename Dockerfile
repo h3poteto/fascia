@@ -1,3 +1,20 @@
+FROM h3poteto/golang-node:1.9.1 AS assets
+
+ENV APPROOT /go/src/github.com/h3poteto/fascia
+WORKDIR ${APPROOT}
+
+USER root
+
+COPY . ${APPROOT}
+
+RUN chown -R go:go ${APPROOT}
+USER go
+
+RUN set -x \
+    && npm install \
+    && npm run release-compile
+
+
 FROM h3poteto/golang:1.9.1
 
 USER root
@@ -12,6 +29,7 @@ RUN set -x \
 WORKDIR ${APPROOT}
 
 COPY . ${APPROOT}
+COPY --from=assets ${APPROOT} ${APPROOT}/public
 
 RUN chown -R go:go ${GOPATH}
 USER go
