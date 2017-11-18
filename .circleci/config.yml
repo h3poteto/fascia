@@ -33,8 +33,7 @@ jobs:
       - restore_cache:
           name: Restoring cache - node_modules
           keys:
-            - node_modules-{{ checksum "package.json" }}
-            - node_modules-
+            - node_modules-{{ arch }}-{{ .Environment.COMMON_CACHE_KEY }}-{{ checksum "package.json" }}
       - run:
           name: Generate assets file
           command: go generate
@@ -97,8 +96,7 @@ jobs:
       - restore_cache:
           name: Restoring cache - node_modules
           keys:
-            - node_modules-{{ checksum "package.json" }}
-            - node_modules-
+            - node_modules-{{ arch }}-{{ .Environment.COMMON_CACHE_KEY }}-{{ checksum "package.json" }}
       - run:
           name: Node packages install
           command: npm install
