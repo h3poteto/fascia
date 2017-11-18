@@ -4,6 +4,9 @@ import Modal from 'react-modal'
 import { Field, reduxForm } from 'redux-form'
 import { GithubPicker } from 'react-color'
 
+import { RenderField, RenderColorField, validate } from './listForm'
+
+
 const customStyles = {
   overlay: {
     position          : 'fixed',
@@ -59,16 +62,12 @@ class NewListModal extends React.Component {
             <fieldset>
               <legend>Create List</legend>
               <label htmlFor="title">Title</label>
-              <Field name="title" id="title" component="input" type="text" placeholder="List name" className="form-control" />
+              <Field component={RenderField} name="title" type="text" placeholder="List name" className="form-control" />
               <label htmlFor="color">Color</label>
-              <div className="color-control-group">
-                <div className="real-color" style={{backgroundColor: `#${color}`}}>　</div>
-                <Field name="color" id="color" component="input" type="text" placeholder="008ed4" onChange={(e) => changeColor(e.target.value)} />
-              </div>
+              <Field component={RenderColorField} name="color" type="text" placeholder="008ed4" color={color} onChange={(e) => changeColor(e.target.value)} />
               <GithubPicker
                 onChangeComplete={(color) => {
-                    this.props.array.removeAll('color')
-                    this.props.array.push('color', color.hex.replace(/#/g, ''))
+                    this.props.change('color', color.hex.replace(/#/g, ''))
                     changeColor(color.hex.replace(/#/g, ''))
                 }
                 }
@@ -81,7 +80,7 @@ class NewListModal extends React.Component {
           </form>
         </div>
       </Modal>
-                    )
+    )
   }
 }
 
@@ -103,4 +102,5 @@ NewListModal.propTypes = {
 
 export default reduxForm({
   form: 'new-list-form',
+  validate,
 })(NewListModal)
