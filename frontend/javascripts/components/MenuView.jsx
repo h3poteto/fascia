@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { Link } from 'react-router'
 
 class MenuView extends React.Component {
   constructor(props) {
@@ -12,7 +13,7 @@ class MenuView extends React.Component {
           <div className="pure-menu pure-menu-horizontal">
             <span className="pure-menu-heading fascia-menu-heading">fascia</span>
             <ul className="pure-menu-list fascia-menu-list">
-              <li className="pure-menu-item fascia-menu-item"><a href="/" className="pure-menu-link">projects</a></li>
+              <li className="pure-menu-item fascia-menu-item"><Link to='/' className="pure-menu-link">projects</Link></li>
             </ul>
             <ul className="pure-menu-list fascia-menu-list right-align-list">
               <li className="pure-menu-item fascia-menu-item pure-menu-has-children pure-menu-allow-hover">
