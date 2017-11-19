@@ -10,6 +10,11 @@ services:
       - storage:/var/lib/mysql
     ports:
       - "3306:3306"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "3"
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "true"
   node:
@@ -19,6 +24,11 @@ services:
       - .:/var/opt/app
     working_dir: /var/opt/app
     entrypoint: sh -c
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "3"
     command: |
       "npm install && \
       npm run watch"

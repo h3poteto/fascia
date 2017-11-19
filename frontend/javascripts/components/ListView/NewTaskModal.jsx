@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'
 import Modal from 'react-modal'
 import { Field, reduxForm } from 'redux-form'
 
+import { RenderField, validate } from './taskForm'
+
 const customStyles = {
   overlay : {
     position          : 'fixed',
@@ -57,7 +59,7 @@ class NewTaskModal extends React.Component {
             <fieldset>
               <legend>Create Task</legend>
               <label htmlFor="title">Title</label>
-              <Field name="title" id="title" component="input" type="text" placeholder="Task Name" className="form-control" />
+              <Field component={RenderField} name="title" id="title" type="text" placeholder="Task Name" />
               <label htmlFor="description">Description</label>
               <Field name="description" id="description" component="textarea" placeholder="Task description" className="form-control" />
               <div className="form-action">
@@ -87,4 +89,5 @@ NewTaskModal.propTypes = {
 
 export default reduxForm({
   form: 'new-task-form',
+  validate,
 })(NewTaskModal)
