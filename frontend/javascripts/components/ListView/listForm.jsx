@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 export function validate(values) {
   const errors = {}
@@ -25,3 +26,18 @@ export const RenderColorField = ({ input, placeholder, type, color, meta: { touc
     {(touched || type === 'hidden') && error && <span className="text-error">{error}</span>}
   </div>
 )
+
+RenderField.propTypes = {
+  input: PropTypes.object,
+  placeholder: PropTypes.string,
+  type: PropTypes.string,
+  meta: PropTypes.object,
+}
+
+RenderColorField.propTypes = {
+  input: PropTypes.object,
+  placeholder: PropTypes.string,
+  type: PropTypes.string,
+  color: PropTypes.string,
+  meta: PropTypes.object,
+}
