@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'
 import Modal from 'react-modal'
 import { Field, reduxForm } from 'redux-form'
 
+import { RenderField, validate } from '../projectForm'
+
 const customStyles = {
   overlay : {
     position          : 'fixed',
@@ -72,7 +74,7 @@ class EditProjectModal extends React.Component {
             <fieldset>
               <legend>Edit Project</legend>
               <label htmlFor="title">Title</label>
-              <Field name="title" id="title" component="input" type="text" className="form-control" />
+              <Field component={RenderField} name="title" id="title" type="text" />
               <label htmlFor="description">Description</label>
               <Field name="description" id="description" component="textarea" placeholder="Description" className="form-control" />
               <div className="form-action">
@@ -108,4 +110,5 @@ EditProjectModal.propTypes = {
 
 export default reduxForm({
   form: 'edit-project-form',
+  validate,
 })(EditProjectModal)
