@@ -4,6 +4,8 @@ import Modal from 'react-modal'
 import { Field, reduxForm } from 'redux-form'
 import { GithubPicker } from 'react-color'
 
+import { RenderField, RenderColorField, validate } from './listForm'
+
 const customStyles = {
   overlay : {
     position          : 'fixed',
@@ -87,12 +89,9 @@ class EditListModal extends React.Component {
             <fieldset>
               <legend>Edit List</legend>
               <label htmlFor="title">Title</label>
-              <Field name="title" id="title" component="input" type="text" className="form-control" />
+              <Field component={RenderField} name="title" id="title" type="text" className="form-control" />
               <label htmlFor="color">Color</label>
-              <div className="color-control-group">
-                <div className="real-color" style={{backgroundColor: `#${color}`}}>　</div>
-                <Field name="color" id="color" component="input" type="text" placeholder="008ed4" onChange={(e) => changeColor(e.target.value)} />
-              </div>
+              <Field component={RenderColorField} name="color" type="text" placeholder="008ed4" color={color} onChange={(e) => changeColor(e.target.value)} />
               <GithubPicker
                 onChangeComplete={(color) => {
                     this.props.array.removeAll('color')
@@ -134,4 +133,5 @@ EditListModal.propTypes = {
 
 export default reduxForm({
   form: 'edit-list-form',
+  validate,
 })(EditListModal)
