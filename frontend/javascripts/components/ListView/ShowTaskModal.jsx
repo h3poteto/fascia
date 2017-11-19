@@ -5,6 +5,8 @@ import MarkdownIt from 'markdown-it'
 import MarkdownItCheckbox from 'markdown-it-checkbox'
 import { Field, reduxForm } from 'redux-form'
 
+import { RenderField, validate } from './taskForm'
+
 const customStyles = {
   overlay : {
     position          : 'fixed',
@@ -89,7 +91,7 @@ class ShowTaskModal extends React.Component {
             <fieldset>
               <legend>Edit Task</legend>
               <label htmlFor="title">Title</label>
-              <Field name="title" id="title" component="input" type="text" className="form-control" />
+              <Field component={RenderField} name="title" id="title" type="text" />
               <label htmlFor="description">Description</label>
               <Field name="description" id="description" component="textarea" className="form-control" />
               <div className="form-action">
@@ -178,4 +180,5 @@ ShowTaskModal.propTypes = {
 
 export default reduxForm({
   form: 'edit-task-form',
+  validate,
 })(ShowTaskModal)
