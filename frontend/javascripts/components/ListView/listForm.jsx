@@ -1,5 +1,4 @@
 import React from 'react'
-import { Field, reduxForm } from 'redux-form'
 
 export function validate(values) {
   const errors = {}
@@ -12,17 +11,17 @@ export function validate(values) {
   return errors
 }
 
-export const RenderField = ({ name, input, placeholder, type, meta: { touched, error } }) => (
+export const RenderField = ({ input, placeholder, type, meta: { touched, error } }) => (
   <div>
     <input {...input} placeholder={placeholder} type={type} className="form-control" />
-    {(touched || type === "hidden") && error && <span className="text-error">{error}</span>}
+    {(touched || type === 'hidden') && error && <span className="text-error">{error}</span>}
   </div>
 )
 
-export const RenderColorField = ({ name, input, placeholder, type, color, meta: { touched, error } }) => (
+export const RenderColorField = ({ input, placeholder, type, color, meta: { touched, error } }) => (
   <div className="color-control-group">
     <div className="real-color" style={{backgroundColor: `#${color}`}}>　</div>
     <input {...input} placeholder={placeholder} type={type} />
-    {(touched || type === "hidden") && error && <span className="text-error">{error}</span>}
+    {(touched || type === 'hidden') && error && <span className="text-error">{error}</span>}
   </div>
 )

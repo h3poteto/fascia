@@ -98,6 +98,7 @@ NewListModal.propTypes = {
   array: PropTypes.object,
   color: PropTypes.string,
   changeColor: PropTypes.func,
+  change: PropTypes.func,
 }
 
 export default reduxForm({

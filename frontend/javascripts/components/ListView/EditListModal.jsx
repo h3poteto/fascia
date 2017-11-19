@@ -94,8 +94,7 @@ class EditListModal extends React.Component {
               <Field component={RenderColorField} name="color" type="text" placeholder="008ed4" color={color} onChange={(e) => changeColor(e.target.value)} />
               <GithubPicker
                 onChangeComplete={(color) => {
-                    this.props.array.removeAll('color')
-                    this.props.array.push('color', color.hex.replace(/#/g, ''))
+                    this.props.change('color', color.hex.replace(/#/g, ''))
                     changeColor(color.hex.replace(/#/g, ''))
                 }
                 }
@@ -129,6 +128,7 @@ EditListModal.propTypes = {
   array: PropTypes.object,
   color: PropTypes.string,
   changeColor: PropTypes.func,
+  change: PropTypes.func,
 }
 
 export default reduxForm({

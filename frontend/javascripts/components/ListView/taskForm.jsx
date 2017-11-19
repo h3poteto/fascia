@@ -1,5 +1,4 @@
 import React from 'react'
-import { reduxForm } from 'redux-form'
 
 export function validate(values) {
   const errors = {}
@@ -9,9 +8,9 @@ export function validate(values) {
   return errors
 }
 
-export const RenderField = ({ name, input, placeholder, type, meta: { touched, error } }) => (
+export const RenderField = ({ input, placeholder, type, meta: { touched, error } }) => (
   <div>
     <input {...input} placeholder={placeholder} type={type} className="form-control" />
-    {(touched || type === "hidden") && error && <span className="text-error">{error}</span>}
+    {(touched || type === 'hidden') && error && <span className="text-error">{error}</span>}
   </div>
 )
