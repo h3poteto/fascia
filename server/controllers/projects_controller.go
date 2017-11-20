@@ -110,7 +110,7 @@ func (u *Projects) Create(c echo.Context) error {
 	)
 	if err != nil || !valid {
 		logging.SharedInstance().Controller(c).Infof("validation error: %v", err)
-		return NewJSONError(err, http.StatusUnprocessableEntity, c)
+		return NewValidationError(err, http.StatusUnprocessableEntity, c)
 	}
 
 	projectService, err := handlers.CreateProject(
@@ -159,7 +159,7 @@ func (u *Projects) Update(c echo.Context) error {
 	)
 	if err != nil || !valid {
 		logging.SharedInstance().Controller(c).Infof("validation error: %v", err)
-		return NewJSONError(err, http.StatusUnprocessableEntity, c)
+		return NewValidationError(err, http.StatusUnprocessableEntity, c)
 	}
 
 	if err := projectService.Update(editProjectForm.Title, editProjectForm.Description, projectService.ProjectEntity.ProjectModel.ShowIssues, projectService.ProjectEntity.ProjectModel.ShowPullRequests); err != nil {

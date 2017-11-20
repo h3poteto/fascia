@@ -5,14 +5,14 @@ import (
 )
 
 type projectCreate struct {
-	Title        string `valid:"stringlength(1|255)"`
-	Description  string `valid:"stringlength(0|255),optional"`
+	Title        string `valid:"required~title is required,stringlength(1|255)~title must be between 1 to 255"`
+	Description  string `valid:"stringlength(0|255)~description must be between 0 to 255,optional"`
 	RepositoryID int    `valid:"-"`
 }
 
 type projectUpdate struct {
-	Title       string `valid:"stringlength(1|255)"`
-	Description string `valid:"stringlength(0|255),optional"`
+	Title       string `valid:"requred~title is required,stringlength(1|255)~title must be between 1 to 255"`
+	Description string `valid:"stringlength(0|255)~description must be between 0 to 255,optional"`
 }
 
 // ProjectCreateValidation check form variable when create projects
