@@ -84,7 +84,7 @@ func (u *Lists) Create(c echo.Context) error {
 	valid, err := validators.ListCreateValidation(newListForm.Title, newListForm.Color)
 	if err != nil || !valid {
 		logging.SharedInstance().Controller(c).Infof("validation error: %v", err)
-		return NewJSONError(err, http.StatusUnprocessableEntity, c)
+		return NewValidationError(err, http.StatusUnprocessableEntity, c)
 	}
 
 	list := handlers.NewList(0, projectService.ProjectEntity.ProjectModel.ID, currentUser.UserEntity.UserModel.ID, newListForm.Title, newListForm.Color, sql.NullInt64{}, false)
@@ -128,7 +128,7 @@ func (u *Lists) Update(c echo.Context) error {
 	)
 	if err != nil || !valid {
 		logging.SharedInstance().Controller(c).Infof("validation error: %v", err)
-		return NewJSONError(err, http.StatusUnprocessableEntity, c)
+		return NewValidationError(err, http.StatusUnprocessableEntity, c)
 	}
 
 	if err := targetList.Update(editListForm.Title, editListForm.Color, editListForm.OptionID); err != nil {

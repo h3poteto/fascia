@@ -42,6 +42,8 @@ var GenerateCSRFToken = generateCSRF
 // NewJSONError prepare json error struct
 var NewJSONError = middlewares.NewJSONError
 
+var NewValidationError = middlewares.NewValidationError
+
 // generateCSRF generate new CSRF token
 func generateCSRF(c echo.Context) (string, error) {
 	// 現在時間とソルトからトークンを生成

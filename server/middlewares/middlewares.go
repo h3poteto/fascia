@@ -5,6 +5,7 @@ import (
 	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/services"
 	"github.com/h3poteto/fascia/server/session"
+	"github.com/h3poteto/fascia/server/validators"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/pkg/errors"
@@ -27,6 +28,12 @@ func NewJSONError(err error, code int, c echo.Context) error {
 		Code:    code,
 		Message: http.StatusText(code),
 	})
+	return err
+}
+
+// NewValidationError is as struct for validation error with json
+func NewValidationError(err error, code int, c echo.Context) error {
+	c.JSON(code, validators.ErrorsByField(err))
 	return err
 }
 
