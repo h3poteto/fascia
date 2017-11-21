@@ -1,3 +1,4 @@
+import * as loadingActions from '../actions/Loading.js'
 import * as listActions from '../actions/ListAction.js'
 import * as newListModalActions from '../actions/ListAction/NewListModalAction.js'
 import * as editListModalActions from '../actions/ListAction/EditListModalAction.js'
@@ -31,22 +32,19 @@ const initState = {
 export default function ListReducer(state = initState, action) {
   switch(action.type) {
     //-----------------------------------
+    // LoadingActions
+    //-----------------------------------
+    case loadingActions.START_LOADING:
+      return Object.assign({}, state, {
+        isLoading: true,
+      })
+    case loadingActions.STOP_LOADING:
+      return Object.assign({}, state, {
+        isLoading: false,
+      })
+    //-----------------------------------
     // newListModalActions
     //-----------------------------------
-    case newListModalActions.NOT_FOUND:
-      return Object.assign({}, state, {
-        error: 'Error Not Found',
-        isLoading: false
-      })
-    case newListModalActions.SERVER_ERROR:
-      return Object.assign({}, state, {
-        error: 'Internal Server Error',
-        isLoading: false
-      })
-    case newListModalActions.CLOSE_NEW_LIST:
-      return Object.assign({}, state, {
-        isListModalOpen: false
-      })
     case newListModalActions.REQUEST_CREATE_LIST:
       return Object.assign({}, state, {
         isLoading: true

@@ -58,7 +58,7 @@ class NewListModal extends React.Component {
         contentLabel="NewListModal"
       >
         <div className="list-form">
-          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(projectID, values) })}>
+          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit(action)}>
             <fieldset>
               <legend>Create List</legend>
               <label htmlFor="title">Title</label>
