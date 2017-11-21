@@ -10,9 +10,9 @@ type listCreate struct {
 }
 
 type listUpdate struct {
-	Title    string `valid:"required~title is required,stringlength(1|255)~title must be between 1 to 255"`
-	Color    string `valid:"required~color is required,hexadecimal~color must be hexadecimal,stringlength(6|6)~color must be 6 characters"`
-	OptionID int64  `valid:"-"`
+	Title    string `json:"title" valid:"required~title is required,stringlength(1|255)~title must be between 1 to 255"`
+	Color    string `json:"color" valid:"required~color is required,hexadecimal~color must be hexadecimal,stringlength(6|6)~color must be 6 characters"`
+	OptionID int64  `json:"option_id" valid:"-"`
 }
 
 // ListCreateValidation check form variable when create lists
