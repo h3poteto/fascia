@@ -48,7 +48,6 @@ class NewListModal extends React.Component {
       action,
       changeColor,
       color,
-      projectID,
     } = this.props
     return (
       <Modal
@@ -92,7 +91,6 @@ NewListModal.propTypes = {
   submitting: PropTypes.bool.isRequired,
   onRequestClose: PropTypes.func.isRequired,
   action: PropTypes.func.isRequired,
-  projectID: PropTypes.string.isRequired,
   isListModalOpen: PropTypes.bool.isRequired,
   dirty: PropTypes.object,
   array: PropTypes.object,

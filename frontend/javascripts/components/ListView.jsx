@@ -152,7 +152,6 @@ class ListView extends React.Component {
         />
         <NewListModal
           isListModalOpen={isListModalOpen}
-          projectID={this.props.params.projectID}
           onRequestClose={this.props.newListModalActions.closeNewListModal}
           action={this.props.newListModalActions.fetchCreateList}
           changeColor={this.props.newListModalActions.changeColor}

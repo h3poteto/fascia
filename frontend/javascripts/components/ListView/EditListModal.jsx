@@ -85,7 +85,7 @@ class EditListModal extends React.Component {
         contentLabel="EditListModal"
       >
         <div className="list-form">
-          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(project.ID, list.ID, values) })}>
+          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit(action)}>
             <fieldset>
               <legend>Edit List</legend>
               <label htmlFor="title">Title</label>

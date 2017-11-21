@@ -39,7 +39,7 @@ export function ErrorHandler(err) {
       case AUTHENTICATE_ERROR:
         // ログインページはreact管理ではない
         // そのためbrowserHistoryでの移動ができないので，locationを直接書き換えてリダイレクトさせる
-        window.location.pathname = '/login'
+        window.location.pathname = '/sign_in'
         resolve(err)
         return
       case FORBIDDEN_ERROR:

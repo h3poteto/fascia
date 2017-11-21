@@ -1,6 +1,4 @@
-import Request from 'superagent'
 import axios from 'axios'
-import { SubmissionError } from 'redux-form'
 import { ErrorHandler, ServerError } from '../ErrorHandler'
 import { startLoading, stopLoading } from '../Loading'
 

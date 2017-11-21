@@ -85,7 +85,7 @@ func Routes(e *echo.Echo) {
 
 	l := p.Group("/:project_id/lists")
 	l.Use(middlewares.List())
-	l.POST("/:list_id", lists.Update)
+	l.PATCH("/:list_id", lists.Update)
 	l.POST("/:list_id/hide", lists.Hide)
 	l.POST("/:list_id/display", lists.Display)
 

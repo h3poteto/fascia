@@ -76,16 +76,6 @@ export default function ListReducer(state = initState, action) {
     //------------------------------------
     // editListModalActions
     //------------------------------------
-    case editListModalActions.NOT_FOUND:
-      return Object.assign({}, state, {
-        error: 'Error Not Found',
-        isLoading: false
-      })
-    case editListModalActions.SERVER_ERROR:
-      return Object.assign({}, state, {
-        error: 'Internal Server Error',
-        isLoading: false
-      })
     case editListModalActions.CLOSE_EDIT_LIST:
       return Object.assign({}, state, {
         isListEditModalOpen: action.isListEditModalOpen,
