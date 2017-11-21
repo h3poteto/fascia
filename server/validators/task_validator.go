@@ -5,17 +5,17 @@ import (
 )
 
 type taskCreate struct {
-	Title       string `valid:"stringlength(1|255)"`
-	Description string `valid:"stringlength(0|21845),optional"`
+	Title       string `valid:"required~title is required,stringlength(1|255)~title must be between 1 to 255"`
+	Description string `valid:"stringlength(0|21845)~description must be between 0 to 21845,optional"`
 }
 
 type taskUpdate struct {
-	Title       string `valid:"stringlength(1|255)"`
-	Description string `valid:"stringlength(0|21845),optional"`
+	Title       string `valid:"required~title is required,stringlength(1|255)~title must be between 1 to 255"`
+	Description string `valid:"stringlength(0|21845)~description must be between 0 to 21845,optional"`
 }
 
 type taskMove struct {
-	ToListID     int64 `valid:"required"`
+	ToListID     int64 `valid:"required~to_list_id is required"`
 	PrevToTaskID int64 `valid:"-"`
 }
 
