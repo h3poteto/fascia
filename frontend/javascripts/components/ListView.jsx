@@ -169,8 +169,6 @@ class ListView extends React.Component {
         />
         <NewTaskModal
           isTaskModalOpen={isTaskModalOpen}
-          listID={selectedList.ID}
-          projectID={this.props.params.projectID}
           onRequestClose={this.props.newTaskModalActions.closeNewTaskModal}
           action={this.props.newTaskModalActions.fetchCreateTask}
         />
