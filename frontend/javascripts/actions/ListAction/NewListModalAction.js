@@ -1,7 +1,7 @@
 import Request from 'superagent'
 import axios from 'axios'
 import { SubmissionError } from 'redux-form'
-import { ErrorHandler } from '../ErrorHandler'
+import { ErrorHandler, ServerError } from '../ErrorHandler'
 import { startLoading, stopLoading } from '../Loading'
 
 export const CLOSE_NEW_LIST = 'CLOSE_NEW_LIST'
@@ -40,6 +40,10 @@ export function fetchCreateList(params) {
       .catch((err) => {
         dispatch(stopLoading())
         ErrorHandler(err)
+          .then()
+          .catch((error) => {
+            dispatch(ServerError(error))
+          })
       })
   }
 }

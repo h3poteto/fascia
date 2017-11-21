@@ -1,4 +1,5 @@
 import * as loadingActions from '../actions/Loading.js'
+import * as errorHandler from '../actions/ErrorHandler.js'
 import * as listActions from '../actions/ListAction.js'
 import * as newListModalActions from '../actions/ListAction/NewListModalAction.js'
 import * as editListModalActions from '../actions/ListAction/EditListModalAction.js'
@@ -34,6 +35,13 @@ export default function ListReducer(state = initState, action) {
     //-----------------------------------
     // LoadingActions
     //-----------------------------------
+    case errorHandler.SERVER_ERROR:
+      return Object.assign({}, state, {
+        error: action.message
+      })
+    //-----------------------------------
+    // LoadingActions
+    //-----------------------------------
     case loadingActions.START_LOADING:
       return Object.assign({}, state, {
         isLoading: true,
@@ -45,9 +53,9 @@ export default function ListReducer(state = initState, action) {
     //-----------------------------------
     // newListModalActions
     //-----------------------------------
-    case newListModalActions.REQUEST_CREATE_LIST:
+    case newListModalActions.CLOSE_NEW_LIST:
       return Object.assign({}, state, {
-        isLoading: true
+        isListModalOpen: false,
       })
     case newListModalActions.RECEIVE_CREATE_LIST:
       var createdList = action.list
@@ -58,7 +66,6 @@ export default function ListReducer(state = initState, action) {
       return Object.assign({}, state, {
         lists: lists,
         isListModalOpen: false,
-        isLoading: false
       })
     case newListModalActions.CHANGE_COLOR:
       return Object.assign({}, state, {

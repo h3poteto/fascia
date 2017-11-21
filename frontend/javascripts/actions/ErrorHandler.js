@@ -13,8 +13,52 @@ const BAD_GATEWAY_ERROR = 502
 const SERVICE_UNAVAILABLE_ERROR = 503
 const GATEWAY_TIMEOUT_ERROR = 504
 
+export const SERVER_ERROR = 'SERVER_ERROR'
+export function ServerError(error) {
+  return {
+    type: SERVER_ERROR,
+    message: error.message,
+    status: error.status,
+  }
+}
+
+class Error {
+  constructor(status, message) {
+    this.status = status
+    this.message = message
+  }
+}
+
 export function ErrorHandler(err) {
   if (err.response.status === UNPROCESSABLE_ENTITY_ERROR) {
     throw new SubmissionError(err.response.data)
   }
+
+  return new Promise((resolve, reject) => {
+    switch (err.response.status) {
+      case AUTHENTICATE_ERROR:
+        // ログインページはreact管理ではない
+        // そのためbrowserHistoryでの移動ができないので，locationを直接書き換えてリダイレクトさせる
+        window.location.pathname = '/login'
+        resolve(err)
+        return
+      case FORBIDDEN_ERROR:
+      case NOT_FOUND_ERROR:
+        reject(new Error(err.response.status, 'The requested URL was not found.'))
+        return
+      case REQUEST_TIMEOUT_ERROR:
+        reject(new Error(err.response.status, 'Request timeout.'))
+        return
+      case BAD_GATEWAY_ERROR:
+      case SERVICE_UNAVAILABLE_ERROR:
+      case GATEWAY_TIMEOUT_ERROR:
+        reject(new Error(err.response.status, 'Could not connect the server.'))
+        return
+      case INTERNAL_SERVER_ERROR:
+        reject(new Error(err.response.status, 'Server error. Sorry, but something went wrong.'))
+        return
+      default:
+        reject(new Error(err.response.status, 'Unknown error'))
+    }
+  })
 }
