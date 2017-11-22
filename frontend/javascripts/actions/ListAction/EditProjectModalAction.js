@@ -18,13 +18,13 @@ function receiveCreateWebhook() {
 
 export const CREATE_WEBHOOK = 'CREATE_WEBHOOK'
 export function createWebhook() {
-  return (dispatch, gateState) => {
+  return (dispatch, getState) => {
     const { ListReducer: { project: { ID: projectID }}} = getState()
     dispatch(startLoading())
     dispatch(requestCreateWebhook())
     return axios
       .post(`/projects/${projectID}/webhook`)
-      .then((res) => {
+      .then((_res) => {
         dispatch(stopLoading())
         dispatch(receiveCreateWebhook())
       })
@@ -73,7 +73,7 @@ export function fetchUpdateProject(params) {
         dispatch(stopLoading())
         dispatch(receiveUpdateProject(res.data))
       })
-      .catch((err, res) => {
+      .catch((err) => {
         dispatch(stopLoading())
         ErrorHandler(err)
           .then()

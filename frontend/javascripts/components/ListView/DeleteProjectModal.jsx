@@ -50,7 +50,6 @@ class DeleteProjectModal extends React.Component {
       submitting,
       onRequestClose,
       action,
-      project,
       isDeleteProjectModalOpen,
     } = this.props
 
@@ -90,7 +89,6 @@ DeleteProjectModal.propTypes = {
   onRequestClose: PropTypes.func.isRequired,
   isDeleteProjectModalOpen: PropTypes.bool.isRequired,
   action: PropTypes.func.isRequired,
-  project: PropTypes.object,
 }
 
 renderField.propTypes = {

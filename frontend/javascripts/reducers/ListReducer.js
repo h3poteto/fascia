@@ -57,16 +57,17 @@ export default function ListReducer(state = initState, action) {
       return Object.assign({}, state, {
         isListModalOpen: false,
       })
-    case newListModalActions.RECEIVE_CREATE_LIST:
+    case newListModalActions.RECEIVE_CREATE_LIST: {
       var createdList = action.list
       if (createdList.ListTasks == null) {
         createdList.ListTasks = []
       }
-      var lists = state.lists.concat([createdList])
+      let lists = state.lists.concat([createdList])
       return Object.assign({}, state, {
         lists: lists,
         isListModalOpen: false,
       })
+    }
     case newListModalActions.CHANGE_COLOR:
       return Object.assign({}, state, {
         color: action.color,
@@ -110,7 +111,7 @@ export default function ListReducer(state = initState, action) {
         isTaskModalOpen: action.isTaskModalOpen,
         selectedList: {},
       })
-    case newTaskModalActions.RECEIVE_CREATE_TASK:
+    case newTaskModalActions.RECEIVE_CREATE_TASK: {
       let lists
       if (action.lists == null) {
         lists = []
@@ -133,7 +134,7 @@ export default function ListReducer(state = initState, action) {
         isTaskModalOpen: false,
         noneList: noneList
       })
-
+    }
       //------------------------------------
       // editProjectModalActions
       //------------------------------------

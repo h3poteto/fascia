@@ -71,7 +71,6 @@ class EditListModal extends React.Component {
       onRequestClose,
       action,
       project,
-      list,
       listOptions,
       changeColor,
       color,

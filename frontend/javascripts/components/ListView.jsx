@@ -145,7 +145,6 @@ class ListView extends React.Component {
         />
         <DeleteProjectModal
           isDeleteProjectModalOpen={isDeleteProjectModalOpen}
-          project={project}
           onRequestClose={this.props.deleteProjectModalActions.closeDeleteProjectModal}
           action={this.props.deleteProjectModalActions.fetchDeleteProject}
         />
