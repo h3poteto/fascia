@@ -137,16 +137,6 @@ export default function ListReducer(state = initState, action) {
       //------------------------------------
       // editProjectModalActions
       //------------------------------------
-    case editProjectModalActions.NOT_FOUND:
-      return Object.assign({}, state, {
-        error: 'Error Not Found',
-        isLoading: false
-      })
-    case editProjectModalActions.SERVER_ERROR:
-      return Object.assign({}, state, {
-        error: 'Internal Server Error',
-        isLoading: false
-      })
     case editProjectModalActions.REQUEST_CREATE_WEBHOOK:
       return Object.assign({}, state, {
         isProjectEditModalOpen: false
@@ -159,7 +149,6 @@ export default function ListReducer(state = initState, action) {
       return Object.assign({}, state, {
         project: action.project,
         isProjectEditModalOpen: false,
-        isLoading: false
       })
 
       //------------------------------------

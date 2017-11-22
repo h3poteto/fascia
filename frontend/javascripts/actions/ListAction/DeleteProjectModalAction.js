@@ -33,7 +33,7 @@ export function fetchDeleteProject() {
       .delete(`/projects/${projectID}`)
       .then((res) => {
         dispatch(stopLoading())
-        dispatch(receiveDeleteProject(res.body))
+        dispatch(receiveDeleteProject(res.data))
         browserHistory.push('/')
       })
       .catch((err) => {

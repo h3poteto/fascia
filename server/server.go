@@ -72,7 +72,7 @@ func Routes(e *echo.Echo) {
 
 	p := login.Group("projects")
 	p.Use(middlewares.Project())
-	p.POST("/:project_id", projects.Update)
+	p.PATCH("/:project_id", projects.Update)
 	p.GET("/:project_id/show", projects.Show)
 	p.POST("/:project_id/fetch_github", projects.FetchGithub)
 	p.POST("/:project_id/settings", projects.Settings)

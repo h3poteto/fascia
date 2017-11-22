@@ -11,7 +11,7 @@ type projectCreate struct {
 }
 
 type projectUpdate struct {
-	Title       string `json:"title" valid:"requred~title is required,stringlength(1|255)~title must be between 1 to 255"`
+	Title       string `json:"title" valid:"required~title is required,stringlength(1|255)~title must be between 1 to 255"`
 	Description string `json:"description" valid:"stringlength(0|255)~description must be between 0 to 255,optional"`
 }
 

@@ -138,7 +138,6 @@ class ListView extends React.Component {
         {this.flash(error)}
         <EditProjectModal
           isProjectEditModalOpen={isProjectEditModalOpen}
-          projectID={this.props.params.projectID}
           project={project}
           onRequestClose={this.props.editProjectModalActions.closeEditProjectModal}
           action={this.props.editProjectModalActions.fetchUpdateProject}
