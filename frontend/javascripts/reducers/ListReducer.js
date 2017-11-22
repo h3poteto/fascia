@@ -165,27 +165,12 @@ export default function ListReducer(state = initState, action) {
       //------------------------------------
       // deleteProjectModalActions
       //------------------------------------
-    case deleteProjectModalActions.NOT_FOUND:
-      return Object.assign({}, state, {
-        error: 'Error Not Found',
-        isLoading: false
-      })
-    case deleteProjectModalActions.SERVER_ERROR:
-      return Object.assign({}, state, {
-        error: 'Internal Server Error',
-        isLoading: false
-      })
     case deleteProjectModalActions.CLOSE_DELETE_PROJECT:
       return Object.assign({}, state, {
         isDeleteProjectModalOpen: false
       })
-    case deleteProjectModalActions.REQUEST_DELETE_PROJECT:
-      return Object.assign({}, state, {
-        isLoading: true
-      })
     case deleteProjectModalActions.RECEIVE_DELETE_PROJECT:
       return Object.assign({}, state, {
-        isLoading: false,
         isDeleteProjectModalOpen: false
       })
 
