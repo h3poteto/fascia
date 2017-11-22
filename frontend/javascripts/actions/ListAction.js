@@ -1,26 +1,6 @@
-import Request from 'superagent'
-
-export const UNAUTHORIZED = 'UNAUTHORIZED'
-function unauthorized() {
-  window.location.pathname = '/sign_in'
-  return {
-    type: UNAUTHORIZED
-  }
-}
-
-export const NOT_FOUND = 'NOT_FOUND'
-function notFound() {
-  return {
-    type: NOT_FOUND
-  }
-}
-
-export const SERVER_ERROR = 'SERVER_ERROR'
-function serverError() {
-  return {
-    type: SERVER_ERROR
-  }
-}
+import axios from 'axios'
+import { ErrorHandler, ErrorHandlerWithoutSubmission, ServerError } from './ErrorHandler'
+import { startLoading, stopLoading } from './Loading'
 
 export const CLOSE_FLASH = 'CLOSE_FLASH'
 export function closeFlash() {
@@ -75,18 +55,17 @@ function receiveLists(lists) {
 export function fetchLists(projectID) {
   return dispatch => {
     dispatch(requestLists())
-    return Request
+    return axios
       .get(`/projects/${projectID}/lists`)
-      .end((err, res)=> {
-        if (res.ok) {
-          dispatch(receiveLists(res.body))
-        } else if (res.unauthorized) {
-          dispatch(unauthorized())
-        } else if (res.notFound) {
-          dispatch(notFound())
-        } else {
-          dispatch(serverError())
-        }
+      .then((res) => {
+        dispatch(receiveLists(res.data))
+      })
+      .catch((err) => {
+        ErrorHandler(err)
+          .then()
+          .catch((error) => {
+            dispatch(ServerError(error))
+          })
       })
   }
 }
@@ -109,18 +88,17 @@ function receiveProject(project) {
 export function fetchProject(projectID) {
   return dispatch => {
     dispatch(requestProject())
-    return Request
+    return axios
       .get(`/projects/${projectID}/show`)
-      .end((err, res)=> {
-        if (res.ok) {
-          dispatch(receiveProject(res.body))
-        } else if (res.unauthorized) {
-          dispatch(unauthorized())
-        } else if (res.notFound) {
-          dispatch(notFound())
-        } else {
-          dispatch(serverError())
-        }
+      .then((res) => {
+        dispatch(receiveProject(res.data))
+      })
+      .catch((err) => {
+        ErrorHandlerWithoutSubmission(err)
+          .then()
+          .catch((error) => {
+            dispatch(ServerError(error))
+          })
       })
   }
 }
@@ -180,21 +158,21 @@ export function taskDrop(projectID, taskDraggingFrom, taskDraggingTo) {
     }
     return dispatch => {
       dispatch(requestMoveTask())
-      return Request
-        .post(`/projects/${projectID}/lists/${taskDraggingFrom.fromList.ID}/tasks/${taskDraggingFrom.fromTask.ID}/move_task`)
-        .type('form')
-        .send({to_list_id: taskDraggingTo.toList.ID, prev_to_task_id: prevToTaskID})
-        .end((err, res) => {
-          if(res.ok) {
-            dispatch(receiveMoveTask(res.body))
-          } else if(res.unauthorized) {
-            dispatch(unauthorized())
-          } else if (res.notFound) {
-            dispatch(notFound())
-          } else {
-            // TODO: ここはドラッグしたviewを元に戻す必要がある
-            dispatch(serverError())
-          }
+      return axios
+        .post(`/projects/${projectID}/lists/${taskDraggingFrom.fromList.ID}/tasks/${taskDraggingFrom.fromTask.ID}/move_task`, {
+          to_list_id: taskDraggingTo.toList.ID,
+          prev_to_task_id: prevToTaskID,
+        })
+        .then((res) => {
+          dispatch(receiveMoveTask(res.data))
+        })
+        .catch((err) => {
+          // TODO: ここはドラッグしたviewを元に戻す必要がある
+          ErrorHandlerWithoutSubmission(err)
+            .then()
+            .catch((error) => {
+              dispatch(ServerError(error))
+            })
         })
     }
   } else {
@@ -251,19 +229,21 @@ function receiveFetchGithub(lists) {
 export const FETCH_PROJECT_GITHUB = 'FETCH_PROJECT_GITHUB'
 export function fetchProjectGithub(projectID) {
   return dispatch => {
+    dispatch(startLoading())
     dispatch(requestFetchGithub())
-    return Request
+    return axios
       .post(`/projects/${projectID}/fetch_github`)
-      .end((err, res) => {
-        if (res.ok) {
-          dispatch(receiveFetchGithub(res.body))
-        } else if(res.unauthorized) {
-          dispatch(unauthorized())
-        } else if (res.notFound) {
-          dispatch(notFound())
-        } else {
-          dispatch(serverError())
-        }
+      .then((res) => {
+        dispatch(stopLoading())
+        dispatch(receiveFetchGithub(res.data))
+      })
+      .catch((err) => {
+        dispatch(stopLoading())
+        ErrorHandlerWithoutSubmission(err)
+          .then()
+          .catch((error) => {
+            dispatch(ServerError(error))
+          })
       })
   }
 }
@@ -287,18 +267,17 @@ export const FETCH_LIST_OPTIONS = 'FETCH_LIST_OPTIONS'
 export function fetchListOptions() {
   return dispatch => {
     dispatch(requestListOptions())
-    return Request
+    return axios
       .get('/list_options')
-      .end((err, res) => {
-        if (res.ok) {
-          dispatch(receiveListOptions(res.body))
-        } else if (res.unauthorized) {
-          dispatch(unauthorized())
-        } else if (res.notFound) {
-          dispatch(notFound())
-        } else {
-          dispatch(serverError())
-        }
+      .then((res) => {
+        dispatch(receiveListOptions(res.data))
+      })
+      .catch((err) => {
+        ErrorHandlerWithoutSubmission(err)
+          .then()
+          .catch((error) => {
+            dispatch(ServerError(error))
+          })
       })
   }
 }
@@ -322,20 +301,20 @@ export const SHOW_ISSUES = 'SHOW_ISSUES'
 export function showIssues(projectID, showIssues, showPullRequests) {
   return dispatch => {
     dispatch(requestSettingsProject())
-    return Request
-      .post(`/projects/${projectID}/settings`)
-      .type('form')
-      .send({show_issues: !showIssues, show_pull_requests: showPullRequests})
-      .end((err, res) => {
-        if (res.ok) {
-          dispatch(receiveProject(res.body))
-        } else if (res.unauthorized) {
-          dispatch(unauthorized())
-        } else if (res.notFound) {
-          dispatch(notFound())
-        } else {
-          dispatch(serverError())
-        }
+    return axios
+      .patch(`/projects/${projectID}/settings`, {
+        show_issues: !showIssues,
+        show_pull_requests: showPullRequests,
+      })
+      .then((res) => {
+        dispatch(receiveProject(res.data))
+      })
+      .catch((err) => {
+        ErrorHandlerWithoutSubmission(err)
+          .then()
+          .catch((error) => {
+            dispatch(ServerError(error))
+          })
       })
   }
 }
@@ -344,20 +323,20 @@ export const SHOW_PULL_REQUESTS = 'SHOW_PULL_REQUESTS'
 export function showPullRequests(projectID, showIssues, showPullRequests) {
   return dispatch => {
     dispatch(requestSettingsProject())
-    return Request
-      .post(`/projects/${projectID}/settings`)
-      .type('form')
-      .send({show_issues: showIssues, show_pull_requests: !showPullRequests})
-      .end((err, res) => {
-        if (res.ok) {
-          dispatch(receiveProject(res.body))
-        } else if (res.unauthorized) {
-          dispatch(unauthorized())
-        } else if (res.notFound) {
-          dispatch(notFound())
-        } else {
-          dispatch(serverError())
-        }
+    return axios
+      .patch(`/projects/${projectID}/settings`, {
+        show_issues: showIssues,
+        show_pull_requests: !showPullRequests,
+      })
+      .then((res) => {
+        dispatch(receiveProject(res.data))
+      })
+      .catch((err) => {
+        ErrorHandlerWithoutSubmission(err)
+          .then()
+          .catch((error) => {
+            dispatch(ServerError(error))
+          })
       })
   }
 }
@@ -383,18 +362,17 @@ export const HIDE_LIST = 'HIDE_LIST'
 export function hideList(projectID, listID) {
   return dispatch => {
     dispatch(requestHideList())
-    return Request
-      .post(`/projects/${projectID}/lists/${listID}/hide`)
-      .end((err, res) => {
-        if (res.ok) {
-          dispatch(receiveHideList(res.body))
-        } else if(res.unauthorized) {
-          dispatch(unauthorized())
-        } else if (res.notFound) {
-          dispatch(notFound())
-        } else {
-          dispatch(serverError())
-        }
+    return axios
+      .patch(`/projects/${projectID}/lists/${listID}/hide`)
+      .then((res) => {
+        dispatch(receiveHideList(res.data))
+      })
+      .catch((err) => {
+        ErrorHandlerWithoutSubmission(err)
+          .then()
+          .catch((error) => {
+            dispatch(ServerError(error))
+          })
       })
   }
 }
@@ -419,18 +397,17 @@ export const DISPLAY_LIST = 'DISPLAY_LIST'
 export function displayList(projectID, listID) {
   return dispatch => {
     dispatch(requestDisplayList())
-    return Request
-      .post(`/projects/${projectID}/lists/${listID}/display`)
-      .end((err, res) => {
-        if (res.ok) {
-          dispatch(receiveDisplayList(res.body))
-        } else if(res.unauthorized) {
-          dispatch(unauthorized())
-        } else if(res.notFound) {
-          dispatch(notFound())
-        } else {
-          dispatch(serverError())
-        }
+    return axios
+      .patch(`/projects/${projectID}/lists/${listID}/display`)
+      .then((res) => {
+        dispatch(receiveDisplayList(res.data))
+      })
+      .catch((err) => {
+        ErrorHandlerWithoutSubmission(err)
+          .then()
+          .catch((error) => {
+            dispatch(ServerError(error))
+          })
       })
   }
 }

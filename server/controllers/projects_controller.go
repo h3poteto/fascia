@@ -33,8 +33,8 @@ type EditProjectForm struct {
 
 // SettingsProjectForm is struct for change settings
 type SettingsProjectForm struct {
-	ShowIssues       bool `form:"show_issues"`
-	ShowPullRequests bool `form:"show_pull_requests"`
+	ShowIssues       bool `form:"show_issues" json:"show_issues"`
+	ShowPullRequests bool `form:"show_pull_requests" json:"show_pull_requests"`
 }
 
 // Index returns all projects

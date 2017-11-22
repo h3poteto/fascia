@@ -34,6 +34,14 @@ export function ErrorHandler(err) {
     throw new SubmissionError(err.response.data)
   }
 
+  return handler(err)
+}
+
+export function ErrorHandlerWithoutSubmission(err) {
+  return handler(err)
+}
+
+export function handler(err) {
   return new Promise((resolve, reject) => {
     switch (err.response.status) {
       case AUTHENTICATE_ERROR:
@@ -48,6 +56,9 @@ export function ErrorHandler(err) {
         return
       case REQUEST_TIMEOUT_ERROR:
         reject(new Error(err.response.status, 'Request timeout.'))
+        return
+      case UNPROCESSABLE_ENTITY_ERROR:
+        reject(new Error(err.response.status, 'Validation error.'))
         return
       case BAD_GATEWAY_ERROR:
       case SERVICE_UNAVAILABLE_ERROR:

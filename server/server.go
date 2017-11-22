@@ -75,7 +75,7 @@ func Routes(e *echo.Echo) {
 	p.PATCH("/:project_id", projects.Update)
 	p.GET("/:project_id/show", projects.Show)
 	p.POST("/:project_id/fetch_github", projects.FetchGithub)
-	p.POST("/:project_id/settings", projects.Settings)
+	p.PATCH("/:project_id/settings", projects.Settings)
 	p.POST("/:project_id/webhook", projects.Webhook)
 	p.DELETE("/:project_id", projects.Destroy)
 
@@ -86,8 +86,8 @@ func Routes(e *echo.Echo) {
 	l := p.Group("/:project_id/lists")
 	l.Use(middlewares.List())
 	l.PATCH("/:list_id", lists.Update)
-	l.POST("/:list_id/hide", lists.Hide)
-	l.POST("/:list_id/display", lists.Display)
+	l.PATCH("/:list_id/hide", lists.Hide)
+	l.PATCH("/:list_id/display", lists.Display)
 
 	tasks := &controllers.Tasks{}
 	l.POST("/:list_id/tasks", tasks.Create)

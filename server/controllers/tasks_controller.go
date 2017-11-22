@@ -26,8 +26,8 @@ type NewTaskForm struct {
 
 // MoveTaskForm is struct for move task
 type MoveTaskForm struct {
-	ToListID     int64 `form:"to_list_id"`
-	PrevToTaskID int64 `form:"prev_to_task_id"`
+	ToListID     int64 `form:"to_list_id" json:"to_list_id"`
+	PrevToTaskID int64 `form:"prev_to_task_id" json:"prev_to_task_id"`
 }
 
 // EditTaskForm is struct for edit task

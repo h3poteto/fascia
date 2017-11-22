@@ -230,23 +230,9 @@ export default function ListReducer(state = initState, action) {
       //------------------------------------
       // listActions
       //------------------------------------
-    case listActions.NOT_FOUND:
-      return Object.assign({}, state, {
-        error: 'Error Not Found',
-        isLoading: false
-      })
-    case listActions.SERVER_ERROR:
-      return Object.assign({}, state, {
-        error: 'Internal Server Error',
-        isLoading: false
-      })
     case listActions.CLOSE_FLASH:
       return Object.assign({}, state, {
         error: null
-      })
-    case listActions.REQUEST_FETCH_GITHUB:
-      return Object.assign({}, state, {
-        isLoading: true
       })
     case listActions.OPEN_NEW_LIST:
       return Object.assign({}, state, {
@@ -292,7 +278,6 @@ export default function ListReducer(state = initState, action) {
       return Object.assign({}, state, {
         lists: lists,
         noneList: noneList,
-        isLoading: false
       })
     }
     case listActions.RECEIVE_PROJECT:
