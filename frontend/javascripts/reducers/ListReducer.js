@@ -33,7 +33,7 @@ const initState = {
 export default function ListReducer(state = initState, action) {
   switch(action.type) {
       //-----------------------------------
-      // LoadingActions
+      // ErrorHandler
       //-----------------------------------
     case errorHandler.SERVER_ERROR:
       return Object.assign({}, state, {

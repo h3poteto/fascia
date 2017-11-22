@@ -1,3 +1,5 @@
+import * as loadingActions from '../actions/Loading'
+import * as errorHandler from '../actions/ErrorHandler'
 import * as projectActions from '../actions/ProjectAction'
 import * as newProjectModalActions from '../actions/ProjectAction/NewProjectModalAction'
 
@@ -11,35 +13,38 @@ const initState = {
 
 export default function ProjectReducer(state = initState, action) {
   switch(action.type) {
-    //-----------------------------------
-    // newProjectModalActions
-    //-----------------------------------
-  case newProjectModalActions.NOT_FOUND:
-    return Object.assign({}, state, {
-      isLoading: false,
-      error: 'Error Not Found'
-    })
-  case newProjectModalActions.SERVER_ERROR:
-    return Object.assign({}, state, {
-      isLoading: false,
-      error: 'Internal Server Error'
-    })
-  case newProjectModalActions.CLOSE_NEW_PROJECT:
-    return Object.assign({}, state, {
-      isModalOpen: false
-    })
-  case newProjectModalActions.REQUEST_CREATE_PROJECT:
-    return Object.assign({}, state, {
-      isLoading: true
-    })
-  case newProjectModalActions.RECEIVE_CREATE_PROJECT: {
-    const projects = state.projects.concat([action.project])
-    return Object.assign({}, state, {
-      projects: projects,
-      isLoading: false,
-      isModalOpen: false
-    })
-  }
+      //-----------------------------------
+      // ErrorHandler
+      //-----------------------------------
+    case errorHandler.SERVER_ERROR:
+      return Object.assign({}, state, {
+        error: action.message
+      })
+      //-----------------------------------
+      // LoadingActions
+      //-----------------------------------
+    case loadingActions.START_LOADING:
+      return Object.assign({}, state, {
+        isLoading: true,
+      })
+    case loadingActions.STOP_LOADING:
+      return Object.assign({}, state, {
+        isLoading: false,
+      })
+      //-----------------------------------
+      // newProjectModalActions
+      //-----------------------------------
+    case newProjectModalActions.CLOSE_NEW_PROJECT:
+      return Object.assign({}, state, {
+        isModalOpen: false
+      })
+    case newProjectModalActions.RECEIVE_CREATE_PROJECT: {
+      const projects = state.projects.concat([action.project])
+      return Object.assign({}, state, {
+        projects: projects,
+        isModalOpen: false
+      })
+    }
 
     //-----------------------------------
     // projectActions
