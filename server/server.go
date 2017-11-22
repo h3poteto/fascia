@@ -96,7 +96,7 @@ func Routes(e *echo.Echo) {
 	t.Use(middlewares.Task())
 	t.GET("/:task_id", tasks.Show)
 	t.POST("/:task_id/move_task", tasks.MoveTask)
-	t.POST("/:task_id", tasks.Update)
+	t.PATCH("/:task_id", tasks.Update)
 	t.DELETE("/:task_id", tasks.Delete)
 
 	listOptions := &controllers.ListOptions{}

@@ -33,7 +33,7 @@ export function fetchCreateList(params) {
       .post(`/projects/${ID}/lists`, params)
       .then((res) => {
         dispatch(stopLoading())
-        dispatch(receiveCreateList(res.body))
+        dispatch(receiveCreateList(res.data))
       })
       .catch((err) => {
         dispatch(stopLoading())

@@ -35,7 +35,7 @@ export function fetchUpdateList(params) {
       .patch(`/projects/${projectID}/lists/${listID}`, params)
       .then((res) => {
         dispatch(stopLoading())
-        dispatch(receiveUpdateList(res.body))
+        dispatch(receiveUpdateList(res.data))
       })
       .catch((err) => {
         dispatch(stopLoading())

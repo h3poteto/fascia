@@ -1,26 +1,6 @@
-import Request from 'superagent'
-
-export const UNAUTHORIZED = 'UNAUTHORIZED'
-function unauthorized() {
-  window.location.pathname = '/sign_in'
-  return {
-    type: UNAUTHORIZED
-  }
-}
-
-export const NOT_FOUND = 'NOT_FOUND'
-function notFound() {
-  return {
-    type: NOT_FOUND
-  }
-}
-
-export const SERVER_ERROR = 'SERVER_ERROR'
-function serverError() {
-  return {
-    type: SERVER_ERROR
-  }
-}
+import axios from 'axios'
+import { ErrorHandler, ServerError } from '../ErrorHandler'
+import { startLoading, stopLoading } from '../Loading'
 
 export const CLOSE_SHOW_TASK = 'CLOSE_SHOW_TASK'
 export function closeShowTaskModal() {
@@ -53,23 +33,26 @@ function receiveUpdateTask(lists) {
   }
 }
 
-export function fetchUpdateTask(projectID, listID, taskID, params) {
-  return dispatch => {
+export function fetchUpdateTask(params) {
+  return (dispatch, getState) => {
+    const { ListReducer: { project: { ID: projectID }}} = getState()
+    const { ListReducer: { selectedTask: { ListID: listID }}} = getState()
+    const { ListReducer: { selectedTask: {ID: taskID }}} = getState()
+    dispatch(startLoading())
     dispatch(requestUpdateTask())
-    return Request
-      .post(`/projects/${projectID}/lists/${listID}/tasks/${taskID}`)
-      .type('form')
-      .send(params)
-      .end((err, res)=> {
-        if(res.ok) {
-          dispatch(receiveUpdateTask(res.body))
-        } else if (res.unauthorized) {
-          dispatch(unauthorized())
-        } else if (res.notFound) {
-          dispatch(notFound())
-        } else {
-          dispatch(serverError())
-        }
+    return axios
+      .patch(`/projects/${projectID}/lists/${listID}/tasks/${taskID}`, params)
+      .then((res) => {
+        dispatch(stopLoading())
+        dispatch(receiveUpdateTask(res.data))
+      })
+      .catch((err) => {
+        dispatch(stopLoading())
+        ErrorHandler(err)
+          .then()
+          .catch((error) => {
+            dispatch(ServerError(error))
+          })
       })
   }
 }
@@ -90,21 +73,26 @@ function receiveDeleteTask(lists) {
   }
 }
 
-export function fetchDeleteTask(projectID, listID, taskID) {
-  return dispatch => {
+export function fetchDeleteTask() {
+  return (dispatch, getState) => {
+    const { ListReducer: { project: { ID: projectID }}} = getState()
+    const { ListReducer: { selectedTask: { ListID: listID }}} = getState()
+    const { ListReducer: { selectedTask: {ID: taskID }}} = getState()
+    dispatch(startLoading())
     dispatch(requestDeleteTask())
-    return Request
-      .del(`/projects/${projectID}/lists/${listID}/tasks/${taskID}`)
-      .end((err, res)=> {
-        if (res.ok) {
-          dispatch(receiveDeleteTask(res.body))
-        } else if (res.unauthorized) {
-          dispatch(unauthorized())
-        } else if (res.notFound) {
-          dispatch(notFound())
-        } else {
-          dispatch(serverError())
-        }
+    return axios
+      .delete(`/projects/${projectID}/lists/${listID}/tasks/${taskID}`)
+      .then((res) => {
+        dispatch(stopLoading())
+        dispatch(receiveDeleteTask(res.data))
+      })
+      .catch((err) => {
+        dispatch(stopLoading())
+        ErrorHandler(err)
+          .then()
+          .catch((error) => {
+            dispatch(ServerError(error))
+          })
       })
   }
 }
