@@ -1,26 +1,6 @@
-import Request from 'superagent'
-
-export const UNAUTHORIZED = 'UNAUTHORIZED'
-function unauthorized() {
-  window.location.pathname = '/sign_in'
-  return {
-    type: UNAUTHORIZED
-  }
-}
-
-export const NOT_FOUND = 'NOT_FOUND'
-function notFound() {
-  return {
-    type: NOT_FOUND
-  }
-}
-
-export const SERVER_ERROR = 'SERVER_ERROR'
-function serverError() {
-  return {
-    type: SERVER_ERROR
-  }
-}
+import axios from 'axios'
+import { ErrorHandler, ServerError } from '../ErrorHandler'
+import { startLoading, stopLoading } from '../Loading'
 
 export const CLOSE_EDIT_LIST = 'CLOSE_EDIT_LIST'
 export function closeEditListModal() {
@@ -45,23 +25,25 @@ function receiveUpdateList(list) {
   }
 }
 
-export function fetchUpdateList(projectID, listID, params) {
-  return dispatch => {
+export function fetchUpdateList(params) {
+  return (dispatch, getState) => {
+    const { ListReducer: { project: { ID: projectID }}} = getState()
+    const { ListReducer: { selectedList: { ID: listID }}} = getState()
+    dispatch(startLoading())
     dispatch(requestUpdateList())
-    return Request
-      .post(`/projects/${projectID}/lists/${listID}`)
-      .type('form')
-      .send(params)
-      .end((err, res)=> {
-        if(res.ok) {
-          dispatch(receiveUpdateList(res.body))
-        } else if (res.unauthorized) {
-          dispatch(unauthorized())
-        } else if (res.notFound) {
-          dispatch(notFound())
-        } else {
-          dispatch(serverError())
-        }
+    return axios
+      .patch(`/projects/${projectID}/lists/${listID}`, params)
+      .then((res) => {
+        dispatch(stopLoading())
+        dispatch(receiveUpdateList(res.data))
+      })
+      .catch((err) => {
+        dispatch(stopLoading())
+        ErrorHandler(err)
+          .then()
+          .catch((error) => {
+            dispatch(ServerError(error))
+          })
       })
   }
 }

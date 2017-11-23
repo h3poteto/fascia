@@ -46,7 +46,7 @@ class EditProjectModal extends React.Component {
       return null
     } else {
       return (
-        <button onClick={() => this.props.createWebhook(this.props.projectID)} className="pure-button button-secondary" type="button">Update Webhook</button>
+        <button onClick={this.props.createWebhook} className="pure-button button-secondary" type="button">Update Webhook</button>
       )
     }
   }
@@ -59,7 +59,6 @@ class EditProjectModal extends React.Component {
       submitting,
       onRequestClose,
       action,
-      projectID,
       project,
     } = this.props
     return (
@@ -70,7 +69,7 @@ class EditProjectModal extends React.Component {
           contentLabel="EditProjectModal"
       >
         <div className="project-form">
-          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(projectID, values) })}>
+          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit(action)}>
             <fieldset>
               <legend>Edit Project</legend>
               <label htmlFor="title">Title</label>
@@ -102,7 +101,6 @@ EditProjectModal.propTypes = {
   submitting: PropTypes.bool.isRequired,
   onRequestClose: PropTypes.func.isRequired,
   action: PropTypes.func.isRequired,
-  projectID: PropTypes.string.isRequired,
   project: PropTypes.object,
   isProjectEditModalOpen: PropTypes.bool.isRequired,
   createWebhook: PropTypes.func.isRequired,

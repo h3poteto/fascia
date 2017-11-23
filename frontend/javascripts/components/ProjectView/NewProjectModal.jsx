@@ -54,7 +54,7 @@ class NewProjectModal extends React.Component {
           contentLabel="NewProjectModal"
       >
         <div className="project-form">
-          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(values) })}>
+          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit(action)}>
             <fieldset>
               <legend>Create Project</legend>
               <label htmlFor="title">Title</label>

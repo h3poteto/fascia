@@ -44,8 +44,6 @@ class NewTaskModal extends React.Component {
       submitting,
       onRequestClose,
       action,
-      projectID,
-      listID,
     } = this.props
     return (
       <Modal
@@ -55,7 +53,7 @@ class NewTaskModal extends React.Component {
           contentLabel="NewTaskModal"
       >
         <div className="task-form">
-          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(projectID, listID, values) })} >
+          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit(action)} >
             <fieldset>
               <legend>Create Task</legend>
               <label htmlFor="title">Title</label>
@@ -82,8 +80,6 @@ NewTaskModal.propTypes = {
   submitting: PropTypes.bool.isRequired,
   onRequestClose: PropTypes.func.isRequired,
   action: PropTypes.func.isRequired,
-  projectID: PropTypes.string.isRequired,
-  listID: PropTypes.number,
   isTaskModalOpen: PropTypes.bool.isRequired,
 }
 

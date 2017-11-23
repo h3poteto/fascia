@@ -48,7 +48,6 @@ class NewListModal extends React.Component {
       action,
       changeColor,
       color,
-      projectID,
     } = this.props
     return (
       <Modal
@@ -58,7 +57,7 @@ class NewListModal extends React.Component {
         contentLabel="NewListModal"
       >
         <div className="list-form">
-          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(projectID, values) })}>
+          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit(action)}>
             <fieldset>
               <legend>Create List</legend>
               <label htmlFor="title">Title</label>
@@ -92,7 +91,6 @@ NewListModal.propTypes = {
   submitting: PropTypes.bool.isRequired,
   onRequestClose: PropTypes.func.isRequired,
   action: PropTypes.func.isRequired,
-  projectID: PropTypes.string.isRequired,
   isListModalOpen: PropTypes.bool.isRequired,
   dirty: PropTypes.object,
   array: PropTypes.object,

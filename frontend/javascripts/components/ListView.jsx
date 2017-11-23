@@ -138,7 +138,6 @@ class ListView extends React.Component {
         {this.flash(error)}
         <EditProjectModal
           isProjectEditModalOpen={isProjectEditModalOpen}
-          projectID={this.props.params.projectID}
           project={project}
           onRequestClose={this.props.editProjectModalActions.closeEditProjectModal}
           action={this.props.editProjectModalActions.fetchUpdateProject}
@@ -146,13 +145,11 @@ class ListView extends React.Component {
         />
         <DeleteProjectModal
           isDeleteProjectModalOpen={isDeleteProjectModalOpen}
-          project={project}
           onRequestClose={this.props.deleteProjectModalActions.closeDeleteProjectModal}
           action={this.props.deleteProjectModalActions.fetchDeleteProject}
         />
         <NewListModal
           isListModalOpen={isListModalOpen}
-          projectID={this.props.params.projectID}
           onRequestClose={this.props.newListModalActions.closeNewListModal}
           action={this.props.newListModalActions.fetchCreateList}
           changeColor={this.props.newListModalActions.changeColor}
@@ -170,8 +167,6 @@ class ListView extends React.Component {
         />
         <NewTaskModal
           isTaskModalOpen={isTaskModalOpen}
-          listID={selectedList.ID}
-          projectID={this.props.params.projectID}
           onRequestClose={this.props.newTaskModalActions.closeNewTaskModal}
           action={this.props.newTaskModalActions.fetchCreateTask}
         />

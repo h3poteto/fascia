@@ -26,8 +26,8 @@ type NewTaskForm struct {
 
 // MoveTaskForm is struct for move task
 type MoveTaskForm struct {
-	ToListID     int64 `form:"to_list_id"`
-	PrevToTaskID int64 `form:"prev_to_task_id"`
+	ToListID     int64 `form:"to_list_id" json:"to_list_id"`
+	PrevToTaskID int64 `form:"prev_to_task_id" json:"prev_to_task_id"`
 }
 
 // EditTaskForm is struct for edit task
@@ -59,7 +59,7 @@ func (u *Tasks) Create(c echo.Context) error {
 	valid, err := validators.TaskCreateValidation(newTaskForm.Title, newTaskForm.Description)
 	if err != nil || !valid {
 		logging.SharedInstance().Controller(c).Infof("validation error: %v", err)
-		return NewJSONError(err, http.StatusUnprocessableEntity, c)
+		return NewValidationError(err, http.StatusUnprocessableEntity, c)
 	}
 
 	task := services.NewTask(
@@ -130,7 +130,7 @@ func (u *Tasks) MoveTask(c echo.Context) error {
 	valid, err := validators.TaskMoveValidation(moveTaskFrom.ToListID, moveTaskFrom.PrevToTaskID)
 	if err != nil || !valid {
 		logging.SharedInstance().Controller(c).Infof("validation error: %v", err)
-		return NewJSONError(err, http.StatusUnprocessableEntity, c)
+		return NewValidationError(err, http.StatusUnprocessableEntity, c)
 	}
 
 	var prevToTaskID *int64
@@ -175,7 +175,7 @@ func (u *Tasks) Update(c echo.Context) error {
 	valid, err := validators.TaskUpdateValidation(editTaskForm.Title, editTaskForm.Description)
 	if err != nil || !valid {
 		logging.SharedInstance().Controller(c).Infof("validation error: %v", err)
-		return NewJSONError(err, http.StatusUnprocessableEntity, c)
+		return NewValidationError(err, http.StatusUnprocessableEntity, c)
 	}
 
 	err = task.Update(

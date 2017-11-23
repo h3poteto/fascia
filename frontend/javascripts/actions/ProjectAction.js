@@ -1,26 +1,5 @@
-import Request from 'superagent'
-
-export const UNAUTHORIZED = 'UNAUTHORIZED'
-function unauthorized() {
-  window.location.pathname = '/sign_in'
-  return {
-    type: UNAUTHORIZED
-  }
-}
-
-export const NOT_FOUND = 'NOT_FOUND'
-function notFound() {
-  return {
-    type: NOT_FOUND
-  }
-}
-
-export const SERVER_ERROR = 'SERVER_ERROR'
-function serverError() {
-  return {
-    type: SERVER_ERROR
-  }
-}
+import axios from 'axios'
+import { ErrorHandler, ServerError } from './ErrorHandler'
 
 export const CLOSE_FLASH = 'CLOSE_FLASH'
 export function closeFlash() {
@@ -46,18 +25,17 @@ function receiveSession() {
 export function fetchSession() {
   return dispatch => {
     dispatch(requestSession())
-    return Request
-      .post('/session')
-      .end((err, res) => {
-        if (res.ok) {
-          dispatch(receiveSession())
-        } else if (res.unauthorized) {
-          dispatch(unauthorized())
-        } else if (res.notFound) {
-          dispatch(notFound())
-        } else {
-          dispatch(serverError())
-        }
+    return axios
+      .patch('/session')
+      .then((_) => {
+        dispatch(receiveSession())
+      })
+      .catch((err) => {
+        ErrorHandler(err)
+          .then()
+          .catch((error) => {
+            dispatch(ServerError(error))
+          })
       })
   }
 }
@@ -80,18 +58,17 @@ function receivePosts(projects) {
 export function fetchProjects() {
   return dispatch => {
     dispatch(requestPosts())
-    return Request
+    return axios
       .get('/projects')
-      .end((err, res)=> {
-        if (res.ok) {
-          dispatch(receivePosts(res.body))
-        } else if (res.unauthorized) {
-          dispatch(unauthorized())
-        } else if (res.notFound) {
-          dispatch(notFound())
-        } else {
-          dispatch(serverError())
-        }
+      .then((res) => {
+        dispatch(receivePosts(res.data))
+      })
+      .catch((err) => {
+        ErrorHandler(err)
+          .then()
+          .catch((error) => {
+            dispatch(ServerError(error))
+          })
       })
   }
 }
@@ -123,18 +100,17 @@ function receiveRepositories(repositories) {
 export function fetchRepositories() {
   return dispatch => {
     dispatch(requestRepositories())
-    return Request
+    return axios
       .get('/github/repositories')
-      .end((err, res)=> {
-        if (res.ok) {
-          dispatch(receiveRepositories(res.body))
-        } else if (res.unauthorized) {
-          dispatch(unauthorized())
-        } else if (res.notFound) {
-          dispatch(notFound())
-        } else {
-          dispatch(serverError())
-        }
+      .then((res) => {
+        dispatch(receiveRepositories(res.data))
+      })
+      .catch((err) => {
+        ErrorHandler(err)
+          .then()
+          .catch((error) => {
+            dispatch(ServerError(error))
+          })
       })
   }
 }

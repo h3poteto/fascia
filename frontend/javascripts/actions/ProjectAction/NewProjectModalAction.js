@@ -1,26 +1,6 @@
-import Request from 'superagent'
-
-export const UNAUTHORIZED = 'UNAUTHORIZED'
-function unauthorized() {
-  window.location.pathname = '/sign_in'
-  return {
-    type: UNAUTHORIZED
-  }
-}
-
-export const NOT_FOUND = 'NOT_FOUND'
-function notFound() {
-  return {
-    type: NOT_FOUND
-  }
-}
-
-export const SERVER_ERROR = 'SERVER_ERROR'
-function serverError() {
-  return {
-    type: SERVER_ERROR
-  }
-}
+import axios from 'axios'
+import { ErrorHandler, ServerError } from '../ErrorHandler'
+import { startLoading, stopLoading } from '../Loading'
 
 export const CLOSE_NEW_PROJECT = 'CLOSE_NEW_PROJECT'
 export function closeNewProjectModal() {
@@ -47,21 +27,21 @@ function receiveCreateProject(body) {
 
 export function fetchCreateProject(params) {
   return dispatch => {
+    dispatch(startLoading())
     dispatch(requestCreateProject())
-    return Request
-      .post('/projects')
-      .type('form')
-      .send(params)
-      .end((err, res)=> {
-        if (res.ok) {
-          dispatch(receiveCreateProject(res.body))
-        } else if (res.unauthorized) {
-          dispatch(unauthorized())
-        } else if (res.notFound) {
-          dispatch(notFound())
-        } else {
-          dispatch(serverError())
-        }
+    return axios
+      .post('/projects', params)
+      .then((res) => {
+        dispatch(stopLoading())
+        dispatch(receiveCreateProject(res.data))
       })
-    }
+      .catch((err) => {
+        dispatch(stopLoading())
+        ErrorHandler(err)
+          .then()
+          .catch((error) => {
+            dispatch(ServerError(error))
+          })
+      })
+  }
 }

@@ -18,7 +18,9 @@ function setup(props) {
 describe('MenuView', () => {
   it('should render correctly', () => {
     let state = {
-      logout: expect.createSpy()
+      menuActions: {
+        signOut: expect.createSpy()
+      }
     }
     const { output, props } = setup(state)
 
@@ -31,11 +33,10 @@ describe('MenuView', () => {
     let menuHorizontal = header.props.children
     let [ , , controlList ] = menuHorizontal.props.children
     let [ , settingsList ] = controlList.props.children.props.children
-    let logout = settingsList.props.children
-    let logoutLink = logout.props.children.props.children
+    let signOut = settingsList.props.children
+    let signOutLink = signOut.props.children
 
-    expect(logout.props.children.props.action).toBe("/sign_out")
-    logoutLink.props.onClick()
-    expect(props.logout.calls.length).toBe(1)
+    signOutLink.props.onClick()
+    expect(props.menuActions.signOut.calls.length).toBe(1)
   })
 })

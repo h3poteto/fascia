@@ -1,26 +1,6 @@
-import Request from 'superagent'
-
-export const UNAUTHORIZED = 'UNAUTHORIZED'
-function unauthorized() {
-  window.location.pathname = '/sign_in'
-  return {
-    type: UNAUTHORIZED
-  }
-}
-
-export const NOT_FOUND = 'NOT_FOUND'
-function notFound() {
-  return {
-    type: NOT_FOUND
-  }
-}
-
-export const SERVER_ERROR = 'SERVER_ERROR'
-function serverError() {
-  return {
-    type: SERVER_ERROR
-  }
-}
+import axios from 'axios'
+import { ErrorHandler, ServerError } from '../ErrorHandler'
+import { startLoading, stopLoading } from '../Loading'
 
 export const REQUEST_CREATE_WEBHOOK = 'REQUEST_CREATE_WEBHOOK'
 export function requestCreateWebhook() {
@@ -37,21 +17,24 @@ function receiveCreateWebhook() {
 }
 
 export const CREATE_WEBHOOK = 'CREATE_WEBHOOK'
-export function createWebhook(projectID) {
-  return dispatch => {
+export function createWebhook() {
+  return (dispatch, getState) => {
+    const { ListReducer: { project: { ID: projectID }}} = getState()
+    dispatch(startLoading())
     dispatch(requestCreateWebhook())
-    return Request
+    return axios
       .post(`/projects/${projectID}/webhook`)
-      .end((err, res) => {
-        if (res.ok) {
-          dispatch(receiveCreateWebhook())
-        } else if (res.unauthorized) {
-          dispatch(unauthorized())
-        } else if (res.notFound) {
-          dispatch(notFound())
-        } else {
-          dispatch(serverError())
-        }
+      .then((_res) => {
+        dispatch(stopLoading())
+        dispatch(receiveCreateWebhook())
+      })
+      .catch((err) => {
+        dispatch(stopLoading())
+        ErrorHandler(err)
+          .then()
+          .catch((error) => {
+            dispatch(ServerError(error))
+          })
       })
   }
 }
@@ -79,23 +62,24 @@ function receiveUpdateProject(project) {
 }
 
 export const FETCH_UPDATE_PROJECT = 'FETCH_UPDATE_PROJECT'
-export function fetchUpdateProject(projectID, params) {
-  return dispatch => {
+export function fetchUpdateProject(params) {
+  return (dispatch, getState) => {
+    const { ListReducer: { project: { ID: projectID }}} = getState()
+    dispatch(startLoading())
     dispatch(requestUpdateProject())
-    return Request
-      .post(`/projects/${projectID}`)
-      .type('form')
-      .send(params)
-      .end((err, res) => {
-        if (res.ok) {
-          dispatch(receiveUpdateProject(res.body))
-        } else if (res.unauthorized) {
-          dispatch(unauthorized())
-        } else if (res.notFound) {
-          dispatch(notFound())
-        } else {
-          dispatch(serverError())
-        }
+    return axios
+      .patch(`/projects/${projectID}`, params)
+      .then((res) => {
+        dispatch(stopLoading())
+        dispatch(receiveUpdateProject(res.data))
+      })
+      .catch((err) => {
+        dispatch(stopLoading())
+        ErrorHandler(err)
+          .then()
+          .catch((error) => {
+            dispatch(ServerError(error))
+          })
       })
   }
 }

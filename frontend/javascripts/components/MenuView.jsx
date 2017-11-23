@@ -20,9 +20,7 @@ class MenuView extends React.Component {
                 <a href="#" className="pure-menu-link">account</a>
                 <ul className="pure-menu-children">
                   <li className="pure-menu-item fascia-menu-item">
-                    <form id="logout" action="/sign_out" method="post">
-                      <a href="#" className="pure-menu-link" onClick={() => this.props.logout(document.getElementById('logout'))}>Sign Out</a>
-                    </form>
+                    <a href="#" className="pure-menu-link" onClick={this.props.menuActions.signOut}>Sign Out</a>
                   </li>
                 </ul>
               </li>
@@ -39,7 +37,7 @@ class MenuView extends React.Component {
 
 MenuView.propTypes = {
   children: PropTypes.object.isRequired,
-  logout: PropTypes.func.isRequired,
+  menuActions: PropTypes.object.isRequired,
 }
 
 export default MenuView

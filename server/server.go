@@ -41,8 +41,8 @@ func Routes(e *echo.Echo) {
 	sessions := &controllers.Sessions{}
 	e.GET("/sign_in", sessions.SignIn)
 	e.POST("/sign_in", sessions.NewSession)
-	login.POST("session", sessions.Update)
-	e.POST("/sign_out", sessions.SignOut)
+	login.PATCH("session", sessions.Update)
+	e.DELETE("/sign_out", sessions.SignOut)
 
 	registrations := &controllers.Registrations{}
 	e.GET("/sign_up", registrations.SignUp)
@@ -72,10 +72,10 @@ func Routes(e *echo.Echo) {
 
 	p := login.Group("projects")
 	p.Use(middlewares.Project())
-	p.POST("/:project_id", projects.Update)
+	p.PATCH("/:project_id", projects.Update)
 	p.GET("/:project_id/show", projects.Show)
 	p.POST("/:project_id/fetch_github", projects.FetchGithub)
-	p.POST("/:project_id/settings", projects.Settings)
+	p.PATCH("/:project_id/settings", projects.Settings)
 	p.POST("/:project_id/webhook", projects.Webhook)
 	p.DELETE("/:project_id", projects.Destroy)
 
@@ -85,9 +85,9 @@ func Routes(e *echo.Echo) {
 
 	l := p.Group("/:project_id/lists")
 	l.Use(middlewares.List())
-	l.POST("/:list_id", lists.Update)
-	l.POST("/:list_id/hide", lists.Hide)
-	l.POST("/:list_id/display", lists.Display)
+	l.PATCH("/:list_id", lists.Update)
+	l.PATCH("/:list_id/hide", lists.Hide)
+	l.PATCH("/:list_id/display", lists.Display)
 
 	tasks := &controllers.Tasks{}
 	l.POST("/:list_id/tasks", tasks.Create)
@@ -96,7 +96,7 @@ func Routes(e *echo.Echo) {
 	t.Use(middlewares.Task())
 	t.GET("/:task_id", tasks.Show)
 	t.POST("/:task_id/move_task", tasks.MoveTask)
-	t.POST("/:task_id", tasks.Update)
+	t.PATCH("/:task_id", tasks.Update)
 	t.DELETE("/:task_id", tasks.Delete)
 
 	listOptions := &controllers.ListOptions{}

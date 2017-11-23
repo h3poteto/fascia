@@ -98,7 +98,7 @@ func (u *Sessions) SignOut(c echo.Context) error {
 	}
 
 	logging.SharedInstance().Controller(c).Info("logout success")
-	return c.Redirect(http.StatusFound, "/sign_in")
+	return c.JSON(http.StatusOK, nil)
 }
 
 // Update a session

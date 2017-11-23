@@ -5,18 +5,18 @@ import (
 )
 
 type taskCreate struct {
-	Title       string `valid:"stringlength(1|255)"`
-	Description string `valid:"stringlength(0|21845),optional"`
+	Title       string `json:"title" valid:"required~title is required,stringlength(1|255)~title must be between 1 to 255"`
+	Description string `json:"description" valid:"stringlength(0|21845)~description must be between 0 to 21845,optional"`
 }
 
 type taskUpdate struct {
-	Title       string `valid:"stringlength(1|255)"`
-	Description string `valid:"stringlength(0|21845),optional"`
+	Title       string `json:"title" valid:"required~title is required,stringlength(1|255)~title must be between 1 to 255"`
+	Description string `json:"description" valid:"stringlength(0|21845)~description must be between 0 to 21845,optional"`
 }
 
 type taskMove struct {
-	ToListID     int64 `valid:"required"`
-	PrevToTaskID int64 `valid:"-"`
+	ToListID     int64 `json:"to_list_id" valid:"required~to_list_id is required"`
+	PrevToTaskID int64 `json:"prev_to_Task_id" valid:"-"`
 }
 
 // TaskCreateValidation check form variable when create tasks

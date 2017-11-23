@@ -126,8 +126,7 @@ var _ = Describe("SessionsController", func() {
 			resource := Sessions{}
 			err := resource.SignOut(c)
 			Expect(err).To(BeNil())
-			u, _ := rec.Result().Location()
-			Expect(u.Path).To(Equal("/sign_in"))
+			Expect(rec.Code).To(Equal(http.StatusOK))
 		})
 	})
 

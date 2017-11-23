@@ -87,7 +87,7 @@ class ShowTaskModal extends React.Component {
     if (isEditTaskModalVisible) {
       return (
         <div className="task-body task-form">
-          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit((values) => { action(project.ID, task.ListID, task.ID, values) })}>
+          <form className="pure-form pure-form-stacked" onSubmit={handleSubmit(action)}>
             <fieldset>
               <legend>Edit Task</legend>
               <label htmlFor="title">Title</label>
@@ -119,9 +119,9 @@ class ShowTaskModal extends React.Component {
     }
   }
 
-  deleteTask(projectID, task, fetchDeleteTask) {
+  deleteTask(task, fetchDeleteTask) {
     if (task.IssueNumber === 0) {
-      return <i title="Delete task" className="fa fa-trash" onClick={() => fetchDeleteTask(projectID, task.ListID, task.ID)}></i>
+      return <i title="Delete task" className="fa fa-trash" onClick={fetchDeleteTask}></i>
     } else {
       return
     }
@@ -151,7 +151,7 @@ class ShowTaskModal extends React.Component {
       >
         <div className="task-detail">
           <div className="task-controll">
-            {this.deleteTask(project.ID, task, fetchDeleteTask)}
+            {this.deleteTask(task, fetchDeleteTask)}
             <i title="Edit task" className="fa fa-pencil" onClick={() => changeEditMode(this.props.task)}></i>
           </div>
           {this.taskForm(project, task, isEditTaskModalVisible, handleSubmit, action, pristine, submitting, reset, changeEditMode)}
