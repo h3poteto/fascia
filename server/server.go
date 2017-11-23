@@ -41,7 +41,7 @@ func Routes(e *echo.Echo) {
 	sessions := &controllers.Sessions{}
 	e.GET("/sign_in", sessions.SignIn)
 	e.POST("/sign_in", sessions.NewSession)
-	login.POST("session", sessions.Update)
+	login.PATCH("session", sessions.Update)
 	e.POST("/sign_out", sessions.SignOut)
 
 	registrations := &controllers.Registrations{}
