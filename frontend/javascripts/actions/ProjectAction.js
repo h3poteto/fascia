@@ -1,6 +1,5 @@
 import axios from 'axios'
 import { ErrorHandler, ServerError } from './ErrorHandler'
-import { startLoading, stopLoading } from './Loading'
 
 export const CLOSE_FLASH = 'CLOSE_FLASH'
 export function closeFlash() {
@@ -28,7 +27,7 @@ export function fetchSession() {
     dispatch(requestSession())
     return axios
       .patch('/session')
-      .then((res) => {
+      .then((_) => {
         dispatch(receiveSession())
       })
       .catch((err) => {

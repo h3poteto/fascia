@@ -37,7 +37,7 @@ class MenuView extends React.Component {
 
 MenuView.propTypes = {
   children: PropTypes.object.isRequired,
-  logout: PropTypes.func.isRequired,
+  menuActions: PropTypes.object.isRequired,
 }
 
 export default MenuView
