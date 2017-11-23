@@ -44,31 +44,6 @@ describe('ListReducer', () => {
   })
 
   context('listActions', () => {
-    describe('SERVER_ERROR', () => {
-      it('should return server error', () => {
-        expect(
-          ListReducer(null, {
-            type: listActions.SERVER_ERROR
-          })
-        ).toEqual({
-          error: 'Internal Server Error',
-          isLoading: false
-        })
-      })
-    })
-    describe('NOT_FOUND', () => {
-      it('should return not found error', () => {
-        expect(
-          ListReducer(null, {
-            type: listActions.NOT_FOUND
-          })
-        ).toEqual({
-          error: 'Error Not Found',
-          isLoading: false
-        })
-      })
-    })
-
     describe('CLOSE_FLASH', () => {
       it('should close flash', () => {
         expect(
@@ -79,19 +54,6 @@ describe('ListReducer', () => {
           })
         ).toEqual({
           error: null
-        })
-      })
-    })
-    describe('REQUEST_FETCH_GITHUB', () => {
-      it('should render whole loading window', () => {
-        expect(
-          ListReducer({
-            isLoading: false
-          }, {
-            type: listActions.REQUEST_FETCH_GITHUB
-          })
-        ).toEqual({
-          isLoading: true
         })
       })
     })
@@ -174,7 +136,6 @@ describe('ListReducer', () => {
             ListReducer({
               lists: null,
               noneList: {ID: 0, ListTasks: []},
-              isLoading: true
             }, {
               type: listActions.RECEIVE_LISTS,
               lists: null,
@@ -183,7 +144,6 @@ describe('ListReducer', () => {
           ).toEqual({
             lists: [],
             noneList: {ID: 1, ListTasks: []},
-            isLoading: false
           })
         })
       })
@@ -207,7 +167,6 @@ describe('ListReducer', () => {
               { title: 'list2', ListTasks: [] }
             ],
             noneList: {ID: 0, ListTasks: []},
-            isLoading: false
           })
         })
       })
@@ -251,7 +210,6 @@ describe('ListReducer', () => {
               }
             ],
             noneList: {ID: 0, ListTasks: []},
-            isLoading: false
           })
         })
       })
@@ -974,11 +932,11 @@ describe('ListReducer', () => {
             lists: [{
               ID: 1,
               Title: 'list1',
+              isLoading: true,
               ListTasks: [
                 { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
                 { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
               ],
-              isLoading: true
             }, {
               ID: 2,
               Title: 'list2',
@@ -1044,17 +1002,17 @@ describe('ListReducer', () => {
             lists: [{
               ID: 1,
               Title: 'list1',
+              isLoading: true,
               ListTasks: [
                 { ID: 1, ListID: 1, Title: 'task1', Description: 'hogehoge' },
                 { ID: 2, ListID: 1, Title: 'task2', Description: 'hogehoge' }
               ],
-              isLoading: true
             }, {
               ID: 2,
               Title: 'list2',
               ListTasks: [],
+              isDraggingOver: false,
               isLoading: true,
-              isDraggingOver: false
             }],
             noneList: {ID: 0, ListTasks: [] }
           })
@@ -1205,31 +1163,6 @@ describe('ListReducer', () => {
 
 
   context('newTaskModalActions', () => {
-    describe('SERVER_ERROR', () => {
-      it('should return server error', () => {
-        expect(
-          ListReducer(null, {
-            type: newTaskModalActions.SERVER_ERROR
-          })
-        ).toEqual({
-          error: 'Internal Server Error',
-          isLoading: false
-        })
-      })
-    })
-    describe('NOT_FOUND', () => {
-      it('should return not found error', () => {
-        expect(
-          ListReducer(null, {
-            type: newTaskModalActions.NOT_FOUND
-          })
-        ).toEqual({
-          error: 'Error Not Found',
-          isLoading: false
-        })
-      })
-    })
-
     describe('CLOSE_NEW_TASK', () => {
       it('should close new task modal', () => {
         expect(
@@ -1247,19 +1180,6 @@ describe('ListReducer', () => {
       })
     })
 
-    describe('REQUEST_CREATE_TASK', () => {
-      it('should open whole loading window', () => {
-        expect(
-          ListReducer({
-            isLoading: false
-          }, {
-            type: newTaskModalActions.REQUEST_CREATE_TASK
-          })
-        ).toEqual({
-          isLoading: true
-        })
-      })
-    })
     describe('RECEIVE_CREATE_TASK', () => {
       it('should return lists contain new task', () => {
         expect(
@@ -1277,7 +1197,6 @@ describe('ListReducer', () => {
             }],
             noneList: {ID: 0, ListTasks: [] },
             isTaskModalOpen: true,
-            isLoading: true
           }, {
             type: newTaskModalActions.RECEIVE_CREATE_TASK,
             lists: [{
@@ -1309,38 +1228,12 @@ describe('ListReducer', () => {
           }],
           noneList: [],
           isTaskModalOpen: false,
-          isLoading: false
         })
       })
     })
   })
 
   context('editListModalActions', () => {
-    describe('SERVER_ERROR', () => {
-      it('should return server error', () => {
-        expect(
-          ListReducer(null, {
-            type: editListModalActions.SERVER_ERROR
-          })
-        ).toEqual({
-          error: 'Internal Server Error',
-          isLoading: false
-        })
-      })
-    })
-    describe('NOT_FOUND', () => {
-      it('should return not found error', () => {
-        expect(
-          ListReducer(null, {
-            type: editListModalActions.NOT_FOUND
-          })
-        ).toEqual({
-          error: 'Error Not Found',
-          isLoading: false
-        })
-      })
-    })
-
     describe('CLOSE_EDIT_LIST', () => {
       it('should close edit list modal', () => {
         expect(
@@ -1358,19 +1251,6 @@ describe('ListReducer', () => {
       })
     })
 
-    describe('REQUEST_UPDATE_LIST', () => {
-      it('should open whole loading window', () => {
-        expect(
-          ListReducer({
-            isLoading: false
-          }, {
-            type: editListModalActions.REQUEST_UPDATE_LIST
-          })
-        ).toEqual({
-          isLoading: true
-        })
-      })
-    })
     describe('RECEIVE_UPDATE_LIST', () => {
       it('should return lists with new list', () => {
         expect(
@@ -1387,7 +1267,6 @@ describe('ListReducer', () => {
               ListTasks: []
             }],
             isListEditModalOpen: true,
-            isLoading: true
           }, {
             type: editListModalActions.RECEIVE_UPDATE_LIST,
             list: {
@@ -1411,51 +1290,12 @@ describe('ListReducer', () => {
             ListTasks: []
           }],
           isListEditModalOpen: false,
-          isLoading: false
         })
       })
     })
   })
 
   context('newListModalActions', () => {
-    describe('SERVER_ERROR', () => {
-      it('should return server error', () => {
-        expect(
-          ListReducer(null, {
-            type: newListModalActions.SERVER_ERROR
-          })
-        ).toEqual({
-          error: 'Internal Server Error',
-          isLoading: false
-        })
-      })
-    })
-    describe('NOT_FOUND', () => {
-      it('should return not found error', () => {
-        expect(
-          ListReducer(null, {
-            type: newListModalActions.NOT_FOUND
-          })
-        ).toEqual({
-          error: 'Error Not Found',
-          isLoading: false
-        })
-      })
-    })
-
-    describe('REQUEST_CREATE_LIST', () => {
-      it('should open whole loading window', () => {
-        expect(
-          ListReducer({
-            isLoading: false
-          }, {
-            type: newListModalActions.REQUEST_CREATE_LIST
-          })
-        ).toEqual({
-          isLoading: true
-        })
-      })
-    })
     describe('RECEIVE_CREATE_LIST', () => {
       context('when receive list and empty ListTasks', () => {
         it('should return list and empty ListTasks', () => {
@@ -1473,7 +1313,6 @@ describe('ListReducer', () => {
                 }
               ],
               isListModalOpen: true,
-              isLoading: true
             }, {
               type: newListModalActions.RECEIVE_CREATE_LIST,
               list: { title: 'list3', ListTasks: null }
@@ -1494,7 +1333,6 @@ describe('ListReducer', () => {
               }
             ],
             isListModalOpen: false,
-            isLoading: false
           })
         })
       })
@@ -1514,7 +1352,6 @@ describe('ListReducer', () => {
                 }
               ],
               isListModalOpen: false,
-              isLoading: true
             }, {
               type: newListModalActions.RECEIVE_CREATE_LIST,
               list: { title: 'list3', ListTasks: [ { title: 'task3' } ] }
@@ -1537,7 +1374,6 @@ describe('ListReducer', () => {
               }
             ],
             isListModalOpen: false,
-            isLoading: false
           })
         })
       })
@@ -1545,41 +1381,6 @@ describe('ListReducer', () => {
   })
 
   context('editProjectModalActions', () => {
-    describe('SERVER_ERROR', () => {
-      it('should return server error', () => {
-        expect(
-          ListReducer(null, {
-            type: editProjectModalActions.SERVER_ERROR
-          })
-        ).toEqual({
-          error: 'Internal Server Error',
-          isLoading: false
-        })
-      })
-    })
-    describe('NOT_FOUND', () => {
-      it('should return not found error', () => {
-        expect(
-          ListReducer(null, {
-            type: editProjectModalActions.NOT_FOUND
-          })
-        ).toEqual({
-          error: 'Error Not Found',
-          isLoading: false
-        })
-      })
-    })
-    describe('REQUEST_CREATE_WEBHOOK', () => {
-      it('should close edit project modal', () => {
-        expect(
-          ListReducer(null, {
-            type: editProjectModalActions.REQUEST_CREATE_WEBHOOK
-          })
-        ).toEqual({
-          isProjectEditModalOpen: false
-        })
-      })
-    })
     describe('CLOSE_EDIT_PROJECT', () => {
       it('should close edit project modal', () => {
         expect(
@@ -1613,7 +1414,6 @@ describe('ListReducer', () => {
             Description: 'description sample'
           },
           isProjectEditModalOpen: false,
-          isLoading: false,
         })
       })
     })
@@ -1668,7 +1468,6 @@ describe('ListReducer', () => {
           ListReducer({
             isTaskShowModalOpen: true,
             isEditTaskModalVisible: true,
-            isLoading: true,
             lists: [
               {
                 Title: 'task1',
@@ -1689,7 +1488,6 @@ describe('ListReducer', () => {
         ).toEqual({
           isTaskShowModalOpen: false,
           isEditTaskModalVisible: false,
-          isLoading: false,
           lists: [
             {
               Title: 'task updated',

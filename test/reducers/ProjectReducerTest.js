@@ -25,32 +25,6 @@ describe('ProjectReducer', () => {
   })
 
   context('projectActions', () => {
-    describe('SERVER_ERROR', () => {
-      it('should return server error', () => {
-        expect(
-          ProjectReducer(null, {
-            type: projectActions.SERVER_ERROR
-          })
-        ).toEqual({
-          error: "Internal Server Error",
-          isLoading: false
-        })
-      })
-    })
-
-    describe('NOT_FOUND', () => {
-      it('should return not found error', () => {
-        expect(
-          ProjectReducer(null, {
-            type: projectActions.NOT_FOUND
-          })
-        ).toEqual({
-          error: "Error Not Found",
-          isLoading: false
-        })
-      })
-    })
-
     describe('CLOSE_FLASH', () => {
       it('should close flash', () => {
         expect(
@@ -137,32 +111,6 @@ describe('ProjectReducer', () => {
   })
 
   context('newProjectModalActions', () => {
-    describe('SERVER_ERROR', () => {
-      it('should return server error', () => {
-        expect(
-          ProjectReducer(null, {
-            type: newProjectModalActions.SERVER_ERROR
-          })
-        ).toEqual({
-          error: "Internal Server Error",
-          isLoading: false
-        })
-      })
-    })
-
-    describe('NOT_FOUND', () => {
-      it('should return not found error', () => {
-        expect(
-          ProjectReducer(null, {
-            type: newProjectModalActions.NOT_FOUND
-          })
-        ).toEqual({
-          error: "Error Not Found",
-          isLoading: false
-        })
-      })
-    })
-
     describe('CLOSE_NEW_PROJECT', () => {
       it('should close project modal', () => {
         expect(
@@ -184,7 +132,6 @@ describe('ProjectReducer', () => {
           ProjectReducer({
             projects: ["project1", "project2"],
             isModalOpen: true,
-            isLoading: false
           }, {
             type:newProjectModalActions.REQUEST_CREATE_PROJECT,
             project: "project3"
@@ -192,7 +139,6 @@ describe('ProjectReducer', () => {
         ).toEqual({
           projects: ["project1", "project2"],
           isModalOpen: true,
-          isLoading: true,
         })
       })
     })
@@ -202,14 +148,12 @@ describe('ProjectReducer', () => {
         expect(
           ProjectReducer({
             projects: ["project1", "project2"],
-            isLoading: true
           },{
             type: newProjectModalActions.RECEIVE_CREATE_PROJECT,
             project: "project3"
           })
         ).toEqual({
           projects: ["project1", "project2", "project3"],
-          isLoading: false,
           isModalOpen: false,
         })
       })
