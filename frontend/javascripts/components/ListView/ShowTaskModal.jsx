@@ -178,6 +178,7 @@ ShowTaskModal.propTypes = {
   fetchDeleteTask: PropTypes.func.isRequired,
   changeEditMode: PropTypes.func.isRequired,
   dirty: PropTypes.object,
+  flashMessage: PropTypes.string,
 }
 
 export default reduxForm({

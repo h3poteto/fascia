@@ -130,6 +130,7 @@ EditListModal.propTypes = {
   color: PropTypes.string,
   changeColor: PropTypes.func,
   change: PropTypes.func,
+  flashMessage: PropTypes.string,
 }
 
 export default reduxForm({

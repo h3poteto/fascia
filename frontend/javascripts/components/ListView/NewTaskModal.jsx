@@ -83,6 +83,7 @@ NewTaskModal.propTypes = {
   onRequestClose: PropTypes.func.isRequired,
   action: PropTypes.func.isRequired,
   isTaskModalOpen: PropTypes.bool.isRequired,
+  flashMessage: PropTypes.string,
 }
 
 export default reduxForm({

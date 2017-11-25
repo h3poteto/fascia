@@ -93,6 +93,7 @@ NewProjectModal.propTypes = {
   action: PropTypes.func.isRequired,
   repositories: PropTypes.array,
   isModalOpen: PropTypes.bool.isRequired,
+  flashMessage: PropTypes.string,
 }
 
 export default reduxForm({

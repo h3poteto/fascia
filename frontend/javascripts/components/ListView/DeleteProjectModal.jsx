@@ -50,6 +50,7 @@ class DeleteProjectModal extends React.Component {
       submitting,
       onRequestClose,
       action,
+      // eslint-disable-next-line no-unused-vars
       project,
       isDeleteProjectModalOpen,
       flashMessage
@@ -92,6 +93,8 @@ DeleteProjectModal.propTypes = {
   onRequestClose: PropTypes.func.isRequired,
   isDeleteProjectModalOpen: PropTypes.bool.isRequired,
   action: PropTypes.func.isRequired,
+  flashMessage: PropTypes.string,
+  project: PropTypes.object,
 }
 
 renderField.propTypes = {

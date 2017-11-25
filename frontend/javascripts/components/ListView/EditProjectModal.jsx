@@ -106,6 +106,7 @@ EditProjectModal.propTypes = {
   project: PropTypes.object,
   isProjectEditModalOpen: PropTypes.bool.isRequired,
   createWebhook: PropTypes.func.isRequired,
+  flashMessage: PropTypes.string,
 }
 
 export default reduxForm({
