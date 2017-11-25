@@ -142,11 +142,14 @@ class ListView extends React.Component {
           onRequestClose={this.props.editProjectModalActions.closeEditProjectModal}
           action={this.props.editProjectModalActions.fetchUpdateProject}
           createWebhook={this.props.editProjectModalActions.createWebhook}
+          flashMessage={error}
         />
         <DeleteProjectModal
           isDeleteProjectModalOpen={isDeleteProjectModalOpen}
           onRequestClose={this.props.deleteProjectModalActions.closeDeleteProjectModal}
+          project={project}
           action={this.props.deleteProjectModalActions.fetchDeleteProject}
+          flashMessage={error}
         />
         <NewListModal
           isListModalOpen={isListModalOpen}
@@ -154,6 +157,7 @@ class ListView extends React.Component {
           action={this.props.newListModalActions.fetchCreateList}
           changeColor={this.props.newListModalActions.changeColor}
           color={color}
+          flashMessage={error}
         />
         <EditListModal
           isListEditModalOpen={isListEditModalOpen}
@@ -164,11 +168,13 @@ class ListView extends React.Component {
           action={this.props.editListModalActions.fetchUpdateList}
           changeColor={this.props.editListModalActions.changeColor}
           color={color}
+          flashMessage={error}
         />
         <NewTaskModal
           isTaskModalOpen={isTaskModalOpen}
           onRequestClose={this.props.newTaskModalActions.closeNewTaskModal}
           action={this.props.newTaskModalActions.fetchCreateTask}
+          flashMessage={error}
         />
         <ShowTaskModal
           isShowTaskModalOpen={isTaskShowModalOpen}
@@ -179,6 +185,7 @@ class ListView extends React.Component {
           changeEditMode={this.props.showTaskModalActions.changeEditMode}
           action={this.props.showTaskModalActions.fetchUpdateTask}
           fetchDeleteTask={this.props.showTaskModalActions.fetchDeleteTask}
+          flashMessage={error}
         />
         <div className="title-wrapper">
           <div className="project-operation">

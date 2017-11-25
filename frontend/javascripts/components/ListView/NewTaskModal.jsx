@@ -44,18 +44,20 @@ class NewTaskModal extends React.Component {
       submitting,
       onRequestClose,
       action,
+      flashMessage
     } = this.props
     return (
       <Modal
-          isOpen={this.props.isTaskModalOpen}
-          onRequestClose={onRequestClose}
-          style={customStyles}
-          contentLabel="NewTaskModal"
+        isOpen={this.props.isTaskModalOpen}
+        onRequestClose={onRequestClose}
+        style={customStyles}
+        contentLabel="NewTaskModal"
       >
         <div className="task-form">
           <form className="pure-form pure-form-stacked" onSubmit={handleSubmit(action)} >
             <fieldset>
               <legend>Create Task</legend>
+              <div className="flash flash-error">{flashMessage}</div>
               <label htmlFor="title">Title</label>
               <Field component={RenderField} name="title" id="title" type="text" placeholder="Task Name" />
               <label htmlFor="description">Description</label>
@@ -81,6 +83,7 @@ NewTaskModal.propTypes = {
   onRequestClose: PropTypes.func.isRequired,
   action: PropTypes.func.isRequired,
   isTaskModalOpen: PropTypes.bool.isRequired,
+  flashMessage: PropTypes.string,
 }
 
 export default reduxForm({

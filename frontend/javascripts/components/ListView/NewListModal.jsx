@@ -48,6 +48,7 @@ class NewListModal extends React.Component {
       action,
       changeColor,
       color,
+      flashMessage,
     } = this.props
     return (
       <Modal
@@ -60,6 +61,7 @@ class NewListModal extends React.Component {
           <form className="pure-form pure-form-stacked" onSubmit={handleSubmit(action)}>
             <fieldset>
               <legend>Create List</legend>
+              <div className="flash flash-error">{flashMessage}</div>
               <label htmlFor="title">Title</label>
               <Field component={RenderField} name="title" type="text" placeholder="List name" className="form-control" />
               <label htmlFor="color">Color</label>
@@ -97,6 +99,7 @@ NewListModal.propTypes = {
   color: PropTypes.string,
   changeColor: PropTypes.func,
   change: PropTypes.func,
+  flashMessage: PropTypes.string,
 }
 
 export default reduxForm({
