@@ -45,18 +45,21 @@ class NewProjectModal extends React.Component {
       onRequestClose,
       action,
       repositories,
+      flashMessage,
     } = this.props
+
     return (
       <Modal
-          isOpen={this.props.isModalOpen}
-          onRequestClose={onRequestClose}
-          style={customStyles}
-          contentLabel="NewProjectModal"
+        isOpen={this.props.isModalOpen}
+        onRequestClose={onRequestClose}
+        style={customStyles}
+        contentLabel="NewProjectModal"
       >
         <div className="project-form">
           <form className="pure-form pure-form-stacked" onSubmit={handleSubmit(action)}>
             <fieldset>
               <legend>Create Project</legend>
+              <div className="flash flash-error">{flashMessage}</div>
               <label htmlFor="title">Title</label>
               <Field component={RenderField} name="title" id="title" type="text" placeholder="Project name" />
               <label htmlFor="description">Description</label>
@@ -65,7 +68,7 @@ class NewProjectModal extends React.Component {
               <Field name="repository_id" id="repository_id" component="select" className="form-control">
                 <option value="0">--</option>
                 {repositories.map(function(repo, index) {
-                  return <option key={index} value={repo.id}>{repo.full_name}</option>
+                   return <option key={index} value={repo.id}>{repo.full_name}</option>
                  }, this)}
               </Field>
               <div className="form-action">

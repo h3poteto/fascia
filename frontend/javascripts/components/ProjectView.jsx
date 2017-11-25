@@ -37,32 +37,29 @@ class ProjectView extends React.Component {
       error
     } = this.props.ProjectReducer
 
-    var flash
-    if (error != null) {
-      flash = <div className="flash flash-error">{error}</div>
-    }
     return (
       <div id="projects">
         <WholeLoading isLoading={isLoading} />
-        {flash}
+        <div className="flash flash-error">{error}</div>
         <NewProjectModal
-            isModalOpen={isModalOpen}
-            onRequestClose={this.props.newProjectModalActions.closeNewProjectModal}
-            action={this.props.newProjectModalActions.fetchCreateProject}
-            repositories={repositories}
+          isModalOpen={isModalOpen}
+          onRequestClose={this.props.newProjectModalActions.closeNewProjectModal}
+          action={this.props.newProjectModalActions.fetchCreateProject}
+          repositories={repositories}
+          flashMessage={error}
         />
         <div className="items">
           {projects.map(function(item, index) {
-            return (
-              <Link key={index} to={`/projects/${item.ID}`}>
-                <div className="fascia-project pure-button button-secondary" data-id={item.ID}>
-                  <div className="project-title">{item.Title}</div>
-                  <div className="project-description">{truncate(item.Description, 52)}</div>
-                </div>
-              </Link>
-            )
+             return (
+               <Link key={index} to={`/projects/${item.ID}`}>
+                 <div className="fascia-project pure-button button-secondary" data-id={item.ID}>
+                   <div className="project-title">{item.Title}</div>
+                   <div className="project-description">{truncate(item.Description, 52)}</div>
+                 </div>
+               </Link>
+             )
            }, this)}
-              <button onClick={this.props.projectActions.openNewProjectModal} className="pure-button button-large fascia-new-project button-primary" type="button">New</button>
+          <button onClick={this.props.projectActions.openNewProjectModal} className="pure-button button-large fascia-new-project button-primary" type="button">New</button>
         </div>
       </div>
     )

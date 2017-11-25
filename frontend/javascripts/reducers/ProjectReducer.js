@@ -8,7 +8,7 @@ const initState = {
   projects: [],
   repositories: [],
   isLoading: false,
-  error: null
+  error: null,
 }
 
 export default function ProjectReducer(state = initState, action) {

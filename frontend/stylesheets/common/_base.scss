@@ -57,6 +57,10 @@ $green-color: #d3eda3;
   padding: 4px;
 }
 
+.flash:empty {
+  display: none;
+}
+
 .flash-success {
   background: $success-color;
 }
