@@ -83,13 +83,14 @@ class ShowTaskModal extends React.Component {
     }
   }
 
-  taskForm(project, task, isEditTaskModalVisible, handleSubmit, action, pristine, submitting, reset, changeEditMode) {
+  taskForm(project, task, isEditTaskModalVisible, handleSubmit, action, pristine, submitting, reset, changeEditMode, flashMessage) {
     if (isEditTaskModalVisible) {
       return (
         <div className="task-body task-form">
           <form className="pure-form pure-form-stacked" onSubmit={handleSubmit(action)}>
             <fieldset>
               <legend>Edit Task</legend>
+              <div className="flash flash-error">{flashMessage}</div>
               <label htmlFor="title">Title</label>
               <Field component={RenderField} name="title" id="title" type="text" />
               <label htmlFor="description">Description</label>
@@ -141,6 +142,7 @@ class ShowTaskModal extends React.Component {
       isEditTaskModalVisible,
       isShowTaskModalOpen,
       changeEditMode,
+      flashMessage
     } = this.props
     return (
       <Modal
@@ -154,7 +156,7 @@ class ShowTaskModal extends React.Component {
             {this.deleteTask(task, fetchDeleteTask)}
             <i title="Edit task" className="fa fa-pencil" onClick={() => changeEditMode(this.props.task)}></i>
           </div>
-          {this.taskForm(project, task, isEditTaskModalVisible, handleSubmit, action, pristine, submitting, reset, changeEditMode)}
+          {this.taskForm(project, task, isEditTaskModalVisible, handleSubmit, action, pristine, submitting, reset, changeEditMode, flashMessage)}
         </div>
       </Modal>
     )

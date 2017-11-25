@@ -50,20 +50,23 @@ class DeleteProjectModal extends React.Component {
       submitting,
       onRequestClose,
       action,
+      project,
       isDeleteProjectModalOpen,
+      flashMessage
     } = this.props
 
     return (
       <Modal
-          isOpen={isDeleteProjectModalOpen}
-          onRequestClose={onRequestClose}
-          style={customStyles}
-          contentLabel="DeleteProjectModal"
+        isOpen={isDeleteProjectModalOpen}
+        onRequestClose={onRequestClose}
+        style={customStyles}
+        contentLabel="DeleteProjectModal"
       >
         <div className="delete-project-form">
           <form className="pure-form pure-form-stacked" onSubmit={handleSubmit(action)}>
             <fieldset>
               <legend>Are you sure?</legend>
+              <div className="flash flash-error">{flashMessage}</div>
               <div className="delete-project-message pure-form-message">This action can not be undone.
                 This will permanently delete all tasks and lists in this project.
                 Issues, pull requests, and labels in the repository never changes at all with this action, when this project is associated with a github repository.

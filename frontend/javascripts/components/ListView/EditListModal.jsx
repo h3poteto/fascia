@@ -74,6 +74,7 @@ class EditListModal extends React.Component {
       listOptions,
       changeColor,
       color,
+      flashMessage,
     } = this.props
 
     return (
@@ -87,6 +88,7 @@ class EditListModal extends React.Component {
           <form className="pure-form pure-form-stacked" onSubmit={handleSubmit(action)}>
             <fieldset>
               <legend>Edit List</legend>
+              <div className="flash flash-error">{flashMessage}</div>
               <label htmlFor="title">Title</label>
               <Field component={RenderField} name="title" id="title" type="text" className="form-control" />
               <label htmlFor="color">Color</label>

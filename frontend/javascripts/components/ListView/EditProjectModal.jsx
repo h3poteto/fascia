@@ -60,18 +60,20 @@ class EditProjectModal extends React.Component {
       onRequestClose,
       action,
       project,
+      flashMessage,
     } = this.props
     return (
       <Modal
-          isOpen={this.props.isProjectEditModalOpen}
-          onRequestClose={onRequestClose}
-          style={customStyles}
-          contentLabel="EditProjectModal"
+        isOpen={this.props.isProjectEditModalOpen}
+        onRequestClose={onRequestClose}
+        style={customStyles}
+        contentLabel="EditProjectModal"
       >
         <div className="project-form">
           <form className="pure-form pure-form-stacked" onSubmit={handleSubmit(action)}>
             <fieldset>
               <legend>Edit Project</legend>
+              <div className="flash flash-error">{flashMessage}</div>
               <label htmlFor="title">Title</label>
               <Field component={RenderField} name="title" id="title" type="text" />
               <label htmlFor="description">Description</label>
