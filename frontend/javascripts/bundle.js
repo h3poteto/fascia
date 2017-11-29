@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { Router, Route, IndexRoute, browserHistory } from 'react-router'
 import { Provider } from 'react-redux'
+import { loadProgressBar } from 'axios-progress-bar'
 import configureStore from './store/configStore'
 import { syncHistoryWithStore } from 'react-router-redux'
 import projectContainer from './containers/ProjectContainer'
@@ -10,6 +11,8 @@ import menuContainer from './containers/MenuContainer'
 
 const store = configureStore()
 const history = syncHistoryWithStore(browserHistory, store)
+
+loadProgressBar()
 
 ReactDOM.render(
   <Provider store={store}>
