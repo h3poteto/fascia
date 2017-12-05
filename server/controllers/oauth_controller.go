@@ -18,6 +18,18 @@ import (
 type Oauth struct {
 }
 
+// SignIn render oauth login page
+func (u *Oauth) SignIn(c echo.Context) error {
+	privateURL := githubPrivateConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
+	publicURL := githubPublicConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
+
+	return c.Render(http.StatusOK, "oauth_sign_in.html.tpl", map[string]interface{}{
+		"title":      "SignIn",
+		"privateURL": privateURL,
+		"publicURL":  publicURL,
+	})
+}
+
 // Github catch callback from github for oauth login
 func (u *Oauth) Github(c echo.Context) error {
 	// 旧セッションの削除
