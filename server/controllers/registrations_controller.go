@@ -10,7 +10,6 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
-	"golang.org/x/oauth2"
 )
 
 // Registrations is controlelr struct for registrations
@@ -27,9 +26,6 @@ type SignUpForm struct {
 
 // SignUp render sign up form
 func (u *Registrations) SignUp(c echo.Context) error {
-	privateURL := githubPrivateConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
-	publicURL := githubPublicConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
-
 	token, err := GenerateCSRFToken(c)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Errorf("CSRF error: %v", err)
@@ -37,10 +33,8 @@ func (u *Registrations) SignUp(c echo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, "sign_up.html.tpl", map[string]interface{}{
-		"title":      "SignUp",
-		"privateURL": privateURL,
-		"publicURL":  publicURL,
-		"token":      token,
+		"title": "SignUp",
+		"token": token,
 	})
 }
 

@@ -13,7 +13,6 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
-	"golang.org/x/oauth2"
 )
 
 // Sessions is controller struct for sessions
@@ -29,9 +28,6 @@ type SignInForm struct {
 
 // SignIn renders a sign in form
 func (u *Sessions) SignIn(c echo.Context) error {
-	privateURL := githubPrivateConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
-	publicURL := githubPublicConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
-
 	token, err := GenerateCSRFToken(c)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Errorf("CSRF error: %v", err)
@@ -39,10 +35,8 @@ func (u *Sessions) SignIn(c echo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, "sign_in.html.tpl", map[string]interface{}{
-		"title":      "SignIn",
-		"privateURL": privateURL,
-		"publicURL":  publicURL,
-		"token":      token,
+		"title": "SignIn",
+		"token": token,
 	})
 }
 
