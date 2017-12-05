@@ -9,7 +9,6 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo"
-	"golang.org/x/oauth2"
 )
 
 // Root is controller struct
@@ -42,17 +41,13 @@ func (u *Root) Index(c echo.Context) error {
 
 // About render a about
 func (u *Root) About(c echo.Context) error {
-	privateURL := githubPrivateConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
-	publicURL := githubPublicConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
 	token, err := GenerateCSRFToken(c)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
 	return c.Render(http.StatusOK, "about.html.tpl", map[string]interface{}{
-		"title":      "Fascia",
-		"privateURL": privateURL,
-		"publicURL":  publicURL,
-		"token":      token,
+		"title": "Fascia",
+		"token": token,
 	})
 }

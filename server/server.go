@@ -49,6 +49,7 @@ func Routes(e *echo.Echo) {
 	e.POST("/sign_up", registrations.Registration)
 
 	oauth := &controllers.Oauth{}
+	e.GET("/oauth/sign_in", oauth.SignIn)
 	e.GET("/auth/github", oauth.Github)
 
 	passwords := &controllers.Passwords{}

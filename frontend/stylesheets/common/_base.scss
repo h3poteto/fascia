@@ -12,12 +12,12 @@ $green-color: #d3eda3;
 .button-warning,
 .button-secondary {
   color: white;
-  border-radius: 8px;
+  border-radius: 4px;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
 
 .pure-button-default {
-  border-radius: 8px;
+  border-radius: 4px;
 }
 
 .button-success {
@@ -45,6 +45,23 @@ $green-color: #d3eda3;
   color: #72962e;
   background: $green-color;
 }
+
+.button-xsmall {
+  font-size: 70%;
+}
+
+.button-small {
+  font-size: 85%;
+}
+
+.button-large {
+  font-size: 110%;
+}
+
+.button-xlarge {
+  font-size: 125%;
+}
+
 
 .text-error {
   color: $error-color;
