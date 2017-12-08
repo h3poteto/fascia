@@ -40,34 +40,34 @@ node@b8446c2db58c:/var/opt/app$ npm install
 Then, you can run docker container.
 
 ```
-$ docker-compose run --rm --service-ports fascia /bin/bash
+$ docker-compose run --rm --service-ports go /bin/sh
 ```
 
-Please install dependent packages.
+Please install dependent packages using [dep](https://github.com/golang/dep).
 
 ```
-$ gom install
+$ dep ensure
 ```
 
 
 At first time, you need to create database, like this:
 
 ```
-$ mysql -u root -p mysql -h $MYSQL_PORT_3306_TCP_ADDR
-mysql > create database fascia;
+$ mysql -u root -h mysql
+mysql > create database fascia char set utf8mb4;
 ```
 
 And prepare database tables.
 
 ```
-$ gom exec goose up
-$ gom run db/seed/seed.go
+$ goose up
+$ go run main.go seed
 ```
 
 After that, you can start server.
 
 ```
-$ gom run server.go
+$ go run main.go server
 ```
 
 Please open browser and access `localhost:9090`, you can access fascia on localhost.
