@@ -20,9 +20,9 @@ type Projects struct {
 
 // NewProjectForm is struct for new project
 type NewProjectForm struct {
-	Title        string `form:"title"`
-	Description  string `form:"description"`
-	RepositoryID int    `form:"repository_id"`
+	Title        string `json:"title"`
+	Description  string `json:"description"`
+	RepositoryID int64  `json:"repository_id,string"`
 }
 
 // EditProjectForm is struct for a project

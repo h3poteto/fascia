@@ -8,7 +8,7 @@ import (
 )
 
 // CreateProject create a new project, and fetch github
-func CreateProject(userID int64, title string, description string, repositoryID int, oauthToken sql.NullString) (*services.Project, error) {
+func CreateProject(userID int64, title string, description string, repositoryID int64, oauthToken sql.NullString) (*services.Project, error) {
 	projectService := services.NewProject(nil)
 	_, err := projectService.Create(userID, title, description, repositoryID, oauthToken)
 	if err != nil {
