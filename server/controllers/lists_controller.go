@@ -20,15 +20,15 @@ type Lists struct {
 
 // NewListForm is struct for new list
 type NewListForm struct {
-	Title string `form:"title"`
-	Color string `form:"color"`
+	Title string `json:"title"`
+	Color string `json:"color"`
 }
 
 // EditListForm is struct for edit list
 type EditListForm struct {
-	Title    string `form:"title"`
-	Color    string `form:"color"`
-	OptionID int64  `form:"option_id"`
+	Title    string `json:"title"`
+	Color    string `json:"color"`
+	OptionID int64  `json:"option_id,string"`
 }
 
 // Index returns all lists
