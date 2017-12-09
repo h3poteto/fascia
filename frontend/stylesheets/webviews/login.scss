@@ -22,10 +22,16 @@
     margin-top: 100px;
     padding: 20px;
     text-align: center;
+    min-width: 300px;
     width: auto;
 
     .session-button {
       width: 100%;
+    }
+
+    .secondary-session-button {
+      margin-top: 12px;
+      width: auto;
     }
 
     .control-group {

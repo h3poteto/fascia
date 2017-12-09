@@ -20,18 +20,27 @@ import (
 type Webviews struct {
 }
 
-// SignIn is a sign in action for mobile app
-func (u *Webviews) SignIn(c echo.Context) error {
+// OauthSignIn render oauth login page
+func (u *Webviews) OauthSignIn(c echo.Context) error {
 	privateURL := githubPrivateConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
 	publicURL := githubPublicConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
 
+	return c.Render(http.StatusOK, "webviews/oauth_sign_in.html.tpl", map[string]interface{}{
+		"title":      "SignIn",
+		"privateURL": privateURL,
+		"publicURL":  publicURL,
+	})
+}
+
+// SignIn is a sign in action for mobile app
+func (u *Webviews) SignIn(c echo.Context) error {
 	token, err := GenerateCSRFToken(c)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Errorf("CSRF error: %v", err)
 		return err
 	}
 
-	// prepare cookie
+	// Set cookie for iOS application when authentication callback
 	cookie := http.Cookie{
 		Path:    "/",
 		Name:    "fascia-ios",
@@ -41,10 +50,8 @@ func (u *Webviews) SignIn(c echo.Context) error {
 	c.SetCookie(&cookie)
 
 	return c.Render(http.StatusOK, "webviews/sign_in.html.tpl", map[string]interface{}{
-		"title":      "SignIn",
-		"publicURL":  publicURL,
-		"privateURL": privateURL,
-		"token":      token,
+		"title": "SignIn",
+		"token": token,
 	})
 }
 
