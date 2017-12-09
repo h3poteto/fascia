@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"strconv"
 	"strings"
 
@@ -43,10 +42,9 @@ var _ = Describe("ProjectsController", func() {
 			err error
 		)
 		JustBeforeEach(func() {
-			f := make(url.Values)
-			f.Set("title", "projectTitle")
-			req := httptest.NewRequest(echo.POST, "/projects", strings.NewReader(f.Encode()))
-			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+			j := `{"title":"projectTitle"}`
+			req := httptest.NewRequest(echo.POST, "/projects", strings.NewReader(j))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
 			resource := Projects{}
@@ -133,10 +131,9 @@ var _ = Describe("ProjectsController", func() {
 			newProject, _ = handlers.CreateProject(user.UserEntity.UserModel.ID, "title", "desc", 0, sql.NullString{})
 		})
 		It("should receive new project", func() {
-			f := make(url.Values)
-			f.Set("title", "newTitle")
-			req := httptest.NewRequest(echo.POST, "/projects/:project_id", strings.NewReader(f.Encode()))
-			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+			j := `{"title":"newTitle"}`
+			req := httptest.NewRequest(echo.POST, "/projects/:project_id", strings.NewReader(j))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
 			c = ProjectContext(c, newProject)
@@ -158,11 +155,9 @@ var _ = Describe("ProjectsController", func() {
 			newProject, _ = handlers.CreateProject(user.UserEntity.UserModel.ID, "title", "desc", 0, sql.NullString{})
 		})
 		It("should update show issues", func() {
-			f := make(url.Values)
-			f.Set("show_issues", "false")
-			f.Set("show_pull_requests", "true")
-			req := httptest.NewRequest(echo.POST, "/projects/:project_id/settings", strings.NewReader(f.Encode()))
-			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+			j := `{"show_issues":false,"show_pull_requests":true}`
+			req := httptest.NewRequest(echo.POST, "/projects/:project_id/settings", strings.NewReader(j))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
 			c = ProjectContext(c, newProject)
@@ -179,11 +174,9 @@ var _ = Describe("ProjectsController", func() {
 			Expect(resp.ShowPullRequests).To(BeTrue())
 		})
 		It("should update show pull requests", func() {
-			f := make(url.Values)
-			f.Set("show_issues", "true")
-			f.Set("show_pull_requests", "false")
-			req := httptest.NewRequest(echo.POST, "/projects/:project_id/settings", strings.NewReader(f.Encode()))
-			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+			j := `{"show_issues":true,"show_pull_requests":false}`
+			req := httptest.NewRequest(echo.POST, "/projects/:project_id/settings", strings.NewReader(j))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
 			c = ProjectContext(c, newProject)

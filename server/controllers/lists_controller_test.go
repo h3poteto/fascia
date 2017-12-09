@@ -3,9 +3,9 @@ package controllers_test
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"strconv"
 	"strings"
 
@@ -43,11 +43,9 @@ var _ = Describe("ListsController", func() {
 			err error
 		)
 		JustBeforeEach(func() {
-			f := make(url.Values)
-			f.Set("title", "listTitle")
-			f.Set("color", "008ed5")
-			req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists", strings.NewReader(f.Encode()))
-			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+			j := `{"title":"listTitle","color":"008ed5"}`
+			req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists", strings.NewReader(j))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
 			c = ProjectContext(c, project)
@@ -83,12 +81,9 @@ var _ = Describe("ListsController", func() {
 			JustBeforeEach(func() {
 				newList := handlers.NewList(0, project.ProjectEntity.ProjectModel.ID, user.UserEntity.UserModel.ID, "listTitle", "", sql.NullInt64{}, false)
 				newList.Save()
-				f := make(url.Values)
-				f.Set("title", "newListTitle")
-				f.Set("color", "008ed5")
-				f.Set("option_id", "0")
-				req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id", strings.NewReader(f.Encode()))
-				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+				j := `{"title":"newListTitle","color":"008ed5","option_id":"0"}`
+				req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id", strings.NewReader(j))
+				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 				c := e.NewContext(req, rec)
 				_, c = LoginFaker(c, email, password)
 				c = ProjectContext(c, project)
@@ -113,12 +108,9 @@ var _ = Describe("ListsController", func() {
 				newList.Save()
 				closeListOption, _ := services.FindListOptionByAction("close")
 				optionID := strconv.FormatInt(closeListOption.ListOptionEntity.ListOptionModel.ID, 10)
-				f := make(url.Values)
-				f.Set("title", "newListTitle")
-				f.Set("color", "008ed5")
-				f.Set("option_id", optionID)
-				req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id", strings.NewReader(f.Encode()))
-				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+				j := fmt.Sprintf(`{"title":"newListTitle","color":"008ed5","option_id":"%s"}`, optionID)
+				req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id", strings.NewReader(j))
+				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 				c := e.NewContext(req, rec)
 				_, c = LoginFaker(c, email, password)
 				c = ProjectContext(c, project)
