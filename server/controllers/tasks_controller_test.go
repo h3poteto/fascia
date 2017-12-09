@@ -9,9 +9,9 @@ import (
 
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"strconv"
 	"strings"
 
@@ -50,10 +50,9 @@ var _ = Describe("TasksController", func() {
 			err error
 		)
 		JustBeforeEach(func() {
-			f := make(url.Values)
-			f.Set("title", "taskTitle")
-			req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id/tasks", strings.NewReader(f.Encode()))
-			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+			j := `{"title":"taskTitle","description":"desc"}`
+			req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id/tasks", strings.NewReader(j))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
 			c = ProjectContext(c, project)
@@ -117,10 +116,10 @@ var _ = Describe("TasksController", func() {
 			newTask.Save()
 		})
 		It("should change list the task belongs", func() {
-			f := make(url.Values)
-			f.Set("to_list_id", strconv.FormatInt(newList.ListEntity.ListModel.ID, 10))
-			req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id/tasks/:task_id/move_task", strings.NewReader(f.Encode()))
-			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+			listID := strconv.FormatInt(newList.ListEntity.ListModel.ID, 10)
+			j := fmt.Sprintf(`{"to_list_id":%s}`, listID)
+			req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id/tasks/:task_id/move_task", strings.NewReader(j))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
 			c = ProjectContext(c, project)
@@ -147,11 +146,9 @@ var _ = Describe("TasksController", func() {
 			newTask.Save()
 		})
 		It("should update a task", func() {
-			f := make(url.Values)
-			f.Set("title", "updateTitle")
-			f.Set("description", "updateDescription")
-			req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id/tasks/:task_id", strings.NewReader(f.Encode()))
-			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+			j := `{"title":"updateTitle","description":"updateDescription"}`
+			req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id/tasks/:task_id", strings.NewReader(j))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
 			c = ProjectContext(c, project)

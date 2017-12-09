@@ -7,7 +7,7 @@ import (
 type projectCreate struct {
 	Title        string `json:"title" valid:"required~title is required,stringlength(1|255)~title must be between 1 to 255"`
 	Description  string `json:"description" valid:"stringlength(0|255)~description must be between 0 to 255,optional"`
-	RepositoryID int    `json:"repository_id" valid:"-"`
+	RepositoryID int64  `json:"repository_id" valid:"-"`
 }
 
 type projectUpdate struct {
@@ -16,7 +16,7 @@ type projectUpdate struct {
 }
 
 // ProjectCreateValidation check form variable when create projects
-func ProjectCreateValidation(title string, description string, repositoryID int) (bool, error) {
+func ProjectCreateValidation(title string, description string, repositoryID int64) (bool, error) {
 	form := &projectCreate{
 		Title:        title,
 		Description:  description,

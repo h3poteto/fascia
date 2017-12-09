@@ -60,12 +60,12 @@ func (p *Project) CheckOwner(userID int64) bool {
 }
 
 // Create create project and repository, and create webhook and related lists.
-func (p *Project) Create(userID int64, title string, description string, repositoryID int, oauthToken sql.NullString) (*project.Project, error) {
+func (p *Project) Create(userID int64, title string, description string, repositoryID int64, oauthToken sql.NullString) (*project.Project, error) {
 	var repoID sql.NullInt64
 	if repositoryID != 0 && oauthToken.Valid {
 		// repository:projectは1:多なので，repositoryがすでに存在している可能性はある
 		// そのため先にselectをかけて存在しない場合のみcreateする
-		repo, err := repository.FindByGithubRepoID(int64(repositoryID))
+		repo, err := repository.FindByGithubRepoID(repositoryID)
 		if err != nil {
 			repo, err = repository.CreateRepository(repositoryID, oauthToken.String)
 			if err != nil {
