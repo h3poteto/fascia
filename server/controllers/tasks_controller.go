@@ -20,20 +20,20 @@ type Tasks struct {
 
 // NewTaskForm is struct for new task
 type NewTaskForm struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
+	Title       string `json:"title" form:"title"`
+	Description string `json:"description" form:"description"`
 }
 
 // MoveTaskForm is struct for move task
 type MoveTaskForm struct {
-	ToListID     int64 `json:"to_list_id"`
-	PrevToTaskID int64 `json:"prev_to_task_id"`
+	ToListID     int64 `json:"to_list_id" form:"to_list_id"`
+	PrevToTaskID int64 `json:"prev_to_task_id" form:"prev_to_task_id"`
 }
 
 // EditTaskForm is struct for edit task
 type EditTaskForm struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
+	Title       string `json:"title" form:"title"`
+	Description string `json:"description" form:"description"`
 }
 
 // Create a new task
