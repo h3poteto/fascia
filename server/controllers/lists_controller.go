@@ -28,7 +28,7 @@ type NewListForm struct {
 type EditListForm struct {
 	Title    string `json:"title" form:"title"`
 	Color    string `json:"color" form:"color"`
-	OptionID int64  `json:"option_id,string" form:"option_id,string"`
+	OptionID int64  `json:"option_id,string" form:"option_id"`
 }
 
 // Index returns all lists
