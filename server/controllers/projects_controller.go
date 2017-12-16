@@ -20,21 +20,21 @@ type Projects struct {
 
 // NewProjectForm is struct for new project
 type NewProjectForm struct {
-	Title        string `json:"title"`
-	Description  string `json:"description"`
-	RepositoryID int64  `json:"repository_id,string"`
+	Title        string `json:"title" form:"title"`
+	Description  string `json:"description" form:"description"`
+	RepositoryID int64  `json:"repository_id,string" form:"repository_id"`
 }
 
 // EditProjectForm is struct for a project
 type EditProjectForm struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
+	Title       string `json:"title" form:"title"`
+	Description string `json:"description" form:"description"`
 }
 
 // SettingsProjectForm is struct for change settings
 type SettingsProjectForm struct {
-	ShowIssues       bool `json:"show_issues"`
-	ShowPullRequests bool `json:"show_pull_requests"`
+	ShowIssues       bool `json:"show_issues" form:"show_issues"`
+	ShowPullRequests bool `json:"show_pull_requests" form:"show_pull_requests"`
 }
 
 // Index returns all projects
