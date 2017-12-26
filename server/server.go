@@ -65,6 +65,10 @@ func Routes(e *echo.Echo) {
 	e.POST("/webviews/sign_in", webviews.NewSession)
 	e.GET("/webviews/callback", webviews.Callback)
 
+	inquiries := &controllers.Inquiries{}
+	e.GET("/inquiries", inquiries.New)
+	e.POST("/inquiries", inquiries.Create)
+
 	github := &controllers.Github{}
 	login.GET("github/repositories", github.Repositories)
 
@@ -106,6 +110,8 @@ func Routes(e *echo.Echo) {
 
 	repositories := &controllers.Repositories{}
 	e.POST("/repositories/hooks/github", repositories.Hook)
+
+	e.GET("/*", controllers.NotFound)
 
 	// errors
 	e.GET("/400", controllers.BadRequest)
