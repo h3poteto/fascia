@@ -18,6 +18,18 @@ $green-color: #d3eda3;
   }
 }
 
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Raleway', sans-serif;
+}
+
+#content {
+  height: 100%;
+}
+
 .pure-button-primary,
 .button-success,
 .button-error,
@@ -104,17 +116,6 @@ $green-color: #d3eda3;
 
 .flash-secondary {
   background: $secondary-color;
-}
-html, body {
-  height: 100%;
-}
-
-body {
-  font-family: 'Raleway', sans-serif;
-}
-
-#content {
-  height: 100%;
 }
 
 .form-action {
