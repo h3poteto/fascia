@@ -10,6 +10,7 @@
       <div class="title">
         <h3>Contact</h3>
       </div>
+      <div class="flash flash-error">{{ error }}</div>
       <div class="content">
         <div class="contact-board">
           <form action="/inquiries" method="post" role="form" name="inquiries" id="inquirires" class="pure-form pure-form-stacked">
