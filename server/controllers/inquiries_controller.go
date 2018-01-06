@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/commands/contact"
+	mailer "github.com/h3poteto/fascia/server/mailers/inquiry_mailer"
 	"github.com/h3poteto/fascia/server/validators"
 
 	"net/http"
@@ -50,6 +51,10 @@ func (i *Inquiries) Create(c echo.Context) error {
 		return err
 	}
 	logging.SharedInstance().Controller(c).Info("success to create inquiry")
+
+	// ここでemail送信
+	go mailer.Notify(command.InquiryEntity)
+	logging.SharedInstance().Controller(c).Info("success to send inquiry")
 	return c.Render(http.StatusCreated, "inquiries/create.html.tpl", map[string]interface{}{
 		"title": "Contact",
 	})

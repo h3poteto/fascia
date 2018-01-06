@@ -17,8 +17,7 @@
             <fieldset>
               <div class="pure-control-group control-group">
                 <label for="message">Message</label>
-                <textarea class="form-control" name="message" placeholder="Message body">
-                </textarea>
+                <textarea class="form-control" name="message"></textarea>
               </div>
               <div class="pure-control-group control-group">
                 <label for="email">Email</label>
