@@ -1,8 +1,8 @@
 .inquiry {
   background: url("/images/167.jpg") no-repeat;
-  background-size: cover;
-  background-position: 50% 50%;
   background-attachment: fixed;
+  background-position: 50% 50%;
+  background-size: cover;
   width: 100%;
   min-height: 100%;
 
@@ -13,22 +13,23 @@
 
   article {
     margin-top: 10%;
-    width: 32.5em;
     max-width: 100%;
+    width: 32.5em;
   }
 
   .contact-board {
+    border-radius: 1em;
+    box-sizing: border-box;
+    color: rgb(51, 51, 51);
     display: inline-block;
+    padding: 1.2em;
     text-align: left;
     width: 100%;
-    box-sizing: border-box;
-    padding: 1.2em;
-    border-radius: 1.0em;
-    color: rgb(51, 51, 51);
 
-    input, textarea {
-      width: 100%;
+    input,
+    textarea {
       max-width: initial;
+      width: 100%;
     }
 
     textarea {
