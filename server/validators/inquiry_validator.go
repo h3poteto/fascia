@@ -10,6 +10,7 @@ type inquiryCreate struct {
 	Message string `json:"message" valid:"-"`
 }
 
+// InquiryCreateValidation define validation of inquiry when create a new object.
 func InquiryCreateValidation(email, name, message string) (bool, error) {
 	form := &inquiryCreate{
 		email,

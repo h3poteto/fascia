@@ -12,20 +12,24 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Inquiries is a struct for inquiry actions.
 type Inquiries struct{}
 
+// NewInquiryForm is a form object for a new inquiry.
 type NewInquiryForm struct {
 	Email   string `json:"email" form:"email"`
 	Name    string `json:"name" form:"name"`
 	Message string `json:"message" form:"message"`
 }
 
+// New return inquiry form.
 func (i *Inquiries) New(c echo.Context) error {
 	return c.Render(http.StatusOK, "inquiries/new.html.tpl", map[string]interface{}{
 		"title": "Contact",
 	})
 }
 
+// Create a new inquiry object and send email to administrators.
 func (i *Inquiries) Create(c echo.Context) error {
 
 	newInquiryFrom := new(NewInquiryForm)

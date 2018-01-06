@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Notify sends a email to administrators.
 func Notify(i *inquiry.Inquiry) {
 	title := "You got a inquiry"
 	rawBody := "From: " + i.Email + "\n Name: " + i.Name + "\n Message: " + i.Message
