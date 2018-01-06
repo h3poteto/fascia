@@ -38,6 +38,9 @@ services:
     environment:
       APPROOT: /go/src/github.com/h3poteto/fascia
       APPENV: development
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+      AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
     volumes:
       - .:/go/src/github.com/h3poteto/fascia
     working_dir: /go/src/github.com/h3poteto/fascia

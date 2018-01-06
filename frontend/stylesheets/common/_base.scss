@@ -6,6 +6,31 @@ $secondary-color: rgb(66, 184, 221);
 $blue-color: #e1f2fa;
 $green-color: #d3eda3;
 
+@media screen and (min-width : 768px){
+  html {
+    font-size: 87.5%;
+  }
+}
+
+@media screen and (min-width : 1024px) {
+  html {
+    font-size: 100%;
+  }
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Raleway', sans-serif;
+}
+
+#content {
+  height: 100%;
+}
+
 .pure-button-primary,
 .button-success,
 .button-error,
@@ -92,13 +117,6 @@ $green-color: #d3eda3;
 
 .flash-secondary {
   background: $secondary-color;
-}
-html, body {
-  height: 100%;
-}
-
-body {
-  font-family: 'Raleway', sans-serif;
 }
 
 .form-action {
