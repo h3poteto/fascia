@@ -3,16 +3,16 @@ package list_option
 import (
 	"database/sql"
 
-	"github.com/h3poteto/fascia/server/models/db"
+	"github.com/h3poteto/fascia/lib/modules/database"
 
 	"github.com/pkg/errors"
 )
 
 // ListOption has list option record
 type ListOption struct {
-	ID       int64
-	Action   string
-	database *sql.DB
+	ID     int64
+	Action string
+	db     *sql.DB
 }
 
 // New returns a new list option object
@@ -24,10 +24,10 @@ func New(id int64, action string) *ListOption {
 
 // FindByAction search a list option according to action
 func FindByAction(action string) (*ListOption, error) {
-	database := db.SharedInstance().Connection
+	db := database.SharedInstance().Connection
 
 	var listOptionID int64
-	err := database.QueryRow("select id from list_options where action = ?;", action).Scan(&listOptionID)
+	err := db.QueryRow("select id from list_options where action = ?;", action).Scan(&listOptionID)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -36,13 +36,13 @@ func FindByAction(action string) (*ListOption, error) {
 
 // FindByID search a list option according to id
 func FindByID(id sql.NullInt64) (*ListOption, error) {
-	database := db.SharedInstance().Connection
+	db := database.SharedInstance().Connection
 
 	if !id.Valid {
 		return nil, errors.New("id is not valid")
 	}
 	var action string
-	err := database.QueryRow("select action from list_options where id = ?;", id).Scan(&action)
+	err := db.QueryRow("select action from list_options where id = ?;", id).Scan(&action)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
@@ -51,5 +51,5 @@ func FindByID(id sql.NullInt64) (*ListOption, error) {
 }
 
 func (l *ListOption) initialize() {
-	l.database = db.SharedInstance().Connection
+	l.db = database.SharedInstance().Connection
 }

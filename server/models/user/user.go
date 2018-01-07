@@ -1,8 +1,8 @@
 package user
 
 import (
+	"github.com/h3poteto/fascia/lib/modules/database"
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/models/db"
 
 	"crypto/rand"
 	"database/sql"
@@ -24,7 +24,7 @@ type User struct {
 	UUID       sql.NullInt64
 	UserName   sql.NullString
 	Avatar     sql.NullString
-	database   *sql.DB
+	db         *sql.DB
 }
 
 func randomString() string {
@@ -56,7 +56,7 @@ func New(id int64, email string, provider sql.NullString, oauthToken sql.NullStr
 }
 
 func (u *User) initialize() {
-	u.database = db.SharedInstance().Connection
+	u.db = database.SharedInstance().Connection
 }
 
 // Registration is create new user through validation
@@ -78,12 +78,12 @@ func Registration(email string, password string, passwordConfirm string) (*User,
 
 // Find search a user according to id
 func Find(id int64) (*User, error) {
-	database := db.SharedInstance().Connection
+	db := database.SharedInstance().Connection
 
 	var uuid sql.NullInt64
 	var email string
 	var provider, oauthToken, userName, avatarURL sql.NullString
-	err := database.QueryRow("select email, provider, oauth_token, user_name, uuid, avatar_url from users where id = ?;", id).Scan(&email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
+	err := db.QueryRow("select email, provider, oauth_token, user_name, uuid, avatar_url from users where id = ?;", id).Scan(&email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -92,11 +92,11 @@ func Find(id int64) (*User, error) {
 
 // FindByEmail search a user according to email
 func FindByEmail(email string) (*User, error) {
-	database := db.SharedInstance().Connection
+	db := database.SharedInstance().Connection
 	var id int64
 	var uuid sql.NullInt64
 	var provider, oauthToken, userName, avatarURL sql.NullString
-	err := database.QueryRow("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where email = ?;", email).Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
+	err := db.QueryRow("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where email = ?;", email).Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -106,7 +106,7 @@ func FindByEmail(email string) (*User, error) {
 // Save save user model in database
 func (u *User) Save() error {
 	// TODO: この前にvalidationを入れたい
-	result, err := u.database.Exec("insert into users (email, password, provider, oauth_token, uuid, user_name, avatar_url, created_at) values (?, ?, ?, ?, ?, ?, ?, now());", u.Email, u.Password, u.Provider, u.OauthToken, u.UUID, u.UserName, u.Avatar)
+	result, err := u.db.Exec("insert into users (email, password, provider, oauth_token, uuid, user_name, avatar_url, created_at) values (?, ?, ?, ?, ?, ?, ?, now());", u.Email, u.Password, u.Provider, u.OauthToken, u.UUID, u.UserName, u.Avatar)
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
@@ -117,7 +117,7 @@ func (u *User) Save() error {
 
 // Update update user model in database
 func (u *User) Update() error {
-	_, err := u.database.Exec("update users set provider = ?, oauth_token = ?, uuid = ?, user_name = ?, avatar_url = ? where email = ?;", u.Provider, u.OauthToken, u.UUID, u.UserName, u.Avatar, u.Email)
+	_, err := u.db.Exec("update users set provider = ?, oauth_token = ?, uuid = ?, user_name = ?, avatar_url = ? where email = ?;", u.Provider, u.OauthToken, u.UUID, u.UserName, u.Avatar, u.Email)
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}

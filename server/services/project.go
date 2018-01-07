@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	"github.com/h3poteto/fascia/config"
+	"github.com/h3poteto/fascia/lib/modules/database"
 	"github.com/h3poteto/fascia/server/entities/project"
 	"github.com/h3poteto/fascia/server/entities/repository"
 	"github.com/h3poteto/fascia/server/entities/task"
-	"github.com/h3poteto/fascia/server/models/db"
 
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
@@ -17,14 +17,14 @@ import (
 // Project has a project entity
 type Project struct {
 	ProjectEntity *project.Project
-	database      *sql.DB
+	db            *sql.DB
 }
 
 // NewProject returns a project service
 func NewProject(entity *project.Project) *Project {
 	return &Project{
 		ProjectEntity: entity,
-		database:      db.SharedInstance().Connection,
+		db:            database.SharedInstance().Connection,
 	}
 }
 
@@ -75,7 +75,7 @@ func (p *Project) Create(userID int64, title string, description string, reposit
 		repoID = sql.NullInt64{Int64: repo.RepositoryModel.ID, Valid: true}
 	}
 
-	tx, err := p.database.Begin()
+	tx, err := p.db.Begin()
 	if err != nil {
 		return nil, err
 	}
@@ -195,7 +195,7 @@ func (p *Project) FetchGithub() (bool, error) {
 	// github側へ同期
 	// github側に存在するissueについては，#299でDB内に新規作成されるため，ここではgithub側に存在せず，DB内にのみ存在するタスクをissue化すれば良い
 	// ここではprojectとlist両方考慮する必要がある
-	rows, err := p.database.Query("select tasks.title, tasks.description, lists.title, lists.color from tasks left join lists on lists.id = tasks.list_id where tasks.project_id = ? and tasks.user_id = ? and tasks.issue_number IS NULL;", p.ProjectEntity.ProjectModel.ID, p.ProjectEntity.ProjectModel.UserID)
+	rows, err := p.db.Query("select tasks.title, tasks.description, lists.title, lists.color from tasks left join lists on lists.id = tasks.list_id where tasks.project_id = ? and tasks.user_id = ? and tasks.issue_number IS NULL;", p.ProjectEntity.ProjectModel.ID, p.ProjectEntity.ProjectModel.UserID)
 	if err != nil {
 		return false, errors.Wrap(err, "sql select error")
 	}

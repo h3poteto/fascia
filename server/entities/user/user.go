@@ -3,8 +3,8 @@ package user
 import (
 	"database/sql"
 
+	"github.com/h3poteto/fascia/lib/modules/database"
 	"github.com/h3poteto/fascia/server/entities/project"
-	"github.com/h3poteto/fascia/server/models/db"
 	"github.com/h3poteto/fascia/server/models/user"
 
 	"github.com/google/go-github/github"
@@ -15,14 +15,14 @@ import (
 // User has a user model object
 type User struct {
 	UserModel *user.User
-	database  *sql.DB
+	db        *sql.DB
 }
 
 // New returns a user entity
 func New(id int64, email string, provider sql.NullString, oauthToken sql.NullString, uuid sql.NullInt64, userName sql.NullString, avatar sql.NullString) *User {
 	return &User{
 		UserModel: user.New(id, email, provider, oauthToken, uuid, userName, avatar),
-		database:  db.SharedInstance().Connection,
+		db:        database.SharedInstance().Connection,
 	}
 }
 
@@ -34,7 +34,7 @@ func Registration(email, password, passwordConfirm string) (*User, error) {
 	}
 	return &User{
 		UserModel: u,
-		database:  db.SharedInstance().Connection,
+		db:        database.SharedInstance().Connection,
 	}, nil
 }
 
@@ -46,7 +46,7 @@ func Find(id int64) (*User, error) {
 	}
 	return &User{
 		UserModel: u,
-		database:  db.SharedInstance().Connection,
+		db:        database.SharedInstance().Connection,
 	}, nil
 }
 
@@ -58,18 +58,18 @@ func FindByEmail(email string) (*User, error) {
 	}
 	return &User{
 		UserModel: u,
-		database:  db.SharedInstance().Connection,
+		db:        database.SharedInstance().Connection,
 	}, nil
 }
 
 // Login authenticate email and password
 func Login(userEmail string, userPassword string) (*User, error) {
-	database := db.SharedInstance().Connection
+	db := database.SharedInstance().Connection
 	var id int64
 	var uuid sql.NullInt64
 	var email, password string
 	var provider, oauthToken, userName, avatarURL sql.NullString
-	err := database.QueryRow("select id, email, password, provider, oauth_token, user_name, uuid, avatar_url from users where email = ?;", userEmail).Scan(&id, &email, &password, &provider, &oauthToken, &userName, &uuid, &avatarURL)
+	err := db.QueryRow("select id, email, password, provider, oauth_token, user_name, uuid, avatar_url from users where email = ?;", userEmail).Scan(&id, &email, &password, &provider, &oauthToken, &userName, &uuid, &avatarURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -85,12 +85,12 @@ func Login(userEmail string, userPassword string) (*User, error) {
 
 // FindOrCreateFromGithub create or update user table base on github information
 func FindOrCreateFromGithub(githubUser *github.User, token string, primaryEmail string) (*User, error) {
-	database := db.SharedInstance().Connection
+	db := database.SharedInstance().Connection
 	var id int64
 	var uuid sql.NullInt64
 	var email string
 	var provider, oauthToken, userName, avatarURL sql.NullString
-	rows, err := database.Query("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where uuid = ? or email = ?;", *githubUser.ID, primaryEmail)
+	rows, err := db.Query("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where uuid = ? or email = ?;", *githubUser.ID, primaryEmail)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -129,7 +129,7 @@ func HashPassword(password string) ([]byte, error) {
 // Projects list up projects related a user
 func (u *User) Projects() ([]*project.Project, error) {
 	var slice []*project.Project
-	rows, err := u.database.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where user_id = ?;", u.UserModel.ID)
+	rows, err := u.db.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where user_id = ?;", u.UserModel.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}

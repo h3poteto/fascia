@@ -4,9 +4,9 @@ import (
 	"database/sql"
 
 	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/lib/modules/database"
 	. "github.com/h3poteto/fascia/server/entities/list"
 	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/models/db"
 	"github.com/h3poteto/fascia/server/services"
 
 	. "github.com/onsi/ginkgo"
@@ -17,7 +17,7 @@ var _ = Describe("List", func() {
 	var (
 		newList        *List
 		projectService *services.Project
-		database       *sql.DB
+		db             *sql.DB
 	)
 
 	BeforeEach(func() {
@@ -25,7 +25,7 @@ var _ = Describe("List", func() {
 		email := "save@example.com"
 		password := "hogehoge"
 		user, _ := handlers.RegistrationUser(email, password, password)
-		database = db.SharedInstance().Connection
+		db = database.SharedInstance().Connection
 		projectService, _ = handlers.CreateProject(user.UserEntity.UserModel.ID, "title", "desc", 0, sql.NullString{})
 		newList = New(0, projectService.ProjectEntity.ProjectModel.ID, projectService.ProjectEntity.ProjectModel.UserID, "list title", "", sql.NullInt64{}, false)
 	})
@@ -38,7 +38,7 @@ var _ = Describe("List", func() {
 		})
 		It("should relate list to project", func() {
 			_ = newList.Save(nil)
-			rows, _ := database.Query("select id, project_id, title from lists where id = ?;", newList.ListModel.ID)
+			rows, _ := db.Query("select id, project_id, title from lists where id = ?;", newList.ListModel.ID)
 			var id int64
 			var projectID int64
 			var title sql.NullString

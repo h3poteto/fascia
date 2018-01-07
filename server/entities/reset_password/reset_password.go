@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/h3poteto/fascia/lib/modules/database"
 	"github.com/h3poteto/fascia/server/entities/user"
-	"github.com/h3poteto/fascia/server/models/db"
 	"github.com/h3poteto/fascia/server/models/reset_password"
 	"github.com/pkg/errors"
 )
@@ -17,14 +17,14 @@ import (
 // ResetPassword has a reset password model object
 type ResetPassword struct {
 	ResetPasswordModel *reset_password.ResetPassword
-	database           *sql.DB
+	db                 *sql.DB
 }
 
 // New returns a reset password entity
 func New(id, userID int64, token string, expiresAt time.Time) *ResetPassword {
 	return &ResetPassword{
 		ResetPasswordModel: reset_password.New(id, userID, token, expiresAt),
-		database:           db.SharedInstance().Connection,
+		db:                 database.SharedInstance().Connection,
 	}
 }
 
@@ -53,7 +53,7 @@ func FindAvailable(id int64, token string) (*ResetPassword, error) {
 	}
 	return &ResetPassword{
 		ResetPasswordModel: r,
-		database:           db.SharedInstance().Connection,
+		db:                 database.SharedInstance().Connection,
 	}, nil
 }
 
@@ -70,7 +70,7 @@ func (r *ResetPassword) Save() error {
 // User returns a owner user entity
 func (r *ResetPassword) User() (*user.User, error) {
 	var userID int64
-	err := r.database.QueryRow("select user_id from reset_passwords where id = ?;", r.ResetPasswordModel.ID).Scan(&userID)
+	err := r.db.QueryRow("select user_id from reset_passwords where id = ?;", r.ResetPasswordModel.ID).Scan(&userID)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -93,7 +93,7 @@ func (r *ResetPassword) ChangeUserPassword(password string) (*user.User, error) 
 		return nil, err
 	}
 
-	tx, err := r.database.Begin()
+	tx, err := r.db.Begin()
 	if err != nil {
 		return nil, errors.Wrap(err, "transaction start error")
 	}

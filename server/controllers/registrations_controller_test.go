@@ -1,10 +1,10 @@
 package controllers_test
 
 import (
+	"github.com/h3poteto/fascia/lib/modules/database"
 	"github.com/h3poteto/fascia/server"
 	. "github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/models/db"
 
 	"database/sql"
 	"net/http"
@@ -19,16 +19,16 @@ import (
 
 var _ = Describe("RegistrationsController", func() {
 	var (
-		e        *echo.Echo
-		rec      *httptest.ResponseRecorder
-		database *sql.DB
+		e   *echo.Echo
+		rec *httptest.ResponseRecorder
+		db  *sql.DB
 	)
 	BeforeEach(func() {
 		e = echo.New()
 		rec = httptest.NewRecorder()
 	})
 	JustBeforeEach(func() {
-		database = db.SharedInstance().Connection
+		db = database.SharedInstance().Connection
 	})
 
 	Describe("SignUp", func() {
@@ -69,7 +69,7 @@ var _ = Describe("RegistrationsController", func() {
 				u, _ := rec.Result().Location()
 				Expect(u.Path).To(Equal("/sign_in"))
 				var id int64
-				rows, _ := database.Query("select id from users where email = ?;", "registration@example.com")
+				rows, _ := db.Query("select id from users where email = ?;", "registration@example.com")
 				for rows.Next() {
 					err := rows.Scan(&id)
 					if err != nil {

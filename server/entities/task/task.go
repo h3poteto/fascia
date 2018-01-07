@@ -5,9 +5,9 @@ import (
 
 	"github.com/google/go-github/github"
 	"github.com/h3poteto/fascia/config"
+	"github.com/h3poteto/fascia/lib/modules/database"
 	"github.com/h3poteto/fascia/server/entities/list_option"
 	"github.com/h3poteto/fascia/server/entities/repository"
-	"github.com/h3poteto/fascia/server/models/db"
 	"github.com/h3poteto/fascia/server/models/task"
 	"github.com/pkg/errors"
 )
@@ -15,14 +15,14 @@ import (
 // Task has a task model object
 type Task struct {
 	TaskModel *task.Task
-	database  *sql.DB
+	db        *sql.DB
 }
 
 // New returns a task entity
 func New(id, listID, projectID, userID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString) *Task {
 	return &Task{
 		TaskModel: task.New(id, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL),
-		database:  db.SharedInstance().Connection,
+		db:        database.SharedInstance().Connection,
 	}
 }
 
@@ -34,7 +34,7 @@ func Find(listID, taskID int64) (*Task, error) {
 	}
 	return &Task{
 		TaskModel: t,
-		database:  db.SharedInstance().Connection,
+		db:        database.SharedInstance().Connection,
 	}, nil
 }
 
@@ -46,7 +46,7 @@ func FindByIssueNumber(projectID int64, issueNumber int) (*Task, error) {
 	}
 	return &Task{
 		TaskModel: t,
-		database:  db.SharedInstance().Connection,
+		db:        database.SharedInstance().Connection,
 	}, nil
 }
 
@@ -83,7 +83,7 @@ func (t *Task) Delete() error {
 func (t *Task) SyncIssue(repo *repository.Repository, token string) (*github.Issue, error) {
 	var listTitle, listColor sql.NullString
 	var listOptionID sql.NullInt64
-	err := t.database.QueryRow("select title, color, list_option_id from lists where id = ?;", t.TaskModel.ListID).Scan(&listTitle, &listColor, &listOptionID)
+	err := t.db.QueryRow("select title, color, list_option_id from lists where id = ?;", t.TaskModel.ListID).Scan(&listTitle, &listColor, &listOptionID)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}

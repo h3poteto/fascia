@@ -11,9 +11,9 @@ import (
 	"time"
 
 	"github.com/google/go-github/github"
+	"github.com/h3poteto/fascia/lib/modules/database"
 	. "github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/models/db"
 	"github.com/h3poteto/fascia/server/services"
 	"github.com/labstack/echo"
 	. "github.com/onsi/ginkgo"
@@ -23,10 +23,10 @@ import (
 
 var _ = Describe("GithubController", func() {
 	var (
-		e        *echo.Echo
-		rec      *httptest.ResponseRecorder
-		database *sql.DB
-		user     *services.User
+		e    *echo.Echo
+		rec  *httptest.ResponseRecorder
+		db   *sql.DB
+		user *services.User
 	)
 	userEmail := "github@example.com"
 	BeforeEach(func() {
@@ -35,7 +35,7 @@ var _ = Describe("GithubController", func() {
 	})
 	// Oauthのログインテストはリダイレクトまでしか実行できないため，OauthTokenは偽装しておくしかない
 	JustBeforeEach(func() {
-		database = db.SharedInstance().Connection
+		db = database.SharedInstance().Connection
 
 		token := os.Getenv("TEST_TOKEN")
 		// github認証
@@ -51,7 +51,7 @@ var _ = Describe("GithubController", func() {
 			log.Fatal(err)
 		}
 		user, _ = handlers.RegistrationUser(userEmail, "hogehoge", "hogehoge")
-		database.Exec("update users set provider = ?, oauth_token = ?, user_name = ?, uuid = ?, avatar_url = ? where email = ?;", "github", token, *githubUser.Login, *githubUser.ID, *githubUser.AvatarURL, userEmail)
+		db.Exec("update users set provider = ?, oauth_token = ?, user_name = ?, uuid = ?, avatar_url = ? where email = ?;", "github", token, *githubUser.Login, *githubUser.ID, *githubUser.AvatarURL, userEmail)
 
 	})
 	Describe("Repositories", func() {

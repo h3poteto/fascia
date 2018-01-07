@@ -1,8 +1,8 @@
 package task
 
 import (
+	"github.com/h3poteto/fascia/lib/modules/database"
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/models/db"
 
 	"database/sql"
 
@@ -20,7 +20,7 @@ type Task struct {
 	Description string
 	PullRequest bool
 	HTMLURL     sql.NullString
-	database    *sql.DB
+	db          *sql.DB
 }
 
 // New returns a task object
@@ -32,14 +32,14 @@ func New(id int64, listID int64, projectID int64, userID int64, issueNumber sql.
 
 // Find search a task according to id
 func Find(listID int64, taskID int64) (*Task, error) {
-	database := db.SharedInstance().Connection
+	db := database.SharedInstance().Connection
 
 	var id, userID, projectID int64
 	var title, description string
 	var issueNumber sql.NullInt64
 	var pullRequest bool
 	var htmlURL sql.NullString
-	err := database.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where id = ? AND list_id = ?;", taskID, listID).Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
+	err := db.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where id = ? AND list_id = ?;", taskID, listID).Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -52,14 +52,14 @@ func Find(listID int64, taskID int64) (*Task, error) {
 
 // FindByIssueNumber search a task according to issue number in github
 func FindByIssueNumber(projectID int64, issueNumber int) (*Task, error) {
-	database := db.SharedInstance().Connection
+	db := database.SharedInstance().Connection
 
 	var id, listID, userID int64
 	var title, description string
 	var number sql.NullInt64
 	var pullRequest bool
 	var htmlURL sql.NullString
-	err := database.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where issue_number = ? and project_id = ?;", issueNumber, projectID).Scan(&id, &listID, &projectID, &userID, &number, &title, &description, &pullRequest, &htmlURL)
+	err := db.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where issue_number = ? and project_id = ?;", issueNumber, projectID).Scan(&id, &listID, &projectID, &userID, &number, &title, &description, &pullRequest, &htmlURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -71,12 +71,12 @@ func FindByIssueNumber(projectID int64, issueNumber int) (*Task, error) {
 }
 
 func (t *Task) initialize() {
-	t.database = db.SharedInstance().Connection
+	t.db = database.SharedInstance().Connection
 }
 
 // Save save task model in database, and arrange order tasks
 func (t *Task) Save() error {
-	transaction, err := t.database.Begin()
+	transaction, err := t.db.Begin()
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
@@ -105,7 +105,7 @@ func (t *Task) Save() error {
 
 // Update is update task in database
 func (t *Task) Update(listID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString) error {
-	_, err := t.database.Exec("update tasks set list_id = ?, issue_number = ?, title = ?, description = ?, pull_request = ?, html_url = ? where id = ?;", listID, issueNumber, title, description, pullRequest, htmlURL, t.ID)
+	_, err := t.db.Exec("update tasks set list_id = ?, issue_number = ?, title = ?, description = ?, pull_request = ?, html_url = ? where id = ?;", listID, issueNumber, title, description, pullRequest, htmlURL, t.ID)
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
@@ -124,7 +124,7 @@ func (t *Task) Update(listID int64, issueNumber sql.NullInt64, title, descriptio
 // ChangeList change list which is belonged a task
 // If add task in bottom, transmit null to prevToTaskID
 func (t *Task) ChangeList(listID int64, prevToTaskID *int64) error {
-	transaction, err := t.database.Begin()
+	transaction, err := t.db.Begin()
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
@@ -183,7 +183,7 @@ func (t *Task) Delete() error {
 		return errors.New("cannot delete")
 	}
 
-	_, err := t.database.Exec("delete from tasks where id = ?;", t.ID)
+	_, err := t.db.Exec("delete from tasks where id = ?;", t.ID)
 	if err != nil {
 		return errors.Wrap(err, "sql delelet error")
 	}
