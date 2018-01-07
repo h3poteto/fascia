@@ -10,7 +10,7 @@ import (
 
 	"github.com/h3poteto/fascia/lib/modules/database"
 	"github.com/h3poteto/fascia/server/entities/user"
-	"github.com/h3poteto/fascia/server/models/reset_password"
+	"github.com/h3poteto/fascia/server/infrastructures/reset_password"
 	"github.com/pkg/errors"
 )
 

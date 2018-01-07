@@ -4,7 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/h3poteto/fascia/lib/modules/database"
-	"github.com/h3poteto/fascia/server/models/list_option"
+	"github.com/h3poteto/fascia/server/infrastructures/list_option"
 
 	"github.com/pkg/errors"
 )

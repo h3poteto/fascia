@@ -8,7 +8,7 @@ import (
 	"github.com/h3poteto/fascia/lib/modules/database"
 	"github.com/h3poteto/fascia/server/entities/list_option"
 	"github.com/h3poteto/fascia/server/entities/repository"
-	"github.com/h3poteto/fascia/server/models/task"
+	"github.com/h3poteto/fascia/server/infrastructures/task"
 	"github.com/pkg/errors"
 )
 

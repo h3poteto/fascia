@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/h3poteto/fascia/lib/modules/hub"
-	"github.com/h3poteto/fascia/server/models/repository"
+	"github.com/h3poteto/fascia/server/infrastructures/repository"
 
 	"github.com/pkg/errors"
 )
