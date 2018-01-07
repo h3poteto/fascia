@@ -4,11 +4,11 @@ import (
 	"database/sql"
 
 	"github.com/h3poteto/fascia/config"
+	"github.com/h3poteto/fascia/lib/modules/database"
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/entities/list_option"
 	"github.com/h3poteto/fascia/server/entities/task"
-	"github.com/h3poteto/fascia/server/models/db"
-	"github.com/h3poteto/fascia/server/models/list"
+	"github.com/h3poteto/fascia/server/infrastructures/list"
 
 	"github.com/pkg/errors"
 )
@@ -16,14 +16,14 @@ import (
 // List has a list model object
 type List struct {
 	ListModel *list.List
-	database  *sql.DB
+	db        *sql.DB
 }
 
 // New returns new list entity
 func New(id int64, projectID int64, userID int64, title string, color string, optionID sql.NullInt64, isHidden bool) *List {
 	return &List{
 		ListModel: list.New(id, projectID, userID, title, color, optionID, isHidden),
-		database:  db.SharedInstance().Connection,
+		db:        database.SharedInstance().Connection,
 	}
 }
 
@@ -35,7 +35,7 @@ func FindByID(projectID, listID int64) (*List, error) {
 	}
 	return &List{
 		ListModel: l,
-		database:  db.SharedInstance().Connection,
+		db:        database.SharedInstance().Connection,
 	}, nil
 }
 
@@ -88,7 +88,7 @@ func (l *List) Display() error {
 // Tasks list up related tasks
 func (l *List) Tasks() ([]*task.Task, error) {
 	var slice []*task.Task
-	rows, err := l.database.Query("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where list_id = ? order by display_index;", l.ListModel.ID)
+	rows, err := l.db.Query("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where list_id = ? order by display_index;", l.ListModel.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -145,7 +145,7 @@ func (l *List) HasCloseAction() (bool, error) {
 
 // DeleteTasks delete all tasks related a list
 func (l *List) DeleteTasks() error {
-	_, err := l.database.Exec("DELETE FROM tasks WHERE list_id = ?;", l.ListModel.ID)
+	_, err := l.db.Exec("DELETE FROM tasks WHERE list_id = ?;", l.ListModel.ID)
 	if err != nil {
 		return err
 	}

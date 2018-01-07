@@ -1,7 +1,7 @@
 package inquiry
 
 import (
-	"github.com/h3poteto/fascia/server/models/inquiry"
+	"github.com/h3poteto/fascia/server/infrastructures/inquiry"
 )
 
 // Inquiry is a entity for inquiry.

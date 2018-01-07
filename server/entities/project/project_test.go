@@ -3,9 +3,9 @@ package project_test
 import (
 	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/lib/modules/database"
 	. "github.com/h3poteto/fascia/server/entities/project"
 	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/models/db"
 
 	"database/sql"
 
@@ -17,7 +17,7 @@ var _ = Describe("Project", func() {
 	var (
 		newProject *Project
 		uid        int64
-		database   *sql.DB
+		db         *sql.DB
 	)
 
 	BeforeEach(func() {
@@ -29,7 +29,7 @@ var _ = Describe("Project", func() {
 			panic(err)
 		}
 		uid = user.UserEntity.UserModel.ID
-		database = db.SharedInstance().Connection
+		db = database.SharedInstance().Connection
 	})
 
 	Describe("Update", func() {
@@ -55,7 +55,7 @@ var _ = Describe("Project", func() {
 			newProject *Project
 		)
 		BeforeEach(func() {
-			tx, _ = db.SharedInstance().Connection.Begin()
+			tx, _ = database.SharedInstance().Connection.Begin()
 			newProject = New(0, uid, "new project", "description", sql.NullInt64{}, false, false)
 			newProject.Save(tx)
 		})
@@ -72,7 +72,7 @@ var _ = Describe("Project", func() {
 			newProject *Project
 		)
 		BeforeEach(func() {
-			tx, _ := db.SharedInstance().Connection.Begin()
+			tx, _ := database.SharedInstance().Connection.Begin()
 			newProject = New(0, uid, "new project", "description", sql.NullInt64{}, false, false)
 			newProject.Save(tx)
 			newProject.CreateInitialLists(tx)
@@ -100,7 +100,7 @@ var _ = Describe("Project", func() {
 			newProject *Project
 		)
 		BeforeEach(func() {
-			tx, _ := db.SharedInstance().Connection.Begin()
+			tx, _ := database.SharedInstance().Connection.Begin()
 			newProject = New(0, uid, "new project", "description", sql.NullInt64{}, false, false)
 			newProject.Save(tx)
 			newProject.CreateInitialLists(tx)

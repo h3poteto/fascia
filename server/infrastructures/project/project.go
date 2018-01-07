@@ -1,7 +1,7 @@
 package project
 
 import (
-	"github.com/h3poteto/fascia/server/models/db"
+	"github.com/h3poteto/fascia/lib/modules/database"
 
 	"database/sql"
 
@@ -17,7 +17,7 @@ type Project struct {
 	RepositoryID     sql.NullInt64
 	ShowIssues       bool
 	ShowPullRequests bool
-	database         *sql.DB
+	db               *sql.DB
 }
 
 // New returns a new project object
@@ -33,14 +33,14 @@ func New(id int64, userID int64, title string, description string, repositoryID 
 
 // Find search a project according to id
 func Find(projectID int64) (*Project, error) {
-	database := db.SharedInstance().Connection
+	db := database.SharedInstance().Connection
 
 	var id, userID int64
 	var repositoryID sql.NullInt64
 	var title string
 	var description string
 	var showIssues, showPullRequests bool
-	err := database.QueryRow("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where id = ?;", projectID).Scan(&id, &userID, &repositoryID, &title, &description, &showIssues, &showPullRequests)
+	err := db.QueryRow("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where id = ?;", projectID).Scan(&id, &userID, &repositoryID, &title, &description, &showIssues, &showPullRequests)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -50,10 +50,10 @@ func Find(projectID int64) (*Project, error) {
 
 // FindByRepositoryID search projects according to repository id
 func FindByRepositoryID(repoID int64) ([]*Project, error) {
-	database := db.SharedInstance().Connection
+	db := database.SharedInstance().Connection
 
 	var slice []*Project
-	rows, err := database.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where repository_id = ?;", repoID)
+	rows, err := db.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where repository_id = ?;", repoID)
 	if err != nil {
 		return nil, errors.Wrap(err, "find project error")
 	}
@@ -74,7 +74,7 @@ func FindByRepositoryID(repoID int64) ([]*Project, error) {
 }
 
 func (p *Project) initialize() {
-	p.database = db.SharedInstance().Connection
+	p.db = database.SharedInstance().Connection
 }
 
 // Save save project model in record
@@ -84,7 +84,7 @@ func (p *Project) Save(tx *sql.Tx) error {
 	if tx != nil {
 		result, err = tx.Exec("insert into projects (user_id, repository_id, title, description, show_issues, show_pull_requests, created_at) values (?, ?, ?, ?, ?, ?, now());", p.UserID, p.RepositoryID, p.Title, p.Description, p.ShowIssues, p.ShowPullRequests)
 	} else {
-		result, err = p.database.Exec("insert into projects (user_id, repository_id, title, description, show_issues, show_pull_requests, created_at) values (?, ?, ?, ?, ?, ?, now());", p.UserID, p.RepositoryID, p.Title, p.Description, p.ShowIssues, p.ShowPullRequests)
+		result, err = p.db.Exec("insert into projects (user_id, repository_id, title, description, show_issues, show_pull_requests, created_at) values (?, ?, ?, ?, ?, ?, now());", p.UserID, p.RepositoryID, p.Title, p.Description, p.ShowIssues, p.ShowPullRequests)
 	}
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
@@ -95,7 +95,7 @@ func (p *Project) Save(tx *sql.Tx) error {
 
 // Update update project model in record
 func (p *Project) Update(title string, description string, showIssues bool, showPullRequests bool) error {
-	_, err := p.database.Exec("update projects set title = ?, description = ?, show_issues = ?, show_pull_requests = ? where id = ?;", title, description, showIssues, showPullRequests, p.ID)
+	_, err := p.db.Exec("update projects set title = ?, description = ?, show_issues = ?, show_pull_requests = ? where id = ?;", title, description, showIssues, showPullRequests, p.ID)
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
@@ -109,7 +109,7 @@ func (p *Project) Update(title string, description string, showIssues bool, show
 
 // Delete delete a project model in record
 func (p *Project) Delete() error {
-	_, err := p.database.Exec("DELETE FROM projects WHERE id = ?;", p.ID)
+	_, err := p.db.Exec("DELETE FROM projects WHERE id = ?;", p.ID)
 	if err != nil {
 		return err
 	}

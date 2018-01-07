@@ -1,7 +1,7 @@
 package list
 
 import (
-	"github.com/h3poteto/fascia/server/models/db"
+	"github.com/h3poteto/fascia/lib/modules/database"
 
 	"database/sql"
 
@@ -17,7 +17,7 @@ type List struct {
 	Color        sql.NullString
 	ListOptionID sql.NullInt64
 	IsHidden     bool
-	database     *sql.DB
+	db           *sql.DB
 }
 
 // New returns a new list object
@@ -35,12 +35,12 @@ func New(id int64, projectID int64, userID int64, title string, color string, op
 
 // FindByID search a list according to id
 func FindByID(projectID int64, listID int64) (*List, error) {
-	database := db.SharedInstance().Connection
+	db := database.SharedInstance().Connection
 	var id, userID int64
 	var title, color sql.NullString
 	var optionID sql.NullInt64
 	var isHidden bool
-	rows, err := database.Query("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where id = ? AND project_id = ?;", listID, projectID)
+	rows, err := db.Query("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where id = ? AND project_id = ?;", listID, projectID)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
@@ -59,7 +59,7 @@ func FindByID(projectID int64, listID int64) (*List, error) {
 }
 
 func (l *List) initialize() {
-	l.database = db.SharedInstance().Connection
+	l.db = database.SharedInstance().Connection
 }
 
 // Save save list object to record
@@ -69,7 +69,7 @@ func (l *List) Save(tx *sql.Tx) error {
 	if tx != nil {
 		result, err = tx.Exec("insert into lists (project_id, user_id, title, color, list_option_id, is_hidden, created_at) values (?, ?, ?, ?, ?, ?, now());", l.ProjectID, l.UserID, l.Title, l.Color, l.ListOptionID, l.IsHidden)
 	} else {
-		result, err = l.database.Exec("insert into lists (project_id, user_id, title, color, list_option_id, is_hidden, created_at) values (?, ?, ?, ?, ?, ?, now());", l.ProjectID, l.UserID, l.Title, l.Color, l.ListOptionID, l.IsHidden)
+		result, err = l.db.Exec("insert into lists (project_id, user_id, title, color, list_option_id, is_hidden, created_at) values (?, ?, ?, ?, ?, ?, now());", l.ProjectID, l.UserID, l.Title, l.Color, l.ListOptionID, l.IsHidden)
 	}
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
@@ -80,7 +80,7 @@ func (l *List) Save(tx *sql.Tx) error {
 
 // Update update and save list in database
 func (l *List) Update(title, color string, optionID sql.NullInt64) (e error) {
-	_, err := l.database.Exec("update lists set title = ?, color = ?, list_option_id = ?, is_hidden = ? where id = ?;", title, color, optionID, l.IsHidden, l.ID)
+	_, err := l.db.Exec("update lists set title = ?, color = ?, list_option_id = ?, is_hidden = ? where id = ?;", title, color, optionID, l.IsHidden, l.ID)
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
@@ -93,7 +93,7 @@ func (l *List) Update(title, color string, optionID sql.NullInt64) (e error) {
 
 // Hide can hide a list, it change is_hidden field
 func (l *List) Hide() error {
-	_, err := l.database.Exec("update lists set is_hidden = true where id = ?;", l.ID)
+	_, err := l.db.Exec("update lists set is_hidden = true where id = ?;", l.ID)
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
@@ -103,7 +103,7 @@ func (l *List) Hide() error {
 
 // Display can display a list, it change is_hidden filed
 func (l *List) Display() error {
-	_, err := l.database.Exec("update lists set is_hidden = false where id = ?;", l.ID)
+	_, err := l.db.Exec("update lists set is_hidden = false where id = ?;", l.ID)
 	if err != nil {
 		return errors.Wrap(err, "sql execute error")
 	}
@@ -113,7 +113,7 @@ func (l *List) Display() error {
 
 // Delete delete a list model in record
 func (l *List) Delete() error {
-	_, err := l.database.Exec("DELETE FROM lists WHERE id = ?;", l.ID)
+	_, err := l.db.Exec("DELETE FROM lists WHERE id = ?;", l.ID)
 	if err != nil {
 		return errors.Wrap(err, "list delete error")
 	}

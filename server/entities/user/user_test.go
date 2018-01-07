@@ -4,9 +4,9 @@ import (
 	"database/sql"
 
 	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/lib/modules/database"
 	. "github.com/h3poteto/fascia/server/entities/user"
 	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/models/db"
 	"github.com/h3poteto/fascia/server/services"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -14,11 +14,11 @@ import (
 
 var _ = Describe("User", func() {
 	var (
-		database *sql.DB
+		db *sql.DB
 	)
 	BeforeEach(func() {
 		seed.Seeds()
-		database = db.SharedInstance().Connection
+		db = database.SharedInstance().Connection
 	})
 
 	Describe("Registration", func() {
@@ -34,7 +34,7 @@ var _ = Describe("User", func() {
 				Registration(email, password, password)
 			})
 			It("should save user in database", func() {
-				rows, _ := database.Query("select id, email from users where email = ?;", email)
+				rows, _ := db.Query("select id, email from users where email = ?;", email)
 
 				var id int64
 				var dbemail string
@@ -103,7 +103,7 @@ var _ = Describe("User", func() {
 			email := "project@example.com"
 			password := "hogehoge"
 			Registration(email, password, password)
-			rows, _ := database.Query("select id, email from users where email = ?;", email)
+			rows, _ := db.Query("select id, email from users where email = ?;", email)
 
 			var userid int64
 			var dbemail string

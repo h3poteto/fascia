@@ -1,7 +1,7 @@
 package reset_password
 
 import (
-	"github.com/h3poteto/fascia/server/models/db"
+	"github.com/h3poteto/fascia/lib/modules/database"
 
 	"database/sql"
 	"time"
@@ -15,7 +15,7 @@ type ResetPassword struct {
 	UserID    int64
 	Token     string
 	ExpiresAt time.Time
-	database  *sql.DB
+	db        *sql.DB
 }
 
 // New returns a reset password
@@ -27,10 +27,10 @@ func New(id int64, userID int64, token string, expiresAt time.Time) *ResetPasswo
 
 // Authenticate check token with record
 func Authenticate(id int64, token string) error {
-	database := db.SharedInstance().Connection
+	db := database.SharedInstance().Connection
 
 	var targetID int64
-	err := database.QueryRow("select id from reset_passwords where id = ? and token = ? and expires_at > now();", id, token).Scan(&targetID)
+	err := db.QueryRow("select id from reset_passwords where id = ? and token = ? and expires_at > now();", id, token).Scan(&targetID)
 	if err != nil {
 		return errors.Wrap(err, "authenticate error")
 	}
@@ -42,8 +42,8 @@ func Authenticate(id int64, token string) error {
 func FindAvailable(id int64, token string) (*ResetPassword, error) {
 	var userID int64
 	var expiresAt time.Time
-	database := db.SharedInstance().Connection
-	err := database.QueryRow("select user_id, expires_at from reset_passwords where id = ? and token = ? and expires_at > now();", id, token).Scan(&userID, &expiresAt)
+	db := database.SharedInstance().Connection
+	err := db.QueryRow("select user_id, expires_at from reset_passwords where id = ? and token = ? and expires_at > now();", id, token).Scan(&userID, &expiresAt)
 	if err != nil {
 		return nil, errors.Wrap(err, "find available error")
 	}
@@ -51,12 +51,12 @@ func FindAvailable(id int64, token string) (*ResetPassword, error) {
 }
 
 func (r *ResetPassword) initialize() {
-	r.database = db.SharedInstance().Connection
+	r.db = database.SharedInstance().Connection
 }
 
 // Save save object to record
 func (r *ResetPassword) Save() error {
-	result, err := r.database.Exec("insert into reset_passwords (user_id, token, expires_at, created_at) values (?, ?, ?, now());", r.UserID, r.Token, r.ExpiresAt)
+	result, err := r.db.Exec("insert into reset_passwords (user_id, token, expires_at, created_at) values (?, ?, ?, now());", r.UserID, r.Token, r.ExpiresAt)
 	if err != nil {
 		return errors.Wrap(err, "save error")
 	}

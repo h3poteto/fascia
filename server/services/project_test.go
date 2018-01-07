@@ -2,8 +2,8 @@ package services_test
 
 import (
 	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/lib/modules/database"
 	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/models/db"
 	. "github.com/h3poteto/fascia/server/services"
 
 	"database/sql"
@@ -14,8 +14,8 @@ import (
 
 var _ = Describe("ProjectService", func() {
 	var (
-		uid      int64
-		database *sql.DB
+		uid int64
+		db  *sql.DB
 	)
 	BeforeEach(func() {
 		seed.Seeds()
@@ -26,7 +26,7 @@ var _ = Describe("ProjectService", func() {
 			panic(err)
 		}
 		uid = user.UserEntity.UserModel.ID
-		database = db.SharedInstance().Connection
+		db = database.SharedInstance().Connection
 	})
 
 	Describe("Create", func() {
@@ -43,7 +43,7 @@ var _ = Describe("ProjectService", func() {
 			})
 			It("should relate user and project", func() {
 				newProject, _ := projectService.Create(uid, "new project", "description", 0, sql.NullString{})
-				rows, _ := database.Query("select id, user_id, title, description from projects where id = ?;", newProject.ProjectModel.ID)
+				rows, _ := db.Query("select id, user_id, title, description from projects where id = ?;", newProject.ProjectModel.ID)
 
 				var id int64
 				var userID sql.NullInt64

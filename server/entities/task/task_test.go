@@ -3,9 +3,9 @@ package task_test
 import (
 	"database/sql"
 	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/lib/modules/database"
 	. "github.com/h3poteto/fascia/server/entities/task"
 	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/models/db"
 	"github.com/h3poteto/fascia/server/services"
 
 	. "github.com/onsi/ginkgo"
@@ -17,14 +17,14 @@ var _ = Describe("Task", func() {
 		listService    *services.List
 		newTask        *Task
 		projectService *services.Project
-		database       *sql.DB
+		db             *sql.DB
 	)
 	BeforeEach(func() {
 		seed.Seeds()
 		email := "save@example.com"
 		password := "hogehoge"
 		user, _ := handlers.RegistrationUser(email, password, password)
-		database = db.SharedInstance().Connection
+		db = database.SharedInstance().Connection
 		projectService, _ = handlers.CreateProject(user.UserEntity.UserModel.ID, "title", "desc", 0, sql.NullString{})
 		listService = handlers.NewList(0, projectService.ProjectEntity.ProjectModel.ID, projectService.ProjectEntity.ProjectModel.UserID, "list title", "", sql.NullInt64{}, false)
 		listService.Save()
@@ -39,7 +39,7 @@ var _ = Describe("Task", func() {
 		})
 		It("should relate taks to list", func() {
 			_ = newTask.Save()
-			rows, _ := database.Query("select id, list_id, title from tasks where id = ?;", newTask.TaskModel.ID)
+			rows, _ := db.Query("select id, list_id, title from tasks where id = ?;", newTask.TaskModel.ID)
 			var id, listID int64
 			var title sql.NullString
 			for rows.Next() {
@@ -54,7 +54,7 @@ var _ = Describe("Task", func() {
 			It("should add display_index to task", func() {
 				err := newTask.Save()
 				Expect(err).To(BeNil())
-				rows, _ := database.Query("select id, list_id, title, display_index from tasks where id = ?;", newTask.TaskModel.ID)
+				rows, _ := db.Query("select id, list_id, title, display_index from tasks where id = ?;", newTask.TaskModel.ID)
 				var id, listID int64
 				var displayIndex int
 				var title sql.NullString
@@ -75,7 +75,7 @@ var _ = Describe("Task", func() {
 			It("should set last display_index to task", func() {
 				err := newTask.Save()
 				Expect(err).To(BeNil())
-				rows, _ := database.Query("select id, list_id, title, display_index from tasks where id = ?;", newTask.TaskModel.ID)
+				rows, _ := db.Query("select id, list_id, title, display_index from tasks where id = ?;", newTask.TaskModel.ID)
 				var id, listID int64
 				var displayIndex int
 				var title sql.NullString
@@ -104,7 +104,7 @@ var _ = Describe("Task", func() {
 				isReorder, err := newTask.ChangeList(secondaryList.ListEntity.ListModel.ID, nil)
 				Expect(err).To(BeNil())
 				Expect(isReorder).To(BeFalse())
-				rows, _ := database.Query("select id, list_id, title from tasks where id = ?;", newTask.TaskModel.ID)
+				rows, _ := db.Query("select id, list_id, title from tasks where id = ?;", newTask.TaskModel.ID)
 				var id, listID int64
 				var title sql.NullString
 				for rows.Next() {
@@ -129,7 +129,7 @@ var _ = Describe("Task", func() {
 					isReorder, err := newTask.ChangeList(secondaryList.ListEntity.ListModel.ID, nil)
 					Expect(err).To(BeNil())
 					Expect(isReorder).To(BeFalse())
-					rows, _ := database.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", secondaryList.ListEntity.ListModel.ID, newTask.TaskModel.ID)
+					rows, _ := db.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", secondaryList.ListEntity.ListModel.ID, newTask.TaskModel.ID)
 					var id int64
 					var displayIndex int
 					var title sql.NullString
@@ -147,7 +147,7 @@ var _ = Describe("Task", func() {
 					isReorder, err := newTask.ChangeList(secondaryList.ListEntity.ListModel.ID, &existTask.TaskModel.ID)
 					Expect(err).To(BeNil())
 					Expect(isReorder).To(BeFalse())
-					rows, _ := database.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", secondaryList.ListEntity.ListModel.ID, newTask.TaskModel.ID)
+					rows, _ := db.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", secondaryList.ListEntity.ListModel.ID, newTask.TaskModel.ID)
 					var id int64
 					var displayIndex int
 					var title sql.NullString
@@ -174,7 +174,7 @@ var _ = Describe("Task", func() {
 					isReorder, err := newTask.ChangeList(secondaryList.ListEntity.ListModel.ID, nil)
 					Expect(err).To(BeNil())
 					Expect(isReorder).To(BeFalse())
-					rows, _ := database.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", secondaryList.ListEntity.ListModel.ID, newTask.TaskModel.ID)
+					rows, _ := db.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", secondaryList.ListEntity.ListModel.ID, newTask.TaskModel.ID)
 					var id int64
 					var displayIndex int
 					var title sql.NullString
@@ -192,7 +192,7 @@ var _ = Describe("Task", func() {
 					isReorder, err := newTask.ChangeList(secondaryList.ListEntity.ListModel.ID, &firstExistTask.TaskModel.ID)
 					Expect(err).To(BeNil())
 					Expect(isReorder).To(BeFalse())
-					rows, _ := database.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", secondaryList.ListEntity.ListModel.ID, newTask.TaskModel.ID)
+					rows, _ := db.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", secondaryList.ListEntity.ListModel.ID, newTask.TaskModel.ID)
 					var id int64
 					var displayIndex int
 					var title sql.NullString
@@ -210,7 +210,7 @@ var _ = Describe("Task", func() {
 					isReorder, err := newTask.ChangeList(secondaryList.ListEntity.ListModel.ID, &secondExistTask.TaskModel.ID)
 					Expect(err).To(BeNil())
 					Expect(isReorder).To(BeFalse())
-					rows, _ := database.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", secondaryList.ListEntity.ListModel.ID, newTask.TaskModel.ID)
+					rows, _ := db.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", secondaryList.ListEntity.ListModel.ID, newTask.TaskModel.ID)
 					var id int64
 					var displayIndex int
 					var title sql.NullString
@@ -226,7 +226,7 @@ var _ = Describe("Task", func() {
 					isReorder, err := newTask.ChangeList(secondaryList.ListEntity.ListModel.ID, &secondExistTask.TaskModel.ID)
 					Expect(err).To(BeNil())
 					Expect(isReorder).To(BeFalse())
-					rows, _ := database.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", secondaryList.ListEntity.ListModel.ID, secondExistTask.TaskModel.ID)
+					rows, _ := db.Query("select id, title, display_index from tasks where list_id = ? and id = ?;", secondaryList.ListEntity.ListModel.ID, secondExistTask.TaskModel.ID)
 					var id int64
 					var displayIndex int
 					var title sql.NullString

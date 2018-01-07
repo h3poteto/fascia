@@ -3,8 +3,8 @@ package list_option
 import (
 	"database/sql"
 
-	"github.com/h3poteto/fascia/server/models/db"
-	"github.com/h3poteto/fascia/server/models/list_option"
+	"github.com/h3poteto/fascia/lib/modules/database"
+	"github.com/h3poteto/fascia/server/infrastructures/list_option"
 
 	"github.com/pkg/errors"
 )
@@ -12,22 +12,22 @@ import (
 // ListOption has a list option model object
 type ListOption struct {
 	ListOptionModel *list_option.ListOption
-	database        *sql.DB
+	db              *sql.DB
 }
 
 // New returns a list option entity
 func New(id int64, action string) *ListOption {
 	return &ListOption{
 		ListOptionModel: list_option.New(id, action),
-		database:        db.SharedInstance().Connection,
+		db:              database.SharedInstance().Connection,
 	}
 }
 
 // ListOptionAll list up all options
 func ListOptionAll() ([]*ListOption, error) {
-	database := db.SharedInstance().Connection
+	db := database.SharedInstance().Connection
 	var slice []*ListOption
-	rows, err := database.Query("select id, action from list_options;")
+	rows, err := db.Query("select id, action from list_options;")
 	if err != nil {
 		return slice, errors.Wrap(err, "sql select error")
 	}
@@ -52,7 +52,7 @@ func FindByID(id int64) (*ListOption, error) {
 	}
 	return &ListOption{
 		ListOptionModel: option,
-		database:        db.SharedInstance().Connection,
+		db:              database.SharedInstance().Connection,
 	}, nil
 }
 
@@ -64,7 +64,7 @@ func FindByAction(action string) (*ListOption, error) {
 	}
 	return &ListOption{
 		ListOptionModel: option,
-		database:        db.SharedInstance().Connection,
+		db:              database.SharedInstance().Connection,
 	}, nil
 }
 
