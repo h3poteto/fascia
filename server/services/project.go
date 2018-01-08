@@ -312,14 +312,14 @@ func (p *Project) FetchCreatedInitialList() error {
 		return err
 	}
 	for _, l := range lists {
-		label, err := repo.CheckLabelPresent(oauthToken, l.ListModel.Title.String)
+		label, err := repo.CheckLabelPresent(oauthToken, l.Title.String)
 		if err != nil {
 			return err
 		}
 		if label != nil {
 			continue
 		}
-		_, err = repo.CreateGithubLabel(oauthToken, l.ListModel.Title.String, l.ListModel.Color.String)
+		_, err = repo.CreateGithubLabel(oauthToken, l.Title.String, l.Color.String)
 		if err != nil {
 			return err
 		}

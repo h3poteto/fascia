@@ -19,14 +19,14 @@ type Task struct {
 // ParseTaskJSON returns a Task struct for response
 func ParseTaskJSON(task *task.Task) (*Task, error) {
 	return &Task{
-		ID:          task.TaskModel.ID,
-		ListID:      task.TaskModel.ListID,
-		UserID:      task.TaskModel.UserID,
-		IssueNumber: task.TaskModel.IssueNumber.Int64,
-		Title:       task.TaskModel.Title,
-		Description: task.TaskModel.Description,
-		HTMLURL:     task.TaskModel.HTMLURL.String,
-		PullRequest: task.TaskModel.PullRequest,
+		ID:          task.ID,
+		ListID:      task.ListID,
+		UserID:      task.UserID,
+		IssueNumber: task.IssueNumber.Int64,
+		Title:       task.Title,
+		Description: task.Description,
+		HTMLURL:     task.HTMLURL.String,
+		PullRequest: task.PullRequest,
 	}, nil
 }
 

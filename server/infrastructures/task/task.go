@@ -70,6 +70,33 @@ func FindByIssueNumber(projectID int64, issueNumber int) (*Task, error) {
 	return task, nil
 }
 
+func Tasks(parentListID int64) ([]*Task, error) {
+	db := database.SharedInstance().Connection
+
+	var slice []*Task
+	rows, err := db.Query("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where list_id = ? order by display_index;", parentListID)
+	if err != nil {
+		return nil, errors.Wrap(err, "sql select error")
+	}
+
+	for rows.Next() {
+		var id, listID, userID, projectID int64
+		var title, description string
+		var issueNumber sql.NullInt64
+		var pullRequest bool
+		var htmlURL sql.NullString
+		err := rows.Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
+		if err != nil {
+			return nil, errors.Wrap(err, "sql select error")
+		}
+		if listID == parentListID {
+			l := New(id, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL)
+			slice = append(slice, l)
+		}
+	}
+	return slice, nil
+}
+
 func (t *Task) initialize() {
 	t.db = database.SharedInstance().Connection
 }
@@ -190,4 +217,14 @@ func (t *Task) Delete() error {
 	logging.SharedInstance().MethodInfo("task", "Delete").Infof("task deleted: %v", t.ID)
 	t.ID = 0
 	return nil
+}
+
+func (t *Task) List() (sql.NullString, sql.NullString, sql.NullInt64, error) {
+	var listTitle, listColor sql.NullString
+	var listOptionID sql.NullInt64
+	err := t.db.QueryRow("select title, color, list_option_id from lists where id = ?;", t.ListID).Scan(&listTitle, &listColor, &listOptionID)
+	if err != nil {
+		return sql.NullString{}, sql.NullString{}, sql.NullInt64{}, errors.Wrap(err, "sql select error")
+	}
+	return listTitle, listColor, listOptionID, nil
 }

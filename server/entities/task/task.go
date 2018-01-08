@@ -5,7 +5,6 @@ import (
 
 	"github.com/google/go-github/github"
 	"github.com/h3poteto/fascia/config"
-	"github.com/h3poteto/fascia/lib/modules/database"
 	"github.com/h3poteto/fascia/server/entities/list_option"
 	"github.com/h3poteto/fascia/server/entities/repository"
 	"github.com/h3poteto/fascia/server/infrastructures/task"
@@ -14,50 +13,77 @@ import (
 
 // Task has a task model object
 type Task struct {
-	TaskModel *task.Task
-	db        *sql.DB
+	ID             int64
+	ListID         int64
+	ProjectID      int64
+	UserID         int64
+	IssueNumber    sql.NullInt64
+	Title          string
+	Description    string
+	PullRequest    bool
+	HTMLURL        sql.NullString
+	infrastructure *task.Task
 }
 
 // New returns a task entity
 func New(id, listID, projectID, userID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString) *Task {
-	return &Task{
-		TaskModel: task.New(id, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL),
-		db:        database.SharedInstance().Connection,
+	infrastructure := task.New(id, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL)
+	t := &Task{
+		infrastructure: infrastructure,
 	}
+	t.reload()
+	return t
 }
 
-// Find returns a task entity
-func Find(listID, taskID int64) (*Task, error) {
-	t, err := task.Find(listID, taskID)
-	if err != nil {
-		return nil, err
-	}
-	return &Task{
-		TaskModel: t,
-		db:        database.SharedInstance().Connection,
-	}, nil
+func (t *Task) reflect() {
+	t.infrastructure.ID = t.ID
+	t.infrastructure.ListID = t.ListID
+	t.infrastructure.ProjectID = t.ProjectID
+	t.infrastructure.UserID = t.UserID
+	t.infrastructure.IssueNumber = t.IssueNumber
+	t.infrastructure.Title = t.Title
+	t.infrastructure.Description = t.Description
+	t.infrastructure.PullRequest = t.PullRequest
+	t.infrastructure.HTMLURL = t.HTMLURL
 }
 
-// FindByIssueNumber returns a task entity
-func FindByIssueNumber(projectID int64, issueNumber int) (*Task, error) {
-	t, err := task.FindByIssueNumber(projectID, issueNumber)
-	if err != nil {
-		return nil, err
+func (t *Task) reload() error {
+	if t.ID != 0 {
+		latestTask, err := task.Find(t.ListID, t.ID)
+		if err != nil {
+			return err
+		}
+		t.infrastructure = latestTask
 	}
-	return &Task{
-		TaskModel: t,
-		db:        database.SharedInstance().Connection,
-	}, nil
+	t.ID = t.infrastructure.ID
+	t.ListID = t.infrastructure.ListID
+	t.ProjectID = t.infrastructure.ProjectID
+	t.UserID = t.infrastructure.UserID
+	t.IssueNumber = t.infrastructure.IssueNumber
+	t.Title = t.infrastructure.Title
+	t.Description = t.infrastructure.Description
+	t.PullRequest = t.infrastructure.PullRequest
+	t.HTMLURL = t.infrastructure.HTMLURL
+	return nil
 }
 
 // Save call save in model
 func (t *Task) Save() error {
-	return t.TaskModel.Save()
+	t.reflect()
+	return t.infrastructure.Save()
 }
 
 // Update call update in model
 func (t *Task) Update(listID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString) error {
-	return t.TaskModel.Update(listID, issueNumber, title, description, pullRequest, htmlURL)
+	err := t.infrastructure.Update(listID, issueNumber, title, description, pullRequest, htmlURL)
+	if err != nil {
+		return err
+	}
+	err = t.reload()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // ChangeList change list of a task, and reorder task
@@ -65,27 +91,38 @@ func (t *Task) Update(listID int64, issueNumber sql.NullInt64, title, descriptio
 func (t *Task) ChangeList(listID int64, prevToTaskID *int64) (bool, error) {
 	var isReorder bool
 	// リストを移動させるのか同リスト内の並び替えなのかどうかを見て，並び替えならgithub同期したくない
-	if listID == t.TaskModel.ListID {
+	if listID == t.infrastructure.ListID {
 		isReorder = true
 	} else {
 		isReorder = false
 	}
 
-	return isReorder, t.TaskModel.ChangeList(listID, prevToTaskID)
+	err := t.infrastructure.ChangeList(listID, prevToTaskID)
+	if err != nil {
+		return isReorder, err
+	}
+	err = t.reload()
+	if err != nil {
+		return isReorder, err
+	}
+	return isReorder, nil
 }
 
 // Delete call delete in model
 func (t *Task) Delete() error {
-	return t.TaskModel.Delete()
+	err := t.infrastructure.Delete()
+	if err != nil {
+		return err
+	}
+	t.infrastructure = nil
+	return nil
 }
 
 // SyncIssue apply task information to github issue, and take issue to task
 func (t *Task) SyncIssue(repo *repository.Repository, token string) (*github.Issue, error) {
-	var listTitle, listColor sql.NullString
-	var listOptionID sql.NullInt64
-	err := t.db.QueryRow("select title, color, list_option_id from lists where id = ?;", t.TaskModel.ListID).Scan(&listTitle, &listColor, &listOptionID)
+	listTitle, listColor, listOptionID, err := t.infrastructure.List()
 	if err != nil {
-		return nil, errors.Wrap(err, "sql select error")
+		return nil, err
 	}
 
 	labelName, err := t.syncLabel(listTitle.String, listColor.String, token, repo)
@@ -106,8 +143,8 @@ func (t *Task) SyncIssue(repo *repository.Repository, token string) (*github.Iss
 
 	var issue *github.Issue
 	// issueを確認する
-	if t.TaskModel.IssueNumber.Valid {
-		issue, err = repo.GetGithubIssue(token, int(t.TaskModel.IssueNumber.Int64))
+	if t.IssueNumber.Valid {
+		issue, err = repo.GetGithubIssue(token, int(t.IssueNumber.Int64))
 		if err != nil {
 			return nil, err
 		}
@@ -115,7 +152,7 @@ func (t *Task) SyncIssue(repo *repository.Repository, token string) (*github.Iss
 
 	// issueがない場合には作成する
 	if issue == nil {
-		issue, err = repo.CreateGithubIssue(token, t.TaskModel.Title, t.TaskModel.Description, labelName)
+		issue, err = repo.CreateGithubIssue(token, t.Title, t.Description, labelName)
 		if err != nil {
 			return nil, err
 		}
@@ -130,7 +167,7 @@ func (t *Task) SyncIssue(repo *repository.Repository, token string) (*github.Iss
 
 	// issueがある場合には更新する
 	// このときにlist_optionが定義するaction通りにissueを更新する
-	result, err := repo.EditGithubIssue(token, t.TaskModel.Title, t.TaskModel.Description, issueAction, *issue.Number, labelName)
+	result, err := repo.EditGithubIssue(token, t.Title, t.Description, issueAction, *issue.Number, labelName)
 	if err != nil {
 		return nil, err
 	}

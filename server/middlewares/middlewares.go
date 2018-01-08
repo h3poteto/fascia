@@ -170,7 +170,7 @@ func Task() echo.MiddlewareFunc {
 				logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 				return NewJSONError(err, http.StatusNotFound, c)
 			}
-			taskService, err := handlers.FindTask(lc.ListService.ListEntity.ListModel.ID, taskID)
+			taskService, err := handlers.FindTask(lc.ListService.ListEntity.ID, taskID)
 			if err != nil {
 				logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 				return NewJSONError(err, http.StatusNotFound, c)

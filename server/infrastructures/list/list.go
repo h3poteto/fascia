@@ -119,3 +119,12 @@ func (l *List) Delete() error {
 	}
 	return nil
 }
+
+// DeleteTasks delete all tasks related a list
+func (l *List) DeleteTasks() error {
+	_, err := l.db.Exec("DELETE FROM tasks WHERE list_id = ?;", l.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
