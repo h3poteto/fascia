@@ -94,7 +94,7 @@ func (l *List) Update(title, color string, optionID int64) error {
 		// nullの場合は特にactionが発生しないだけ
 		logging.SharedInstance().MethodInfo("list", "Update").Debugf("cannot find list_options, set null to list_option_id: %v", err)
 	} else {
-		listOptionID = sql.NullInt64{Int64: listOption.ListOptionModel.ID, Valid: true}
+		listOptionID = sql.NullInt64{Int64: listOption.ID, Valid: true}
 	}
 	err = l.infrastructure.Update(title, color, listOptionID)
 	if err != nil {

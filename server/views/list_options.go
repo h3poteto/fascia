@@ -13,8 +13,8 @@ type ListOption struct {
 // ParseListOptionJSON returns a ListOption struct for response
 func ParseListOptionJSON(option *list_option.ListOption) (*ListOption, error) {
 	return &ListOption{
-		ID:     option.ListOptionModel.ID,
-		Action: option.ListOptionModel.Action,
+		ID:     option.ID,
+		Action: option.Action,
 	}, nil
 }
 

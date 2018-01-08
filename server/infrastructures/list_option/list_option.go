@@ -35,19 +35,37 @@ func FindByAction(action string) (*ListOption, error) {
 }
 
 // FindByID search a list option according to id
-func FindByID(id sql.NullInt64) (*ListOption, error) {
+func FindByID(id int64) (*ListOption, error) {
 	db := database.SharedInstance().Connection
 
-	if !id.Valid {
-		return nil, errors.New("id is not valid")
-	}
 	var action string
 	err := db.QueryRow("select action from list_options where id = ?;", id).Scan(&action)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
 	}
-	return New(id.Int64, action), nil
+	return New(id, action), nil
+}
+
+func All() ([]*ListOption, error) {
+	db := database.SharedInstance().Connection
+
+	var slice []*ListOption
+	rows, err := db.Query("select id, action from list_options;")
+	if err != nil {
+		return slice, errors.Wrap(err, "sql select error")
+	}
+	for rows.Next() {
+		var id int64
+		var action string
+		err = rows.Scan(&id, &action)
+		if err != nil {
+			return nil, errors.Wrap(err, "sql select error")
+		}
+		l := New(id, action)
+		slice = append(slice, l)
+	}
+	return slice, nil
 }
 
 func (l *ListOption) initialize() {

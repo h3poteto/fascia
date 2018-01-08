@@ -102,7 +102,7 @@ func (p *Project) CreateInitialLists(tx *sql.Tx) error {
 		p.ProjectModel.UserID,
 		config.Element("init_list").(map[interface{}]interface{})["done"].(string),
 		"333333",
-		sql.NullInt64{Int64: closeListOption.ListOptionModel.ID, Valid: true},
+		sql.NullInt64{Int64: closeListOption.ID, Valid: true},
 		false,
 	)
 	none := list.New(

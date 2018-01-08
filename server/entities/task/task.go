@@ -138,7 +138,7 @@ func (t *Task) SyncIssue(repo *repository.Repository, token string) (*github.Iss
 		if err != nil {
 			return nil, err
 		}
-		issueAction = listOption.ListOptionModel.Action
+		issueAction = listOption.Action
 	}
 
 	var issue *github.Issue
