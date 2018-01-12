@@ -29,7 +29,7 @@ func (u *Root) Index(c echo.Context) error {
 	projectID, _ := strconv.ParseInt(c.Param("project_id"), 10, 64)
 	if projectID != 0 {
 		projectService, err := handlers.FindProject(projectID)
-		if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.UserModel.ID)) {
+		if err != nil || !(projectService.CheckOwner(currentUser.UserEntity.ID)) {
 			logging.SharedInstance().Controller(c).Warnf("project not found: %v", err)
 			return NewJSONError(err, http.StatusNotFound, c)
 		}

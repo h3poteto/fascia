@@ -48,11 +48,8 @@ func (l *List) Save() error {
 		if err != nil {
 			return
 		}
-		repo, find, err := p.ProjectEntity.Repository()
+		repo, err := p.ProjectEntity.Repository()
 		if err != nil {
-			return
-		}
-		if !find {
 			return
 		}
 		err = list.fetchCreated(token, repo)
@@ -102,11 +99,8 @@ func (l *List) Update(title, color string, optionID int64) error {
 		if err != nil {
 			return
 		}
-		repo, find, err := p.ProjectEntity.Repository()
+		repo, err := p.ProjectEntity.Repository()
 		if err != nil {
-			return
-		}
-		if !find {
 			return
 		}
 		err = list.fetchUpdated(token, repo, title, color)

@@ -53,3 +53,23 @@ func (r *Repository) Save() error {
 	r.ID, _ = result.LastInsertId()
 	return nil
 }
+
+func FindByProjectID(projectID int64) (*Repository, error) {
+	db := database.SharedInstance().Connection
+	rows, err := db.Query("select repositories.id, repositories.repository_id, repositories.owner, repositories.name, repositories.webhook_key from projects inner join repositories on repositories.id = projects.repository_id where projects.id = ?;", projectID)
+	if err != nil {
+		return nil, errors.Wrap(err, "find repository error")
+	}
+
+	var id, repositoryID int64
+	var owner, name sql.NullString
+	var webhookKey string
+	for rows.Next() {
+		err = rows.Scan(&id, &repositoryID, &owner, &name, &webhookKey)
+		if err != nil {
+			return nil, errors.Wrap(err, "find repository error")
+		}
+	}
+	r := New(id, repositoryID, owner.String, name.String, webhookKey)
+	return r, nil
+}

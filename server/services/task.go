@@ -50,11 +50,8 @@ func (t *Task) Save() error {
 		if err != nil {
 			return
 		}
-		repo, find, err := p.ProjectEntity.Repository()
+		repo, err := p.ProjectEntity.Repository()
 		if err != nil {
-			return
-		}
-		if !find {
 			return
 		}
 		err = task.fetchCreated(token, repo)
@@ -84,11 +81,8 @@ func (t *Task) Update(listID int64, issueNumber sql.NullInt64, title, descriptio
 		if err != nil {
 			return
 		}
-		repo, find, err := p.ProjectEntity.Repository()
+		repo, err := p.ProjectEntity.Repository()
 		if err != nil {
-			return
-		}
-		if !find {
 			return
 		}
 		err = task.fetchUpdated(token, repo)
@@ -117,11 +111,8 @@ func (t *Task) ChangeList(listID int64, prevToTaskID *int64) error {
 		if err != nil {
 			return
 		}
-		repo, find, err := p.ProjectEntity.Repository()
+		repo, err := p.ProjectEntity.Repository()
 		if err != nil {
-			return
-		}
-		if !find {
 			return
 		}
 		err = task.fetchChangedList(token, repo, isReorder)

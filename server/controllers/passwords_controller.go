@@ -74,7 +74,7 @@ func (u *Passwords) Create(c echo.Context) error {
 		return c.Redirect(http.StatusFound, "/sign_in")
 	}
 
-	reset, err := handlers.GenerateResetPassword(targetUser.UserEntity.UserModel.ID, targetUser.UserEntity.UserModel.Email)
+	reset, err := handlers.GenerateResetPassword(targetUser.UserEntity.ID, targetUser.UserEntity.Email)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
@@ -84,7 +84,7 @@ func (u *Passwords) Create(c echo.Context) error {
 		return err
 	}
 	// ここでemail送信
-	go password_mailer.Reset(reset.ResetPasswordEntity.ResetPasswordModel.ID, targetUser.UserEntity.UserModel.Email, reset.ResetPasswordEntity.ResetPasswordModel.Token)
+	go password_mailer.Reset(reset.ResetPasswordEntity.ResetPasswordModel.ID, targetUser.UserEntity.Email, reset.ResetPasswordEntity.ResetPasswordModel.Token)
 	logging.SharedInstance().Controller(c).Info("success to send password reset request")
 	return c.Redirect(http.StatusFound, "/sign_in")
 }
@@ -150,7 +150,7 @@ func (u *Passwords) Update(c echo.Context) error {
 		return err
 	}
 
-	go password_mailer.Changed(targetUser.UserEntity.UserModel.Email)
+	go password_mailer.Changed(targetUser.UserEntity.Email)
 	logging.SharedInstance().Controller(c).Info("success to change password")
 	return c.Redirect(http.StatusFound, "/sign_in")
 }

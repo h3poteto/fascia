@@ -11,7 +11,7 @@ import (
 
 // ApplyIssueChangesToRepository apply updating information of issue to each task
 func ApplyIssueChangesToRepository(repository *services.Repository, githubBody github.IssuesEvent) error {
-	projectServices, err := services.FindProjectByRepositoryID(repository.RepositoryEntity.RepositoryModel.ID)
+	projectServices, err := services.FindProjectByRepositoryID(repository.RepositoryEntity.ID)
 	if err != nil {
 		return err
 	}
@@ -32,7 +32,7 @@ func ApplyIssueChangesToRepository(repository *services.Repository, githubBody g
 // ApplyPullRequestChangesToRepository apply updating information of pull request to each task
 func ApplyPullRequestChangesToRepository(repository *services.Repository, githubBody github.PullRequestEvent) error {
 
-	projectServices, err := services.FindProjectByRepositoryID(repository.RepositoryEntity.RepositoryModel.ID)
+	projectServices, err := services.FindProjectByRepositoryID(repository.RepositoryEntity.ID)
 	if err != nil {
 		return err
 	}

@@ -3,8 +3,6 @@ package user
 import (
 	"database/sql"
 
-	"github.com/h3poteto/fascia/lib/modules/database"
-	"github.com/h3poteto/fascia/server/entities/project"
 	"github.com/h3poteto/fascia/server/infrastructures/user"
 
 	"github.com/google/go-github/github"
@@ -14,69 +12,79 @@ import (
 
 // User has a user model object
 type User struct {
-	UserModel *user.User
-	db        *sql.DB
+	ID             int64
+	Email          string
+	Password       string
+	Provider       sql.NullString
+	OauthToken     sql.NullString
+	UUID           sql.NullInt64
+	UserName       sql.NullString
+	Avatar         sql.NullString
+	infrastructure *user.User
 }
 
 // New returns a user entity
 func New(id int64, email string, provider sql.NullString, oauthToken sql.NullString, uuid sql.NullInt64, userName sql.NullString, avatar sql.NullString) *User {
-	return &User{
-		UserModel: user.New(id, email, provider, oauthToken, uuid, userName, avatar),
-		db:        database.SharedInstance().Connection,
+	infrastructure := user.New(id, email, provider, oauthToken, uuid, userName, avatar)
+	u := &User{
+		infrastructure: infrastructure,
 	}
+	u.reload()
+	return u
+}
+
+func (u *User) reflect() {
+	u.infrastructure.ID = u.ID
+	u.infrastructure.Email = u.Email
+	u.infrastructure.Provider = u.Provider
+	u.infrastructure.OauthToken = u.OauthToken
+	u.infrastructure.UUID = u.UUID
+	u.infrastructure.UserName = u.UserName
+	u.infrastructure.Avatar = u.Avatar
+}
+
+func (u *User) reload() error {
+	if u.ID != 0 {
+		latestUser, err := user.Find(u.ID)
+		if err != nil {
+			return err
+		}
+		u.infrastructure = latestUser
+	}
+	u.ID = u.infrastructure.ID
+	u.Email = u.infrastructure.Email
+	u.Provider = u.infrastructure.Provider
+	u.OauthToken = u.infrastructure.OauthToken
+	u.UUID = u.infrastructure.UUID
+	u.UserName = u.infrastructure.UserName
+	u.Avatar = u.infrastructure.Avatar
+	return nil
 }
 
 // Registration create a new user record
 func Registration(email, password, passwordConfirm string) (*User, error) {
-	u, err := user.Registration(email, password, passwordConfirm)
+	infrastructure, err := user.Registration(email, password, passwordConfirm)
 	if err != nil {
 		return nil, err
 	}
-	return &User{
-		UserModel: u,
-		db:        database.SharedInstance().Connection,
-	}, nil
-}
-
-// Find returns a user entity
-func Find(id int64) (*User, error) {
-	u, err := user.Find(id)
-	if err != nil {
+	u := &User{
+		infrastructure: infrastructure,
+	}
+	if err := u.reload(); err != nil {
 		return nil, err
 	}
-	return &User{
-		UserModel: u,
-		db:        database.SharedInstance().Connection,
-	}, nil
-}
-
-// FindByEmail returns a user entity
-func FindByEmail(email string) (*User, error) {
-	u, err := user.FindByEmail(email)
-	if err != nil {
-		return nil, err
-	}
-	return &User{
-		UserModel: u,
-		db:        database.SharedInstance().Connection,
-	}, nil
+	return u, nil
 }
 
 // Login authenticate email and password
 func Login(userEmail string, userPassword string) (*User, error) {
-	db := database.SharedInstance().Connection
-	var id int64
-	var uuid sql.NullInt64
-	var email, password string
-	var provider, oauthToken, userName, avatarURL sql.NullString
-	err := db.QueryRow("select id, email, password, provider, oauth_token, user_name, uuid, avatar_url from users where email = ?;", userEmail).Scan(&id, &email, &password, &provider, &oauthToken, &userName, &uuid, &avatarURL)
+	u, err := FindByEmail(userEmail)
 	if err != nil {
-		return nil, errors.Wrap(err, "sql select error")
+		return nil, err
 	}
 
-	u := New(id, email, provider, oauthToken, uuid, userName, avatarURL)
 	bytePassword := []byte(userPassword)
-	err = bcrypt.CompareHashAndPassword([]byte(password), bytePassword)
+	err = bcrypt.CompareHashAndPassword([]byte(u.Password), bytePassword)
 	if err != nil {
 		return nil, errors.Wrap(err, "password did not match")
 	}
@@ -85,68 +93,20 @@ func Login(userEmail string, userPassword string) (*User, error) {
 
 // FindOrCreateFromGithub create or update user table base on github information
 func FindOrCreateFromGithub(githubUser *github.User, token string, primaryEmail string) (*User, error) {
-	db := database.SharedInstance().Connection
-	var id int64
-	var uuid sql.NullInt64
-	var email string
-	var provider, oauthToken, userName, avatarURL sql.NullString
-	rows, err := db.Query("select id, email, provider, oauth_token, user_name, uuid, avatar_url from users where uuid = ? or email = ?;", *githubUser.ID, primaryEmail)
+	u, err := FindByEmail(primaryEmail)
 	if err != nil {
-		return nil, errors.Wrap(err, "sql select error")
-	}
-	// 新規登録の場合には見つからないのでエラーにならないようにscanする
-	for rows.Next() {
-		err := rows.Scan(&id, &email, &provider, &oauthToken, &userName, &uuid, &avatarURL)
-		if err != nil {
-			return nil, errors.Wrap(err, "sql scan error")
-		}
-	}
-	u := New(id, email, provider, oauthToken, uuid, userName, avatarURL)
-
-	// id==0, 即ち初期値の場合には新規登録する
-	// TODO: できればrowsの長さだけで判定したい
-	if id == 0 {
-		if err := u.UserModel.CreateGithubUser(token, githubUser, primaryEmail); err != nil {
+		// 見つからない場合は新規登録する
+		if err := u.infrastructure.CreateGithubUser(token, githubUser, primaryEmail); err != nil {
 			return nil, err
 		}
 	}
 
 	// 登録されているOAuth情報が更新された場合には，合わせてレコードも更新しておく
-	if !u.UserModel.OauthToken.Valid || u.UserModel.OauthToken.String != token {
-		if err := u.UserModel.UpdateGithubUserInfo(token, githubUser); err != nil {
+	if !u.OauthToken.Valid || u.OauthToken.String != token {
+		if err := u.infrastructure.UpdateGithubUserInfo(token, githubUser); err != nil {
 			return nil, err
 		}
 	}
 
 	return u, nil
-}
-
-// HashPassword returns a password
-func HashPassword(password string) ([]byte, error) {
-	return user.HashPassword(password)
-}
-
-// Projects list up projects related a user
-func (u *User) Projects() ([]*project.Project, error) {
-	var slice []*project.Project
-	rows, err := u.db.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where user_id = ?;", u.UserModel.ID)
-	if err != nil {
-		return nil, errors.Wrap(err, "sql select error")
-	}
-	for rows.Next() {
-		var id, userID int64
-		var repositoryID sql.NullInt64
-		var title string
-		var description string
-		var showIssues, showPullRequests bool
-		err := rows.Scan(&id, &userID, &repositoryID, &title, &description, &showIssues, &showPullRequests)
-		if err != nil {
-			return nil, errors.Wrap(err, "sql select error")
-		}
-		if id != 0 {
-			p := project.New(id, userID, title, description, repositoryID, showIssues, showPullRequests)
-			slice = append(slice, p)
-		}
-	}
-	return slice, nil
 }

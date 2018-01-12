@@ -4,6 +4,7 @@ import (
 	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/server/entities/list_option"
 	"github.com/h3poteto/fascia/server/entities/task"
+	"github.com/h3poteto/fascia/server/infrastructures/list"
 	"github.com/pkg/errors"
 )
 
@@ -18,6 +19,40 @@ func FindByID(projectID, listID int64) (*List, error) {
 		return nil, err
 	}
 	return l, nil
+}
+
+func Lists(projectID int64) ([]*List, error) {
+	var slice []*List
+
+	lists, err := list.Lists(projectID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, l := range lists {
+		s := &List{
+			infrastructure: l,
+		}
+		if err := s.reload(); err != nil {
+			return nil, err
+		}
+		slice = append(slice, s)
+	}
+	return slice, nil
+}
+
+func NoneList(projectID int64) (*List, error) {
+	l, err := list.NoneList(projectID)
+	if err != nil {
+		return nil, err
+	}
+	s := &List{
+		infrastructure: l,
+	}
+	if err := s.reload(); err != nil {
+		return nil, err
+	}
+	return s, nil
 }
 
 // Tasks list up related tasks

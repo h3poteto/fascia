@@ -65,7 +65,7 @@ func (u *Tasks) Create(c echo.Context) error {
 	task := services.NewTask(
 		0,
 		parentList.ListEntity.ID,
-		projectService.ProjectEntity.ProjectModel.ID,
+		projectService.ProjectEntity.ID,
 		parentList.ListEntity.UserID,
 		sql.NullInt64{},
 		newTaskForm.Title,

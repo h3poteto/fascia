@@ -42,7 +42,7 @@ func (p *Project) labelUpdate(l *list.List, labels []*github.Label) error {
 // TaskLoadFromGithub load tasks from github issues
 func (p *Project) TaskLoadFromGithub(issues []*github.Issue) error {
 	for _, issue := range issues {
-		targetTask, _ := task.FindByIssueNumber(p.ProjectModel.ID, *issue.Number)
+		targetTask, _ := task.FindByIssueNumber(p.ID, *issue.Number)
 
 		err := p.TaskApplyLabel(targetTask, issue)
 		if err != nil {
@@ -85,11 +85,8 @@ func (p *Project) ReacquireIssue(issue *github.Issue) (*github.Issue, error) {
 		return nil, err
 	}
 
-	repo, find, err := p.Repository()
+	repo, err := p.Repository()
 	if err != nil {
-		return nil, err
-	}
-	if !find {
 		return nil, errors.New("can not find repository")
 	}
 	return repo.GetGithubIssue(oauthToken, *issue.Number)
@@ -153,8 +150,8 @@ func (p *Project) CreateNewTask(issue *github.Issue) error {
 	issueTask := task.New(
 		0,
 		0,
-		p.ProjectModel.ID,
-		p.ProjectModel.UserID,
+		p.ID,
+		p.UserID,
 		sql.NullInt64{Int64: int64(*issue.Number), Valid: true},
 		*issue.Title,
 		*issue.Body,

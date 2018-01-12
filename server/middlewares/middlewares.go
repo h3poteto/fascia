@@ -110,7 +110,7 @@ func Project() echo.MiddlewareFunc {
 				return NewJSONError(err, http.StatusNotFound, c)
 			}
 			projectService, err := handlers.FindProject(projectID)
-			if err != nil || !(projectService.CheckOwner(uc.CurrentUserService.UserEntity.UserModel.ID)) {
+			if err != nil || !(projectService.CheckOwner(uc.CurrentUserService.UserEntity.ID)) {
 				logging.SharedInstance().Controller(c).Warnf("project not found: %v", err)
 				return NewJSONError(err, http.StatusNotFound, c)
 			}
@@ -140,7 +140,7 @@ func List() echo.MiddlewareFunc {
 				logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 				return NewJSONError(err, http.StatusNotFound, c)
 			}
-			listService, err := handlers.FindList(pc.ProjectService.ProjectEntity.ProjectModel.ID, listID)
+			listService, err := handlers.FindList(pc.ProjectService.ProjectEntity.ID, listID)
 			if err != nil {
 				logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 				return NewJSONError(err, http.StatusNotFound, c)
