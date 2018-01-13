@@ -70,6 +70,7 @@ func FindByIssueNumber(projectID int64, issueNumber int) (*Task, error) {
 	return task, nil
 }
 
+// Tasks returns all tasks related a list.
 func Tasks(parentListID int64) ([]*Task, error) {
 	db := database.SharedInstance().Connection
 
@@ -219,6 +220,7 @@ func (t *Task) Delete() error {
 	return nil
 }
 
+// List retruns parent list of a task.
 func (t *Task) List() (sql.NullString, sql.NullString, sql.NullInt64, error) {
 	var listTitle, listColor sql.NullString
 	var listOptionID sql.NullInt64

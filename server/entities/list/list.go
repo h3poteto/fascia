@@ -69,7 +69,10 @@ func (l *List) reload() error {
 // Save call list model save
 func (l *List) Save(tx *sql.Tx) error {
 	l.reflect()
-	return l.infrastructure.Save(tx)
+	if err := l.infrastructure.Save(tx); err != nil {
+		return err
+	}
+	return l.reload()
 }
 
 // UpdateExceptInitList update list except initial list
@@ -100,11 +103,7 @@ func (l *List) Update(title, color string, optionID int64) error {
 	if err != nil {
 		return err
 	}
-	err = l.reload()
-	if err != nil {
-		return err
-	}
-	return nil
+	return l.reload()
 }
 
 // Hide call list model hide

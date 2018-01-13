@@ -93,7 +93,10 @@ func GenerateWebhookKey(seed string) string {
 // Save call repository model save
 func (r *Repository) Save() error {
 	r.reflect()
-	return r.infrastructure.Save()
+	if err := r.infrastructure.Save(); err != nil {
+		return err
+	}
+	return r.reload()
 }
 
 // Authenticate is check token and webhookKey with response

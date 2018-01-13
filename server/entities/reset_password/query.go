@@ -20,6 +20,7 @@ func FindAvailable(id int64, token string) (*ResetPassword, error) {
 	return r, nil
 }
 
+// Find find a reset password entity by id.
 func Find(id int64) (*ResetPassword, error) {
 	i, err := reset_password.Find(id)
 	if err != nil {

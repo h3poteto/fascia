@@ -36,6 +36,7 @@ func FindByRepositoryID(repositoryID int64) ([]*Project, error) {
 	return slice, nil
 }
 
+// Projects returns all projects related a user.
 func Projects(userID int64) ([]*Project, error) {
 	var slice []*Project
 

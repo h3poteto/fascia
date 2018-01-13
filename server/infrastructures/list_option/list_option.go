@@ -47,6 +47,7 @@ func FindByID(id int64) (*ListOption, error) {
 	return New(id, action), nil
 }
 
+// All returns all list options.
 func All() ([]*ListOption, error) {
 	db := database.SharedInstance().Connection
 

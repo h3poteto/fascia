@@ -41,8 +41,7 @@ func (i *Inquiry) reload() error {
 // Save a inquiry entity, and returns the latest inquiry object.
 func (i *Inquiry) Save() error {
 	i.reflect()
-	err := i.infrastructure.Save()
-	if err != nil {
+	if err := i.infrastructure.Save(); err != nil {
 		return err
 	}
 	return i.reload()

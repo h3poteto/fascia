@@ -130,6 +130,7 @@ func (l *List) DeleteTasks() error {
 	return nil
 }
 
+// Lists returns all lists related a project.
 func Lists(parentProjectID int64) ([]*List, error) {
 	db := database.SharedInstance().Connection
 	var slice []*List
@@ -154,6 +155,7 @@ func Lists(parentProjectID int64) ([]*List, error) {
 	return slice, nil
 }
 
+// NoneList returns a none list related a project.
 func NoneList(parentProjectID int64) (*List, error) {
 	db := database.SharedInstance().Connection
 	var id, projectID, userID int64

@@ -54,6 +54,7 @@ func (r *Repository) Save() error {
 	return nil
 }
 
+// FindByProjectID returns a repository related a project.
 func FindByProjectID(projectID int64) (*Repository, error) {
 	db := database.SharedInstance().Connection
 	rows, err := db.Query("select repositories.id, repositories.repository_id, repositories.owner, repositories.name, repositories.webhook_key from projects inner join repositories on repositories.id = projects.repository_id where projects.id = ?;", projectID)

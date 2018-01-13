@@ -21,6 +21,7 @@ func FindByID(projectID, listID int64) (*List, error) {
 	return l, nil
 }
 
+// Lists returns all lists related a project.
 func Lists(projectID int64) ([]*List, error) {
 	var slice []*List
 
@@ -41,6 +42,7 @@ func Lists(projectID int64) ([]*List, error) {
 	return slice, nil
 }
 
+// NoneList retruns a none list related a project.
 func NoneList(projectID int64) (*List, error) {
 	l, err := list.NoneList(projectID)
 	if err != nil {

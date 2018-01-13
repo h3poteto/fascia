@@ -70,7 +70,10 @@ func (t *Task) reload() error {
 // Save call save in model
 func (t *Task) Save() error {
 	t.reflect()
-	return t.infrastructure.Save()
+	if err := t.infrastructure.Save(); err != nil {
+		return err
+	}
+	return t.reload()
 }
 
 // Update call update in model

@@ -157,6 +157,7 @@ func (u *User) UpdateGithubUserInfo(token string, githubUser *github.User) error
 	return nil
 }
 
+// UpdatePassword update password in user.
 func (u *User) UpdatePassword(tx *sql.Tx) error {
 	if tx != nil {
 		_, err := tx.Exec("update users set password = ? where id = ?;", u.Password, u.ID)

@@ -116,6 +116,7 @@ func (p *Project) Delete() error {
 	return nil
 }
 
+// Projects returns a project related a user.
 func Projects(userID int64) ([]*Project, error) {
 	db := database.SharedInstance().Connection
 	var slice []*Project

@@ -65,7 +65,10 @@ func (p *Project) reload() error {
 // Save call project model save
 func (p *Project) Save(tx *sql.Tx) error {
 	p.reflect()
-	return p.infrastructure.Save(tx)
+	if err := p.infrastructure.Save(tx); err != nil {
+		return err
+	}
+	return p.reload()
 }
 
 // Update call project model update

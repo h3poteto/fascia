@@ -33,6 +33,7 @@ func FindByIssueNumber(projectID int64, issueNumber int) (*Task, error) {
 	return t, nil
 }
 
+// Tasks returns all tasks related a list.
 func Tasks(listID int64) ([]*Task, error) {
 	var slice []*Task
 

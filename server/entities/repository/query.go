@@ -15,6 +15,7 @@ func FindByGithubRepoID(id int64) (*Repository, error) {
 	return r, nil
 }
 
+// FindByProjectID returns a repository related a project.
 func FindByProjectID(projectID int64) (*Repository, error) {
 	infrastructure, err := repository.FindByProjectID(projectID)
 	if err != nil {

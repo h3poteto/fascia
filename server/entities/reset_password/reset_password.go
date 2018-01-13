@@ -79,7 +79,10 @@ func Authenticate(id int64, token string) error {
 // Save call save in model
 func (r *ResetPassword) Save() error {
 	r.reflect()
-	return r.infrastructure.Save()
+	if err := r.infrastructure.Save(); err != nil {
+		return err
+	}
+	return r.reload()
 }
 
 // ChangeUserPassword change password in owner user record

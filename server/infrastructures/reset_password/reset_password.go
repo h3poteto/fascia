@@ -50,6 +50,7 @@ func FindAvailable(id int64, token string) (*ResetPassword, error) {
 	return New(id, userID, token, expiresAt), nil
 }
 
+// Find find a reset password by id.
 func Find(id int64) (*ResetPassword, error) {
 	var userID int64
 	var token string
@@ -76,6 +77,7 @@ func (r *ResetPassword) Save() error {
 	return nil
 }
 
+// UpdateExpire update expires to now.
 func (r *ResetPassword) UpdateExpire(tx *sql.Tx) error {
 	if tx != nil {
 		_, err := tx.Exec("update reset_passwords set expires_at = now() where id = ?;", r.ID)
