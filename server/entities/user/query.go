@@ -35,8 +35,3 @@ func FindByEmail(email string) (*User, error) {
 func (u *User) Projects() ([]*project.Project, error) {
 	return project.Projects(u.ID)
 }
-
-// HashPassword returns a password
-func HashPassword(password string) ([]byte, error) {
-	return user.HashPassword(password)
-}

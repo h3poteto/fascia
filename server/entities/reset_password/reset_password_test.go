@@ -20,7 +20,7 @@ var _ = Describe("ResetPassword", func() {
 		if err != nil {
 			panic(err)
 		}
-		resetPassword, err = GenerateResetPassword(user.UserEntity.UserModel.ID, email)
+		resetPassword, err = GenerateResetPassword(user.UserEntity.ID, email)
 		err = resetPassword.Save()
 		if err != nil {
 			panic(err)
@@ -29,7 +29,7 @@ var _ = Describe("ResetPassword", func() {
 
 	Describe("Authenticate", func() {
 		It("should authenticate", func() {
-			Expect(Authenticate(resetPassword.ResetPasswordModel.ID, resetPassword.ResetPasswordModel.Token)).To(BeNil())
+			Expect(Authenticate(resetPassword.ID, resetPassword.Token)).To(BeNil())
 		})
 	})
 

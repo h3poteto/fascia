@@ -106,11 +106,7 @@ func FindOrCreateFromGithub(githubUser *github.User, token string, primaryEmail 
 
 // UpdatePassword update user password.
 func (u *User) UpdatePassword(password string, tx *sql.Tx) error {
-	p, err := HashPassword(password)
-	if err != nil {
-		return err
-	}
-	u.Password = string(p)
+	u.Password = password
 	u.reflect()
 	if err := u.infrastructure.UpdatePassword(tx); err != nil {
 		return err

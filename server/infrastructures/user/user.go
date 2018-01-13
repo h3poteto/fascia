@@ -33,19 +33,19 @@ func randomString() string {
 	return strconv.FormatUint(n, 36)
 }
 
-// HashPassword generate hash password
-func HashPassword(password string) ([]byte, error) {
+// hashPassword generate hash password
+func hashPassword(password string) ([]byte, error) {
 	bytePassword := []byte(password)
 	cost := 10
-	hashPassword, err := bcrypt.GenerateFromPassword(bytePassword, cost)
+	hashed, err := bcrypt.GenerateFromPassword(bytePassword, cost)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot generate password")
 	}
-	err = bcrypt.CompareHashAndPassword(hashPassword, bytePassword)
+	err = bcrypt.CompareHashAndPassword(hashed, bytePassword)
 	if err != nil {
 		return nil, errors.Wrap(err, "did not match password")
 	}
-	return hashPassword, nil
+	return hashed, nil
 }
 
 // New returns a user object
@@ -61,12 +61,12 @@ func (u *User) initialize() {
 
 // Registration is create new user through validation
 func Registration(email string, password string, passwordConfirm string) (*User, error) {
-	hashPassword, err := HashPassword(password)
+	hashed, err := hashPassword(password)
 	if err != nil {
 		return nil, err
 	}
 
-	user := New(0, email, string(hashPassword), sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
+	user := New(0, email, string(hashed), sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
 	err = user.Save()
 	if err != nil {
 		return nil, err
@@ -127,7 +127,7 @@ func (u *User) Update() error {
 // CreateGithubUser create a user from github authentication
 func (u *User) CreateGithubUser(token string, githubUser *github.User, primaryEmail string) error {
 	u.Email = primaryEmail
-	bytePassword, err := HashPassword(randomString())
+	bytePassword, err := hashPassword(randomString())
 	if err != nil {
 		return err
 	}
@@ -159,18 +159,18 @@ func (u *User) UpdateGithubUserInfo(token string, githubUser *github.User) error
 
 // UpdatePassword update password in user.
 func (u *User) UpdatePassword(tx *sql.Tx) error {
-	hashPassword, err := HashPassword(u.Password)
+	hashed, err := hashPassword(u.Password)
 	if err != nil {
 		return err
 	}
 	if tx != nil {
-		_, err := tx.Exec("update users set password = ? where id = ?;", hashPassword, u.ID)
+		_, err := tx.Exec("update users set password = ? where id = ?;", hashed, u.ID)
 		if err != nil {
 			tx.Rollback()
 			return errors.Wrap(err, "sql execute error")
 		}
 	} else {
-		_, err := u.db.Exec("update users set password = ? where id = ?;", hashPassword, u.ID)
+		_, err := u.db.Exec("update users set password = ? where id = ?;", hashed, u.ID)
 		if err != nil {
 			return errors.Wrap(err, "sql execute error")
 		}
