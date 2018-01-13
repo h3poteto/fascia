@@ -28,7 +28,7 @@ var _ = Describe("Project", func() {
 		if err != nil {
 			panic(err)
 		}
-		uid = user.UserEntity.UserModel.ID
+		uid = user.UserEntity.ID
 		db = database.SharedInstance().Connection
 	})
 
@@ -41,11 +41,11 @@ var _ = Describe("Project", func() {
 		It("should set new value", func() {
 			err := newProject.Update("newTitle", "newDescription", true, false)
 			Expect(err).To(BeNil())
-			Expect(newProject.ProjectModel.Title).To(Equal("newTitle"))
-			Expect(newProject.ProjectModel.Description).To(Equal("newDescription"))
-			Expect(newProject.ProjectModel.RepositoryID.Valid).To(BeFalse())
-			Expect(newProject.ProjectModel.ShowIssues).To(BeTrue())
-			Expect(newProject.ProjectModel.ShowPullRequests).To(BeFalse())
+			Expect(newProject.Title).To(Equal("newTitle"))
+			Expect(newProject.Description).To(Equal("newDescription"))
+			Expect(newProject.RepositoryID.Valid).To(BeFalse())
+			Expect(newProject.ShowIssues).To(BeTrue())
+			Expect(newProject.ShowPullRequests).To(BeFalse())
 		})
 	})
 
@@ -90,7 +90,7 @@ var _ = Describe("Project", func() {
 			It("should contain only none list", func() {
 				noneList, err := newProject.NoneList()
 				Expect(err).To(BeNil())
-				Expect(noneList.ListModel.Title.String).To(Equal(config.Element("init_list").(map[interface{}]interface{})["none"].(string)))
+				Expect(noneList.Title.String).To(Equal(config.Element("init_list").(map[interface{}]interface{})["none"].(string)))
 			})
 		})
 	})
@@ -122,7 +122,6 @@ var _ = Describe("Project", func() {
 			newProject.Save(nil)
 			err := newProject.Delete()
 			Expect(err).To(BeNil())
-			Expect(newProject.ProjectModel).To(BeNil())
 		})
 	})
 })
