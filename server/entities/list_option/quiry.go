@@ -2,6 +2,7 @@ package list_option
 
 import (
 	"github.com/h3poteto/fascia/server/infrastructures/list_option"
+	"github.com/pkg/errors"
 )
 
 // ListOptionAll list up all options
@@ -25,6 +26,9 @@ func ListOptionAll() ([]*ListOption, error) {
 
 // FindByID returns a list option
 func FindByID(id int64) (*ListOption, error) {
+	if id == 0 {
+		return nil, errors.New("Please set option id")
+	}
 	o := &ListOption{
 		ID: id,
 	}

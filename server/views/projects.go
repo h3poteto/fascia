@@ -17,11 +17,14 @@ type Project struct {
 
 // ParseProjectJSON returns a project struct for response
 func ParseProjectJSON(project *project.Project) (*Project, error) {
-	repo, err := project.Repository()
+	var repositoryID int64
+	repo, find, err := project.Repository()
 	if err != nil {
 		return nil, err
 	}
-	repositoryID := repo.ID
+	if find {
+		repositoryID = repo.ID
+	}
 
 	return &Project{
 		ID:               project.ID,

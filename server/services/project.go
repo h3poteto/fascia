@@ -112,8 +112,8 @@ func (p *Project) CreateWebhook() error {
 	}
 
 	url := fmt.Sprintf("%s://%s/repositories/hooks/github", config.Element("protocol").(string), config.Element("fqdn"))
-	repo, err := p.ProjectEntity.Repository()
-	if err != nil {
+	repo, find, err := p.ProjectEntity.Repository()
+	if err != nil || !find {
 		return err
 	}
 	// すでに存在する場合はupdateを叩く
@@ -135,8 +135,8 @@ func (p *Project) DeleteWebhook() error {
 	}
 
 	url := fmt.Sprintf("%s://%s/repositories/hooks/github", config.Element("protocol").(string), config.Element("fqdn"))
-	repo, err := p.ProjectEntity.Repository()
-	if err != nil {
+	repo, find, err := p.ProjectEntity.Repository()
+	if err != nil || !find {
 		return err
 	}
 	hook, err := repo.SearchWebhook(oauthToken, url)
@@ -151,9 +151,9 @@ func (p *Project) DeleteWebhook() error {
 
 // FetchGithub fetch all lists and all tasks
 func (p *Project) FetchGithub() (bool, error) {
-	repo, err := p.ProjectEntity.Repository()
+	repo, find, err := p.ProjectEntity.Repository()
 	// user自体はgithub連携していても，projectが連携していない可能性もあるのでチェック
-	if err != nil {
+	if err != nil || !find {
 		return false, err
 	}
 
@@ -256,8 +256,8 @@ func (p *Project) ApplyPullRequestChanges(body github.PullRequestEvent) error {
 		return err
 	}
 
-	repo, err := p.ProjectEntity.Repository()
-	if err != nil {
+	repo, find, err := p.ProjectEntity.Repository()
+	if err != nil || !find {
 		return err
 	}
 	// CreateNewTaskをするためには，*github.Issueである必要があるが，ここで取得できるのは*github.PullRequestのみなので，なんとかして変換する必要がある
@@ -282,8 +282,8 @@ func (p *Project) ApplyPullRequestChanges(body github.PullRequestEvent) error {
 
 // FetchCreatedInitialList fetch initial list to github
 func (p *Project) FetchCreatedInitialList() error {
-	repo, err := p.ProjectEntity.Repository()
-	if err != nil {
+	repo, find, err := p.ProjectEntity.Repository()
+	if err != nil || !find {
 		return err
 	}
 

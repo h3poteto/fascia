@@ -30,21 +30,18 @@ func New(id int64, listID int64, projectID int64, userID int64, issueNumber sql.
 	return task
 }
 
-// Find search a task according to id
-func Find(listID int64, taskID int64) (*Task, error) {
+// Find search a task according to id.
+func Find(id int64) (*Task, error) {
 	db := database.SharedInstance().Connection
 
-	var id, userID, projectID int64
+	var listID, userID, projectID int64
 	var title, description string
 	var issueNumber sql.NullInt64
 	var pullRequest bool
 	var htmlURL sql.NullString
-	err := db.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where id = ? AND list_id = ?;", taskID, listID).Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
+	err := db.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where id = ?;", id).Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "sql select error")
-	}
-	if id != taskID {
-		return nil, errors.New("cannot find task or list did not contain task")
 	}
 	task := New(id, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL)
 	return task, nil

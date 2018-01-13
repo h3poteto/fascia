@@ -75,6 +75,6 @@ func (p *Project) NoneList() (*list.List, error) {
 
 // Repository returns a repository entity related this project
 // If repository does not exist, return false
-func (p *Project) Repository() (*repository.Repository, error) {
+func (p *Project) Repository() (*repository.Repository, bool, error) {
 	return repository.FindByProjectID(p.ID)
 }

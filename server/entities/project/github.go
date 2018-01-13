@@ -85,9 +85,9 @@ func (p *Project) ReacquireIssue(issue *github.Issue) (*github.Issue, error) {
 		return nil, err
 	}
 
-	repo, err := p.Repository()
-	if err != nil {
-		return nil, errors.New("can not find repository")
+	repo, find, err := p.Repository()
+	if err != nil || !find {
+		return nil, errors.Wrap(err, "can not find repository")
 	}
 	return repo.GetGithubIssue(oauthToken, *issue.Number)
 }

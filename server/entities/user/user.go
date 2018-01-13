@@ -23,19 +23,10 @@ type User struct {
 	infrastructure *user.User
 }
 
-// New returns a user entity
-func New(id int64, email string, provider sql.NullString, oauthToken sql.NullString, uuid sql.NullInt64, userName sql.NullString, avatar sql.NullString) *User {
-	infrastructure := user.New(id, email, provider, oauthToken, uuid, userName, avatar)
-	u := &User{
-		infrastructure: infrastructure,
-	}
-	u.reload()
-	return u
-}
-
 func (u *User) reflect() {
 	u.infrastructure.ID = u.ID
 	u.infrastructure.Email = u.Email
+	u.infrastructure.Password = u.Password
 	u.infrastructure.Provider = u.Provider
 	u.infrastructure.OauthToken = u.OauthToken
 	u.infrastructure.UUID = u.UUID
@@ -53,6 +44,7 @@ func (u *User) reload() error {
 	}
 	u.ID = u.infrastructure.ID
 	u.Email = u.infrastructure.Email
+	u.Password = u.infrastructure.Password
 	u.Provider = u.infrastructure.Provider
 	u.OauthToken = u.infrastructure.OauthToken
 	u.UUID = u.infrastructure.UUID
@@ -82,7 +74,6 @@ func Login(userEmail string, userPassword string) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	bytePassword := []byte(userPassword)
 	err = bcrypt.CompareHashAndPassword([]byte(u.Password), bytePassword)
 	if err != nil {

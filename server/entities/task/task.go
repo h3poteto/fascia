@@ -49,7 +49,7 @@ func (t *Task) reflect() {
 
 func (t *Task) reload() error {
 	if t.ID != 0 {
-		latestTask, err := task.Find(t.ListID, t.ID)
+		latestTask, err := task.Find(t.ID)
 		if err != nil {
 			return err
 		}

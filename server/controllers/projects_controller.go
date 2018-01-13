@@ -258,9 +258,13 @@ func (u *Projects) Webhook(c echo.Context) error {
 	}
 	projectService := pc.ProjectService
 
-	_, err := projectService.ProjectEntity.Repository()
+	_, find, err := projectService.ProjectEntity.Repository()
 	if err != nil {
-		logging.SharedInstance().Controller(c).Warnf("repository not found: %v", err)
+		logging.SharedInstance().Controller(c).Error(err)
+		return err
+	}
+	if !find {
+		logging.SharedInstance().Controller(c).Warn("repository not found: %v", err)
 		return NewJSONError(err, http.StatusNotFound, c)
 	}
 	err = projectService.CreateWebhook()

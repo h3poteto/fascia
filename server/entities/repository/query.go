@@ -16,16 +16,16 @@ func FindByGithubRepoID(id int64) (*Repository, error) {
 }
 
 // FindByProjectID returns a repository related a project.
-func FindByProjectID(projectID int64) (*Repository, error) {
-	infrastructure, err := repository.FindByProjectID(projectID)
-	if err != nil {
-		return nil, err
+func FindByProjectID(projectID int64) (*Repository, bool, error) {
+	infrastructure, find, err := repository.FindByProjectID(projectID)
+	if err != nil || !find {
+		return nil, find, err
 	}
 	r := &Repository{
 		infrastructure: infrastructure,
 	}
 	if err := r.reload(); err != nil {
-		return nil, err
+		return nil, find, err
 	}
-	return r, nil
+	return r, find, nil
 }
