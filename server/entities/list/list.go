@@ -3,45 +3,76 @@ package list
 import (
 	"database/sql"
 
-	"github.com/h3poteto/fascia/config"
-	"github.com/h3poteto/fascia/lib/modules/database"
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/entities/list_option"
-	"github.com/h3poteto/fascia/server/entities/task"
 	"github.com/h3poteto/fascia/server/infrastructures/list"
 
 	"github.com/pkg/errors"
 )
 
-// List has a list model object
+// List is a entity for list.
 type List struct {
-	ListModel *list.List
-	db        *sql.DB
+	ID             int64
+	ProjectID      int64
+	UserID         int64
+	Title          sql.NullString
+	Color          sql.NullString
+	ListOptionID   sql.NullInt64
+	IsHidden       bool
+	infrastructure *list.List
 }
 
-// New returns new list entity
-func New(id int64, projectID int64, userID int64, title string, color string, optionID sql.NullInt64, isHidden bool) *List {
-	return &List{
-		ListModel: list.New(id, projectID, userID, title, color, optionID, isHidden),
-		db:        database.SharedInstance().Connection,
+// New returns a new list entity.
+// TODO: idなしの新規オブジェクト生成のためだけの関数にしたい
+func New(id, projectID, userID int64, title, color string, optionID sql.NullInt64, isHidden bool) *List {
+	infrastructure := list.New(id, projectID, userID, title, color, optionID, isHidden)
+	l := &List{
+		infrastructure: infrastructure,
 	}
+	l.reload()
+	return l
 }
 
-// FindByID returns a list entity
-func FindByID(projectID, listID int64) (*List, error) {
-	l, err := list.FindByID(projectID, listID)
-	if err != nil {
-		return nil, err
+// reflect the latest state in infrastructure.
+// It is a mapping function.
+func (l *List) reflect() {
+	l.infrastructure.ID = l.ID
+	l.infrastructure.ProjectID = l.ProjectID
+	l.infrastructure.UserID = l.UserID
+	l.infrastructure.Title = l.Title
+	l.infrastructure.Color = l.Color
+	l.infrastructure.ListOptionID = l.ListOptionID
+	l.infrastructure.IsHidden = l.IsHidden
+}
+
+// reload state from infrastructure.
+// It is a mapping function.
+func (l *List) reload() error {
+	// Get database record and reload when entity is given listID.
+	if l.ID != 0 {
+		latestList, err := list.FindByID(l.ProjectID, l.ID)
+		if err != nil {
+			return err
+		}
+		l.infrastructure = latestList
 	}
-	return &List{
-		ListModel: l,
-		db:        database.SharedInstance().Connection,
-	}, nil
+	l.ID = l.infrastructure.ID
+	l.ProjectID = l.infrastructure.ProjectID
+	l.UserID = l.infrastructure.UserID
+	l.Title = l.infrastructure.Title
+	l.Color = l.infrastructure.Color
+	l.ListOptionID = l.infrastructure.ListOptionID
+	l.IsHidden = l.infrastructure.IsHidden
+	return nil
 }
 
 // Save call list model save
 func (l *List) Save(tx *sql.Tx) error {
-	return l.ListModel.Save(tx)
+	l.reflect()
+	if err := l.infrastructure.Save(tx); err != nil {
+		return err
+	}
+	return l.reload()
 }
 
 // UpdateExceptInitList update list except initial list
@@ -66,98 +97,44 @@ func (l *List) Update(title, color string, optionID int64) error {
 		// nullの場合は特にactionが発生しないだけ
 		logging.SharedInstance().MethodInfo("list", "Update").Debugf("cannot find list_options, set null to list_option_id: %v", err)
 	} else {
-		listOptionID = sql.NullInt64{Int64: listOption.ListOptionModel.ID, Valid: true}
+		listOptionID = sql.NullInt64{Int64: listOption.ID, Valid: true}
 	}
-	err = l.ListModel.Update(title, color, listOptionID)
+	err = l.infrastructure.Update(title, color, listOptionID)
 	if err != nil {
 		return err
 	}
-	return nil
+	return l.reload()
 }
 
 // Hide call list model hide
 func (l *List) Hide() error {
-	return l.ListModel.Hide()
+	err := l.infrastructure.Hide()
+	if err != nil {
+		return err
+	}
+	return l.reload()
 }
 
 // Display call list model display
 func (l *List) Display() error {
-	return l.ListModel.Display()
-}
-
-// Tasks list up related tasks
-func (l *List) Tasks() ([]*task.Task, error) {
-	var slice []*task.Task
-	rows, err := l.db.Query("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where list_id = ? order by display_index;", l.ListModel.ID)
+	err := l.infrastructure.Display()
 	if err != nil {
-		return nil, errors.Wrap(err, "sql select error")
+		return err
 	}
-
-	for rows.Next() {
-		var id, listID, userID, projectID int64
-		var title, description string
-		var issueNumber sql.NullInt64
-		var pullRequest bool
-		var htmlURL sql.NullString
-		err := rows.Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
-		if err != nil {
-			return nil, errors.Wrap(err, "sql select error")
-		}
-		if listID == l.ListModel.ID {
-			l := task.New(id, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL)
-			slice = append(slice, l)
-		}
-	}
-	return slice, nil
-}
-
-// ListOption list up a related list option
-func (l *List) ListOption() (*list_option.ListOption, error) {
-	if !l.ListModel.ListOptionID.Valid {
-		return nil, errors.New("list has no list option")
-	}
-	option, err := list_option.FindByID(l.ListModel.ListOptionID.Int64)
-	if err != nil {
-		return nil, err
-	}
-	return option, nil
-}
-
-// IsInitList return true when list is initial list
-// for example, ToDo, InProgress, and Done
-func (l *List) IsInitList() bool {
-	for _, elem := range config.Element("init_list").(map[interface{}]interface{}) {
-		if l.ListModel.Title.String == elem.(string) {
-			return true
-		}
-	}
-	return false
-}
-
-// HasCloseAction check a list has close list option
-func (l *List) HasCloseAction() (bool, error) {
-	option, err := l.ListOption()
-	if err != nil {
-		return false, err
-	}
-	return option.IsCloseAction(), nil
+	return l.reload()
 }
 
 // DeleteTasks delete all tasks related a list
 func (l *List) DeleteTasks() error {
-	_, err := l.db.Exec("DELETE FROM tasks WHERE list_id = ?;", l.ListModel.ID)
-	if err != nil {
-		return err
-	}
-	return nil
+	return l.infrastructure.DeleteTasks()
 }
 
 // Delete delete a list model
 func (l *List) Delete() error {
-	err := l.ListModel.Delete()
+	err := l.infrastructure.Delete()
 	if err != nil {
 		return err
 	}
-	l.ListModel = nil
+	l.infrastructure = nil
 	return nil
 }

@@ -64,9 +64,9 @@ func (u *Tasks) Create(c echo.Context) error {
 
 	task := services.NewTask(
 		0,
-		parentList.ListEntity.ListModel.ID,
-		projectService.ProjectEntity.ProjectModel.ID,
-		parentList.ListEntity.ListModel.UserID,
+		parentList.ListEntity.ID,
+		projectService.ProjectEntity.ID,
+		parentList.ListEntity.UserID,
 		sql.NullInt64{},
 		newTaskForm.Title,
 		newTaskForm.Description,
@@ -179,12 +179,12 @@ func (u *Tasks) Update(c echo.Context) error {
 	}
 
 	err = task.Update(
-		task.TaskEntity.TaskModel.ListID,
-		task.TaskEntity.TaskModel.IssueNumber,
+		task.TaskEntity.ListID,
+		task.TaskEntity.IssueNumber,
 		editTaskForm.Title,
 		editTaskForm.Description,
-		task.TaskEntity.TaskModel.PullRequest,
-		task.TaskEntity.TaskModel.HTMLURL,
+		task.TaskEntity.PullRequest,
+		task.TaskEntity.HTMLURL,
 	)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)

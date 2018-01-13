@@ -26,19 +26,19 @@ var _ = Describe("List", func() {
 		password := "hogehoge"
 		user, _ := handlers.RegistrationUser(email, password, password)
 		db = database.SharedInstance().Connection
-		projectService, _ = handlers.CreateProject(user.UserEntity.UserModel.ID, "title", "desc", 0, sql.NullString{})
-		newList = New(0, projectService.ProjectEntity.ProjectModel.ID, projectService.ProjectEntity.ProjectModel.UserID, "list title", "", sql.NullInt64{}, false)
+		projectService, _ = handlers.CreateProject(user.UserEntity.ID, "title", "desc", 0, sql.NullString{})
+		newList = New(0, projectService.ProjectEntity.ID, projectService.ProjectEntity.UserID, "list title", "", sql.NullInt64{}, false)
 	})
 
 	Describe("Save", func() {
 		It("can registrate list", func() {
 			err := newList.Save(nil)
 			Expect(err).To(BeNil())
-			Expect(newList.ListModel.ID).NotTo(Equal(0))
+			Expect(newList.ID).NotTo(Equal(0))
 		})
 		It("should relate list to project", func() {
 			_ = newList.Save(nil)
-			rows, _ := db.Query("select id, project_id, title from lists where id = ?;", newList.ListModel.ID)
+			rows, _ := db.Query("select id, project_id, title from lists where id = ?;", newList.ID)
 			var id int64
 			var projectID int64
 			var title sql.NullString
@@ -49,16 +49,16 @@ var _ = Describe("List", func() {
 					panic(err)
 				}
 			}
-			Expect(projectID).To(Equal(projectService.ProjectEntity.ProjectModel.ID))
+			Expect(projectID).To(Equal(projectService.ProjectEntity.ID))
 		})
 	})
 
 	Describe("FindList", func() {
 		It("should find list which related project", func() {
 			newList.Save(nil)
-			findList, err := FindByID(projectService.ProjectEntity.ProjectModel.ID, newList.ListModel.ID)
+			findList, err := FindByID(projectService.ProjectEntity.ID, newList.ID)
 			Expect(err).To(BeNil())
-			Expect(findList.ListModel).To(Equal(newList.ListModel))
+			Expect(findList.ID).To(Equal(newList.ID))
 		})
 	})
 
@@ -66,14 +66,14 @@ var _ = Describe("List", func() {
 		var taskService *services.Task
 		JustBeforeEach(func() {
 			newList.Save(nil)
-			taskService = services.NewTask(0, newList.ListModel.ID, projectService.ProjectEntity.ProjectModel.ID, newList.ListModel.UserID, sql.NullInt64{}, "task", "description", false, sql.NullString{})
+			taskService = services.NewTask(0, newList.ID, projectService.ProjectEntity.ID, newList.UserID, sql.NullInt64{}, "task", "description", false, sql.NullString{})
 			taskService.Save()
 		})
 		It("should related task to list", func() {
 			tasks, err := newList.Tasks()
 			Expect(err).To(BeNil())
 			Expect(tasks).NotTo(BeEmpty())
-			Expect(tasks[0].TaskModel.ID).To(Equal(taskService.TaskEntity.TaskModel.ID))
+			Expect(tasks[0].ID).To(Equal(taskService.TaskEntity.ID))
 		})
 
 	})
@@ -88,10 +88,10 @@ var _ = Describe("List", func() {
 				newColor := "newColor"
 				optionID := int64(0)
 				newList.Update(newTitle, newColor, optionID)
-				findList, err := FindByID(newList.ListModel.ProjectID, newList.ListModel.ID)
+				findList, err := FindByID(newList.ProjectID, newList.ID)
 				Expect(err).To(BeNil())
-				Expect(findList.ListModel.Title.String).To(Equal(newTitle))
-				Expect(findList.ListModel.Color.String).To(Equal(newColor))
+				Expect(findList.Title.String).To(Equal(newTitle))
+				Expect(findList.Color.String).To(Equal(newColor))
 			})
 		})
 		Context("have list_option", func() {
@@ -99,12 +99,12 @@ var _ = Describe("List", func() {
 				newTitle := "newTitle"
 				newColor := "newColor"
 				listOption, _ := services.FindListOptionByAction("close")
-				newList.Update(newTitle, newColor, listOption.ListOptionEntity.ListOptionModel.ID)
-				findList, err := FindByID(newList.ListModel.ProjectID, newList.ListModel.ID)
+				newList.Update(newTitle, newColor, listOption.ListOptionEntity.ID)
+				findList, err := FindByID(newList.ProjectID, newList.ID)
 				Expect(err).To(BeNil())
-				Expect(findList.ListModel.Title.String).To(Equal(newTitle))
-				Expect(findList.ListModel.Color.String).To(Equal(newColor))
-				Expect(findList.ListModel.ListOptionID.Int64).To(Equal(listOption.ListOptionEntity.ListOptionModel.ID))
+				Expect(findList.Title.String).To(Equal(newTitle))
+				Expect(findList.Color.String).To(Equal(newColor))
+				Expect(findList.ListOptionID.Int64).To(Equal(listOption.ListOptionEntity.ID))
 			})
 		})
 	})
@@ -116,9 +116,9 @@ var _ = Describe("List", func() {
 		It("should hidden list", func() {
 			err := newList.Hide()
 			Expect(err).To(BeNil())
-			Expect(newList.ListModel.IsHidden).To(BeTrue())
-			l, _ := FindByID(projectService.ProjectEntity.ProjectModel.ID, newList.ListModel.ID)
-			Expect(l.ListModel.IsHidden).To(BeTrue())
+			Expect(newList.IsHidden).To(BeTrue())
+			l, _ := FindByID(projectService.ProjectEntity.ID, newList.ID)
+			Expect(l.IsHidden).To(BeTrue())
 		})
 	})
 
@@ -130,9 +130,9 @@ var _ = Describe("List", func() {
 		It("should display list", func() {
 			err := newList.Display()
 			Expect(err).To(BeNil())
-			Expect(newList.ListModel.IsHidden).To(BeFalse())
-			l, _ := FindByID(projectService.ProjectEntity.ProjectModel.ID, newList.ListModel.ID)
-			Expect(l.ListModel.IsHidden).To(BeFalse())
+			Expect(newList.IsHidden).To(BeFalse())
+			l, _ := FindByID(projectService.ProjectEntity.ID, newList.ID)
+			Expect(l.IsHidden).To(BeFalse())
 		})
 	})
 
@@ -140,7 +140,7 @@ var _ = Describe("List", func() {
 		var taskService *services.Task
 		JustBeforeEach(func() {
 			newList.Save(nil)
-			taskService = services.NewTask(0, newList.ListModel.ID, projectService.ProjectEntity.ProjectModel.ID, newList.ListModel.UserID, sql.NullInt64{}, "task", "description", false, sql.NullString{})
+			taskService = services.NewTask(0, newList.ID, projectService.ProjectEntity.ID, newList.UserID, sql.NullInt64{}, "task", "description", false, sql.NullString{})
 			taskService.Save()
 		})
 		It("should delete all tasks", func() {
@@ -158,7 +158,6 @@ var _ = Describe("List", func() {
 		It("should delete list", func() {
 			err := newList.Delete()
 			Expect(err).To(BeNil())
-			Expect(newList.ListModel).To(BeNil())
 		})
 	})
 })

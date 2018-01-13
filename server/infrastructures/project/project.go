@@ -115,3 +115,43 @@ func (p *Project) Delete() error {
 	}
 	return nil
 }
+
+// Projects returns a project related a user.
+func Projects(userID int64) ([]*Project, error) {
+	db := database.SharedInstance().Connection
+	var slice []*Project
+	rows, err := db.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where user_id = ?;", userID)
+	if err != nil {
+		return nil, errors.Wrap(err, "sql select error")
+	}
+	for rows.Next() {
+		var id, userID int64
+		var repositoryID sql.NullInt64
+		var title string
+		var description string
+		var showIssues, showPullRequests bool
+		err := rows.Scan(&id, &userID, &repositoryID, &title, &description, &showIssues, &showPullRequests)
+		if err != nil {
+			return nil, errors.Wrap(err, "sql select error")
+		}
+		if id != 0 {
+			p := New(id, userID, title, description, repositoryID, showIssues, showPullRequests)
+			slice = append(slice, p)
+		}
+	}
+	return slice, nil
+}
+
+// OauthToken get oauth token related this project
+func (p *Project) OauthToken() (string, error) {
+	var oauthToken sql.NullString
+	err := p.db.QueryRow("select users.oauth_token from projects left join users on users.id = projects.user_id where projects.id = ?;", p.ID).Scan(&oauthToken)
+	if err != nil {
+		return "", errors.Wrap(err, "sql select error")
+	}
+	if !oauthToken.Valid {
+		return "", errors.New("oauth token isn't exist")
+	}
+
+	return oauthToken.String, nil
+}

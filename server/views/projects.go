@@ -23,16 +23,16 @@ func ParseProjectJSON(project *project.Project) (*Project, error) {
 		return nil, err
 	}
 	if find {
-		repositoryID = repo.RepositoryModel.ID
+		repositoryID = repo.ID
 	}
 
 	return &Project{
-		ID:               project.ProjectModel.ID,
-		UserID:           project.ProjectModel.UserID,
-		Title:            project.ProjectModel.Title,
-		Description:      project.ProjectModel.Description,
-		ShowIssues:       project.ProjectModel.ShowIssues,
-		ShowPullRequests: project.ProjectModel.ShowPullRequests,
+		ID:               project.ID,
+		UserID:           project.UserID,
+		Title:            project.Title,
+		Description:      project.Description,
+		ShowIssues:       project.ShowIssues,
+		ShowPullRequests: project.ShowPullRequests,
 		RepositoryID:     repositoryID,
 	}, nil
 }

@@ -35,7 +35,7 @@ var _ = Describe("PasswordsController", func() {
 		email = "hoge@example.com"
 		password = "hogehoge"
 		user, _ := handlers.RegistrationUser(email, password, password)
-		uid = user.UserEntity.UserModel.ID
+		uid = user.UserEntity.ID
 		GenerateCSRFToken = func(c echo.Context) (string, error) { return "hoge", nil }
 	})
 
@@ -82,7 +82,7 @@ var _ = Describe("PasswordsController", func() {
 				req := httptest.NewRequest(echo.GET, "/passwords/:id/edit?"+q.Encode(), nil)
 				c := e.NewContext(req, rec)
 				c.SetParamNames("id")
-				c.SetParamValues(strconv.FormatInt(resetPassword.ResetPasswordEntity.ResetPasswordModel.ID, 10))
+				c.SetParamValues(strconv.FormatInt(resetPassword.ResetPasswordEntity.ID, 10))
 				resource := Passwords{}
 				err := resource.Edit(c)
 				Expect(err).NotTo(BeNil())
@@ -91,11 +91,11 @@ var _ = Describe("PasswordsController", func() {
 		Context("token is correct", func() {
 			It("should response is ok", func() {
 				q := make(url.Values)
-				q.Set("token", resetPassword.ResetPasswordEntity.ResetPasswordModel.Token)
+				q.Set("token", resetPassword.ResetPasswordEntity.Token)
 				req := httptest.NewRequest(echo.GET, "/passwords/:id/edit?"+q.Encode(), nil)
 				c := e.NewContext(req, rec)
 				c.SetParamNames("id")
-				c.SetParamValues(strconv.FormatInt(resetPassword.ResetPasswordEntity.ResetPasswordModel.ID, 10))
+				c.SetParamValues(strconv.FormatInt(resetPassword.ResetPasswordEntity.ID, 10))
 				resource := Passwords{}
 				err := resource.Edit(c)
 				Expect(err).To(BeNil())
@@ -121,7 +121,7 @@ var _ = Describe("PasswordsController", func() {
 				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 				c := e.NewContext(req, rec)
 				c.SetParamNames("id")
-				c.SetParamValues(strconv.FormatInt(resetPassword.ResetPasswordEntity.ResetPasswordModel.ID, 10))
+				c.SetParamValues(strconv.FormatInt(resetPassword.ResetPasswordEntity.ID, 10))
 				resource := Passwords{}
 				err := resource.Update(c)
 				fmt.Println(err)
@@ -133,12 +133,12 @@ var _ = Describe("PasswordsController", func() {
 				f := make(url.Values)
 				f.Set("password", "fugafuga")
 				f.Set("password_confirm", "fugafuga")
-				f.Set("reset_token", resetPassword.ResetPasswordEntity.ResetPasswordModel.Token)
+				f.Set("reset_token", resetPassword.ResetPasswordEntity.Token)
 				req := httptest.NewRequest(echo.POST, "/passwords/:id/update", strings.NewReader(f.Encode()))
 				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 				c := e.NewContext(req, rec)
 				c.SetParamNames("id")
-				c.SetParamValues(strconv.FormatInt(resetPassword.ResetPasswordEntity.ResetPasswordModel.ID, 10))
+				c.SetParamValues(strconv.FormatInt(resetPassword.ResetPasswordEntity.ID, 10))
 				resource := Passwords{}
 				err := resource.Update(c)
 				Expect(err).To(BeNil())

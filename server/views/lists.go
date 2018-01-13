@@ -34,14 +34,14 @@ func ParseListJSON(list *list.List) (*List, error) {
 		return nil, err
 	}
 	return &List{
-		ID:           list.ListModel.ID,
-		ProjectID:    list.ListModel.ProjectID,
-		UserID:       list.ListModel.UserID,
-		Title:        list.ListModel.Title.String,
+		ID:           list.ID,
+		ProjectID:    list.ProjectID,
+		UserID:       list.UserID,
+		Title:        list.Title.String,
 		ListTasks:    jsonTasks,
-		Color:        list.ListModel.Color.String,
-		ListOptionID: list.ListModel.ListOptionID.Int64,
-		IsHidden:     list.ListModel.IsHidden,
+		Color:        list.Color.String,
+		ListOptionID: list.ListOptionID.Int64,
+		IsHidden:     list.IsHidden,
 		IsInitList:   list.IsInitList(),
 	}, nil
 }

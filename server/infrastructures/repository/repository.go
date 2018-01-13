@@ -53,3 +53,27 @@ func (r *Repository) Save() error {
 	r.ID, _ = result.LastInsertId()
 	return nil
 }
+
+// FindByProjectID returns a repository related a project.
+func FindByProjectID(projectID int64) (*Repository, bool, error) {
+	db := database.SharedInstance().Connection
+	var id, repositoryID int64
+	var owner, name sql.NullString
+	var webhookKey string
+	rows, err := db.Query("select repositories.id, repositories.repository_id, repositories.owner, repositories.name, repositories.webhook_key from projects inner join repositories on repositories.id = projects.repository_id where projects.id = ?;", projectID)
+	if err != nil {
+		return nil, false, errors.Wrap(err, "sql select error")
+	}
+	for rows.Next() {
+		err = rows.Scan(&id, &repositoryID, &owner, &name, &webhookKey)
+		if err != nil {
+			return nil, false, errors.Wrap(err, "sql scan error")
+		}
+	}
+	// Sometimes we can not found repository without sql error, because the project does not have a repository.
+	if id == 0 {
+		return nil, false, nil
+	}
+	r := New(id, repositoryID, owner.String, name.String, webhookKey)
+	return r, true, nil
+}

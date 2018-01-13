@@ -1,6 +1,7 @@
 package list
 
 import (
+	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/lib/modules/database"
 
 	"database/sql"
@@ -118,4 +119,55 @@ func (l *List) Delete() error {
 		return errors.Wrap(err, "list delete error")
 	}
 	return nil
+}
+
+// DeleteTasks delete all tasks related a list
+func (l *List) DeleteTasks() error {
+	_, err := l.db.Exec("DELETE FROM tasks WHERE list_id = ?;", l.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Lists returns all lists related a project.
+func Lists(parentProjectID int64) ([]*List, error) {
+	db := database.SharedInstance().Connection
+	var slice []*List
+	rows, err := db.Query("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where project_id = ? and title != ?;", parentProjectID, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
+	if err != nil {
+		return nil, errors.Wrap(err, "sql select error")
+	}
+	for rows.Next() {
+		var id, projectID, userID int64
+		var title, color sql.NullString
+		var optionID sql.NullInt64
+		var isHidden bool
+		err = rows.Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
+		if err != nil {
+			return nil, errors.Wrap(err, "sql select error")
+		}
+		if projectID == parentProjectID && title.Valid {
+			l := New(id, projectID, userID, title.String, color.String, optionID, isHidden)
+			slice = append(slice, l)
+		}
+	}
+	return slice, nil
+}
+
+// NoneList returns a none list related a project.
+func NoneList(parentProjectID int64) (*List, error) {
+	db := database.SharedInstance().Connection
+	var id, projectID, userID int64
+	var title, color sql.NullString
+	var optionID sql.NullInt64
+	var isHidden bool
+	err := db.QueryRow("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where project_id = ? and title = ?;", parentProjectID, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
+	if err != nil {
+		return nil, errors.Wrap(err, "sql select error")
+	}
+	if projectID == parentProjectID && title.Valid {
+		return New(id, projectID, userID, title.String, color.String, optionID, isHidden), nil
+	}
+	return nil, errors.New("none list not found")
 }

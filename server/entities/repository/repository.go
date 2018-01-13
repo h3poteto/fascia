@@ -4,6 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/md5"
 	"crypto/sha1"
+	"database/sql"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -18,25 +19,46 @@ import (
 
 // Repository has repository model object
 type Repository struct {
-	RepositoryModel *repository.Repository
+	ID             int64
+	RepositoryID   int64
+	Owner          sql.NullString
+	Name           sql.NullString
+	WebhookKey     string
+	infrastructure *repository.Repository
 }
 
 // New returns a repository entity
 func New(id int64, repositoryID int64, owner string, name string, webhookKey string) *Repository {
-	return &Repository{
-		RepositoryModel: repository.New(id, repositoryID, owner, name, webhookKey),
+	infrastructure := repository.New(id, repositoryID, owner, name, webhookKey)
+	r := &Repository{
+		infrastructure: infrastructure,
 	}
+	r.reload()
+	return r
 }
 
-// FindByGithubRepoID find repository entity according to repository id in github
-func FindByGithubRepoID(id int64) (*Repository, error) {
-	r, err := repository.FindByGithubRepoID(id)
-	if err != nil {
-		return nil, err
+func (r *Repository) reflect() {
+	r.infrastructure.ID = r.ID
+	r.infrastructure.RepositoryID = r.RepositoryID
+	r.infrastructure.Owner = r.Owner
+	r.infrastructure.Name = r.Name
+	r.infrastructure.WebhookKey = r.WebhookKey
+}
+
+func (r *Repository) reload() error {
+	if r.RepositoryID != 0 {
+		latestRepository, err := repository.FindByGithubRepoID(r.RepositoryID)
+		if err != nil {
+			return err
+		}
+		r.infrastructure = latestRepository
 	}
-	return &Repository{
-		RepositoryModel: r,
-	}, nil
+	r.ID = r.infrastructure.ID
+	r.RepositoryID = r.infrastructure.RepositoryID
+	r.Owner = r.infrastructure.Owner
+	r.Name = r.infrastructure.Name
+	r.WebhookKey = r.infrastructure.WebhookKey
+	return nil
 }
 
 // CreateRepository create repository record based on github repository
@@ -70,12 +92,16 @@ func GenerateWebhookKey(seed string) string {
 
 // Save call repository model save
 func (r *Repository) Save() error {
-	return r.RepositoryModel.Save()
+	r.reflect()
+	if err := r.infrastructure.Save(); err != nil {
+		return err
+	}
+	return r.reload()
 }
 
 // Authenticate is check token and webhookKey with response
 func (r *Repository) Authenticate(token string, response []byte) error {
-	mac := hmac.New(sha1.New, []byte(r.RepositoryModel.WebhookKey))
+	mac := hmac.New(sha1.New, []byte(r.infrastructure.WebhookKey))
 	mac.Write(response)
 	hashedToken := hex.EncodeToString(mac.Sum(nil))
 	if token != ("sha1=" + hashedToken) {

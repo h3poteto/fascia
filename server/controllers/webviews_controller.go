@@ -85,7 +85,7 @@ func (u *Webviews) NewSession(c echo.Context) error {
 	logging.SharedInstance().Controller(c).Debugf("login success: %+v", userService)
 
 	option := &sessions.Options{Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int)}
-	err = session.SharedInstance().Set(c.Request(), c.Response(), "current_user_id", userService.UserEntity.UserModel.ID, option)
+	err = session.SharedInstance().Set(c.Request(), c.Response(), "current_user_id", userService.UserEntity.ID, option)
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)

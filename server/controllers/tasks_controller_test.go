@@ -38,10 +38,10 @@ var _ = Describe("TasksController", func() {
 		seed.Seeds()
 		user, _ = handlers.RegistrationUser(email, password, password)
 		// projectを作っておく
-		project, _ = handlers.CreateProject(user.UserEntity.UserModel.ID, "projectTitle", "", 0, sql.NullString{})
+		project, _ = handlers.CreateProject(user.UserEntity.ID, "projectTitle", "", 0, sql.NullString{})
 
 		// listも作っておく
-		list = handlers.NewList(0, project.ProjectEntity.ProjectModel.ID, user.UserEntity.UserModel.ID, "listTitle", "008ed5", sql.NullInt64{}, false)
+		list = handlers.NewList(0, project.ProjectEntity.ID, user.UserEntity.ID, "listTitle", "008ed5", sql.NullInt64{}, false)
 		list.Save()
 	})
 
@@ -58,7 +58,7 @@ var _ = Describe("TasksController", func() {
 			c = ProjectContext(c, project)
 			c = ListContext(c, list)
 			c.SetParamNames("project_id", "list_id")
-			c.SetParamValues(strconv.FormatInt(project.ProjectEntity.ProjectModel.ID, 10), strconv.FormatInt(list.ListEntity.ListModel.ID, 10))
+			c.SetParamValues(strconv.FormatInt(project.ProjectEntity.ID, 10), strconv.FormatInt(list.ListEntity.ID, 10))
 			resource := Tasks{}
 			err = resource.Create(c)
 		})
@@ -73,16 +73,16 @@ var _ = Describe("TasksController", func() {
 		It("should exist in database", func() {
 			var contents views.AllLists
 			json.Unmarshal(rec.Body.Bytes(), &contents)
-			newTask, _ := handlers.FindTask(list.ListEntity.ListModel.ID, int64(contents.Lists[3].ListTasks[0].ID))
-			Expect(newTask.TaskEntity.TaskModel.ID).To(BeEquivalentTo(int64(contents.Lists[3].ListTasks[0].ID)))
-			Expect(newTask.TaskEntity.TaskModel.Title).To(Equal("taskTitle"))
+			newTask, _ := handlers.FindTask(list.ListEntity.ID, int64(contents.Lists[3].ListTasks[0].ID))
+			Expect(newTask.TaskEntity.ID).To(BeEquivalentTo(int64(contents.Lists[3].ListTasks[0].ID)))
+			Expect(newTask.TaskEntity.Title).To(Equal("taskTitle"))
 		})
 	})
 
 	Describe("Show", func() {
 		var newTask *services.Task
 		JustBeforeEach(func() {
-			newTask = services.NewTask(0, list.ListEntity.ListModel.ID, project.ProjectEntity.ProjectModel.ID, user.UserEntity.UserModel.ID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
+			newTask = services.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.UserEntity.ID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
 			newTask.Save()
 		})
 		It("should receive a task", func() {
@@ -93,14 +93,14 @@ var _ = Describe("TasksController", func() {
 			c = ListContext(c, list)
 			c = TaskContext(c, newTask)
 			c.SetParamNames("project_id", "list_id", "task_id")
-			c.SetParamValues(strconv.FormatInt(project.ProjectEntity.ProjectModel.ID, 10), strconv.FormatInt(list.ListEntity.ListModel.ID, 10), strconv.FormatInt(newTask.TaskEntity.TaskModel.ID, 10))
+			c.SetParamValues(strconv.FormatInt(project.ProjectEntity.ID, 10), strconv.FormatInt(list.ListEntity.ID, 10), strconv.FormatInt(newTask.TaskEntity.ID, 10))
 			resource := Tasks{}
 			err := resource.Show(c)
 			Expect(err).To(BeNil())
 			var contents views.Task
 			json.Unmarshal(rec.Body.Bytes(), &contents)
 			Expect(rec.Code).To(Equal(http.StatusOK))
-			Expect(contents.Title).To(Equal(newTask.TaskEntity.TaskModel.Title))
+			Expect(contents.Title).To(Equal(newTask.TaskEntity.Title))
 		})
 	})
 
@@ -110,13 +110,13 @@ var _ = Describe("TasksController", func() {
 			newList *services.List
 		)
 		JustBeforeEach(func() {
-			newList = handlers.NewList(0, project.ProjectEntity.ProjectModel.ID, user.UserEntity.UserModel.ID, "list2", "", sql.NullInt64{}, false)
+			newList = handlers.NewList(0, project.ProjectEntity.ID, user.UserEntity.ID, "list2", "", sql.NullInt64{}, false)
 			newList.Save()
-			newTask = services.NewTask(0, list.ListEntity.ListModel.ID, project.ProjectEntity.ProjectModel.ID, user.UserEntity.UserModel.ID, sql.NullInt64{}, "taskTitle", "taskDescription", false, sql.NullString{})
+			newTask = services.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.UserEntity.ID, sql.NullInt64{}, "taskTitle", "taskDescription", false, sql.NullString{})
 			newTask.Save()
 		})
 		It("should change list the task belongs", func() {
-			listID := strconv.FormatInt(newList.ListEntity.ListModel.ID, 10)
+			listID := strconv.FormatInt(newList.ListEntity.ID, 10)
 			j := fmt.Sprintf(`{"to_list_id":%s}`, listID)
 			req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id/tasks/:task_id/move_task", strings.NewReader(j))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -126,7 +126,7 @@ var _ = Describe("TasksController", func() {
 			c = ListContext(c, list)
 			c = TaskContext(c, newTask)
 			c.SetParamNames("project_id", "list_id", "task_id")
-			c.SetParamValues(strconv.FormatInt(project.ProjectEntity.ProjectModel.ID, 10), strconv.FormatInt(list.ListEntity.ListModel.ID, 10), strconv.FormatInt(newTask.TaskEntity.TaskModel.ID, 10))
+			c.SetParamValues(strconv.FormatInt(project.ProjectEntity.ID, 10), strconv.FormatInt(list.ListEntity.ID, 10), strconv.FormatInt(newTask.TaskEntity.ID, 10))
 			resource := Tasks{}
 			err := resource.MoveTask(c)
 			Expect(err).To(BeNil())
@@ -135,14 +135,14 @@ var _ = Describe("TasksController", func() {
 			Expect(rec.Code).To(Equal(http.StatusOK))
 			// 初期リストが入るようになったのでそれ以降
 			Expect(contents.Lists[3].ListTasks).To(BeEmpty())
-			Expect(contents.Lists[4].ListTasks[0].ID).To(Equal(newTask.TaskEntity.TaskModel.ID))
+			Expect(contents.Lists[4].ListTasks[0].ID).To(Equal(newTask.TaskEntity.ID))
 		})
 	})
 
 	Describe("Update", func() {
 		var newTask *services.Task
 		JustBeforeEach(func() {
-			newTask = services.NewTask(0, list.ListEntity.ListModel.ID, project.ProjectEntity.ProjectModel.ID, user.UserEntity.UserModel.ID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
+			newTask = services.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.UserEntity.ID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
 			newTask.Save()
 		})
 		It("should update a task", func() {
@@ -155,7 +155,7 @@ var _ = Describe("TasksController", func() {
 			c = ListContext(c, list)
 			c = TaskContext(c, newTask)
 			c.SetParamNames("project_id", "list_id", "task_id")
-			c.SetParamValues(strconv.FormatInt(project.ProjectEntity.ProjectModel.ID, 10), strconv.FormatInt(list.ListEntity.ListModel.ID, 10), strconv.FormatInt(newTask.TaskEntity.TaskModel.ID, 10))
+			c.SetParamValues(strconv.FormatInt(project.ProjectEntity.ID, 10), strconv.FormatInt(list.ListEntity.ID, 10), strconv.FormatInt(newTask.TaskEntity.ID, 10))
 			resource := Tasks{}
 			err := resource.Update(c)
 			Expect(err).To(BeNil())
@@ -171,7 +171,7 @@ var _ = Describe("TasksController", func() {
 		var newTask *services.Task
 		Context("When a task does not relate issue", func() {
 			JustBeforeEach(func() {
-				newTask = services.NewTask(0, list.ListEntity.ListModel.ID, project.ProjectEntity.ProjectModel.ID, user.UserEntity.UserModel.ID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
+				newTask = services.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.UserEntity.ID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
 				newTask.Save()
 			})
 			It("should delete a task", func() {
@@ -182,7 +182,7 @@ var _ = Describe("TasksController", func() {
 				c = ListContext(c, list)
 				c = TaskContext(c, newTask)
 				c.SetParamNames("project_id", "list_id", "task_id")
-				c.SetParamValues(strconv.FormatInt(project.ProjectEntity.ProjectModel.ID, 10), strconv.FormatInt(list.ListEntity.ListModel.ID, 10), strconv.FormatInt(newTask.TaskEntity.TaskModel.ID, 10))
+				c.SetParamValues(strconv.FormatInt(project.ProjectEntity.ID, 10), strconv.FormatInt(list.ListEntity.ID, 10), strconv.FormatInt(newTask.TaskEntity.ID, 10))
 				resource := Tasks{}
 				err := resource.Delete(c)
 				Expect(err).To(BeNil())
@@ -191,7 +191,7 @@ var _ = Describe("TasksController", func() {
 		})
 		Context("When a task relate issue", func() {
 			JustBeforeEach(func() {
-				newTask = services.NewTask(0, list.ListEntity.ListModel.ID, project.ProjectEntity.ProjectModel.ID, user.UserEntity.UserModel.ID, sql.NullInt64{Int64: 1, Valid: true}, "sampleTask", "sampleDescription", false, sql.NullString{})
+				newTask = services.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.UserEntity.ID, sql.NullInt64{Int64: 1, Valid: true}, "sampleTask", "sampleDescription", false, sql.NullString{})
 				newTask.Save()
 			})
 			It("should not delete a task", func() {
@@ -202,7 +202,7 @@ var _ = Describe("TasksController", func() {
 				c = ListContext(c, list)
 				c = TaskContext(c, newTask)
 				c.SetParamNames("project_id", "list_id", "task_id")
-				c.SetParamValues(strconv.FormatInt(project.ProjectEntity.ProjectModel.ID, 10), strconv.FormatInt(list.ListEntity.ListModel.ID, 10), strconv.FormatInt(newTask.TaskEntity.TaskModel.ID, 10))
+				c.SetParamValues(strconv.FormatInt(project.ProjectEntity.ID, 10), strconv.FormatInt(list.ListEntity.ID, 10), strconv.FormatInt(newTask.TaskEntity.ID, 10))
 				resource := Tasks{}
 				err := resource.Delete(c)
 				Expect(err).NotTo(BeNil())

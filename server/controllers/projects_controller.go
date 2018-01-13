@@ -114,11 +114,11 @@ func (u *Projects) Create(c echo.Context) error {
 	}
 
 	projectService, err := handlers.CreateProject(
-		currentUser.UserEntity.UserModel.ID,
+		currentUser.UserEntity.ID,
 		newProjectForm.Title,
 		newProjectForm.Description,
 		newProjectForm.RepositoryID,
-		currentUser.UserEntity.UserModel.OauthToken,
+		currentUser.UserEntity.OauthToken,
 	)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -162,7 +162,7 @@ func (u *Projects) Update(c echo.Context) error {
 		return NewValidationError(err, http.StatusUnprocessableEntity, c)
 	}
 
-	if err := projectService.Update(editProjectForm.Title, editProjectForm.Description, projectService.ProjectEntity.ProjectModel.ShowIssues, projectService.ProjectEntity.ProjectModel.ShowPullRequests); err != nil {
+	if err := projectService.Update(editProjectForm.Title, editProjectForm.Description, projectService.ProjectEntity.ShowIssues, projectService.ProjectEntity.ShowPullRequests); err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
@@ -195,8 +195,8 @@ func (u *Projects) Settings(c echo.Context) error {
 	}
 	logging.SharedInstance().Controller(c).Debugf("post edit project parameter: %+v", settingsProjectForm)
 	if err := projectService.Update(
-		projectService.ProjectEntity.ProjectModel.Title,
-		projectService.ProjectEntity.ProjectModel.Description,
+		projectService.ProjectEntity.Title,
+		projectService.ProjectEntity.Description,
 		settingsProjectForm.ShowIssues,
 		settingsProjectForm.ShowPullRequests,
 	); err != nil {
@@ -286,7 +286,7 @@ func (u *Projects) Destroy(c echo.Context) error {
 	}
 	projectService := pc.ProjectService
 
-	err := handlers.DestroyProject(projectService.ProjectEntity.ProjectModel.ID)
+	err := handlers.DestroyProject(projectService.ProjectEntity.ID)
 	if err != nil {
 		logging.SharedInstance().Controller(c).Errorf("project destroy error: %v", err)
 		return err

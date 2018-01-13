@@ -38,7 +38,7 @@ func (l *List) Save() error {
 		return err
 	}
 	go func(list *List) {
-		projectID := list.ListEntity.ListModel.ProjectID
+		projectID := list.ListEntity.ProjectID
 		p, err := FindProject(projectID)
 		// TODO: log
 		if err != nil {
@@ -49,10 +49,7 @@ func (l *List) Save() error {
 			return
 		}
 		repo, find, err := p.ProjectEntity.Repository()
-		if err != nil {
-			return
-		}
-		if !find {
+		if err != nil || !find {
 			return
 		}
 		err = list.fetchCreated(token, repo)
@@ -65,17 +62,17 @@ func (l *List) Save() error {
 
 func (l *List) fetchCreated(oauthToken string, repo *repository.Repository) error {
 	if repo != nil {
-		label, err := repo.CheckLabelPresent(oauthToken, l.ListEntity.ListModel.Title.String)
+		label, err := repo.CheckLabelPresent(oauthToken, l.ListEntity.Title.String)
 		if err != nil {
 			return err
 		} else if label == nil {
-			label, err = repo.CreateGithubLabel(oauthToken, l.ListEntity.ListModel.Title.String, l.ListEntity.ListModel.Color.String)
+			label, err = repo.CreateGithubLabel(oauthToken, l.ListEntity.Title.String, l.ListEntity.Color.String)
 			if err != nil {
 				return err
 			}
 		} else {
 			// 色だけはこちら指定のものに変更したい
-			_, err := repo.UpdateGithubLabel(oauthToken, l.ListEntity.ListModel.Title.String, l.ListEntity.ListModel.Title.String, l.ListEntity.ListModel.Color.String)
+			_, err := repo.UpdateGithubLabel(oauthToken, l.ListEntity.Title.String, l.ListEntity.Title.String, l.ListEntity.Color.String)
 			if err != nil {
 				return err
 			}
@@ -93,7 +90,7 @@ func (l *List) Update(title, color string, optionID int64) error {
 	}
 
 	go func(list *List, title, color string) {
-		projectID := list.ListEntity.ListModel.ProjectID
+		projectID := list.ListEntity.ProjectID
 		p, err := FindProject(projectID)
 		if err != nil {
 			return
@@ -103,10 +100,7 @@ func (l *List) Update(title, color string, optionID int64) error {
 			return
 		}
 		repo, find, err := p.ProjectEntity.Repository()
-		if err != nil {
-			return
-		}
-		if !find {
+		if err != nil || !find {
 			return
 		}
 		err = list.fetchUpdated(token, repo, title, color)
@@ -120,7 +114,7 @@ func (l *List) Update(title, color string, optionID int64) error {
 func (l *List) fetchUpdated(oauthToken string, repo *repository.Repository, newTitle, newColor string) error {
 	if repo != nil {
 		// 編集前のラベルがそもそも存在しているかどうかを確認する
-		existLabel, err := repo.CheckLabelPresent(oauthToken, l.ListEntity.ListModel.Title.String)
+		existLabel, err := repo.CheckLabelPresent(oauthToken, l.ListEntity.Title.String)
 		if err != nil {
 			return err
 		} else if existLabel == nil {
@@ -131,7 +125,7 @@ func (l *List) fetchUpdated(oauthToken string, repo *repository.Repository, newT
 				return err
 			}
 		} else {
-			_, err := repo.UpdateGithubLabel(oauthToken, l.ListEntity.ListModel.Title.String, newTitle, newColor)
+			_, err := repo.UpdateGithubLabel(oauthToken, l.ListEntity.Title.String, newTitle, newColor)
 			if err != nil {
 				return err
 			}

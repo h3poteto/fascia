@@ -87,7 +87,7 @@ func (u *Lists) Create(c echo.Context) error {
 		return NewValidationError(err, http.StatusUnprocessableEntity, c)
 	}
 
-	list := handlers.NewList(0, projectService.ProjectEntity.ProjectModel.ID, currentUser.UserEntity.UserModel.ID, newListForm.Title, newListForm.Color, sql.NullInt64{}, false)
+	list := handlers.NewList(0, projectService.ProjectEntity.ID, currentUser.UserEntity.ID, newListForm.Title, newListForm.Color, sql.NullInt64{}, false)
 
 	if err := list.Save(); err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)

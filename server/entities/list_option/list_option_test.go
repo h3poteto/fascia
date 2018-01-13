@@ -16,8 +16,8 @@ var _ = Describe("ListOption", func() {
 		It("should list up all list_options", func() {
 			options, err := ListOptionAll()
 			Expect(err).To(BeNil())
-			Expect(options[0].ListOptionModel.Action).To(Equal("close"))
-			Expect(options[1].ListOptionModel.Action).To(Equal("open"))
+			Expect(options[0].Action).To(Equal("close"))
+			Expect(options[1].Action).To(Equal("open"))
 		})
 	})
 })

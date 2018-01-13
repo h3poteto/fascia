@@ -40,7 +40,7 @@ func (t *Task) Save() error {
 	}
 
 	go func(task *Task) {
-		projectID := task.TaskEntity.TaskModel.ProjectID
+		projectID := task.TaskEntity.ProjectID
 		p, err := FindProject(projectID)
 		// TODO: log
 		if err != nil {
@@ -51,10 +51,7 @@ func (t *Task) Save() error {
 			return
 		}
 		repo, find, err := p.ProjectEntity.Repository()
-		if err != nil {
-			return
-		}
-		if !find {
+		if err != nil || !find {
 			return
 		}
 		err = task.fetchCreated(token, repo)
@@ -74,7 +71,7 @@ func (t *Task) Update(listID int64, issueNumber sql.NullInt64, title, descriptio
 	}
 
 	go func(task *Task) {
-		projectID := task.TaskEntity.TaskModel.ProjectID
+		projectID := task.TaskEntity.ProjectID
 		p, err := FindProject(projectID)
 		// TODO: log
 		if err != nil {
@@ -85,10 +82,7 @@ func (t *Task) Update(listID int64, issueNumber sql.NullInt64, title, descriptio
 			return
 		}
 		repo, find, err := p.ProjectEntity.Repository()
-		if err != nil {
-			return
-		}
-		if !find {
+		if err != nil || !find {
 			return
 		}
 		err = task.fetchUpdated(token, repo)
@@ -107,7 +101,7 @@ func (t *Task) ChangeList(listID int64, prevToTaskID *int64) error {
 	}
 
 	go func(task *Task, isReorder bool) {
-		projectID := task.TaskEntity.TaskModel.ProjectID
+		projectID := task.TaskEntity.ProjectID
 		p, err := FindProject(projectID)
 		// TODO: log
 		if err != nil {
@@ -118,10 +112,7 @@ func (t *Task) ChangeList(listID int64, prevToTaskID *int64) error {
 			return
 		}
 		repo, find, err := p.ProjectEntity.Repository()
-		if err != nil {
-			return
-		}
-		if !find {
+		if err != nil || !find {
 			return
 		}
 		err = task.fetchChangedList(token, repo, isReorder)
@@ -147,11 +138,11 @@ func (t *Task) fetchCreated(oauthToken string, repo *repository.Repository) erro
 		HTMLURL := sql.NullString{String: *issue.HTMLURL, Valid: true}
 
 		err = t.TaskEntity.Update(
-			t.TaskEntity.TaskModel.ListID,
+			t.TaskEntity.ListID,
 			issueNumber,
-			t.TaskEntity.TaskModel.Title,
-			t.TaskEntity.TaskModel.Description,
-			t.TaskEntity.TaskModel.PullRequest,
+			t.TaskEntity.Title,
+			t.TaskEntity.Description,
+			t.TaskEntity.PullRequest,
 			HTMLURL,
 		)
 		if err != nil {

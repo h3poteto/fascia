@@ -53,7 +53,7 @@ func FindProjectByRepositoryID(repositoryID int64) ([]*Project, error) {
 
 // CheckOwner check project owner as user
 func (p *Project) CheckOwner(userID int64) bool {
-	if p.ProjectEntity.ProjectModel.UserID != userID {
+	if p.ProjectEntity.UserID != userID {
 		return false
 	}
 	return true
@@ -72,7 +72,7 @@ func (p *Project) Create(userID int64, title string, description string, reposit
 				return nil, err
 			}
 		}
-		repoID = sql.NullInt64{Int64: repo.RepositoryModel.ID, Valid: true}
+		repoID = sql.NullInt64{Int64: repo.ID, Valid: true}
 	}
 
 	tx, err := p.db.Begin()
@@ -113,11 +113,8 @@ func (p *Project) CreateWebhook() error {
 
 	url := fmt.Sprintf("%s://%s/repositories/hooks/github", config.Element("protocol").(string), config.Element("fqdn"))
 	repo, find, err := p.ProjectEntity.Repository()
-	if err != nil {
+	if err != nil || !find {
 		return err
-	}
-	if !find {
-		return nil
 	}
 	// すでに存在する場合はupdateを叩く
 	hook, err := repo.SearchWebhook(oauthToken, url)
@@ -139,11 +136,8 @@ func (p *Project) DeleteWebhook() error {
 
 	url := fmt.Sprintf("%s://%s/repositories/hooks/github", config.Element("protocol").(string), config.Element("fqdn"))
 	repo, find, err := p.ProjectEntity.Repository()
-	if err != nil {
+	if err != nil || !find {
 		return err
-	}
-	if !find {
-		return nil
 	}
 	hook, err := repo.SearchWebhook(oauthToken, url)
 	if err != nil {
@@ -159,11 +153,8 @@ func (p *Project) DeleteWebhook() error {
 func (p *Project) FetchGithub() (bool, error) {
 	repo, find, err := p.ProjectEntity.Repository()
 	// user自体はgithub連携していても，projectが連携していない可能性もあるのでチェック
-	if err != nil {
+	if err != nil || !find {
 		return false, err
-	}
-	if !find {
-		return false, nil
 	}
 
 	oauthToken, err := p.ProjectEntity.OauthToken()
@@ -195,7 +186,7 @@ func (p *Project) FetchGithub() (bool, error) {
 	// github側へ同期
 	// github側に存在するissueについては，#299でDB内に新規作成されるため，ここではgithub側に存在せず，DB内にのみ存在するタスクをissue化すれば良い
 	// ここではprojectとlist両方考慮する必要がある
-	rows, err := p.db.Query("select tasks.title, tasks.description, lists.title, lists.color from tasks left join lists on lists.id = tasks.list_id where tasks.project_id = ? and tasks.user_id = ? and tasks.issue_number IS NULL;", p.ProjectEntity.ProjectModel.ID, p.ProjectEntity.ProjectModel.UserID)
+	rows, err := p.db.Query("select tasks.title, tasks.description, lists.title, lists.color from tasks left join lists on lists.id = tasks.list_id where tasks.project_id = ? and tasks.user_id = ? and tasks.issue_number IS NULL;", p.ProjectEntity.ID, p.ProjectEntity.UserID)
 	if err != nil {
 		return false, errors.Wrap(err, "sql select error")
 	}
@@ -231,7 +222,7 @@ func (p *Project) ApplyIssueChanges(body github.IssuesEvent) error {
 	// taskが見つからない場合は新規作成するのでエラーハンドリング不要
 	fmt.Println("debug log: ", p.ProjectEntity)
 	fmt.Println("debug log: ", *body.Issue)
-	targetTask, _ := task.FindByIssueNumber(p.ProjectEntity.ProjectModel.ID, *body.Issue.Number)
+	targetTask, _ := task.FindByIssueNumber(p.ProjectEntity.ID, *body.Issue.Number)
 
 	// create時点ではlabelsが空の状態でhookが飛んできている場合がある
 	// editedの場合であってもwebhookにはchangeだけしか載っておらず，最新の状態は載っていない場合がある
@@ -256,7 +247,7 @@ func (p *Project) ApplyIssueChanges(body github.IssuesEvent) error {
 // ApplyPullRequestChanges apply issue changes to task
 func (p *Project) ApplyPullRequestChanges(body github.PullRequestEvent) error {
 	// taskが見つからない場合は新規作成するのでエラーハンドリング不要
-	targetTask, _ := task.FindByIssueNumber(p.ProjectEntity.ProjectModel.ID, *body.Number)
+	targetTask, _ := task.FindByIssueNumber(p.ProjectEntity.ID, *body.Number)
 
 	// note: もしgithubへのアクセスが増大するようであれば，PullRequestオブジェクトからラベルの付替えを行うように改修する
 
@@ -266,11 +257,8 @@ func (p *Project) ApplyPullRequestChanges(body github.PullRequestEvent) error {
 	}
 
 	repo, find, err := p.ProjectEntity.Repository()
-	if err != nil {
+	if err != nil || !find {
 		return err
-	}
-	if !find {
-		return nil
 	}
 	// CreateNewTaskをするためには，*github.Issueである必要があるが，ここで取得できるのは*github.PullRequestのみなので，なんとかして変換する必要がある
 	// そのため問答無用で一度issueを取得し直す
@@ -295,11 +283,8 @@ func (p *Project) ApplyPullRequestChanges(body github.PullRequestEvent) error {
 // FetchCreatedInitialList fetch initial list to github
 func (p *Project) FetchCreatedInitialList() error {
 	repo, find, err := p.ProjectEntity.Repository()
-	if err != nil {
+	if err != nil || !find {
 		return err
-	}
-	if !find {
-		return nil
 	}
 
 	oauthToken, err := p.ProjectEntity.OauthToken()
@@ -312,14 +297,14 @@ func (p *Project) FetchCreatedInitialList() error {
 		return err
 	}
 	for _, l := range lists {
-		label, err := repo.CheckLabelPresent(oauthToken, l.ListModel.Title.String)
+		label, err := repo.CheckLabelPresent(oauthToken, l.Title.String)
 		if err != nil {
 			return err
 		}
 		if label != nil {
 			continue
 		}
-		_, err = repo.CreateGithubLabel(oauthToken, l.ListModel.Title.String, l.ListModel.Color.String)
+		_, err = repo.CreateGithubLabel(oauthToken, l.Title.String, l.Color.String)
 		if err != nil {
 			return err
 		}
