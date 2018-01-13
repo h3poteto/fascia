@@ -27,7 +27,7 @@ var _ = Describe("User", func() {
 		It("can regist", func() {
 			user, err := Registration(email, password, password)
 			Expect(err).To(BeNil())
-			Expect(user.UserModel.ID).NotTo(Equal(int64(0)))
+			Expect(user.ID).NotTo(Equal(int64(0)))
 		})
 		Context("after registration", func() {
 			BeforeEach(func() {
@@ -67,7 +67,7 @@ var _ = Describe("User", func() {
 			It("can login", func() {
 				currentUser, err := Login(email, password)
 				Expect(err).To(BeNil())
-				Expect(currentUser.UserModel.Email).To(Equal(email))
+				Expect(currentUser.Email).To(Equal(email))
 			})
 		})
 		Context("when send wrong login information", func() {
@@ -102,7 +102,7 @@ var _ = Describe("User", func() {
 		BeforeEach(func() {
 			email := "project@example.com"
 			password := "hogehoge"
-			Registration(email, password, password)
+			currentUser, _ = Registration(email, password, password)
 			rows, _ := db.Query("select id, email from users where email = ?;", email)
 
 			var userid int64
@@ -118,13 +118,12 @@ var _ = Describe("User", func() {
 			if err != nil {
 				panic(err)
 			}
-			currentUser = New(userid, dbemail, sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{})
 		})
 		It("ユーザとプロジェクトが関連づいていること", func() {
 			projects, err := currentUser.Projects()
 			Expect(err).To(BeNil())
 			Expect(projects).NotTo(BeEmpty())
-			Expect(projects[0].ProjectModel.ID).To(Equal(newProject.ProjectEntity.ProjectModel.ID))
+			Expect(projects[0].ID).To(Equal(newProject.ProjectEntity.ID))
 		})
 	})
 })
