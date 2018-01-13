@@ -1,4 +1,4 @@
-package services
+package account
 
 import (
 	"github.com/h3poteto/fascia/server/entities/reset_password"

@@ -1,4 +1,4 @@
-package services
+package project
 
 import (
 	"database/sql"

@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
+	"github.com/h3poteto/fascia/server/commands/project"
 	"github.com/h3poteto/fascia/server/middlewares"
-	"github.com/h3poteto/fascia/server/services"
 	"github.com/h3poteto/fascia/server/validators"
 	"github.com/h3poteto/fascia/server/views"
 
@@ -62,7 +62,7 @@ func (u *Tasks) Create(c echo.Context) error {
 		return NewValidationError(err, http.StatusUnprocessableEntity, c)
 	}
 
-	task := services.NewTask(
+	task := project.NewTask(
 		0,
 		parentList.ListEntity.ID,
 		projectService.ProjectEntity.ID,
@@ -224,7 +224,7 @@ func (u *Tasks) Delete(c echo.Context) error {
 	return c.JSON(http.StatusOK, jsonAllLists)
 }
 
-func allListsResponse(projectService *services.Project) (*views.AllLists, error) {
+func allListsResponse(projectService *project.Project) (*views.AllLists, error) {
 	allLists, err := projectService.ProjectEntity.Lists()
 	if err != nil {
 		return nil, err

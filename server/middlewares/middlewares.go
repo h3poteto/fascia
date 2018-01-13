@@ -2,8 +2,9 @@ package middlewares
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
+	"github.com/h3poteto/fascia/server/commands/account"
+	"github.com/h3poteto/fascia/server/commands/project"
 	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/services"
 	"github.com/h3poteto/fascia/server/session"
 	"github.com/h3poteto/fascia/server/validators"
 	"github.com/labstack/echo"
@@ -40,25 +41,25 @@ func NewValidationError(err error, code int, c echo.Context) error {
 // LoginContext prepare login information for users
 type LoginContext struct {
 	echo.Context
-	CurrentUserService *services.User
+	CurrentUserService *account.User
 }
 
 // ProjectContext prepare a project service
 type ProjectContext struct {
 	LoginContext
-	ProjectService *services.Project
+	ProjectService *project.Project
 }
 
 // ListContext prepare a list service
 type ListContext struct {
 	ProjectContext
-	ListService *services.List
+	ListService *project.List
 }
 
 // TaskContext prepare a task service
 type TaskContext struct {
 	ListContext
-	TaskService *services.Task
+	TaskService *project.Task
 }
 
 // Login requires login session
@@ -81,7 +82,7 @@ func Login() echo.MiddlewareFunc {
 }
 
 // CheckLogin authenticate user
-func CheckLogin(c echo.Context) (*services.User, error) {
+func CheckLogin(c echo.Context) (*account.User, error) {
 	id, err := session.SharedInstance().Get(c.Request(), "current_user_id")
 	if id == nil {
 		return nil, errors.New("not logined")

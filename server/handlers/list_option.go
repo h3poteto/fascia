@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"github.com/h3poteto/fascia/server/services"
+	"github.com/h3poteto/fascia/server/commands/project"
 )
 
 // ListOptionAll returns all list options
-func ListOptionAll() ([]*services.ListOption, error) {
-	return services.ListOptionAll()
+func ListOptionAll() ([]*project.ListOption, error) {
+	return project.ListOptionAll()
 }
