@@ -2,7 +2,6 @@ package reset_password
 
 import (
 	"crypto/md5"
-	"database/sql"
 	"fmt"
 	"io"
 	"strconv"
@@ -16,16 +15,43 @@ import (
 
 // ResetPassword has a reset password model object
 type ResetPassword struct {
-	ResetPasswordModel *reset_password.ResetPassword
-	db                 *sql.DB
+	ID             int64
+	UserID         int64
+	Token          string
+	ExpiresAt      time.Time
+	infrastructure *reset_password.ResetPassword
 }
 
 // New returns a reset password entity
 func New(id, userID int64, token string, expiresAt time.Time) *ResetPassword {
-	return &ResetPassword{
-		ResetPasswordModel: reset_password.New(id, userID, token, expiresAt),
-		db:                 database.SharedInstance().Connection,
+	infrastructure := reset_password.New(id, userID, token, expiresAt)
+	r := &ResetPassword{
+		infrastructure: infrastructure,
 	}
+	r.reload()
+	return r
+}
+
+func (r *ResetPassword) reflect() {
+	r.infrastructure.ID = r.ID
+	r.infrastructure.UserID = r.UserID
+	r.infrastructure.Token = r.Token
+	r.infrastructure.ExpiresAt = r.ExpiresAt
+}
+
+func (r *ResetPassword) reload() error {
+	if r.ID != 0 {
+		latestReset, err := reset_password.Find(r.ID)
+		if err != nil {
+			return err
+		}
+		r.infrastructure = latestReset
+	}
+	r.ID = r.infrastructure.ID
+	r.UserID = r.infrastructure.UserID
+	r.Token = r.infrastructure.Token
+	r.ExpiresAt = r.infrastructure.ExpiresAt
+	return nil
 }
 
 // GenerateResetPassword generate new token and return a new reset password entity
@@ -45,18 +71,6 @@ func GenerateResetPassword(userID int64, email string) (*ResetPassword, error) {
 	return New(0, userID, token, time.Now().AddDate(0, 0, 1)), nil
 }
 
-// FindAvailable find available reset password entity
-func FindAvailable(id int64, token string) (*ResetPassword, error) {
-	r, err := reset_password.FindAvailable(id, token)
-	if err != nil {
-		return nil, err
-	}
-	return &ResetPassword{
-		ResetPasswordModel: r,
-		db:                 database.SharedInstance().Connection,
-	}, nil
-}
-
 // Authenticate call authenticate in model
 func Authenticate(id int64, token string) error {
 	return reset_password.Authenticate(id, token)
@@ -64,21 +78,8 @@ func Authenticate(id int64, token string) error {
 
 // Save call save in model
 func (r *ResetPassword) Save() error {
-	return r.ResetPasswordModel.Save()
-}
-
-// User returns a owner user entity
-func (r *ResetPassword) User() (*user.User, error) {
-	var userID int64
-	err := r.db.QueryRow("select user_id from reset_passwords where id = ?;", r.ResetPasswordModel.ID).Scan(&userID)
-	if err != nil {
-		return nil, errors.Wrap(err, "sql select error")
-	}
-	u, err := user.Find(userID)
-	if err != nil {
-		return nil, err
-	}
-	return u, nil
+	r.reflect()
+	return r.infrastructure.Save()
 }
 
 // ChangeUserPassword change password in owner user record
@@ -88,34 +89,23 @@ func (r *ResetPassword) ChangeUserPassword(password string) (*user.User, error) 
 		return nil, err
 	}
 
-	hashPassword, err := user.HashPassword(password)
-	if err != nil {
-		return nil, err
-	}
-
-	tx, err := r.db.Begin()
+	// Control transaction in here.
+	db := database.SharedInstance().Connection
+	tx, err := db.Begin()
 	if err != nil {
 		return nil, errors.Wrap(err, "transaction start error")
 	}
-	_, err = tx.Exec("update users set password = ? where id = ?;", hashPassword, r.ResetPasswordModel.ID)
-	if err != nil {
-		tx.Rollback()
-		return nil, errors.Wrap(err, "sql execute error")
-	}
 
-	_, err = tx.Exec("update reset_passwords set expires_at = now() where id = ?;", r.ResetPasswordModel.ID)
-	if err != nil {
-		tx.Rollback()
-		return nil, errors.Wrap(err, "sql execute error")
-	}
-
-	err = tx.Commit()
-	if err != nil {
-		return nil, errors.Wrap(err, "transaction commit error")
-	}
-	u, err = r.User()
-	if err != nil {
+	if err := u.UpdatePassword(password, tx); err != nil {
 		return nil, err
 	}
-	return u, nil
+
+	if err := r.infrastructure.UpdateExpire(tx); err != nil {
+		return nil, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, errors.Wrap(err, "transaction commit error")
+	}
+	return r.User()
 }

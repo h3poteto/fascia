@@ -84,7 +84,7 @@ func (u *Passwords) Create(c echo.Context) error {
 		return err
 	}
 	// ここでemail送信
-	go password_mailer.Reset(reset.ResetPasswordEntity.ResetPasswordModel.ID, targetUser.UserEntity.Email, reset.ResetPasswordEntity.ResetPasswordModel.Token)
+	go password_mailer.Reset(reset.ResetPasswordEntity.ID, targetUser.UserEntity.Email, reset.ResetPasswordEntity.Token)
 	logging.SharedInstance().Controller(c).Info("success to send password reset request")
 	return c.Redirect(http.StatusFound, "/sign_in")
 }

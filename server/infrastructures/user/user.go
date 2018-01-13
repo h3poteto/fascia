@@ -156,3 +156,19 @@ func (u *User) UpdateGithubUserInfo(token string, githubUser *github.User) error
 	}
 	return nil
 }
+
+func (u *User) UpdatePassword(tx *sql.Tx) error {
+	if tx != nil {
+		_, err := tx.Exec("update users set password = ? where id = ?;", u.Password, u.ID)
+		if err != nil {
+			tx.Rollback()
+			return errors.Wrap(err, "sql execute error")
+		}
+	} else {
+		_, err := u.db.Exec("update users set password = ? where id = ?;", u.Password, u.ID)
+		if err != nil {
+			return errors.Wrap(err, "sql execute error")
+		}
+	}
+	return nil
+}
