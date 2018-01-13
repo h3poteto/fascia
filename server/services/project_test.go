@@ -25,7 +25,7 @@ var _ = Describe("ProjectService", func() {
 		if err != nil {
 			panic(err)
 		}
-		uid = user.UserEntity.UserModel.ID
+		uid = user.UserEntity.ID
 		db = database.SharedInstance().Connection
 	})
 
@@ -38,12 +38,12 @@ var _ = Describe("ProjectService", func() {
 				lists, _ := newProject.Lists()
 				Expect(len(lists)).To(Equal(3))
 				Expect(newProject.NoneList()).NotTo(BeNil())
-				Expect(newProject.ProjectModel.ShowIssues).To(BeTrue())
-				Expect(newProject.ProjectModel.ShowPullRequests).To(BeTrue())
+				Expect(newProject.ShowIssues).To(BeTrue())
+				Expect(newProject.ShowPullRequests).To(BeTrue())
 			})
 			It("should relate user and project", func() {
 				newProject, _ := projectService.Create(uid, "new project", "description", 0, sql.NullString{})
-				rows, _ := db.Query("select id, user_id, title, description from projects where id = ?;", newProject.ProjectModel.ID)
+				rows, _ := db.Query("select id, user_id, title, description from projects where id = ?;", newProject.ID)
 
 				var id int64
 				var userID sql.NullInt64

@@ -17,8 +17,8 @@ var _ = Describe("User", func() {
 				Expect(err).To(BeNil())
 				Expect(user).NotTo(BeNil())
 				findUser, _ := FindOrCreateUserFromGithub(token)
-				Expect(findUser.UserEntity.UserModel.ID).To(Equal(user.UserEntity.UserModel.ID))
-				Expect(findUser.UserEntity.UserModel.ID).NotTo(BeZero())
+				Expect(findUser.UserEntity.ID).To(Equal(user.UserEntity.ID))
+				Expect(findUser.UserEntity.ID).NotTo(BeZero())
 			})
 		})
 		Context("after regist with email address", func() {
@@ -26,9 +26,9 @@ var _ = Describe("User", func() {
 			RegistrationUser(email, "hogehoge", "hogehoge")
 			user, _ := FindOrCreateUserFromGithub(token)
 			It("should update github information", func() {
-				Expect(user.UserEntity.UserModel.OauthToken.Valid).To(BeTrue())
-				Expect(user.UserEntity.UserModel.OauthToken.String).To(Equal(token))
-				Expect(user.UserEntity.UserModel.UUID.Valid).To(BeTrue())
+				Expect(user.UserEntity.OauthToken.Valid).To(BeTrue())
+				Expect(user.UserEntity.OauthToken.String).To(Equal(token))
+				Expect(user.UserEntity.UUID.Valid).To(BeTrue())
 			})
 		})
 	})

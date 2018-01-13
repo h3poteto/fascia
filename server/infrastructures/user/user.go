@@ -125,23 +125,21 @@ func (u *User) Update() error {
 }
 
 // CreateGithubUser create a user from github authentication
-func (u *User) CreateGithubUser(token string, githubUser *github.User, primaryEmail string) error {
-	u.Email = primaryEmail
+func CreateGithubUser(token string, githubUser *github.User, primaryEmail string) (*User, error) {
 	bytePassword, err := hashPassword(randomString())
 	if err != nil {
-		return err
+		return nil, err
 	}
-	u.Password = string(bytePassword)
-	u.Provider = sql.NullString{String: "github", Valid: true}
-	u.OauthToken = sql.NullString{String: token, Valid: true}
-
-	u.UserName = sql.NullString{String: *githubUser.Login, Valid: true}
-	u.UUID = sql.NullInt64{Int64: int64(*githubUser.ID), Valid: true}
-	u.Avatar = sql.NullString{String: *githubUser.AvatarURL, Valid: true}
-	if err := u.Save(); err != nil {
-		return err
+	provider := sql.NullString{String: "github", Valid: true}
+	oauthToken := sql.NullString{String: token, Valid: true}
+	userName := sql.NullString{String: *githubUser.Login, Valid: true}
+	uuid := sql.NullInt64{Int64: int64(*githubUser.ID), Valid: true}
+	avatar := sql.NullString{String: *githubUser.AvatarURL, Valid: true}
+	user := New(0, primaryEmail, string(bytePassword), provider, oauthToken, uuid, userName, avatar)
+	if err := user.Save(); err != nil {
+		return nil, err
 	}
-	return nil
+	return user, nil
 }
 
 // UpdateGithubUserInfo update a user from github authentication

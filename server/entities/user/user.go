@@ -87,7 +87,14 @@ func FindOrCreateFromGithub(githubUser *github.User, token string, primaryEmail 
 	u, err := FindByEmail(primaryEmail)
 	if err != nil {
 		// 見つからない場合は新規登録する
-		if err := u.infrastructure.CreateGithubUser(token, githubUser, primaryEmail); err != nil {
+		infrastructure, err := user.CreateGithubUser(token, githubUser, primaryEmail)
+		if err != nil {
+			return nil, err
+		}
+		u = &User{
+			infrastructure: infrastructure,
+		}
+		if err := u.reload(); err != nil {
 			return nil, err
 		}
 	}
