@@ -2,9 +2,10 @@ package controllers_test
 
 import (
 	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/server/commands/account"
+	"github.com/h3poteto/fascia/server/commands/board"
 	. "github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/services"
 	"github.com/h3poteto/fascia/server/views"
 
 	"database/sql"
@@ -24,9 +25,9 @@ var _ = Describe("TasksController", func() {
 	var (
 		e       *echo.Echo
 		rec     *httptest.ResponseRecorder
-		project *services.Project
-		user    *services.User
-		list    *services.List
+		project *board.Project
+		user    *account.User
+		list    *board.List
 	)
 	email := "task@example.com"
 	password := "hogehoge"
@@ -38,7 +39,7 @@ var _ = Describe("TasksController", func() {
 		seed.Seeds()
 		user, _ = handlers.RegistrationUser(email, password, password)
 		// projectを作っておく
-		project, _ = handlers.CreateProject(user.UserEntity.ID, "projectTitle", "", 0, sql.NullString{})
+		pro, _ = handlers.CreateProject(user.UserEntity.ID, "projectTitle", "", 0, sql.NullString{})
 
 		// listも作っておく
 		list = handlers.NewList(0, project.ProjectEntity.ID, user.UserEntity.ID, "listTitle", "008ed5", sql.NullInt64{}, false)
@@ -55,7 +56,7 @@ var _ = Describe("TasksController", func() {
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
-			c = ProjectContext(c, project)
+			c = ProjectContext(c, pro)
 			c = ListContext(c, list)
 			c.SetParamNames("project_id", "list_id")
 			c.SetParamValues(strconv.FormatInt(project.ProjectEntity.ID, 10), strconv.FormatInt(list.ListEntity.ID, 10))
@@ -80,16 +81,16 @@ var _ = Describe("TasksController", func() {
 	})
 
 	Describe("Show", func() {
-		var newTask *services.Task
+		var newTask *board.Task
 		JustBeforeEach(func() {
-			newTask = services.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.UserEntity.ID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
+			newTask = board.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.UserEntity.ID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
 			newTask.Save()
 		})
 		It("should receive a task", func() {
 			req := httptest.NewRequest(echo.GET, "/projects/:project_id/lists/:list_id/tasks/:task_id", nil)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
-			c = ProjectContext(c, project)
+			c = ProjectContext(c, pro)
 			c = ListContext(c, list)
 			c = TaskContext(c, newTask)
 			c.SetParamNames("project_id", "list_id", "task_id")
@@ -106,13 +107,13 @@ var _ = Describe("TasksController", func() {
 
 	Describe("MoveTask", func() {
 		var (
-			newTask *services.Task
-			newList *services.List
+			newTask *board.Task
+			newList *board.List
 		)
 		JustBeforeEach(func() {
 			newList = handlers.NewList(0, project.ProjectEntity.ID, user.UserEntity.ID, "list2", "", sql.NullInt64{}, false)
 			newList.Save()
-			newTask = services.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.UserEntity.ID, sql.NullInt64{}, "taskTitle", "taskDescription", false, sql.NullString{})
+			newTask = board.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.UserEntity.ID, sql.NullInt64{}, "taskTitle", "taskDescription", false, sql.NullString{})
 			newTask.Save()
 		})
 		It("should change list the task belongs", func() {
@@ -122,7 +123,7 @@ var _ = Describe("TasksController", func() {
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
-			c = ProjectContext(c, project)
+			c = ProjectContext(c, pro)
 			c = ListContext(c, list)
 			c = TaskContext(c, newTask)
 			c.SetParamNames("project_id", "list_id", "task_id")
@@ -140,9 +141,9 @@ var _ = Describe("TasksController", func() {
 	})
 
 	Describe("Update", func() {
-		var newTask *services.Task
+		var newTask *board.Task
 		JustBeforeEach(func() {
-			newTask = services.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.UserEntity.ID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
+			newTask = board.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.UserEntity.ID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
 			newTask.Save()
 		})
 		It("should update a task", func() {
@@ -151,7 +152,7 @@ var _ = Describe("TasksController", func() {
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
-			c = ProjectContext(c, project)
+			c = ProjectContext(c, pro)
 			c = ListContext(c, list)
 			c = TaskContext(c, newTask)
 			c.SetParamNames("project_id", "list_id", "task_id")
@@ -168,17 +169,17 @@ var _ = Describe("TasksController", func() {
 	})
 
 	Describe("Delete", func() {
-		var newTask *services.Task
+		var newTask *p.Task
 		Context("When a task does not relate issue", func() {
 			JustBeforeEach(func() {
-				newTask = services.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.UserEntity.ID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
+				newTask = board.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.UserEntity.ID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
 				newTask.Save()
 			})
 			It("should delete a task", func() {
 				req := httptest.NewRequest(echo.DELETE, "/projects/:project_id/lists/:list_id/tasks/:task_id", nil)
 				c := e.NewContext(req, rec)
 				_, c = LoginFaker(c, email, password)
-				c = ProjectContext(c, project)
+				c = ProjectContext(c, pro)
 				c = ListContext(c, list)
 				c = TaskContext(c, newTask)
 				c.SetParamNames("project_id", "list_id", "task_id")
@@ -191,14 +192,14 @@ var _ = Describe("TasksController", func() {
 		})
 		Context("When a task relate issue", func() {
 			JustBeforeEach(func() {
-				newTask = services.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.UserEntity.ID, sql.NullInt64{Int64: 1, Valid: true}, "sampleTask", "sampleDescription", false, sql.NullString{})
+				newTask = board.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.UserEntity.ID, sql.NullInt64{Int64: 1, Valid: true}, "sampleTask", "sampleDescription", false, sql.NullString{})
 				newTask.Save()
 			})
 			It("should not delete a task", func() {
 				req := httptest.NewRequest(echo.DELETE, "/projects/:project_id/lists/:list_id/tasks/:task_id", nil)
 				c := e.NewContext(req, rec)
 				_, c = LoginFaker(c, email, password)
-				c = ProjectContext(c, project)
+				c = ProjectContext(c, pro)
 				c = ListContext(c, list)
 				c = TaskContext(c, newTask)
 				c.SetParamNames("project_id", "list_id", "task_id")

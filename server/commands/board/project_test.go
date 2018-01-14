@@ -1,9 +1,9 @@
-package project_test
+package board_test
 
 import (
 	"github.com/h3poteto/fascia/db/seed"
 	"github.com/h3poteto/fascia/lib/modules/database"
-	. "github.com/h3poteto/fascia/server/commands/project"
+	. "github.com/h3poteto/fascia/server/commands/board"
 	"github.com/h3poteto/fascia/server/handlers"
 
 	"database/sql"

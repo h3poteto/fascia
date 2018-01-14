@@ -1,4 +1,4 @@
-package project
+package board
 
 import (
 	"database/sql"

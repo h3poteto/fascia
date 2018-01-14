@@ -3,7 +3,7 @@ package middlewares
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/commands/account"
-	"github.com/h3poteto/fascia/server/commands/project"
+	"github.com/h3poteto/fascia/server/commands/board"
 	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/session"
 	"github.com/h3poteto/fascia/server/validators"
@@ -47,19 +47,19 @@ type LoginContext struct {
 // ProjectContext prepare a project service
 type ProjectContext struct {
 	LoginContext
-	ProjectService *project.Project
+	ProjectService *board.Project
 }
 
 // ListContext prepare a list service
 type ListContext struct {
 	ProjectContext
-	ListService *project.List
+	ListService *board.List
 }
 
 // TaskContext prepare a task service
 type TaskContext struct {
 	ListContext
-	TaskService *project.Task
+	TaskService *board.Task
 }
 
 // Login requires login session

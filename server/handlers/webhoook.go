@@ -6,17 +6,17 @@ import (
 
 	"github.com/google/go-github/github"
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/commands/project"
+	"github.com/h3poteto/fascia/server/commands/board"
 )
 
 // ApplyIssueChangesToRepository apply updating information of issue to each task
-func ApplyIssueChangesToRepository(repository *project.Repository, githubBody github.IssuesEvent) error {
-	projectServices, err := project.FindProjectByRepositoryID(repository.RepositoryEntity.ID)
+func ApplyIssueChangesToRepository(repository *board.Repository, githubBody github.IssuesEvent) error {
+	projectServices, err := board.FindProjectByRepositoryID(repository.RepositoryEntity.ID)
 	if err != nil {
 		return err
 	}
 
-	go func(projectServices []*project.Project, githubBody github.IssuesEvent) {
+	go func(projectServices []*board.Project, githubBody github.IssuesEvent) {
 		waitWebhookReadtime()
 		for _, p := range projectServices {
 			err = p.ApplyIssueChanges(githubBody)
@@ -30,14 +30,14 @@ func ApplyIssueChangesToRepository(repository *project.Repository, githubBody gi
 }
 
 // ApplyPullRequestChangesToRepository apply updating information of pull request to each task
-func ApplyPullRequestChangesToRepository(repository *project.Repository, githubBody github.PullRequestEvent) error {
+func ApplyPullRequestChangesToRepository(repository *board.Repository, githubBody github.PullRequestEvent) error {
 
-	projectServices, err := project.FindProjectByRepositoryID(repository.RepositoryEntity.ID)
+	projectServices, err := board.FindProjectByRepositoryID(repository.RepositoryEntity.ID)
 	if err != nil {
 		return err
 	}
 
-	go func(projectServices []*project.Project, githubBody github.PullRequestEvent) {
+	go func(projectServices []*board.Project, githubBody github.PullRequestEvent) {
 		waitWebhookReadtime()
 		for _, p := range projectServices {
 			err = p.ApplyPullRequestChanges(githubBody)

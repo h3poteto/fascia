@@ -2,9 +2,9 @@ package controllers_test
 
 import (
 	"github.com/h3poteto/fascia/server"
+	"github.com/h3poteto/fascia/server/commands/account"
 	. "github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/services"
 
 	"fmt"
 	"net/http"
@@ -70,7 +70,7 @@ var _ = Describe("PasswordsController", func() {
 	})
 
 	Describe("Edit", func() {
-		var resetPassword *services.ResetPassword
+		var resetPassword *account.ResetPassword
 		JustBeforeEach(func() {
 			resetPassword, _ = handlers.GenerateResetPassword(uid, email)
 			resetPassword.Save()
@@ -105,7 +105,7 @@ var _ = Describe("PasswordsController", func() {
 	})
 
 	Describe("Update", func() {
-		var resetPassword *services.ResetPassword
+		var resetPassword *account.ResetPassword
 		JustBeforeEach(func() {
 			CheckCSRFToken = func(c echo.Context, token string) bool { return true }
 			resetPassword, _ = handlers.GenerateResetPassword(uid, email)

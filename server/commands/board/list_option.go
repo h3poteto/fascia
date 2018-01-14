@@ -1,4 +1,4 @@
-package project
+package board
 
 import (
 	"github.com/h3poteto/fascia/server/entities/list_option"

@@ -10,9 +10,10 @@ import (
 	"strings"
 
 	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/server/commands/account"
+	"github.com/h3poteto/fascia/server/commands/board"
 	. "github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/services"
 	"github.com/h3poteto/fascia/server/views"
 	"github.com/labstack/echo"
 	. "github.com/onsi/ginkgo"

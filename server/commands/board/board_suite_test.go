@@ -1,4 +1,4 @@
-package project_test
+package board_test
 
 import (
 	"github.com/h3poteto/fascia/db/seed"
@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestProject(t *testing.T) {
+func TestBoard(t *testing.T) {
 	RegisterFailHandler(Fail)
 	AfterEach(func() {
 		err := seed.TruncateAll()
@@ -16,5 +16,5 @@ func TestProject(t *testing.T) {
 			panic(err)
 		}
 	})
-	RunSpecs(t, "Project Suite")
+	RunSpecs(t, "Board Suite")
 }
