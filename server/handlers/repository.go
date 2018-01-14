@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"github.com/h3poteto/fascia/server/services"
+	"github.com/h3poteto/fascia/server/commands/board"
 )
 
 // FindRepositoryByGithubRepoID search repository according to github repository id
-func FindRepositoryByGithubRepoID(id int64) (*services.Repository, error) {
-	return services.FindRepositoryByGithubRepoID(id)
+func FindRepositoryByGithubRepoID(id int64) (*board.Repository, error) {
+	return board.FindRepositoryByGithubRepoID(id)
 }

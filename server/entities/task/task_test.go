@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"github.com/h3poteto/fascia/db/seed"
 	"github.com/h3poteto/fascia/lib/modules/database"
+	"github.com/h3poteto/fascia/server/commands/board"
 	. "github.com/h3poteto/fascia/server/entities/task"
 	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/services"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -14,9 +14,9 @@ import (
 
 var _ = Describe("Task", func() {
 	var (
-		listService    *services.List
+		listService    *board.List
 		newTask        *Task
-		projectService *services.Project
+		projectService *board.Project
 		db             *sql.DB
 	)
 	BeforeEach(func() {
@@ -92,7 +92,7 @@ var _ = Describe("Task", func() {
 
 	Describe("ChangeList", func() {
 		var (
-			secondaryList *services.List
+			secondaryList *board.List
 		)
 		BeforeEach(func() {
 			newTask.Save()

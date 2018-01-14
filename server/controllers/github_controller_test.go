@@ -12,9 +12,9 @@ import (
 
 	"github.com/google/go-github/github"
 	"github.com/h3poteto/fascia/lib/modules/database"
+	"github.com/h3poteto/fascia/server/commands/account"
 	. "github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/services"
 	"github.com/labstack/echo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -26,7 +26,7 @@ var _ = Describe("GithubController", func() {
 		e    *echo.Echo
 		rec  *httptest.ResponseRecorder
 		db   *sql.DB
-		user *services.User
+		user *account.User
 	)
 	userEmail := "github@example.com"
 	BeforeEach(func() {

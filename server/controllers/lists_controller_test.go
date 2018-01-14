@@ -10,9 +10,10 @@ import (
 	"strings"
 
 	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/server/commands/account"
+	"github.com/h3poteto/fascia/server/commands/board"
 	. "github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/services"
 	"github.com/h3poteto/fascia/server/views"
 	"github.com/labstack/echo"
 	. "github.com/onsi/ginkgo"
@@ -23,8 +24,8 @@ var _ = Describe("ListsController", func() {
 	var (
 		e       *echo.Echo
 		rec     *httptest.ResponseRecorder
-		project *services.Project
-		user    *services.User
+		project *board.Project
+		user    *account.User
 	)
 	email := "lists@example.com"
 	password := "hogehoge"
@@ -106,7 +107,7 @@ var _ = Describe("ListsController", func() {
 			JustBeforeEach(func() {
 				newList := handlers.NewList(0, project.ProjectEntity.ID, user.UserEntity.ID, "listTitle", "", sql.NullInt64{}, false)
 				newList.Save()
-				closeListOption, _ := services.FindListOptionByAction("close")
+				closeListOption, _ := board.FindListOptionByAction("close")
 				optionID := strconv.FormatInt(closeListOption.ListOptionEntity.ID, 10)
 				j := fmt.Sprintf(`{"title":"newListTitle","color":"008ed5","option_id":"%s"}`, optionID)
 				req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id", strings.NewReader(j))
@@ -158,7 +159,7 @@ var _ = Describe("ListsController", func() {
 	})
 
 	Describe("Hide", func() {
-		var newList *services.List
+		var newList *board.List
 		JustBeforeEach(func() {
 			newList = handlers.NewList(0, project.ProjectEntity.ID, user.UserEntity.ID, "listTitle", "", sql.NullInt64{}, false)
 			newList.Save()
@@ -184,7 +185,7 @@ var _ = Describe("ListsController", func() {
 	})
 
 	Describe("Display", func() {
-		var newList *services.List
+		var newList *board.List
 		JustBeforeEach(func() {
 			newList = handlers.NewList(0, project.ProjectEntity.ID, user.UserEntity.ID, "listTitle", "", sql.NullInt64{}, false)
 			newList.Save()

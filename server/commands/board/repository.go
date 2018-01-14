@@ -1,4 +1,4 @@
-package services
+package board
 
 import (
 	"github.com/h3poteto/fascia/server/entities/repository"

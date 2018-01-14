@@ -4,18 +4,18 @@ import (
 	"database/sql"
 
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/services"
+	"github.com/h3poteto/fascia/server/commands/board"
 )
 
 // CreateProject create a new project, and fetch github
-func CreateProject(userID int64, title string, description string, repositoryID int64, oauthToken sql.NullString) (*services.Project, error) {
-	projectService := services.NewProject(nil)
+func CreateProject(userID int64, title string, description string, repositoryID int64, oauthToken sql.NullString) (*board.Project, error) {
+	projectService := board.NewProject(nil)
 	_, err := projectService.Create(userID, title, description, repositoryID, oauthToken)
 	if err != nil {
 		return nil, err
 	}
 
-	go func(projectService *services.Project) {
+	go func(projectService *board.Project) {
 		// Create initial list before get issues from github
 		err := projectService.FetchCreatedInitialList()
 		if err != nil {
@@ -41,13 +41,13 @@ func CreateProject(userID int64, title string, description string, repositoryID 
 }
 
 // FindProject search a project according to project id
-func FindProject(projectID int64) (*services.Project, error) {
-	return services.FindProject(projectID)
+func FindProject(projectID int64) (*board.Project, error) {
+	return board.FindProject(projectID)
 }
 
 // FindProjectByRepositoryID search a project according to repository id
-func FindProjectByRepositoryID(repositoryID int64) ([]*services.Project, error) {
-	return services.FindProjectByRepositoryID(repositoryID)
+func FindProjectByRepositoryID(repositoryID int64) ([]*board.Project, error) {
+	return board.FindProjectByRepositoryID(repositoryID)
 }
 
 // DestroyProject delete project and delete webhook

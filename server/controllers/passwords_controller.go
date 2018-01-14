@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
+	"github.com/h3poteto/fascia/server/commands/account"
 	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/mailers/password_mailer"
-	"github.com/h3poteto/fascia/server/services"
 	"github.com/h3poteto/fascia/server/validators"
 
 	"net/http"
@@ -103,7 +103,7 @@ func (u *Passwords) Edit(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return NewJSONError(err, http.StatusNotFound, c)
 	}
-	if err := services.AuthenticateResetPassword(id, resetToken); err != nil {
+	if err := account.AuthenticateResetPassword(id, resetToken); err != nil {
 		logging.SharedInstance().Controller(c).Infof("cannot authenticate reset password: %v", err)
 		return err
 	}

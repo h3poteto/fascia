@@ -2,9 +2,10 @@ package controllers_test
 
 import (
 	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/server/commands/account"
+	"github.com/h3poteto/fascia/server/commands/board"
 	. "github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/services"
 	"github.com/h3poteto/fascia/server/views"
 
 	"database/sql"
@@ -24,7 +25,7 @@ var _ = Describe("ProjectsController", func() {
 	var (
 		e    *echo.Echo
 		rec  *httptest.ResponseRecorder
-		user *services.User
+		user *account.User
 	)
 	email := "projects@example.com"
 	password := "hogehoge"
@@ -77,7 +78,7 @@ var _ = Describe("ProjectsController", func() {
 			lists, err := newProject.ProjectEntity.Lists()
 			Expect(err).To(BeNil())
 			Expect(len(lists)).To(Equal(3))
-			closeListOption, err := services.FindListOptionByAction("close")
+			closeListOption, err := board.FindListOptionByAction("close")
 			Expect(err).To(BeNil())
 			Expect(lists[2].ListOptionID.Int64).To(Equal(closeListOption.ListOptionEntity.ID))
 		})
@@ -104,7 +105,7 @@ var _ = Describe("ProjectsController", func() {
 	})
 
 	Describe("Show", func() {
-		var newProject *services.Project
+		var newProject *board.Project
 		JustBeforeEach(func() {
 			newProject, _ = handlers.CreateProject(user.UserEntity.ID, "title", "desc", 0, sql.NullString{})
 		})
@@ -126,7 +127,7 @@ var _ = Describe("ProjectsController", func() {
 	})
 
 	Describe("Update", func() {
-		var newProject *services.Project
+		var newProject *board.Project
 		JustBeforeEach(func() {
 			newProject, _ = handlers.CreateProject(user.UserEntity.ID, "title", "desc", 0, sql.NullString{})
 		})
@@ -150,7 +151,7 @@ var _ = Describe("ProjectsController", func() {
 	})
 
 	Describe("Settings", func() {
-		var newProject *services.Project
+		var newProject *board.Project
 		JustBeforeEach(func() {
 			newProject, _ = handlers.CreateProject(user.UserEntity.ID, "title", "desc", 0, sql.NullString{})
 		})

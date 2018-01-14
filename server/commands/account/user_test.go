@@ -1,7 +1,7 @@
-package services_test
+package account_test
 
 import (
-	. "github.com/h3poteto/fascia/server/services"
+	. "github.com/h3poteto/fascia/server/commands/account"
 	"os"
 
 	. "github.com/onsi/ginkgo"

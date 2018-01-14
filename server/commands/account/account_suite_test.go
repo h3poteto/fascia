@@ -1,4 +1,4 @@
-package services_test
+package account_test
 
 import (
 	"github.com/h3poteto/fascia/db/seed"
@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestServices(t *testing.T) {
+func TestAccount(t *testing.T) {
 	RegisterFailHandler(Fail)
 	AfterEach(func() {
 		err := seed.TruncateAll()
@@ -16,5 +16,5 @@ func TestServices(t *testing.T) {
 			panic(err)
 		}
 	})
-	RunSpecs(t, "Services Suite")
+	RunSpecs(t, "Account Suite")
 }

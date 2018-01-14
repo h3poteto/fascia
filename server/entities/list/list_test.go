@@ -5,9 +5,9 @@ import (
 
 	"github.com/h3poteto/fascia/db/seed"
 	"github.com/h3poteto/fascia/lib/modules/database"
+	"github.com/h3poteto/fascia/server/commands/board"
 	. "github.com/h3poteto/fascia/server/entities/list"
 	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/services"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -16,7 +16,7 @@ import (
 var _ = Describe("List", func() {
 	var (
 		newList        *List
-		projectService *services.Project
+		projectService *board.Project
 		db             *sql.DB
 	)
 
@@ -63,10 +63,10 @@ var _ = Describe("List", func() {
 	})
 
 	Describe("Tasks", func() {
-		var taskService *services.Task
+		var taskService *board.Task
 		JustBeforeEach(func() {
 			newList.Save(nil)
-			taskService = services.NewTask(0, newList.ID, projectService.ProjectEntity.ID, newList.UserID, sql.NullInt64{}, "task", "description", false, sql.NullString{})
+			taskService = board.NewTask(0, newList.ID, projectService.ProjectEntity.ID, newList.UserID, sql.NullInt64{}, "task", "description", false, sql.NullString{})
 			taskService.Save()
 		})
 		It("should related task to list", func() {
@@ -98,7 +98,7 @@ var _ = Describe("List", func() {
 			It("should update list and have list_option", func() {
 				newTitle := "newTitle"
 				newColor := "newColor"
-				listOption, _ := services.FindListOptionByAction("close")
+				listOption, _ := board.FindListOptionByAction("close")
 				newList.Update(newTitle, newColor, listOption.ListOptionEntity.ID)
 				findList, err := FindByID(newList.ProjectID, newList.ID)
 				Expect(err).To(BeNil())
@@ -137,10 +137,10 @@ var _ = Describe("List", func() {
 	})
 
 	Describe("DeleteTasks", func() {
-		var taskService *services.Task
+		var taskService *board.Task
 		JustBeforeEach(func() {
 			newList.Save(nil)
-			taskService = services.NewTask(0, newList.ID, projectService.ProjectEntity.ID, newList.UserID, sql.NullInt64{}, "task", "description", false, sql.NullString{})
+			taskService = board.NewTask(0, newList.ID, projectService.ProjectEntity.ID, newList.UserID, sql.NullInt64{}, "task", "description", false, sql.NullString{})
 			taskService.Save()
 		})
 		It("should delete all tasks", func() {

@@ -1,6 +1,7 @@
-package services
+package account
 
 import (
+	"github.com/h3poteto/fascia/server/commands/board"
 	"github.com/h3poteto/fascia/server/entities/user"
 
 	"context"
@@ -103,14 +104,14 @@ func FindOrCreateUserFromGithub(token string) (*User, error) {
 }
 
 // Projects returns a related projects
-func (u *User) Projects() ([]*Project, error) {
+func (u *User) Projects() ([]*board.Project, error) {
 	projectEntities, err := u.UserEntity.Projects()
 	if err != nil {
 		return nil, err
 	}
-	var slice []*Project
+	var slice []*board.Project
 	for _, p := range projectEntities {
-		slice = append(slice, NewProject(p))
+		slice = append(slice, board.NewProject(p))
 	}
 	return slice, nil
 }
