@@ -39,7 +39,7 @@ var _ = Describe("TasksController", func() {
 		seed.Seeds()
 		user, _ = handlers.RegistrationUser(email, password, password)
 		// projectを作っておく
-		pro, _ = handlers.CreateProject(user.UserEntity.ID, "projectTitle", "", 0, sql.NullString{})
+		project, _ = handlers.CreateProject(user.UserEntity.ID, "projectTitle", "", 0, sql.NullString{})
 
 		// listも作っておく
 		list = handlers.NewList(0, project.ProjectEntity.ID, user.UserEntity.ID, "listTitle", "008ed5", sql.NullInt64{}, false)
@@ -56,7 +56,7 @@ var _ = Describe("TasksController", func() {
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
-			c = ProjectContext(c, pro)
+			c = ProjectContext(c, project)
 			c = ListContext(c, list)
 			c.SetParamNames("project_id", "list_id")
 			c.SetParamValues(strconv.FormatInt(project.ProjectEntity.ID, 10), strconv.FormatInt(list.ListEntity.ID, 10))
@@ -90,7 +90,7 @@ var _ = Describe("TasksController", func() {
 			req := httptest.NewRequest(echo.GET, "/projects/:project_id/lists/:list_id/tasks/:task_id", nil)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
-			c = ProjectContext(c, pro)
+			c = ProjectContext(c, project)
 			c = ListContext(c, list)
 			c = TaskContext(c, newTask)
 			c.SetParamNames("project_id", "list_id", "task_id")
@@ -123,7 +123,7 @@ var _ = Describe("TasksController", func() {
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
-			c = ProjectContext(c, pro)
+			c = ProjectContext(c, project)
 			c = ListContext(c, list)
 			c = TaskContext(c, newTask)
 			c.SetParamNames("project_id", "list_id", "task_id")
@@ -152,7 +152,7 @@ var _ = Describe("TasksController", func() {
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
 			_, c = LoginFaker(c, email, password)
-			c = ProjectContext(c, pro)
+			c = ProjectContext(c, project)
 			c = ListContext(c, list)
 			c = TaskContext(c, newTask)
 			c.SetParamNames("project_id", "list_id", "task_id")
@@ -169,7 +169,7 @@ var _ = Describe("TasksController", func() {
 	})
 
 	Describe("Delete", func() {
-		var newTask *p.Task
+		var newTask *board.Task
 		Context("When a task does not relate issue", func() {
 			JustBeforeEach(func() {
 				newTask = board.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.UserEntity.ID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
@@ -179,7 +179,7 @@ var _ = Describe("TasksController", func() {
 				req := httptest.NewRequest(echo.DELETE, "/projects/:project_id/lists/:list_id/tasks/:task_id", nil)
 				c := e.NewContext(req, rec)
 				_, c = LoginFaker(c, email, password)
-				c = ProjectContext(c, pro)
+				c = ProjectContext(c, project)
 				c = ListContext(c, list)
 				c = TaskContext(c, newTask)
 				c.SetParamNames("project_id", "list_id", "task_id")
@@ -199,7 +199,7 @@ var _ = Describe("TasksController", func() {
 				req := httptest.NewRequest(echo.DELETE, "/projects/:project_id/lists/:list_id/tasks/:task_id", nil)
 				c := e.NewContext(req, rec)
 				_, c = LoginFaker(c, email, password)
-				c = ProjectContext(c, pro)
+				c = ProjectContext(c, project)
 				c = ListContext(c, list)
 				c = TaskContext(c, newTask)
 				c.SetParamNames("project_id", "list_id", "task_id")

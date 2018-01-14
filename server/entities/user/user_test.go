@@ -5,9 +5,9 @@ import (
 
 	"github.com/h3poteto/fascia/db/seed"
 	"github.com/h3poteto/fascia/lib/modules/database"
+	"github.com/h3poteto/fascia/server/commands/board"
 	. "github.com/h3poteto/fascia/server/entities/user"
 	"github.com/h3poteto/fascia/server/handlers"
-	"github.com/h3poteto/fascia/server/services"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -95,7 +95,7 @@ var _ = Describe("User", func() {
 
 	Describe("Projects", func() {
 		var (
-			newProject  *services.Project
+			newProject  *board.Project
 			currentUser *User
 		)
 
