@@ -53,6 +53,10 @@ jobs:
           key: node_modules-{{ checksum "package.json" }}
           paths:
             - "node_modules"
+      # Use manifest.json in filter, so it is required before ginkgo tests.
+      - run:
+          name: Build manifest file
+          command: npm run compile
       - run:
           name: Checking mysql connection
           command: |
