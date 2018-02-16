@@ -3,6 +3,9 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const ManifestPlugin = require('webpack-manifest-plugin')
 
+// eslint-disable-next-line no-undef
+const filename = process.env.NODE_ENV === 'production' ? '[name]-[hash]' : '[name]'
+
 module.exports = {
   entry: {
     'javascripts/bundle': './frontend/javascripts/bundle.js',
@@ -11,7 +14,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, './public/assets'),
-    filename: '[name]-[hash].js',
+    filename: `${filename}.js`,
   },
   cache: true,
   resolve: {
@@ -59,7 +62,7 @@ module.exports = {
   },
   plugins: [
     new ManifestPlugin(),
-    new ExtractTextPlugin('[name]-[hash].css'),
+    new ExtractTextPlugin(`${filename}.css`),
     new CopyWebpackPlugin([{ from: './frontend/images', to: './images' }])
   ]
 }

@@ -46,7 +46,7 @@ func DigestedAssets(in *pongo2.Value, param *pongo2.Value) (out *pongo2.Value, e
 	buf, e := ioutil.ReadFile(path)
 	if e != nil {
 		return nil, &pongo2.Error{
-			Sender:    "suffixStylesheet",
+			Sender:    "digestedAssets",
 			OrigError: e,
 		}
 	}
@@ -54,7 +54,7 @@ func DigestedAssets(in *pongo2.Value, param *pongo2.Value) (out *pongo2.Value, e
 	e = json.Unmarshal(buf, &manifest)
 	if e != nil {
 		return nil, &pongo2.Error{
-			Sender:    "suffixStylesheet",
+			Sender:    "digestedAssets",
 			OrigError: e,
 		}
 	}
