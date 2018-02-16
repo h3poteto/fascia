@@ -172,6 +172,7 @@ func PongoRenderer() *pongo2echo.Pongo2Echo {
 	render := pongo2echo.NewRenderer()
 	root := os.Getenv("APPROOT")
 	render.RegisterFilter("suffixAssetsUpdate", filters.SuffixAssetsUpdate)
+	render.RegisterFilter("digestedAssets", filters.DigestedAssets)
 	render.AddDirectory(filepath.Join(root, "server/templates"))
 
 	return render

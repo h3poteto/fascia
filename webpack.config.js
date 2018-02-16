@@ -1,16 +1,17 @@
 const path = require('path')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+const ManifestPlugin = require('webpack-manifest-plugin')
 
 module.exports = {
   entry: {
-    'javascripts/bundle.js': './frontend/javascripts/bundle.js',
-    'stylesheets/application.css': './frontend/stylesheets/application.scss',
-    'stylesheets/application-webview.css': './frontend/stylesheets/application-webview.scss',
+    'javascripts/bundle': './frontend/javascripts/bundle.js',
+    'stylesheets/application': './frontend/javascripts/application.js',
+    'stylesheets/application-webview': './frontend/javascripts/application-webview.js',
   },
   output: {
     path: path.resolve(__dirname, './public/assets'),
-    filename: '[name]'
+    filename: '[name]-[hash].js',
   },
   cache: true,
   resolve: {
@@ -57,7 +58,8 @@ module.exports = {
     ]
   },
   plugins: [
-    new ExtractTextPlugin('[name]'),
+    new ManifestPlugin(),
+    new ExtractTextPlugin('[name]-[hash].css'),
     new CopyWebpackPlugin([{ from: './frontend/images', to: './images' }])
   ]
 }

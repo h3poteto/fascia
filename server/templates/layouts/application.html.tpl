@@ -6,7 +6,7 @@
     <link rel="icon" href={{ "/images/favicon.ico" | suffixAssetsUpdate }} type="image/vnd.microsoft.icon">
     <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/octicons/4.4.0/font/octicons.css" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href={{ "/stylesheets/application.css" | suffixAssetsUpdate }} media="all">
+    <link rel="stylesheet" href={{ "stylesheets/application.css" | digestedAssets }} media="all">
 
   </head>
   <body>
@@ -14,7 +14,7 @@
       {% block content %}{% endblock %}
     </div>
     <script src="https://use.fontawesome.com/080be9d465.js"></script>
-    <script type="text/javascript" src={{ "/javascripts/bundle.js" | suffixAssetsUpdate }}></script>
+    <script type="text/javascript" src={{ "javascripts/bundle.js" | digestedAssets }}></script>
     <script>
      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
                              (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
