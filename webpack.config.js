@@ -2,9 +2,12 @@ const path = require('path')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const ManifestPlugin = require('webpack-manifest-plugin')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 // eslint-disable-next-line no-undef
-const filename = process.env.NODE_ENV === 'production' ? '[name]-[hash]' : '[name]'
+const production = process.env.NODE_ENV === 'production'
+const filename = production ? '[name]-[hash]' : '[name]'
+const devtool = production ? '' : '#eval-source-map'
 
 module.exports = {
   entry: {
@@ -17,6 +20,7 @@ module.exports = {
     filename: `${filename}.js`,
   },
   cache: true,
+  devtool: devtool,
   resolve: {
     modules: [
       path.resolve(__dirname, './fronted/javascripts'),
@@ -29,11 +33,15 @@ module.exports = {
       {
         test: /\.js[x]?$/,
         exclude: /node_modules/,
-        loader: 'babel-loader',
+        loader: [
+          'cache-loader',
+          'babel-loader',
+        ],
       },
       {
         test: /\.(scss|css)$/,
-        loader: ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader!sass-loader' }),
+        exclude: /node_modules/,
+        loader: ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'cache-loader!css-loader!sass-loader' }),
       },
       {
         test: /\.(woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
@@ -60,6 +68,11 @@ module.exports = {
   plugins: [
     new ManifestPlugin(),
     new ExtractTextPlugin(`${filename}.css`),
-    new CopyWebpackPlugin([{ from: './frontend/images', to: './images' }])
+    new CopyWebpackPlugin([{ from: './frontend/images', to: './images' }]),
+    ...(
+      production ? [
+        new UglifyJsPlugin()
+      ] : []
+    ),
   ]
 }
