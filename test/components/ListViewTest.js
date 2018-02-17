@@ -1,11 +1,11 @@
-import TestUtils from 'react-addons-test-utils'
+import ShallowRenderer from 'react-test-renderer/shallow'
 import expect from 'expect'
 import React from 'react'
 import ListView from '../../frontend/javascripts/components/ListView.jsx'
 import * as ListViewFixture from '../fixtures/components/ListViewFixture'
 
 function setup(props) {
-  let renderer = TestUtils.createRenderer()
+  let renderer = new ShallowRenderer()
   renderer.render(<ListView {...props} />)
   let output = renderer.getRenderOutput()
 

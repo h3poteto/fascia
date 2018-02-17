@@ -1,0 +1,14 @@
+{
+  "presets": [
+    "env",
+    "react"
+  ],
+  "plugins": [],
+  "comments": false,
+  "env": {
+    "test": {
+      "presets": ["env", "react"],
+      "plugins": [ "istanbul" ]
+    }
+  }
+}

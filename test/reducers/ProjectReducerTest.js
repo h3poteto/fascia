@@ -2,7 +2,6 @@ import expect from 'expect'
 import ProjectReducer from '../../frontend/javascripts/reducers/ProjectReducer'
 import * as projectActions from '../../frontend/javascripts/actions/ProjectAction'
 import * as newProjectModalActions from '../../frontend/javascripts/actions/ProjectAction/NewProjectModalAction'
-import 'babel-polyfill'
 
 // shared examples
 function sharedExampleInitState(action) {
