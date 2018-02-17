@@ -133,6 +133,8 @@ EditListModal.propTypes = {
   flashMessage: PropTypes.string,
 }
 
+Modal.setAppElement('#content')
+
 export default reduxForm({
   form: 'edit-list-form',
   validate,

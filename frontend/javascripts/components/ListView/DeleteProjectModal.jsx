@@ -103,6 +103,8 @@ renderField.propTypes = {
   meta: PropTypes.shape().isRequired,
 }
 
+Modal.setAppElement('#content')
+
 export default reduxForm({
   form: 'delete-project-form',
   validate,
