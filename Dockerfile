@@ -1,4 +1,17 @@
-FROM h3poteto/golang:1.9.1
+FROM node:9-alpine AS frontend
+
+ENV APPROOT /var/opt/app
+
+WORKDIR ${APPROOT}
+
+COPY . ${APPROOT}
+
+RUN set -x \
+    && npm install \
+    && npm run release-compile
+
+
+FROM h3poteto/golang:1.9.4
 
 USER root
 ENV GOPATH /go
@@ -11,14 +24,14 @@ RUN set -x \
 
 WORKDIR ${APPROOT}
 
-COPY . ${APPROOT}
+COPY --chown=go:go . ${APPROOT}
+COPY --chown=go:go --from=frontend /var/opt/app/public/assets ${APPROOT}/public/assets
 
-RUN chown -R go:go ${GOPATH}
+RUN chown -R go:go ${APPROOT}
+
 USER go
 
 RUN set -x \
-   && go get github.com/mattn/gom \
-   && go get -u github.com/jteeuwen/go-bindata/... \
    && dep ensure \
    && go generate \
    && go build -o bin/fascia
