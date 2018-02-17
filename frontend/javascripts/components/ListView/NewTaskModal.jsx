@@ -86,6 +86,8 @@ NewTaskModal.propTypes = {
   flashMessage: PropTypes.string,
 }
 
+Modal.setAppElement('#content')
+
 export default reduxForm({
   form: 'new-task-form',
   validate,

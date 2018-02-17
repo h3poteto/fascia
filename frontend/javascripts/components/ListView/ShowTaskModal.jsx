@@ -177,9 +177,11 @@ ShowTaskModal.propTypes = {
   isEditTaskModalVisible: PropTypes.bool,
   fetchDeleteTask: PropTypes.func.isRequired,
   changeEditMode: PropTypes.func.isRequired,
-  dirty: PropTypes.object,
+  dirty: PropTypes.bool,
   flashMessage: PropTypes.string,
 }
+
+Modal.setAppElement('#content')
 
 export default reduxForm({
   form: 'edit-task-form',

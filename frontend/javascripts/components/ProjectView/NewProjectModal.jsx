@@ -96,6 +96,8 @@ NewProjectModal.propTypes = {
   flashMessage: PropTypes.string,
 }
 
+Modal.setAppElement('#content')
+
 export default reduxForm({
   form: 'new-project-form',
   validate,

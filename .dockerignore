@@ -6,6 +6,7 @@
 .eslintrc.json
 .hound.yml
 .scss-lint.yml
+.cache-loader
 Dockerfile
 *.md
 vendor
