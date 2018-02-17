@@ -9,7 +9,7 @@ const filename = process.env.NODE_ENV === 'production' ? '[name]-[hash]' : '[nam
 module.exports = {
   entry: {
     'javascripts/bundle': './frontend/javascripts/bundle.js',
-    'stylesheets/application': './frontend/javascripts/application.js',
+    'stylesheets/application':  './frontend/javascripts/application.js',
     'stylesheets/application-webview': './frontend/javascripts/application-webview.js',
   },
   output: {
@@ -30,9 +30,6 @@ module.exports = {
         test: /\.js[x]?$/,
         exclude: /node_modules/,
         loader: 'babel-loader',
-        query: {
-          presets: ['es2015', 'react'],
-        },
       },
       {
         test: /\.(scss|css)$/,

@@ -1,11 +1,11 @@
-import TestUtils from 'react-addons-test-utils'
+import ShallowRenderer from 'react-test-renderer/shallow'
 import expect from 'expect'
 import React from 'react'
 import ProjectView from '../../frontend/javascripts/components/ProjectView.jsx'
 import * as ProjectViewFixture from '../fixtures/components/ProjectViewFixture'
 
 function setup(props) {
-  let renderer = TestUtils.createRenderer()
+  let renderer = new ShallowRenderer()
   renderer.render(<ProjectView {...props} />)
   let output = renderer.getRenderOutput()
 

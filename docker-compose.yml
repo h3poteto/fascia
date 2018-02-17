@@ -18,7 +18,7 @@ services:
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "true"
   node:
-    image: node:7-alpine
+    image: node:9-alpine
     user: node
     volumes:
       - .:/var/opt/app
@@ -33,7 +33,7 @@ services:
       "npm install && \
       npm run watch"
   go:
-    image: h3poteto/golang:1.9.1
+    image: h3poteto/golang:1.9.4
     env_file: .docker-env
     environment:
       APPROOT: /go/src/github.com/h3poteto/fascia
@@ -41,6 +41,10 @@ services:
       AWS_DEFAULT_REGION: us-east-1
       AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
       AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+      DATABASE_URL: mysql
+      DB_USER: root
+      DB_NAME: fascia
+      DB_TEST_NAME: fascia_test
     volumes:
       - .:/go/src/github.com/h3poteto/fascia
     working_dir: /go/src/github.com/h3poteto/fascia

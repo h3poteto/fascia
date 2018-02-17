@@ -1,11 +1,11 @@
-import TestUtils from 'react-addons-test-utils'
+import ShallowRenderer from 'react-test-renderer/shallow'
 import expect from 'expect'
 import React from 'react'
 import ListLoading from '../../../frontend/javascripts/components/ListView/ListLoading.jsx'
 //import * as  from '../../fixtures/components/ListView/EditProjectModalFixture'
 
 function setup(props) {
-  let renderer = TestUtils.createRenderer()
+  let renderer = new ShallowRenderer()
   renderer.render(<ListLoading {...props} />)
   let output = renderer.getRenderOutput()
 

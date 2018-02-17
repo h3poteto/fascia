@@ -6,7 +6,6 @@ import * as editListModalActions from '../../frontend/javascripts/actions/ListAc
 import * as newTaskModalActions from '../../frontend/javascripts/actions/ListAction/NewTaskModalAction'
 import * as editProjectModalActions from '../../frontend/javascripts/actions/ListAction/EditProjectModalAction'
 import * as showTaskModalActions from '../../frontend/javascripts/actions/ListAction/ShowTaskModalAction'
-import 'babel-polyfill'
 
 // shared examples
 function sharedExampleInitState(action) {

@@ -1,12 +1,14 @@
 package config
 
 import (
+	"bytes"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/ec2rolecreds"
 	"github.com/aws/aws-sdk-go/aws/ec2metadata"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"gopkg.in/yaml.v2"
+	"io"
 	"net/http"
 	"os"
 	"time"
@@ -14,10 +16,13 @@ import (
 
 func Element(elem string) interface{} {
 	env := os.Getenv("APPENV")
-	buf, err := Asset("settings.yml")
+	file, err := Assets.Open("/settings.yml")
 	if err != nil {
 		panic(err)
 	}
+	by := new(bytes.Buffer)
+	io.Copy(by, file)
+	buf := by.Bytes()
 	m := make(map[interface{}]interface{})
 	err = yaml.Unmarshal(buf, &m)
 	if err != nil {

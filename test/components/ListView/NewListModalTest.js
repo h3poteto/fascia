@@ -1,11 +1,11 @@
-import TestUtils from 'react-addons-test-utils'
+import ShallowRenderer from 'react-test-renderer/shallow'
 import expect from 'expect'
 import React from 'react'
 import NewListModal from '../../../frontend/javascripts/components/ListView/NewListModal.jsx'
 import * as NewListModalFixture from '../../fixtures/components/ListView/NewListModalFixture'
 
 function setup(props) {
-  let renderer = TestUtils.createRenderer()
+  let renderer = new ShallowRenderer()
   renderer.render(<NewListModal {...props} />)
   let output = renderer.getRenderOutput()
 

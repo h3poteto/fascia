@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: h3poteto/golang-node:1.9.1
+      - image: h3poteto/golang:1.9.4
         environment:
           APPROOT: /go/src/github.com/h3poteto/fascia
           APPENV: test
@@ -12,7 +12,6 @@ jobs:
           # MySQLの起動チェック用
           HEALTH_CHECK_RETRY_LIMIT: 10
           HEALTH_CHECK_RETRY_WAIT: 3
-        user: root
       - image: mysql:5.7
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
@@ -23,17 +22,10 @@ jobs:
       - run:
           name: Check golang version
           command: go version
-      - run:
-          name: Check node version
-          command: node --version
       - restore_cache:
           name: Restoring cache - vendor
           keys:
             - vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          name: Restoring cache - node_modules
-          keys:
-            - node_modules-{{ arch }}-{{ .Environment.COMMON_CACHE_KEY }}-{{ checksum "package.json" }}
       - run:
           name: Generate assets file
           command: go generate
@@ -45,18 +37,6 @@ jobs:
           key: vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
           paths:
             - "vendor"
-      - run:
-          name: Node packages install
-          command: npm install
-      - save_cache:
-          name: Saving cache - node_modules
-          key: node_modules-{{ checksum "package.json" }}
-          paths:
-            - "node_modules"
-      # Use manifest.json in filter, so it is required before ginkgo tests.
-      - run:
-          name: Build manifest file
-          command: npm run compile
       - run:
           name: Checking mysql connection
           command: |
@@ -73,50 +53,51 @@ jobs:
       - run:
           name: Server test
           command: ginkgo -r ./
+
+  frontend:
+    docker:
+      - image: node:9-alpine
+    working_directory: /go/src/github.com/h3poteto/fascia
+    steps:
+      - checkout
+      - run:
+          name: Check node version
+          command: |
+            node --version
+            npm --version
+      - restore_cache:
+          name: Restoring cache - node_modules
+          keys:
+            - node_modules-{{ arch }}-{{ .Environment.COMMON_CACHE_KEY }}-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
+      - run:
+          name: Node packages install
+          command: npm install
+      - save_cache:
+          name: Saving cache - node_modules
+          key: node_modules-{{ arch }}-{{ .Environment.COMMON_CACHE_KEY }}-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
+          paths:
+            - "node_modules"
+      - run:
+          name: Build manifest file
+          command: npm run compile
       - run:
           name: Frontend test
           command: npm run test
 
   deploy:
-    docker:
-      - image: h3poteto/golang-node:1.9.1
-        user: root
-        environment:
-          AWS_ECR_REPOSITORY: 564677439943.dkr.ecr.ap-northeast-1.amazonaws.com/h3poteto/fascia
-    working_directory: /go/src/github.com/h3poteto/fascia
+    machine: true
     steps:
       - checkout
-      - setup_remote_docker:
-          reusable: true
-          exclusive: true
       - run:
-          name: Install Docker client
-          command: |
-            set -x
-            VER="17.09.0-ce"
-            curl -L -o /tmp/docker-$VER.tgz https://download.docker.com/linux/static/stable/x86_64/docker-$VER.tgz
-            tar -xz -C /tmp -f /tmp/docker-$VER.tgz
-            mv /tmp/docker/* /usr/bin
-      - restore_cache:
-          name: Restoring cache - node_modules
-          keys:
-            - node_modules-{{ arch }}-{{ .Environment.COMMON_CACHE_KEY }}-{{ checksum "package.json" }}
+          name: Check docker version
+          command: docker version
       - run:
-          name: Node packages install
-          command: npm install
+          name: Docker build
+          command: docker build -t $AWS_ECR_REPOSITORY:latest .
       - run:
-          name: Compile frontend javascripts
-          command: npm run release-compile
-      - run:
-          name: Install aws command
-          command: |
-            apk add --no-cache py-pip
-            pip install awscli
-      - run:
-          name: Build and push
+          name: Docker push
           command: |
             $(aws ecr get-login --no-include-email --region ap-northeast-1)
-            docker build -t $AWS_ECR_REPOSITORY:latest .
             docker push $AWS_ECR_REPOSITORY:latest
 
 workflows:
@@ -124,6 +105,7 @@ workflows:
   build_and_deploy:
     jobs:
       - build
+      - frontend
       - deploy:
           filters:
             branches:
@@ -131,4 +113,5 @@ workflows:
                 - master
           requires:
             - build
+            - frontend
 

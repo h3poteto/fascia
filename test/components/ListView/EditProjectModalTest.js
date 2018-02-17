@@ -1,11 +1,11 @@
-import TestUtils from 'react-addons-test-utils'
+import ShallowRenderer from 'react-test-renderer/shallow'
 import expect from 'expect'
 import React from 'react'
 import EditProjectModal from '../../../frontend/javascripts/components/ListView/EditProjectModal.jsx'
 import * as EditProjectModalFixture from '../../fixtures/components/ListView/EditProjectModalFixture'
 
 function setup(props) {
-  let renderer = TestUtils.createRenderer()
+  let renderer = new ShallowRenderer()
   renderer.render(<EditProjectModal {...props} />)
   let output = renderer.getRenderOutput()
 
