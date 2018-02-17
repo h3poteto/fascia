@@ -7,7 +7,7 @@ import (
 	"github.com/h3poteto/fascia/cmd"
 )
 
-//go:generate go-bindata -ignore=\\.go -o=config/bindata.go -pkg=config -prefix=config/ config/
+//go:generate go-assets-builder --output=config/bindata.go -s="/config" -p=config config/settings.yml
 
 func main() {
 	if err := cmd.RootCmd.Execute(); err != nil {
