@@ -33,7 +33,7 @@ production:
     done: "Done"
     none: "None"
   session:
-    timeout: 604800 # 1week
+    timeout: 2592000 # 1month
   mail:
     from: "support@fascia.io"
     to: "support@fascia.io"

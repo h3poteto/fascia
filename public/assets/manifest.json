@@ -3,6 +3,5 @@
   "stylesheets/application-webview.css": "stylesheets/application-webview.css",
   "stylesheets/application-webview.js": "stylesheets/application-webview.js",
   "stylesheets/application.css": "stylesheets/application.css",
-  "stylesheets/application.js": "stylesheets/application.js",
-  "javascripts/bundle.css": "javascripts/bundle.css"
+  "stylesheets/application.js": "stylesheets/application.js"
 }
