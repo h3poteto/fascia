@@ -29,7 +29,7 @@ services:
         delay: 20s
     stop_grace_period: 20s
   https-portal:
-    image: steveltn/https-portal:1
+    image: steveltn/https-portal:1.2.0
     ports:
       - '80:80'
       - '443:443'
