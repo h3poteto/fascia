@@ -38,4 +38,6 @@ RUN set -x \
 
 EXPOSE 9090:9090
 
+ENTRYPOINT ["entrypoint.sh"]
+
 CMD bin/fascia server
