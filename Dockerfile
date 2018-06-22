@@ -20,7 +20,9 @@ ENV APPENV production
 
 RUN set -x \
     && apk add --no-cache \
-    curl
+    curl && \
+    curl -fsSL https://github.com/minamijoyo/myaws/releases/download/v0.3.0/myaws_v0.3.0_linux_amd64.tar.gz \
+    | tar -xzC /usr/local/bin && chmod +x /usr/local/bin/myaws
 
 WORKDIR ${APPROOT}
 
@@ -38,6 +40,6 @@ RUN set -x \
 
 EXPOSE 9090:9090
 
-ENTRYPOINT ["entrypoint.sh"]
+ENTRYPOINT ["./entrypoint.sh"]
 
 CMD bin/fascia server
