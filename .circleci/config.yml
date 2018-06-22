@@ -89,7 +89,7 @@ jobs:
           paths:
             - "node_modules"
 
-  deploy:
+  image:
     machine: true
     steps:
       - checkout
@@ -105,19 +105,45 @@ jobs:
             $(aws ecr get-login --no-include-email --region ap-northeast-1)
             docker push $AWS_ECR_REPOSITORY:$CIRCLE_SHA1
 
+  deploy:
+    machine: true
+    machine: true
+    environment:
+      - CLUSTER_NAME: base-default-prd
+      - SERVICE_NAME: fascia-web-prd
+      - AWS_DEFAULT_REGION: ap-northeast-1
+    steps:
+      - checkout
+      - run: &prepare_goploy
+          name: Preparing ecs-goploy
+          command: |
+            wget https://github.com/h3poteto/ecs-goploy/releases/download/v0.3.6/ecs-goploy_v0.3.6_linux_amd64.zip
+            unzip ecs-goploy_v0.3.6_linux_amd64.zip
+            ./ecs-goploy version
+      - run: &deploy
+          name: ecs deploy
+          command: |
+            $(aws ecr get-login --no-include-email --region ap-northeast-1)
+            ./ecs-goploy service --cluster ${CLUSTER_NAME} --service-name ${SERVICE_NAME} --image $AWS_ECR_REPOSITORY:$CIRCLE_SHA1 --timeout 600 --enable-rollback --skip-check-deployments
+
 workflows:
   version: 2
   build_and_deploy:
     jobs:
       - build
       - frontend
+      - image:
+          filters:
+            branches:
+              only:
+                - master
       - deploy:
           filters:
             branches:
               only:
-                - ecs
                 - master
           requires:
+            - image
             - build
             - frontend
 
