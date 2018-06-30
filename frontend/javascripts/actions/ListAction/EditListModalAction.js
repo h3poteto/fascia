@@ -31,8 +31,11 @@ export function fetchUpdateList(params) {
     const { ListReducer: { selectedList: { ID: listID }}} = getState()
     dispatch(startLoading())
     dispatch(requestUpdateList())
+    const form = Object.assign({}, params, {
+      option_id: params.option_id.toString(10)
+    })
     return axios
-      .patch(`/projects/${projectID}/lists/${listID}`, params)
+      .patch(`/projects/${projectID}/lists/${listID}`, form)
       .then((res) => {
         dispatch(stopLoading())
         dispatch(receiveUpdateList(res.data))
