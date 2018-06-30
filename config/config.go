@@ -3,15 +3,11 @@ package config
 import (
 	"bytes"
 	"io"
-	"net/http"
 	"os"
-	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/credentials/ec2rolecreds"
-	"github.com/aws/aws-sdk-go/aws/ec2metadata"
-	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/aws/defaults"
 	"gopkg.in/yaml.v2"
 )
 
@@ -33,30 +29,30 @@ func Element(elem string) interface{} {
 }
 
 // AWS returns a aws config authorized profile, env, or IAMRole
-func AWS(region *string) *aws.Config {
-	return &aws.Config{
-		Credentials: newCredentials(),
-		Region:      getRegion(region),
-	}
+func AWS(region string) *aws.Config {
+	defaultConfig := defaults.Get().Config
+	cred := newCredentials(getenv(region, "AWS_DEFAULT_REGION"))
+	return defaultConfig.WithCredentials(cred).WithRegion(getenv(region, "AWS_DEFAULT_REGION"))
 }
 
-func newCredentials() *credentials.Credentials {
+func newCredentials(region string) *credentials.Credentials {
+	// temporary config to resolve RemoteCredProvider
+	tmpConfig := defaults.Get().Config.WithRegion(region)
+	tmpHandlers := defaults.Handlers()
+
 	return credentials.NewChainCredentials(
 		[]credentials.Provider{
+			// Read profile before environment variables
 			&credentials.SharedCredentialsProvider{},
 			&credentials.EnvProvider{},
-			&ec2rolecreds.EC2RoleProvider{
-				Client: ec2metadata.New(session.New(&aws.Config{
-					HTTPClient: &http.Client{Timeout: 3000 * time.Millisecond},
-				},
-				)),
-			},
+			// for IAM Task Role (ECS) and IAM Role
+			defaults.RemoteCredProvider(*tmpConfig, tmpHandlers),
 		})
 }
 
-func getRegion(region *string) *string {
-	if region != nil {
-		return aws.String(*region)
+func getenv(value, key string) string {
+	if len(value) == 0 {
+		return os.Getenv(key)
 	}
-	return aws.String(os.Getenv("AWS_DEFAULT_REGION"))
+	return value
 }
