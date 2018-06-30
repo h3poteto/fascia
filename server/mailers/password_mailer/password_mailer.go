@@ -2,9 +2,10 @@ package password_mailer
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -68,7 +69,8 @@ func sendMail(address string, title string, htmlBody string, rawBody string) (r 
 		address = config.Element("mail").(map[interface{}]interface{})["to"].(string)
 	}
 
-	svc := ses.New(session.New(), config.AWS())
+	region := "us-east-1"
+	svc := ses.New(session.New(), config.AWS(&region))
 
 	params := &ses.SendEmailInput{
 		Destination: &ses.Destination{
