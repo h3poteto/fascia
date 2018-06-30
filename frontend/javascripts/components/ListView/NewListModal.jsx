@@ -94,7 +94,7 @@ NewListModal.propTypes = {
   onRequestClose: PropTypes.func.isRequired,
   action: PropTypes.func.isRequired,
   isListModalOpen: PropTypes.bool.isRequired,
-  dirty: PropTypes.object,
+  dirty: PropTypes.bool,
   array: PropTypes.object,
   color: PropTypes.string,
   changeColor: PropTypes.func,

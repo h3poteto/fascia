@@ -54,7 +54,7 @@ class EditListModal extends React.Component {
           <Field name="option_id" id="option_id" component="select" className="form-control">
             <option value="0">nothing</option>
             {listOptions.map(function(option, index) {
-               return <option key={index} value={option.ID}>{option.Action}</option>
+               return <option key={index} value={option.ID.toString(10)}>{option.Action}</option>
              }, this)}
           </Field>
         </div>
@@ -125,7 +125,7 @@ EditListModal.propTypes = {
   list: PropTypes.object,
   listOptions: PropTypes.array,
   isListEditModalOpen: PropTypes.bool.isRequired,
-  dirty: PropTypes.object,
+  dirty: PropTypes.bool,
   array: PropTypes.object,
   color: PropTypes.string,
   changeColor: PropTypes.func,
