@@ -2,16 +2,17 @@ package config
 
 import (
 	"bytes"
+	"io"
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/ec2rolecreds"
 	"github.com/aws/aws-sdk-go/aws/ec2metadata"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"gopkg.in/yaml.v2"
-	"io"
-	"net/http"
-	"os"
-	"time"
 )
 
 func Element(elem string) interface{} {
@@ -32,10 +33,10 @@ func Element(elem string) interface{} {
 }
 
 // AWS returns a aws config authorized profile, env, or IAMRole
-func AWS() *aws.Config {
+func AWS(region *string) *aws.Config {
 	return &aws.Config{
 		Credentials: newCredentials(),
-		Region:      getRegion(),
+		Region:      getRegion(region),
 	}
 }
 
@@ -53,6 +54,9 @@ func newCredentials() *credentials.Credentials {
 		})
 }
 
-func getRegion() *string {
+func getRegion(region *string) *string {
+	if region != nil {
+		return aws.String(*region)
+	}
 	return aws.String(os.Getenv("AWS_DEFAULT_REGION"))
 }

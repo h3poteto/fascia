@@ -50,7 +50,8 @@ func sendMail(title, htmlBody, rawBody string) (r *ses.SendEmailOutput, e error)
 
 	address := config.Element("mail").(map[interface{}]interface{})["to"].(string)
 
-	svc := ses.New(session.New(), config.AWS())
+	region := "us-east-1"
+	svc := ses.New(session.New(), config.AWS(&region))
 	params := &ses.SendEmailInput{
 		Destination: &ses.Destination{
 			BccAddresses: []*string{},
