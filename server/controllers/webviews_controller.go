@@ -3,8 +3,11 @@ package controllers
 import (
 	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/lib/modules/logging"
+	"github.com/h3poteto/fascia/server/commands/contact"
 	"github.com/h3poteto/fascia/server/handlers"
+	mailer "github.com/h3poteto/fascia/server/mailers/inquiry_mailer"
 	"github.com/h3poteto/fascia/server/session"
+	"github.com/h3poteto/fascia/server/validators"
 
 	"html/template"
 	"net/http"
@@ -95,7 +98,48 @@ func (u *Webviews) NewSession(c echo.Context) error {
 	return c.Redirect(http.StatusFound, "/webviews/callback")
 }
 
-// Callback is a empty page for mobile application handling
+// Callback is an empty page for mobile application handling
 func (u *Webviews) Callback(c echo.Context) error {
 	return c.JSON(http.StatusOK, nil)
+}
+
+// NewInquiry is a contact form for mobile app
+func (u *Webviews) NewInquiry(c echo.Context) error {
+	return c.Render(http.StatusOK, "webviews/inquiries/new.html.tpl", map[string]interface{}{
+		"title": "Contact",
+	})
+}
+
+// Inquiry create a new inquiry from contact
+func (u *Webviews) Inquiry(c echo.Context) error {
+	newInquiryFrom := new(NewInquiryForm)
+	if err := c.Bind(newInquiryFrom); err != nil {
+		err := errors.Wrap(err, "wrong parameter")
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
+	}
+	logging.SharedInstance().Controller(c).Debugf("post new inquiry parameter: %+v", newInquiryFrom)
+
+	valid, err := validators.InquiryCreateValidation(newInquiryFrom.Email, newInquiryFrom.Name, newInquiryFrom.Message)
+	if err != nil || !valid {
+		logging.SharedInstance().Controller(c).Infof("validation error: %v", err)
+		return c.Render(http.StatusUnprocessableEntity, "webviews/inquiries/new.html.tpl", map[string]interface{}{
+			"title": "Contact",
+			"error": err.Error(),
+		})
+	}
+
+	command := contact.InitCreateInquiry(0, newInquiryFrom.Email, newInquiryFrom.Name, newInquiryFrom.Message)
+	if err := command.Run(); err != nil {
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
+	}
+	logging.SharedInstance().Controller(c).Info("success to create inquiry")
+
+	// ここでemail送信
+	go mailer.Notify(command.InquiryEntity)
+	logging.SharedInstance().Controller(c).Info("success to send inquiry")
+	return c.Render(http.StatusCreated, "webviews/inquiries/create.html.tpl", map[string]interface{}{
+		"title": "Contact",
+	})
 }
