@@ -64,6 +64,8 @@ func Routes(e *echo.Echo) {
 	e.GET("/webviews/oauth/sign_in", webviews.OauthSignIn)
 	e.POST("/webviews/sign_in", webviews.NewSession)
 	e.GET("/webviews/callback", webviews.Callback)
+	e.GET("/webviews/inquiries/new", webviews.NewInquiry)
+	e.POST("/webviews/inquiries", webviews.Inquiry)
 
 	inquiries := &controllers.Inquiries{}
 	e.GET("/inquiries/new", inquiries.New)

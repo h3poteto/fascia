@@ -31,7 +31,6 @@ func (i *Inquiries) New(c echo.Context) error {
 
 // Create a new inquiry object and send email to administrators.
 func (i *Inquiries) Create(c echo.Context) error {
-
 	newInquiryFrom := new(NewInquiryForm)
 	if err := c.Bind(newInquiryFrom); err != nil {
 		err := errors.Wrap(err, "wrong parameter")
