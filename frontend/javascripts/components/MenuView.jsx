@@ -14,7 +14,7 @@ class MenuView extends React.Component {
             <span className="pure-menu-heading fascia-menu-heading">fascia</span>
             <ul className="pure-menu-list fascia-menu-list">
               <li className="pure-menu-item fascia-menu-item"><Link to='/' className="pure-menu-link">projects</Link></li>
-              <li className="pure-menu-item fascia-menu-item"><a href='/inquiries' className="pure-menu-link">contact</a></li>
+              <li className="pure-menu-item fascia-menu-item"><a href='/inquiries/new' className="pure-menu-link">contact</a></li>
             </ul>
             <ul className="pure-menu-list fascia-menu-list right-align-list">
               <li className="pure-menu-item fascia-menu-item pure-menu-has-children pure-menu-allow-hover">

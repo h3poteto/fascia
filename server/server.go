@@ -66,7 +66,7 @@ func Routes(e *echo.Echo) {
 	e.GET("/webviews/callback", webviews.Callback)
 
 	inquiries := &controllers.Inquiries{}
-	e.GET("/inquiries", inquiries.New)
+	e.GET("/inquiries/new", inquiries.New)
 	e.POST("/inquiries", inquiries.Create)
 
 	github := &controllers.Github{}
