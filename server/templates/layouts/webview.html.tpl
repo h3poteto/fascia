@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Fascia{% endblock %}</title>
     <link rel="icon" href={{ "/images/favicon.ico" | suffixAssetsUpdate }} type="image/vnd.microsoft.icon">
     <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
