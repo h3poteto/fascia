@@ -7,9 +7,9 @@
   width: 100%;
 
   .main {
-    text-align: center;
-    max-width: 600px;
     margin: 0 auto;
+    max-width: 600px;
+    text-align: center;
   }
 
   .contact-board {
@@ -18,9 +18,9 @@
     color: rgb(51, 51, 51);
     display: inline-block;
     margin-top: 100px;
+    max-width: 600px;
     padding: 20px;
     text-align: left;
-    max-width: 600px;
     width: 100%;
 
     .control-group {
@@ -31,8 +31,8 @@
       }
 
       textarea {
-        width: 100%;
         height: 200px;
+        width: 100%;
       }
     }
 
