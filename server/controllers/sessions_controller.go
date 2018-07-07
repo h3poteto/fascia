@@ -71,7 +71,10 @@ func (u *Sessions) NewSession(c echo.Context) error {
 	}
 	logging.SharedInstance().Controller(c).Debugf("login success: %+v", userService)
 
-	option := &sessions.Options{Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int)}
+	option := &sessions.Options{
+		Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int),
+		HttpOnly: true,
+	}
 	err = session.SharedInstance().Set(c.Request(), c.Response(), "current_user_id", userService.UserEntity.ID, option)
 	if err != nil {
 		err := errors.Wrap(err, "session error")
@@ -106,8 +109,9 @@ func (u *Sessions) Update(c echo.Context) error {
 	userService := uc.CurrentUserService
 
 	option := &sessions.Options{
-		Path:   "/",
-		MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int),
+		Path:     "/",
+		MaxAge:   config.Element("session").(map[interface{}]interface{})["timeout"].(int),
+		HttpOnly: true,
 	}
 	err := session.SharedInstance().Set(c.Request(), c.Response(), "current_user_id", userService.UserEntity.ID, option)
 	if err != nil {
