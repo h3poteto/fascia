@@ -60,6 +60,9 @@ func (u *Session) Clear(r *http.Request, w http.ResponseWriter) error {
 	if err != nil {
 		return errors.Wrap(err, "cookie error")
 	}
-	s.Options = &sessions.Options{MaxAge: -1}
+	s.Options = &sessions.Options{
+		MaxAge:   -1,
+		HttpOnly: true,
+	}
 	return s.Save(r, w)
 }
