@@ -18,7 +18,7 @@ services:
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "true"
   node:
-    image: node:9-alpine
+    image: node:9.11.2-alpine
     user: node
     volumes:
       - .:/var/opt/app
