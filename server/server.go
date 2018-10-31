@@ -111,6 +111,8 @@ func Routes(e *echo.Echo) {
 	repositories := &controllers.Repositories{}
 	e.POST("/repositories/hooks/github", repositories.Hook)
 
+	e.GET("/privacy_policy", controllers.PrivacyPolicy)
+
 	e.GET("/*", controllers.NotFound)
 
 	// errors

@@ -19,7 +19,6 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: "true"
   node:
     image: h3poteto/node:10.12.0-alpine
-    user: node
     volumes:
       - .:/var/opt/app
     working_dir: /var/opt/app

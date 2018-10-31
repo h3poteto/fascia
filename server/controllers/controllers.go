@@ -92,3 +92,10 @@ func InternalServerError(c echo.Context) error {
 		"title": "InternalServerError",
 	})
 }
+
+// PrivacyPolicy
+func PrivacyPolicy(c echo.Context) error {
+	return c.Render(http.StatusOK, "privacy_policy.html.tpl", map[string]interface{}{
+		"title": "PrivacyPolicy",
+	})
+}
