@@ -56,7 +56,7 @@ jobs:
 
   frontend:
     docker:
-      - image: node:9-alpine
+      - image: h3poteto/node:10.12.0-alpine
     working_directory: /go/src/github.com/h3poteto/fascia
     steps:
       - checkout
