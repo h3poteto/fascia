@@ -1,4 +1,4 @@
-FROM node:9-alpine AS frontend
+FROM h3poteto/node:10.12.0-alpine AS frontend
 
 ENV APPROOT /var/opt/app
 

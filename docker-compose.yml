@@ -18,7 +18,7 @@ services:
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "true"
   node:
-    image: node:9.11.2-alpine
+    image: h3poteto/node:10.12.0-alpine
     user: node
     volumes:
       - .:/var/opt/app
@@ -34,7 +34,6 @@ services:
       npm run watch"
   go:
     image: h3poteto/golang:1.9.4
-    env_file: .docker-env
     environment:
       APPROOT: /go/src/github.com/h3poteto/fascia
       APPENV: development
