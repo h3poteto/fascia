@@ -36,12 +36,14 @@ header.top-nav {
 header.not-login {
   width: 100%;
   box-sizing: border-box;
-  position: relative;
-  .right-align-list {
-    display: inline-block;
-    position: absolute;
-    right: 0;
+
+  .menu-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
   }
+
+
   .pure-menu-heading {
     color: rgb(198, 198, 198);
   }

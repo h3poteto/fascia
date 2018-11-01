@@ -1,0 +1,20 @@
+.privacy-policy {
+  background: url("/images/83.jpg") no-repeat;
+  background-attachment: fixed;
+  background-position: 50% 50%;
+  background-size: cover;
+  height: 7.5rem;
+  width: 100%;
+
+  .main-area {
+    padding: 7.5rem 0.75rem 0;
+    max-width: 1024px;
+    margin: 0 auto;
+  }
+
+  .footer {
+    color: rgb(51, 51, 51);
+    padding: 2.5rem 0;
+    text-align: center;
+  }
+}

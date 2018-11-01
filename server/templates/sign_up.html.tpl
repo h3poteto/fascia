@@ -30,6 +30,9 @@
                 <div class="fascia-form-icon"><i class="fa fa-key" ></i></div>
               </div>
 
+              <span class="button-small">
+                You have read and agree to the <a href="/privacy_policy">privacy policy</a>
+              </span>
               <div class="pure-controls control-group">
                 <button class="pure-button pure-button-primary session-button" type="submit">SignUp</button>
               </div>

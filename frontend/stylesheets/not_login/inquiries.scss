@@ -3,7 +3,7 @@
   background-attachment: fixed;
   background-position: 50% 50%;
   background-size: cover;
-  min-height: 100%;
+  height: 52rem;
   width: 100%;
 
   .main {
@@ -12,17 +12,23 @@
   }
 
   article {
-    margin-top: 10%;
+    margin: 4rem auto;
     max-width: 100%;
-    width: 32.5em;
+    width: 32.5rem;
+  }
+
+  @media screen and (max-width : 768px) {
+    article {
+      width: 22.5rem;
+    }
   }
 
   .contact-board {
-    border-radius: 1em;
+    border-radius: 1rem;
     box-sizing: border-box;
     color: rgb(51, 51, 51);
     display: inline-block;
-    padding: 1.2em;
+    padding: 1.2rem;
     text-align: left;
     width: 100%;
 
@@ -33,7 +39,7 @@
     }
 
     textarea {
-      height: 12em;
+      height: 12rem;
     }
 
     .contact-control {
