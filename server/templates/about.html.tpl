@@ -43,6 +43,9 @@
     </article>
   </div>
   <div class="main-area">
+    <div class="store-link">
+      <a href="https://itunes.apple.com/us/app/fascia/id1197999536?mt=8" style="display:inline-block;overflow:hidden;background:url(https://linkmaker.itunes.apple.com/en-us/badge-lrg.svg?releaseDate=2018-07-28&kind=iossoftware&bubble=ios_apps) no-repeat;width:135px;height:40px;"></a>
+    </div>
     <div class="github">
       <h2>Sync GitHub</h2>
       <div class="content">
