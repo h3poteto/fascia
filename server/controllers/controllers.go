@@ -32,8 +32,8 @@ var githubPublicConf = &oauth2.Config{
 	Endpoint:     github.Endpoint,
 }
 
-// ここテストでstubするために関数ポインタをグローバル変数に代入しておきます．もしインスタンスメソッドではない関数をstubする方法があれば，書き換えて構わない．
-// CheckCSRFToken check token in session
+// CheckCSRFToken check token in session.
+// To stub in test, I substitue the pointer of this function to global variable.
 var CheckCSRFToken = checkCSRF
 
 // GenerateCSRFToken prepare new CSRF token
@@ -47,7 +47,7 @@ var NewValidationError = middlewares.NewValidationError
 
 // generateCSRF generate new CSRF token
 func generateCSRF(c echo.Context) (string, error) {
-	// 現在時間とソルトからトークンを生成
+	// Generate token from salt and current time.
 	h := md5.New()
 	io.WriteString(h, strconv.FormatInt(time.Now().Unix(), 10))
 	io.WriteString(h, "secret_key_salt")
@@ -93,7 +93,7 @@ func InternalServerError(c echo.Context) error {
 	})
 }
 
-// PrivacyPolicy
+// PrivacyPolicy render privacy policy html.
 func PrivacyPolicy(c echo.Context) error {
 	return c.Render(http.StatusOK, "privacy_policy.html.tpl", map[string]interface{}{
 		"title": "PrivacyPolicy",
