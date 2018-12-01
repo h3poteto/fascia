@@ -263,8 +263,10 @@ ListView.propTypes = {
     closeDeleteProjectModal: PropTypes.func.isRequired,
     fetchDeleteProject: PropTypes.func.isRequired,
   }),
-  params: PropTypes.shape({
-    projectID: PropTypes.string.isRequired,
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      projectID: PropTypes.string.isRequired,
+    }),
   }),
   ListReducer: PropTypes.shape({
     isLoading: PropTypes.bool.isRequired,
