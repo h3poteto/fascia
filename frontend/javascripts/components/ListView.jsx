@@ -28,14 +28,6 @@ class ListView extends React.Component {
     }
   }
 
-  componentDidMount() {
-    let maxHeight = window.innerHeight * 0.7
-    let stylesheet = document.styleSheets.item(2)
-    var idx = stylesheet.cssRules.length
-    stylesheet.insertRule('#lists .fascia-task { max-height: ' + maxHeight + 'px; }', idx)
-
-  }
-
   flash(error) {
     if (error != null) {
       return <div className="flash flash-error">{error}</div>
