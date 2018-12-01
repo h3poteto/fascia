@@ -7,7 +7,7 @@
     "compile": "webpack",
     "watch": "webpack --progress --colors --watch",
     "release-compile": "NODE_ENV=production webpack -p",
-    "test": "mocha --compilers js:babel-register --recursive --require ./test/support/domSetup.js",
+    "test": "mocha --compilers js:@babel/register --recursive --require ./test/support/domSetup.js",
     "test:watch": "npm test -- --watch",
     "eslint": "eslint --ext [jsx,js] ./frontend/javascripts/"
   },

@@ -71,8 +71,10 @@ export function initState() {
       taskDraggingTo: null,
       error: null
     },
-    params: {
-      projectID: '1'
+    match: {
+      params: {
+        projectID: '1'
+      }
     },
     listActions: {
       fetchLists: expect.createSpy(),
