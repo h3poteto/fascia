@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Link } from 'react-router'
+import { Link } from 'react-router-dom'
 import truncate from 'html-truncate'
 import NewProjectModal from './ProjectView/NewProjectModal.jsx'
 import WholeLoading from './ProjectView/WholeLoading.jsx'

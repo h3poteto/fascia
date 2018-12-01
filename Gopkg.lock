@@ -141,6 +141,12 @@
   version = "v1.0"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/jessevdk/go-assets"
+  packages = ["."]
+  revision = "4f4301a06e153ff90e17793577ab6bf79f8dc5c5"
+
+[[projects]]
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
   revision = "0b12d6b5"
@@ -374,6 +380,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "540dcf9e0c6cced770d73deb99c518ed72df1f6ee277fdec148c01f96fec4586"
+  inputs-digest = "33e56a2b89c48fd2c12e986e3f947db03edc2401010f74cfe9a2410c28b48ea3"
   solver-name = "gps-cdcl"
   solver-version = 1

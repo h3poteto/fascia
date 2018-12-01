@@ -15,8 +15,8 @@ class ListView extends React.Component {
   }
 
   componentWillMount() {
-    this.props.listActions.fetchLists(this.props.params.projectID)
-    this.props.listActions.fetchProject(this.props.params.projectID)
+    this.props.listActions.fetchLists(this.props.match.params.projectID)
+    this.props.listActions.fetchProject(this.props.match.params.projectID)
     this.props.listActions.fetchListOptions()
   }
 
@@ -48,9 +48,9 @@ class ListView extends React.Component {
     } else {
       return (
         <span>
-          <span className={project.ShowPullRequests ? 'pull-request-select select' : 'pull-request-select'} onClick={() => this.props.listActions.showPullRequests(this.props.params.projectID, project.ShowIssues, project.ShowPullRequests)}><i title="Switch visibility of pull requests" className="octicon octicon-git-pull-request"></i></span>
-          <span className={project.ShowIssues ? 'pull-request-select select' : 'pull-request-select'} onClick={() => this.props.listActions.showIssues(this.props.params.projectID, project.ShowIssues, project.ShowPullRequests)}><i title="Switch visibility of issues" className="octicon octicon-issue-opened"></i></span>
-          <i title="Reload all lists and tasks from github" className="fa fa-repeat" onClick={() => this.props.listActions.fetchProjectGithub(this.props.params.projectID)}></i>
+          <span className={project.ShowPullRequests ? 'pull-request-select select' : 'pull-request-select'} onClick={() => this.props.listActions.showPullRequests(this.props.match.params.projectID, project.ShowIssues, project.ShowPullRequests)}><i title="Switch visibility of pull requests" className="octicon octicon-git-pull-request"></i></span>
+          <span className={project.ShowIssues ? 'pull-request-select select' : 'pull-request-select'} onClick={() => this.props.listActions.showIssues(this.props.match.params.projectID, project.ShowIssues, project.ShowPullRequests)}><i title="Switch visibility of issues" className="octicon octicon-issue-opened"></i></span>
+          <i title="Reload all lists and tasks from github" className="fa fa-repeat" onClick={() => this.props.listActions.fetchProjectGithub(this.props.match.params.projectID)}></i>
         </span>
       )
     }

@@ -1,7 +1,7 @@
 {
   "javascripts/bundle.js": "javascripts/bundle.js",
-  "stylesheets/application-webview.css": "stylesheets/application-webview.css",
-  "stylesheets/application-webview.js": "stylesheets/application-webview.js",
   "stylesheets/application.css": "stylesheets/application.css",
-  "stylesheets/application.js": "stylesheets/application.js"
+  "stylesheets/application.js": "stylesheets/application.js",
+  "stylesheets/application-webview.css": "stylesheets/application-webview.css",
+  "stylesheets/application-webview.js": "stylesheets/application-webview.js"
 }

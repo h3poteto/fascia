@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { browserHistory } from 'react-router'
+import { push } from 'connected-react-router'
 import { ErrorHandler, ServerError } from '../ErrorHandler'
 import { startLoading, stopLoading } from '../Loading'
 
@@ -34,7 +34,7 @@ export function fetchDeleteProject() {
       .then((res) => {
         dispatch(stopLoading())
         dispatch(receiveDeleteProject(res.data))
-        browserHistory.push('/')
+        dispatch(push('/'))
       })
       .catch((err) => {
         dispatch(stopLoading())
