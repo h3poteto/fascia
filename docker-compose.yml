@@ -43,12 +43,14 @@ services:
       DB_USER: root
       DB_NAME: fascia
       DB_TEST_NAME: fascia_test
+      CLIENT_ID: $CLIENT_ID
+      CLIENT_SECRET: $CLIENT_SECRET
+      SLACK_URL: $SLACK_URL
     volumes:
       - .:/go/src/github.com/h3poteto/fascia
     working_dir: /go/src/github.com/h3poteto/fascia
     links:
       - mysql:mysql
-      - node:node
     ports:
       - "9090:9090"
     command: /bin/sh

@@ -1,14 +1,12 @@
 import { combineReducers } from 'redux'
 import ProjectReducer from './ProjectReducer'
 import ListReducer from './ListReducer'
-import { routerReducer } from 'react-router-redux'
 import { reducer as formReducer } from 'redux-form'
+import { connectRouter } from 'connected-react-router'
 
-const rootReducer = combineReducers({
-  routing: routerReducer,
+export default (history) => combineReducers({
+  router: connectRouter(history),
   form: formReducer,
   ProjectReducer,
   ListReducer
 })
-
-export default rootReducer

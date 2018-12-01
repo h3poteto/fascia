@@ -1,0 +1,17 @@
+linter:
+  eslint:
+    npm_install: true
+    dir:
+      - frontend/javascripts
+      - test
+    config: '.eslintrc.json'
+    ext: '.js,.jsx'
+    ignore-path: .eslintignore
+
+  stylelint:
+    npm_install: true
+    config: .stylelintrc.json
+    ignore-path: .stylelintignore
+    syntax: scss
+    ignore-disables: true
+    glob: '**/*.scss'

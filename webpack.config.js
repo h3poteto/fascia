@@ -1,26 +1,31 @@
 const path = require('path')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const ManifestPlugin = require('webpack-manifest-plugin')
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 // eslint-disable-next-line no-undef
 const production = process.env.NODE_ENV === 'production'
 const filename = production ? '[name]-[hash]' : '[name]'
 const devtool = production ? '' : '#eval-source-map'
+const mode = production ? 'production': 'development'
 
 module.exports = {
   entry: {
     'javascripts/bundle': './frontend/javascripts/bundle.js',
-    'stylesheets/application':  './frontend/javascripts/application.js',
-    'stylesheets/application-webview': './frontend/javascripts/application-webview.js',
+    'stylesheets/application':  './frontend/stylesheets/application.scss',
+    'stylesheets/application-webview': './frontend/stylesheets/application-webview.scss',
   },
   output: {
     path: path.resolve(__dirname, './public/assets'),
-    filename: `${filename}.js`,
+    filename: '[name].js',
   },
   cache: true,
   devtool: devtool,
+  mode: mode,
+  watchOptions: {
+    aggregateTimeout: 300,
+    poll: 1000
+  },
   resolve: {
     modules: [
       path.resolve(__dirname, './fronted/javascripts'),
@@ -29,11 +34,11 @@ module.exports = {
     extensions: ['*', '.css', '.scss', '.js', '.jsx']
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js[x]?$/,
         exclude: /node_modules/,
-        loader: [
+        use: [
           'cache-loader',
           'babel-loader',
         ],
@@ -41,7 +46,16 @@ module.exports = {
       {
         test: /\.(scss|css)$/,
         exclude: /node_modules/,
-        loader: ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'cache-loader!css-loader!sass-loader' }),
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              publicPath: path.resolve(__dirname, './public/assets')
+            },
+          },
+          'css-loader',
+          'sass-loader',
+        ],
       },
       {
         test: /\.(woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
@@ -59,20 +73,16 @@ module.exports = {
         test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
         loader: 'url-loader?limit=10000&mimetype=image/svg+xml',
 },
-      {
-        test: /\.json/,
-        loader: 'json-loader',
-      }
     ]
   },
   plugins: [
     new ManifestPlugin(),
-    new ExtractTextPlugin(`${filename}.css`),
+    new MiniCssExtractPlugin({
+      // Options similar to the same options in webpackOptions.output
+      // both options are optional
+      filename: production ? '[name].[hash].css' : '[name].css',
+      chunkFilename: production ? '[id].[hash].css' : '[id].css',
+    }),
     new CopyWebpackPlugin([{ from: './frontend/images', to: './images' }]),
-    ...(
-      production ? [
-        new UglifyJsPlugin()
-      ] : []
-    ),
   ]
 }

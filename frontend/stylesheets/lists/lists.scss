@@ -76,6 +76,7 @@
       overflow: auto;
       height: 100%;
       margin-bottom: 16px;
+      max-height: calc(100vh - 300px);
 
       li {
         cursor: pointer;

@@ -1,27 +1,28 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
-import { Router, Route, IndexRoute, browserHistory } from 'react-router'
 import { Provider } from 'react-redux'
+import ReactDOM from 'react-dom'
+import { Route, Switch } from 'react-router-dom'
 import { loadProgressBar } from 'axios-progress-bar'
-import configureStore from './store/configStore'
-import { syncHistoryWithStore } from 'react-router-redux'
-import projectContainer from './containers/ProjectContainer'
-import listContainer from './containers/ListContainer'
-import menuContainer from './containers/MenuContainer'
-
-const store = configureStore()
-const history = syncHistoryWithStore(browserHistory, store)
+import ProjectContainer from './containers/ProjectContainer'
+import ListContainer from './containers/ListContainer'
+import MenuContainer from './containers/MenuContainer'
+import { history, store } from './store/configStore'
+import { ConnectedRouter } from 'connected-react-router'
 
 loadProgressBar()
 
 ReactDOM.render(
   <Provider store={store}>
-    <Router history={history}>
-      <Route path="/" component={menuContainer}>
-        <Route path="/projects/:projectID" component={listContainer} />
-        <IndexRoute component={projectContainer} />
-      </Route>
-    </Router>
+    <ConnectedRouter history={history}>
+      <div>
+        <MenuContainer>
+          <Switch>
+            <Route exact path="/" component={ProjectContainer}></Route>
+            <Route path="/projects/:projectID" component={ListContainer}></Route>
+          </Switch>
+        </MenuContainer>
+      </div>
+    </ConnectedRouter>
   </Provider>,
   document.getElementById('content')
 )
