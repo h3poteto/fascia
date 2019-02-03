@@ -106,29 +106,30 @@ jobs:
             docker push $AWS_ECR_REPOSITORY:$CIRCLE_SHA1
 
   deploy:
-    machine: true
-    machine: true
-    environment:
-      - CLUSTER_NAME: base-default-prd
-      - SERVICE_NAME: fascia-web-prd
-      - AWS_DEFAULT_REGION: ap-northeast-1
-      - RUN_TASK_DEFINITION: fascia-web-prd-task:1
+    docker:
+      - image: h3poteto/kubectl:latest
+        environment:
+          CLUSTER_NAME: base-prd
+          ECR_REPOSITORY:
+    working_directory: /var/opt/kube
     steps:
-      - checkout
-      - run: &prepare_goploy
-          name: Preparing ecs-goploy
+      - run:
+          name: entrypoint
           command: |
-            wget https://github.com/h3poteto/ecs-goploy/releases/download/v0.3.6/ecs-goploy_v0.3.6_linux_amd64.zip
-            unzip ecs-goploy_v0.3.6_linux_amd64.zip
-            ./ecs-goploy version
-      - run: &migrate
-          name: migrate
+            /var/opt/kube/entrypoint.sh
+      - run:
+          name: Clone k8s services
           command: |
-            ./ecs-goploy task --cluster ${CLUSTER_NAME} --container-name task --image $AWS_ECR_REPOSITORY:$CIRCLE_SHA1 --timeout 300 --task-definition ${RUN_TASK_DEFINITION} --command "goose -env production up"
-      - run: &deploy
-          name: ecs deploy
+            git clone https://github.com/h3poteto/k8s-services.git
+      - run:
+          name: Version
           command: |
-            ./ecs-goploy service --cluster ${CLUSTER_NAME} --service-name ${SERVICE_NAME} --image $AWS_ECR_REPOSITORY:$CIRCLE_SHA1 --timeout 600 --enable-rollback --skip-check-deployments
+            kubectl version
+      - run:
+          name: deploy
+          command: |
+            kubectl patch -f k8s-services/fascia/deployment.yml -p "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"go\",\"image\":\"${AWS_ECR_REPOSITORY}:${CIRCLE_SHA1}\"}]}}}}"
+
 
 workflows:
   version: 2
