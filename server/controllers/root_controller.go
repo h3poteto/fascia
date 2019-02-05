@@ -15,6 +15,10 @@ import (
 type Root struct {
 }
 
+type HealthCheck struct {
+	Status int `jsoin:"status"`
+}
+
 // Index render a top page
 func (u *Root) Index(c echo.Context) error {
 	currentUser, err := middlewares.CheckLogin(c)
@@ -50,4 +54,12 @@ func (u *Root) About(c echo.Context) error {
 		"title": "Fascia",
 		"token": token,
 	})
+}
+
+// HealthCheck for a health check endpoint
+func (u *Root) HealthCheck(c echo.Context) error {
+	s := &HealthCheck{
+		Status: 200,
+	}
+	return c.JSON(http.StatusOK, s)
 }
