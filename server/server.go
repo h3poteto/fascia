@@ -32,6 +32,7 @@ func Routes(e *echo.Echo) {
 	e.Static("/fonts", filepath.Join(rootDir, "public/assets/fonts"))
 	// routing
 	root := &controllers.Root{}
+	e.GET("/health_check", root.HealthCheck)
 	e.GET("/about", root.About)
 	e.GET("/", root.Index)
 	e.GET("/projects/:project_id", root.Index)
