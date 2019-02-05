@@ -1,8 +1,7 @@
 package config
 
 import (
-	"bytes"
-	"io"
+	"io/ioutil"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -17,9 +16,10 @@ func Element(elem string) interface{} {
 	if err != nil {
 		panic(err)
 	}
-	by := new(bytes.Buffer)
-	io.Copy(by, file)
-	buf := by.Bytes()
+	buf, err := ioutil.ReadAll(file)
+	if err != nil {
+		panic(err)
+	}
 	m := make(map[interface{}]interface{})
 	err = yaml.Unmarshal(buf, &m)
 	if err != nil {
