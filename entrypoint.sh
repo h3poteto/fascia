@@ -5,7 +5,7 @@ export AWS_DEFAULT_REGION=ap-northeast-1
 # Confirm aws credential to stop the container when the container is created.
 myaws ssm parameter get fascia.$SERVICE_ENV.database_url --region $AWS_DEFAULT_REGION
 ret=$?
-if [[ ret -ne 0 ]]; then
+if [[ $ret -ne 0 ]]; then
     exit
 fi
 
