@@ -100,13 +100,13 @@ jobs:
           name: Docker build
           command: |
             docker build -t $AWS_ECR_REPOSITORY:$CIRCLE_SHA1 .
-            docker tag $AWS_ECR_REPOSITORY:latest
+            docker tag $AWS_ECR_REPOSITORY:$CIRCLE_SHA1 $AWS_ECR_REPOSITORY:latest
       - run:
           name: Docker push
           command: |
             $(aws ecr get-login --no-include-email --region ap-northeast-1)
             docker push $AWS_ECR_REPOSITORY:$CIRCLE_SHA1
-            docker tag $AWS_ECR_REPOSITORY:latest
+            docker push $AWS_ECR_REPOSITORY:latest
 
   deploy:
     docker:
