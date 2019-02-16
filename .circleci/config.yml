@@ -120,13 +120,23 @@ jobs:
           command: |
             /var/opt/kube/entrypoint.sh
       - run:
-          name: Clone k8s services
+          name: install kube-job
+          command: |
+            wget https://github.com/h3poteto/kube-job/releases/download/v0.1.1/kube-job_0.1.1_linux_amd64.zip
+            unzip kube-job_0.1.1_linux_amd64.zip
+            ./kube-job version
+      - run:
+          name: clone k8s services
           command: |
             git clone https://github.com/h3poteto/k8s-services.git
       - run:
-          name: Version
+          name: version
           command: |
             kubectl version
+      - run:
+          name: migration
+          command: |
+            ./kube-job run --config=$HOME/.kube/config --template-file=k8s-services/fascia/job.yml --args="goose -env production up" --container="go"
       - run:
           name: deploy
           command: |
