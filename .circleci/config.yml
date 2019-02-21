@@ -140,7 +140,7 @@ jobs:
       - run:
           name: deploy
           command: |
-            kubectl patch -f k8s-services/fascia/deployment.yml -p "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"go\",\"image\":\"${AWS_ECR_REPOSITORY}:${CIRCLE_SHA1}\"}]}}}}"
+            kubectl patch -f k8s-services/external-prd/fascia/deployment.yml -p "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"go\",\"image\":\"${AWS_ECR_REPOSITORY}:${CIRCLE_SHA1}\"}]}}}}"
 
 
 workflows:
