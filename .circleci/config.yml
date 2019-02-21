@@ -136,7 +136,7 @@ jobs:
       - run:
           name: migration
           command: |
-            ./kube-job run --config=$HOME/.kube/config --template-file=k8s-services/fascia/job.yml --args="goose -env production up" --container="go"
+            ./kube-job run --config=$HOME/.kube/config --template-file=k8s-services/external-prd/fascia/job.yml --args="goose -env production up" --container="go"
       - run:
           name: deploy
           command: |
