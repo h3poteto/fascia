@@ -153,11 +153,13 @@ workflows:
           filters:
             branches:
               only:
+                - test-deploy
                 - master
       - deploy:
           filters:
             branches:
               only:
+                - test-deploy
                 - master
           requires:
             - image
