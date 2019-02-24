@@ -5,8 +5,8 @@ import (
 
 	"github.com/google/go-github/github"
 	"github.com/h3poteto/fascia/config"
-	"github.com/h3poteto/fascia/server/entities/list_option"
-	"github.com/h3poteto/fascia/server/entities/repository"
+	"github.com/h3poteto/fascia/server/domains/entities/list_option"
+	"github.com/h3poteto/fascia/server/domains/entities/repository"
 	"github.com/h3poteto/fascia/server/infrastructures/task"
 	"github.com/pkg/errors"
 )

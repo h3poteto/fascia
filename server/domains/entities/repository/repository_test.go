@@ -4,7 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/hex"
-	. "github.com/h3poteto/fascia/server/entities/repository"
+	. "github.com/h3poteto/fascia/server/domains/entities/repository"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

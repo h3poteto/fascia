@@ -1,7 +1,7 @@
 package board
 
 import (
-	"github.com/h3poteto/fascia/server/entities/repository"
+	"github.com/h3poteto/fascia/server/domains/entities/repository"
 )
 
 // Repository has a repository entity

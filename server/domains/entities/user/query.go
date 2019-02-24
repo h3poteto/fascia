@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/h3poteto/fascia/server/entities/project"
+	"github.com/h3poteto/fascia/server/domains/entities/project"
 	"github.com/h3poteto/fascia/server/infrastructures/user"
 )
 

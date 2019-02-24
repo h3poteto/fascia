@@ -1,7 +1,7 @@
 package reset_password
 
 import (
-	"github.com/h3poteto/fascia/server/entities/user"
+	"github.com/h3poteto/fascia/server/domains/entities/user"
 	"github.com/h3poteto/fascia/server/infrastructures/reset_password"
 )
 

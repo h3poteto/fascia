@@ -1,7 +1,7 @@
 package contact
 
 import (
-	"github.com/h3poteto/fascia/server/entities/inquiry"
+	"github.com/h3poteto/fascia/server/domains/entities/inquiry"
 )
 
 // CreateInquiry has inquiry entity.

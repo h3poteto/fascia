@@ -5,7 +5,7 @@ import (
 	"github.com/h3poteto/fascia/db/seed"
 	"github.com/h3poteto/fascia/lib/modules/database"
 	"github.com/h3poteto/fascia/server/commands/board"
-	. "github.com/h3poteto/fascia/server/entities/task"
+	. "github.com/h3poteto/fascia/server/domains/entities/task"
 	"github.com/h3poteto/fascia/server/handlers"
 
 	. "github.com/onsi/ginkgo"

@@ -1,7 +1,7 @@
 package views
 
 import (
-	"github.com/h3poteto/fascia/server/entities/list_option"
+	"github.com/h3poteto/fascia/server/domains/entities/list_option"
 )
 
 // ListOption provides a response structure for list option

@@ -1,7 +1,7 @@
 package account
 
 import (
-	"github.com/h3poteto/fascia/server/entities/reset_password"
+	"github.com/h3poteto/fascia/server/domains/entities/reset_password"
 )
 
 // ResetPassword has a reset password entity

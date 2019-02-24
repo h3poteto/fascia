@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/entities/project"
+	"github.com/h3poteto/fascia/server/domains/entities/project"
 	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/middlewares"
 	"github.com/h3poteto/fascia/server/validators"

@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/entities/list_option"
+	"github.com/h3poteto/fascia/server/domains/entities/list_option"
 	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/views"
 	"github.com/labstack/echo"

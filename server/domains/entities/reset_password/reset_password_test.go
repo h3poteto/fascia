@@ -1,7 +1,7 @@
 package reset_password_test
 
 import (
-	. "github.com/h3poteto/fascia/server/entities/reset_password"
+	. "github.com/h3poteto/fascia/server/domains/entities/reset_password"
 	"github.com/h3poteto/fascia/server/handlers"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

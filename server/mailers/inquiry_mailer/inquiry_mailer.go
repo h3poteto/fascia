@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/entities/inquiry"
+	"github.com/h3poteto/fascia/server/domains/entities/inquiry"
 	"github.com/pkg/errors"
 )
 

@@ -4,7 +4,7 @@ import (
 	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/db/seed"
 	"github.com/h3poteto/fascia/lib/modules/database"
-	. "github.com/h3poteto/fascia/server/entities/project"
+	. "github.com/h3poteto/fascia/server/domains/entities/project"
 	"github.com/h3poteto/fascia/server/handlers"
 
 	"database/sql"

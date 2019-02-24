@@ -1,8 +1,8 @@
 package project
 
 import (
-	"github.com/h3poteto/fascia/server/entities/list"
-	"github.com/h3poteto/fascia/server/entities/repository"
+	"github.com/h3poteto/fascia/server/domains/entities/list"
+	"github.com/h3poteto/fascia/server/domains/entities/repository"
 	"github.com/h3poteto/fascia/server/infrastructures/project"
 )
 

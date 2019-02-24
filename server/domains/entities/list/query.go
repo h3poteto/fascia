@@ -2,8 +2,8 @@ package list
 
 import (
 	"github.com/h3poteto/fascia/config"
-	"github.com/h3poteto/fascia/server/entities/list_option"
-	"github.com/h3poteto/fascia/server/entities/task"
+	"github.com/h3poteto/fascia/server/domains/entities/list_option"
+	"github.com/h3poteto/fascia/server/domains/entities/task"
 	"github.com/h3poteto/fascia/server/infrastructures/list"
 	"github.com/pkg/errors"
 )

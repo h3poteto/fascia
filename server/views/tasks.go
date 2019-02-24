@@ -1,7 +1,7 @@
 package views
 
 import (
-	"github.com/h3poteto/fascia/server/entities/task"
+	"github.com/h3poteto/fascia/server/domains/entities/task"
 )
 
 // Task provides a response structure for task
