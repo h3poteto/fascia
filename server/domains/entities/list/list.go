@@ -4,7 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/entities/list_option"
+	"github.com/h3poteto/fascia/server/domains/entities/list_option"
 	"github.com/h3poteto/fascia/server/infrastructures/list"
 
 	"github.com/pkg/errors"

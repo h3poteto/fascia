@@ -1,7 +1,7 @@
 package views
 
 import (
-	"github.com/h3poteto/fascia/server/entities/project"
+	"github.com/h3poteto/fascia/server/domains/entities/project"
 )
 
 // Project provides a response structure for project

@@ -2,13 +2,14 @@ package account
 
 import (
 	"github.com/h3poteto/fascia/server/commands/board"
-	"github.com/h3poteto/fascia/server/entities/user"
+	"github.com/h3poteto/fascia/server/domains/entities/user"
 
 	"context"
+	"time"
+
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
-	"time"
 )
 
 // User has a user entity

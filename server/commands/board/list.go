@@ -4,8 +4,8 @@ import (
 	"database/sql"
 
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/entities/list"
-	"github.com/h3poteto/fascia/server/entities/repository"
+	"github.com/h3poteto/fascia/server/domains/entities/list"
+	"github.com/h3poteto/fascia/server/domains/entities/repository"
 )
 
 // List has a list entity

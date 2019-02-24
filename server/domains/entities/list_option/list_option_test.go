@@ -2,7 +2,7 @@ package list_option_test
 
 import (
 	"github.com/h3poteto/fascia/db/seed"
-	. "github.com/h3poteto/fascia/server/entities/list_option"
+	. "github.com/h3poteto/fascia/server/domains/entities/list_option"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

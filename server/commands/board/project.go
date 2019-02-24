@@ -6,9 +6,9 @@ import (
 
 	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/lib/modules/database"
-	"github.com/h3poteto/fascia/server/entities/project"
-	"github.com/h3poteto/fascia/server/entities/repository"
-	"github.com/h3poteto/fascia/server/entities/task"
+	"github.com/h3poteto/fascia/server/domains/entities/project"
+	"github.com/h3poteto/fascia/server/domains/entities/repository"
+	"github.com/h3poteto/fascia/server/domains/entities/task"
 
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
