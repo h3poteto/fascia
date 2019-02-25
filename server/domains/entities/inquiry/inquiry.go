@@ -6,15 +6,16 @@ type Inquiry struct {
 	Email          string
 	Name           string
 	Message        string
-	infrastructure InquiryRepository
+	infrastructure Repository
 }
 
-type InquiryRepository interface {
+// Repository defines repository interface.
+type Repository interface {
 	Create(string, string, string) (int64, error)
 }
 
 // New returns a inquiry struct.
-func New(id int64, email, name, message string, infrastructure InquiryRepository) *Inquiry {
+func New(id int64, email, name, message string, infrastructure Repository) *Inquiry {
 	i := &Inquiry{
 		id,
 		email,

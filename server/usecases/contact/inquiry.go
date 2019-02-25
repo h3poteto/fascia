@@ -8,14 +8,17 @@ import (
 	repo "github.com/h3poteto/fascia/server/infrastructures/inquiry"
 )
 
+// InjectDB set DB connection from connection pool.
 func InjectDB() *sql.DB {
 	return database.SharedInstance().Connection
 }
 
-func InjectInquiryRepository() entity.InquiryRepository {
+// InjectInquiryRepository inject db connection and return repository instance.
+func InjectInquiryRepository() entity.Repository {
 	return repo.New(InjectDB())
 }
 
+// CreateInquiry create a new inquiry.
 func CreateInquiry(email, name, message string) (*entity.Inquiry, error) {
 	inquiry := entity.New(0, email, name, message, InjectInquiryRepository())
 	err := inquiry.Create()
