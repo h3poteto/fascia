@@ -38,10 +38,12 @@ func ChangeUserPassword(id int64, token string, password string) (*user.User, er
 	return reset.User()
 }
 
+// GenerateResetPassword generates a token and create a new reset password entity.
 func GenerateResetPassword(userID int64, email string) (*domain.ResetPassword, error) {
 	return domain.GenerateResetPassword(userID, email, InjectResetPasswordRepository())
 }
 
+// AuthenticateResetPassword authenticate a reset password.
 func AuthenticateResetPassword(id int64, token string) error {
 	return domain.Authenticate(id, token, InjectResetPasswordRepository())
 }

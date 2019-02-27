@@ -32,7 +32,7 @@ func Find(targetID int64, infrastructure Repository) (*ResetPassword, error) {
 
 // GenerateResetPassword generate new token and return a new reset password entity, and save it.
 func GenerateResetPassword(userID int64, email string, infrastructure Repository) (*ResetPassword, error) {
-	// tokenを生成
+	// Generate token using md5.
 	h := md5.New()
 	_, err := io.WriteString(h, strconv.FormatInt(time.Now().Unix(), 10))
 	if err != nil {
@@ -51,6 +51,7 @@ func GenerateResetPassword(userID int64, email string, infrastructure Repository
 	return reset, nil
 }
 
+// Authenticate authenticate the reset password record.
 func Authenticate(id int64, token string, infrastructure Repository) error {
 	return infrastructure.Authenticate(id, token)
 }

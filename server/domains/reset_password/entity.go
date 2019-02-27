@@ -15,6 +15,7 @@ type ResetPassword struct {
 	infrastructure Repository
 }
 
+// Repository defines infrastructure.
 type Repository interface {
 	Authenticate(int64, string) error
 	FindAvailable(int64, string) (int64, int64, string, time.Time, error)
@@ -35,7 +36,7 @@ func New(id, userID int64, token string, expiresAt time.Time, infrastructure Rep
 	return r
 }
 
-// Craete call save in model
+// Create creates a repository record.
 func (r *ResetPassword) Create() error {
 	id, err := r.infrastructure.Create(r.UserID, r.Token, r.ExpiresAt)
 	if err != nil {
@@ -54,6 +55,7 @@ func (r *ResetPassword) User() (*user.User, error) {
 	return u, nil
 }
 
+// UpdateExpire change expire to now.
 func (r *ResetPassword) UpdateExpire() error {
 	return r.infrastructure.UpdateExpire(r.ID)
 }
