@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/commands/account"
 	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/mailers/password_mailer"
+	usecase "github.com/h3poteto/fascia/server/usecases/account"
 	"github.com/h3poteto/fascia/server/validators"
 
 	"net/http"
@@ -74,17 +74,13 @@ func (u *Passwords) Create(c echo.Context) error {
 		return c.Redirect(http.StatusFound, "/sign_in")
 	}
 
-	reset, err := handlers.GenerateResetPassword(targetUser.UserEntity.ID, targetUser.UserEntity.Email)
+	reset, err := usecase.GenerateResetPassword(targetUser.UserEntity.ID, targetUser.UserEntity.Email)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	if err := reset.Save(); err != nil {
-		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return err
-	}
 	// ここでemail送信
-	go password_mailer.Reset(reset.ResetPasswordEntity.ID, targetUser.UserEntity.Email, reset.ResetPasswordEntity.Token)
+	go password_mailer.Reset(reset.ID, targetUser.UserEntity.Email, reset.Token)
 	logging.SharedInstance().Controller(c).Info("success to send password reset request")
 	return c.Redirect(http.StatusFound, "/sign_in")
 }
@@ -103,7 +99,7 @@ func (u *Passwords) Edit(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return NewJSONError(err, http.StatusNotFound, c)
 	}
-	if err := account.AuthenticateResetPassword(id, resetToken); err != nil {
+	if err := usecase.AuthenticateResetPassword(id, resetToken); err != nil {
 		logging.SharedInstance().Controller(c).Infof("cannot authenticate reset password: %v", err)
 		return err
 	}
@@ -144,13 +140,13 @@ func (u *Passwords) Update(c echo.Context) error {
 		return c.Redirect(http.StatusFound, "/passwords/"+string(id)+"/edit")
 	}
 
-	targetUser, err := handlers.ChangeUserPassword(id, editPasswordForm.ResetToken, editPasswordForm.Password)
+	targetUser, err := usecase.ChangeUserPassword(id, editPasswordForm.ResetToken, editPasswordForm.Password)
 	if err != nil {
 		logging.SharedInstance().Controller(c).Infof("cannot authenticate reset password: %v", err)
 		return err
 	}
 
-	go password_mailer.Changed(targetUser.UserEntity.Email)
+	go password_mailer.Changed(targetUser.Email)
 	logging.SharedInstance().Controller(c).Info("success to change password")
 	return c.Redirect(http.StatusFound, "/sign_in")
 }

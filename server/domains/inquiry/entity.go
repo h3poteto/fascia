@@ -26,7 +26,7 @@ func New(id int64, email, name, message string, infrastructure Repository) *Inqu
 	return i
 }
 
-// Save a inquiry entity, and returns the latest inquiry object.
+// Create a inquiry entity, and returns the latest inquiry object.
 func (i *Inquiry) Create() error {
 	id, err := i.infrastructure.Create(i.Email, i.Name, i.Message)
 	if err != nil {
