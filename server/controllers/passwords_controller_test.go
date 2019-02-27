@@ -2,9 +2,10 @@ package controllers_test
 
 import (
 	"github.com/h3poteto/fascia/server"
-	"github.com/h3poteto/fascia/server/commands/account"
 	. "github.com/h3poteto/fascia/server/controllers"
+	resetpassword "github.com/h3poteto/fascia/server/domains/reset_password"
 	"github.com/h3poteto/fascia/server/handlers"
+	usecase "github.com/h3poteto/fascia/server/usecases/account"
 
 	"fmt"
 	"net/http"
@@ -70,10 +71,9 @@ var _ = Describe("PasswordsController", func() {
 	})
 
 	Describe("Edit", func() {
-		var resetPassword *account.ResetPassword
+		var resetPassword *resetpassword.ResetPassword
 		JustBeforeEach(func() {
-			resetPassword, _ = handlers.GenerateResetPassword(uid, email)
-			resetPassword.Save()
+			resetPassword, _ = usecase.GenerateResetPassword(uid, email)
 		})
 		Context("token is invalid", func() {
 			It("should internal server error", func() {
@@ -82,7 +82,7 @@ var _ = Describe("PasswordsController", func() {
 				req := httptest.NewRequest(echo.GET, "/passwords/:id/edit?"+q.Encode(), nil)
 				c := e.NewContext(req, rec)
 				c.SetParamNames("id")
-				c.SetParamValues(strconv.FormatInt(resetPassword.ResetPasswordEntity.ID, 10))
+				c.SetParamValues(strconv.FormatInt(resetPassword.ID, 10))
 				resource := Passwords{}
 				err := resource.Edit(c)
 				Expect(err).NotTo(BeNil())
@@ -91,11 +91,11 @@ var _ = Describe("PasswordsController", func() {
 		Context("token is correct", func() {
 			It("should response is ok", func() {
 				q := make(url.Values)
-				q.Set("token", resetPassword.ResetPasswordEntity.Token)
+				q.Set("token", resetPassword.Token)
 				req := httptest.NewRequest(echo.GET, "/passwords/:id/edit?"+q.Encode(), nil)
 				c := e.NewContext(req, rec)
 				c.SetParamNames("id")
-				c.SetParamValues(strconv.FormatInt(resetPassword.ResetPasswordEntity.ID, 10))
+				c.SetParamValues(strconv.FormatInt(resetPassword.ID, 10))
 				resource := Passwords{}
 				err := resource.Edit(c)
 				Expect(err).To(BeNil())
@@ -105,11 +105,10 @@ var _ = Describe("PasswordsController", func() {
 	})
 
 	Describe("Update", func() {
-		var resetPassword *account.ResetPassword
+		var resetPassword *resetpassword.ResetPassword
 		JustBeforeEach(func() {
 			CheckCSRFToken = func(c echo.Context, token string) bool { return true }
-			resetPassword, _ = handlers.GenerateResetPassword(uid, email)
-			resetPassword.Save()
+			resetPassword, _ = usecase.GenerateResetPassword(uid, email)
 		})
 		Context("token is invalid", func() {
 			It("should internal server error", func() {
@@ -121,7 +120,7 @@ var _ = Describe("PasswordsController", func() {
 				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 				c := e.NewContext(req, rec)
 				c.SetParamNames("id")
-				c.SetParamValues(strconv.FormatInt(resetPassword.ResetPasswordEntity.ID, 10))
+				c.SetParamValues(strconv.FormatInt(resetPassword.ID, 10))
 				resource := Passwords{}
 				err := resource.Update(c)
 				fmt.Println(err)
@@ -133,12 +132,12 @@ var _ = Describe("PasswordsController", func() {
 				f := make(url.Values)
 				f.Set("password", "fugafuga")
 				f.Set("password_confirm", "fugafuga")
-				f.Set("reset_token", resetPassword.ResetPasswordEntity.Token)
+				f.Set("reset_token", resetPassword.Token)
 				req := httptest.NewRequest(echo.POST, "/passwords/:id/update", strings.NewReader(f.Encode()))
 				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 				c := e.NewContext(req, rec)
 				c.SetParamNames("id")
-				c.SetParamValues(strconv.FormatInt(resetPassword.ResetPasswordEntity.ID, 10))
+				c.SetParamValues(strconv.FormatInt(resetPassword.ID, 10))
 				resource := Passwords{}
 				err := resource.Update(c)
 				Expect(err).To(BeNil())

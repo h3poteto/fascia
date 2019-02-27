@@ -1,11 +1,16 @@
 package reset_password_test
 
 import (
-	. "github.com/h3poteto/fascia/server/domains/entities/reset_password"
+	. "github.com/h3poteto/fascia/server/domains/reset_password"
 	"github.com/h3poteto/fascia/server/handlers"
+	dummy "github.com/h3poteto/fascia/server/test/helpers/repositories"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
+
+func dummyInjector() Repository {
+	return &dummy.DummyResetPassword{}
+}
 
 var _ = Describe("ResetPassword", func() {
 	var (
@@ -20,8 +25,7 @@ var _ = Describe("ResetPassword", func() {
 		if err != nil {
 			panic(err)
 		}
-		resetPassword, err = GenerateResetPassword(user.UserEntity.ID, email)
-		err = resetPassword.Save()
+		resetPassword, err = GenerateResetPassword(user.UserEntity.ID, email, dummyInjector())
 		if err != nil {
 			panic(err)
 		}
@@ -29,30 +33,7 @@ var _ = Describe("ResetPassword", func() {
 
 	Describe("Authenticate", func() {
 		It("should authenticate", func() {
-			Expect(Authenticate(resetPassword.ID, resetPassword.Token)).To(BeNil())
-		})
-	})
-
-	Describe("ChangeUserPassword", func() {
-		var (
-			newPassword string
-		)
-		JustBeforeEach(func() {
-			newPassword = "fugafuga"
-		})
-		It("can not login with old password", func() {
-			_, err := resetPassword.ChangeUserPassword(newPassword)
-			Expect(err).To(BeNil())
-			u, err := handlers.LoginUser(email, password)
-			Expect(err).NotTo(BeNil())
-			Expect(u).To(BeNil())
-		})
-		It("can login with new password", func() {
-			_, err := resetPassword.ChangeUserPassword(newPassword)
-			Expect(err).To(BeNil())
-			u, err := handlers.LoginUser(email, newPassword)
-			Expect(err).To(BeNil())
-			Expect(u).NotTo(BeNil())
+			Expect(Authenticate(resetPassword.ID, resetPassword.Token, dummyInjector())).To(BeNil())
 		})
 	})
 })
