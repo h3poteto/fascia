@@ -3,7 +3,7 @@ package reset_password
 import (
 	"time"
 
-	"github.com/h3poteto/fascia/server/domains/entities/user"
+	"github.com/h3poteto/fascia/server/domains/user"
 )
 
 // ResetPassword has a reset password model object
@@ -47,8 +47,8 @@ func (r *ResetPassword) Create() error {
 }
 
 // User returns a owner user entity
-func (r *ResetPassword) User() (*user.User, error) {
-	u, err := user.Find(r.UserID)
+func (r *ResetPassword) User(repo user.Repository) (*user.User, error) {
+	u, err := user.Find(r.UserID, repo)
 	if err != nil {
 		return nil, err
 	}

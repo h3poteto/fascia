@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/handlers"
+	usecase "github.com/h3poteto/fascia/server/usecases/account"
 	"github.com/h3poteto/fascia/server/validators"
 
 	"html/template"
@@ -62,7 +62,7 @@ func (u *Registrations) Registration(c echo.Context) error {
 		return c.Redirect(http.StatusFound, "/sign_up")
 	}
 	// TODO: ここCSRFのmiddlewareとかでなんとかならんかなぁ
-	_, err = handlers.RegistrationUser(
+	_, err = usecase.RegistrationUser(
 		template.HTMLEscapeString(signUpForm.Email),
 		template.HTMLEscapeString(signUpForm.Password),
 		template.HTMLEscapeString(signUpForm.PasswordConfirm),

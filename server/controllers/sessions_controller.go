@@ -3,9 +3,9 @@ package controllers
 import (
 	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/middlewares"
 	"github.com/h3poteto/fascia/server/session"
+	usecase "github.com/h3poteto/fascia/server/usecases/account"
 
 	"html/template"
 	"net/http"
@@ -64,7 +64,7 @@ func (u *Sessions) NewSession(c echo.Context) error {
 		return err
 	}
 
-	userService, err := handlers.LoginUser(template.HTMLEscapeString(signInForm.Email), template.HTMLEscapeString(signInForm.Password))
+	userService, err := usecase.LoginUser(template.HTMLEscapeString(signInForm.Email), template.HTMLEscapeString(signInForm.Password))
 	if err != nil {
 		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
 		return c.Redirect(http.StatusFound, "/sign_in")
@@ -75,7 +75,7 @@ func (u *Sessions) NewSession(c echo.Context) error {
 		Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int),
 		HttpOnly: true,
 	}
-	err = session.SharedInstance().Set(c.Request(), c.Response(), "current_user_id", userService.UserEntity.ID, option)
+	err = session.SharedInstance().Set(c.Request(), c.Response(), "current_user_id", userService.ID, option)
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -106,14 +106,14 @@ func (u *Sessions) Update(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	userService := uc.CurrentUserService
+	userService := uc.CurrentUser
 
 	option := &sessions.Options{
 		Path:     "/",
 		MaxAge:   config.Element("session").(map[interface{}]interface{})["timeout"].(int),
 		HttpOnly: true,
 	}
-	err := session.SharedInstance().Set(c.Request(), c.Response(), "current_user_id", userService.UserEntity.ID, option)
+	err := session.SharedInstance().Set(c.Request(), c.Response(), "current_user_id", userService.ID, option)
 	if err != nil {
 		err := errors.Wrap(err, "session error")
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)

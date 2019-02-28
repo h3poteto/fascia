@@ -4,8 +4,8 @@ import (
 	"database/sql"
 
 	"github.com/h3poteto/fascia/lib/modules/database"
-	user "github.com/h3poteto/fascia/server/domains/entities/user"
 	domain "github.com/h3poteto/fascia/server/domains/reset_password"
+	user "github.com/h3poteto/fascia/server/domains/user"
 	repo "github.com/h3poteto/fascia/server/infrastructures/reset_password"
 )
 
@@ -25,17 +25,17 @@ func ChangeUserPassword(id int64, token string, password string) (*user.User, er
 	if err != nil {
 		return nil, err
 	}
-	u, err := reset.User()
+	u, err := reset.User(InjectUserRepository())
 	if err != nil {
 		return nil, err
 	}
-	if err := u.UpdatePassword(password, nil); err != nil {
+	if err := u.UpdatePassword(password); err != nil {
 		return nil, err
 	}
 	if err := reset.UpdateExpire(); err != nil {
 		return nil, err
 	}
-	return reset.User()
+	return reset.User(InjectUserRepository())
 }
 
 // GenerateResetPassword generates a token and create a new reset password entity.

@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/mailers/password_mailer"
 	usecase "github.com/h3poteto/fascia/server/usecases/account"
 	"github.com/h3poteto/fascia/server/validators"
@@ -67,20 +66,20 @@ func (u *Passwords) Create(c echo.Context) error {
 		return c.Redirect(http.StatusFound, "/passwords/new")
 	}
 
-	targetUser, err := handlers.FindUserByEmail(newPasswordForm.Email)
+	targetUser, err := usecase.FindUserByEmail(newPasswordForm.Email)
 	if err != nil {
 		// OKにしておかないとEmail探りに使われる
 		logging.SharedInstance().Controller(c).Infof("cannot find user: %v", err)
 		return c.Redirect(http.StatusFound, "/sign_in")
 	}
 
-	reset, err := usecase.GenerateResetPassword(targetUser.UserEntity.ID, targetUser.UserEntity.Email)
+	reset, err := usecase.GenerateResetPassword(targetUser.ID, targetUser.Email)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
 	// ここでemail送信
-	go password_mailer.Reset(reset.ID, targetUser.UserEntity.Email, reset.Token)
+	go password_mailer.Reset(reset.ID, targetUser.Email, reset.Token)
 	logging.SharedInstance().Controller(c).Info("success to send password reset request")
 	return c.Redirect(http.StatusFound, "/sign_in")
 }

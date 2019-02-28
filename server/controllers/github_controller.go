@@ -23,13 +23,13 @@ func (u *Github) Repositories(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	currentUser := uc.CurrentUserService
-	if !currentUser.UserEntity.OauthToken.Valid {
+	currentUser := uc.CurrentUser
+	if !currentUser.OauthToken.Valid {
 		logging.SharedInstance().Controller(c).Info("user did not have oauth")
 		return c.JSON(http.StatusOK, nil)
 	}
 
-	repositories, err := hub.New(currentUser.UserEntity.OauthToken.String).AllRepositories()
+	repositories, err := hub.New(currentUser.OauthToken.String).AllRepositories()
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err

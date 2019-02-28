@@ -70,7 +70,7 @@ func (u *Lists) Create(c echo.Context) error {
 		return err
 	}
 	projectService := pc.ProjectService
-	currentUser := pc.CurrentUserService
+	currentUser := pc.CurrentUser
 
 	newListForm := new(NewListForm)
 	err := c.Bind(newListForm)
@@ -87,7 +87,7 @@ func (u *Lists) Create(c echo.Context) error {
 		return NewValidationError(err, http.StatusUnprocessableEntity, c)
 	}
 
-	list := handlers.NewList(0, projectService.ProjectEntity.ID, currentUser.UserEntity.ID, newListForm.Title, newListForm.Color, sql.NullInt64{}, false)
+	list := handlers.NewList(0, projectService.ProjectEntity.ID, currentUser.ID, newListForm.Title, newListForm.Color, sql.NullInt64{}, false)
 
 	if err := list.Save(); err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
