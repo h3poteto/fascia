@@ -20,7 +20,7 @@ type User struct {
 }
 
 type Repository interface {
-	Find(id int64) (int64, string, string, sql.NullString, sql.NullString, sql.NullInt64, sql.NullString, sql.NullString, error)
+	Find(int64) (int64, string, string, sql.NullString, sql.NullString, sql.NullInt64, sql.NullString, sql.NullString, error)
 	FindByEmail(string) (int64, string, string, sql.NullString, sql.NullString, sql.NullInt64, sql.NullString, sql.NullString, error)
 	Create(string, string, sql.NullString, sql.NullString, sql.NullInt64, sql.NullString, sql.NullString) (int64, error)
 	Update(int64, string, sql.NullString, sql.NullString, sql.NullInt64, sql.NullString, sql.NullString) error

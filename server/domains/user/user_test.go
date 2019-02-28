@@ -1,129 +1,36 @@
 package user_test
 
 import (
-	"database/sql"
-
-	"github.com/h3poteto/fascia/db/seed"
-	"github.com/h3poteto/fascia/lib/modules/database"
-	"github.com/h3poteto/fascia/server/commands/board"
-	. "github.com/h3poteto/fascia/server/domains/entities/user"
-	"github.com/h3poteto/fascia/server/handlers"
+	. "github.com/h3poteto/fascia/server/domains/user"
+	dummy "github.com/h3poteto/fascia/server/test/helpers/repositories"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("User", func() {
-	var (
-		db *sql.DB
-	)
-	BeforeEach(func() {
-		seed.Seeds()
-		db = database.SharedInstance().Connection
-	})
+func dummyInjector() Repository {
+	return &dummy.DummyUser{}
+}
 
+var _ = Describe("User", func() {
 	Describe("Registration", func() {
 		email := "registration@example.com"
-		password := "hogehoge"
+		password := "samplepassword"
 		It("can regist", func() {
-			user, err := Registration(email, password, password)
+			user, err := Registration(email, password, password, dummyInjector())
 			Expect(err).To(BeNil())
-			Expect(user.ID).NotTo(Equal(int64(0)))
+			Expect(user.ID).To(Equal(int64(1)))
 		})
-		Context("after registration", func() {
-			BeforeEach(func() {
-				Registration(email, password, password)
-			})
-			It("should save user in database", func() {
-				rows, _ := db.Query("select id, email from users where email = ?;", email)
-
-				var id int64
-				var dbemail string
-				for rows.Next() {
-					err := rows.Scan(&id, &dbemail)
-					if err != nil {
-						panic(err)
-					}
-				}
-				Expect(dbemail).NotTo(Equal(""))
-				Expect(id).NotTo(Equal(int64(0)))
-			})
-			It("cannot double regist", func() {
-				user, err := Registration(email, password, password)
-				Expect(err).NotTo(BeNil())
-				Expect(user).To(BeNil())
-			})
-		})
-
 	})
 
 	Describe("Login", func() {
 		email := "login@example.com"
-		password := "hogehoge"
-		BeforeEach(func() {
-			Registration(email, password, password)
-		})
-
+		password := "samplepassword"
 		Context("when send correctly login information", func() {
 			It("can login", func() {
-				currentUser, err := Login(email, password)
+				currentUser, err := Login(email, password, dummyInjector())
 				Expect(err).To(BeNil())
 				Expect(currentUser.Email).To(Equal(email))
 			})
-		})
-		Context("when send wrong login information", func() {
-			It("cannot login", func() {
-				currentUser, err := Login(email, "fugafuga")
-				Expect(err).NotTo(BeNil())
-				Expect(currentUser).To(BeNil())
-			})
-		})
-		Context("when send wrong email address", func() {
-			It("cannot login", func() {
-				currentUser, err := Login("hogehoge@example.com", password)
-				Expect(err).NotTo(BeNil())
-				Expect(currentUser).To(BeNil())
-			})
-		})
-		Context("when send wrong email address and password", func() {
-			It("cannot login", func() {
-				currentUser, err := Login("hogehoge@example.com", "fugafuga")
-				Expect(err).NotTo(BeNil())
-				Expect(currentUser).To(BeNil())
-			})
-		})
-	})
-
-	Describe("Projects", func() {
-		var (
-			newProject  *board.Project
-			currentUser *User
-		)
-
-		BeforeEach(func() {
-			email := "project@example.com"
-			password := "hogehoge"
-			currentUser, _ = Registration(email, password, password)
-			rows, _ := db.Query("select id, email from users where email = ?;", email)
-
-			var userid int64
-			var dbemail string
-			for rows.Next() {
-				err := rows.Scan(&userid, &dbemail)
-				if err != nil {
-					panic(err)
-				}
-			}
-			var err error
-			newProject, err = handlers.CreateProject(userid, "title", "desc", 0, sql.NullString{})
-			if err != nil {
-				panic(err)
-			}
-		})
-		It("ユーザとプロジェクトが関連づいていること", func() {
-			projects, err := currentUser.Projects()
-			Expect(err).To(BeNil())
-			Expect(projects).NotTo(BeEmpty())
-			Expect(projects[0].ID).To(Equal(newProject.ProjectEntity.ID))
 		})
 	})
 })

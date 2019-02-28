@@ -10,10 +10,11 @@ import (
 	"strings"
 
 	"github.com/h3poteto/fascia/db/seed"
-	"github.com/h3poteto/fascia/server/commands/account"
 	"github.com/h3poteto/fascia/server/commands/board"
 	. "github.com/h3poteto/fascia/server/controllers"
+	"github.com/h3poteto/fascia/server/domains/user"
 	"github.com/h3poteto/fascia/server/handlers"
+	usecase "github.com/h3poteto/fascia/server/usecases/account"
 	"github.com/h3poteto/fascia/server/views"
 	"github.com/labstack/echo"
 	. "github.com/onsi/ginkgo"
@@ -25,7 +26,7 @@ var _ = Describe("ListsController", func() {
 		e       *echo.Echo
 		rec     *httptest.ResponseRecorder
 		project *board.Project
-		user    *account.User
+		user    *user.User
 	)
 	email := "lists@example.com"
 	password := "hogehoge"
@@ -35,8 +36,8 @@ var _ = Describe("ListsController", func() {
 	})
 	JustBeforeEach(func() {
 		seed.Seeds()
-		user, _ = handlers.RegistrationUser(email, password, password)
-		project, _ = handlers.CreateProject(user.UserEntity.ID, "projectTitle", "", 0, sql.NullString{})
+		user, _ = usecase.RegistrationUser(email, password, password)
+		project, _ = handlers.CreateProject(user.ID, "projectTitle", "", 0, sql.NullString{})
 	})
 
 	Describe("Create", func() {
@@ -80,7 +81,7 @@ var _ = Describe("ListsController", func() {
 		)
 		Context("when action is null", func() {
 			JustBeforeEach(func() {
-				newList := handlers.NewList(0, project.ProjectEntity.ID, user.UserEntity.ID, "listTitle", "", sql.NullInt64{}, false)
+				newList := handlers.NewList(0, project.ProjectEntity.ID, user.ID, "listTitle", "", sql.NullInt64{}, false)
 				newList.Save()
 				j := `{"title":"newListTitle","color":"008ed5","option_id":"0"}`
 				req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id", strings.NewReader(j))
@@ -105,7 +106,7 @@ var _ = Describe("ListsController", func() {
 		})
 		Context("when action is close", func() {
 			JustBeforeEach(func() {
-				newList := handlers.NewList(0, project.ProjectEntity.ID, user.UserEntity.ID, "listTitle", "", sql.NullInt64{}, false)
+				newList := handlers.NewList(0, project.ProjectEntity.ID, user.ID, "listTitle", "", sql.NullInt64{}, false)
 				newList.Save()
 				closeListOption, _ := board.FindListOptionByAction("close")
 				optionID := strconv.FormatInt(closeListOption.ListOptionEntity.ID, 10)
@@ -134,9 +135,9 @@ var _ = Describe("ListsController", func() {
 
 	Describe("Index", func() {
 		JustBeforeEach(func() {
-			listService := handlers.NewList(0, project.ProjectEntity.ID, user.UserEntity.ID, "list1", "008ed5", sql.NullInt64{}, false)
+			listService := handlers.NewList(0, project.ProjectEntity.ID, user.ID, "list1", "008ed5", sql.NullInt64{}, false)
 			listService.Save()
-			listService = handlers.NewList(0, project.ProjectEntity.ID, user.UserEntity.ID, "list2", "008ed5", sql.NullInt64{}, false)
+			listService = handlers.NewList(0, project.ProjectEntity.ID, user.ID, "list2", "008ed5", sql.NullInt64{}, false)
 			listService.Save()
 		})
 		It("should receive lists", func() {
@@ -161,7 +162,7 @@ var _ = Describe("ListsController", func() {
 	Describe("Hide", func() {
 		var newList *board.List
 		JustBeforeEach(func() {
-			newList = handlers.NewList(0, project.ProjectEntity.ID, user.UserEntity.ID, "listTitle", "", sql.NullInt64{}, false)
+			newList = handlers.NewList(0, project.ProjectEntity.ID, user.ID, "listTitle", "", sql.NullInt64{}, false)
 			newList.Save()
 		})
 		It("should hide list", func() {
@@ -187,7 +188,7 @@ var _ = Describe("ListsController", func() {
 	Describe("Display", func() {
 		var newList *board.List
 		JustBeforeEach(func() {
-			newList = handlers.NewList(0, project.ProjectEntity.ID, user.UserEntity.ID, "listTitle", "", sql.NullInt64{}, false)
+			newList = handlers.NewList(0, project.ProjectEntity.ID, user.ID, "listTitle", "", sql.NullInt64{}, false)
 			newList.Save()
 			newList.Hide()
 		})

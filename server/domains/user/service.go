@@ -23,11 +23,11 @@ func hashPassword(password string) ([]byte, error) {
 	cost := 10
 	hashed, err := bcrypt.GenerateFromPassword(bytePassword, cost)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot generate password")
+		return nil, err
 	}
 	err = bcrypt.CompareHashAndPassword(hashed, bytePassword)
 	if err != nil {
-		return nil, errors.Wrap(err, "did not match password")
+		return nil, err
 	}
 	return hashed, nil
 }
@@ -73,6 +73,7 @@ func Login(targetEmail string, targetPassword string, infrastructure Repository)
 	if err != nil {
 		return nil, err
 	}
+
 	bytePassword := []byte(targetPassword)
 	err = bcrypt.CompareHashAndPassword([]byte(password), bytePassword)
 	if err != nil {

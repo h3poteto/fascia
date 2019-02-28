@@ -2,10 +2,11 @@ package controllers_test
 
 import (
 	"github.com/h3poteto/fascia/db/seed"
-	"github.com/h3poteto/fascia/server/commands/account"
 	"github.com/h3poteto/fascia/server/commands/board"
 	. "github.com/h3poteto/fascia/server/controllers"
+	"github.com/h3poteto/fascia/server/domains/user"
 	"github.com/h3poteto/fascia/server/handlers"
+	usecase "github.com/h3poteto/fascia/server/usecases/account"
 	"github.com/h3poteto/fascia/server/views"
 
 	"database/sql"
@@ -25,7 +26,7 @@ var _ = Describe("ProjectsController", func() {
 	var (
 		e    *echo.Echo
 		rec  *httptest.ResponseRecorder
-		user *account.User
+		user *user.User
 	)
 	email := "projects@example.com"
 	password := "hogehoge"
@@ -35,7 +36,7 @@ var _ = Describe("ProjectsController", func() {
 	})
 	JustBeforeEach(func() {
 		seed.Seeds()
-		user, _ = handlers.RegistrationUser(email, password, password)
+		user, _ = usecase.RegistrationUser(email, password, password)
 	})
 
 	Describe("Create", func() {
@@ -86,8 +87,8 @@ var _ = Describe("ProjectsController", func() {
 
 	Describe("Index", func() {
 		JustBeforeEach(func() {
-			handlers.CreateProject(user.UserEntity.ID, "project1", "", 0, sql.NullString{})
-			handlers.CreateProject(user.UserEntity.ID, "project2", "", 0, sql.NullString{})
+			handlers.CreateProject(user.ID, "project1", "", 0, sql.NullString{})
+			handlers.CreateProject(user.ID, "project2", "", 0, sql.NullString{})
 		})
 		It("should receive projects", func() {
 			req := httptest.NewRequest(echo.GET, "/projects", nil)
@@ -107,7 +108,7 @@ var _ = Describe("ProjectsController", func() {
 	Describe("Show", func() {
 		var newProject *board.Project
 		JustBeforeEach(func() {
-			newProject, _ = handlers.CreateProject(user.UserEntity.ID, "title", "desc", 0, sql.NullString{})
+			newProject, _ = handlers.CreateProject(user.ID, "title", "desc", 0, sql.NullString{})
 		})
 		It("should receive project title", func() {
 			req := httptest.NewRequest(echo.GET, "/projects/:project_id/show", nil)
@@ -129,7 +130,7 @@ var _ = Describe("ProjectsController", func() {
 	Describe("Update", func() {
 		var newProject *board.Project
 		JustBeforeEach(func() {
-			newProject, _ = handlers.CreateProject(user.UserEntity.ID, "title", "desc", 0, sql.NullString{})
+			newProject, _ = handlers.CreateProject(user.ID, "title", "desc", 0, sql.NullString{})
 		})
 		It("should receive new project", func() {
 			j := `{"title":"newTitle"}`
@@ -153,7 +154,7 @@ var _ = Describe("ProjectsController", func() {
 	Describe("Settings", func() {
 		var newProject *board.Project
 		JustBeforeEach(func() {
-			newProject, _ = handlers.CreateProject(user.UserEntity.ID, "title", "desc", 0, sql.NullString{})
+			newProject, _ = handlers.CreateProject(user.ID, "title", "desc", 0, sql.NullString{})
 		})
 		It("should update show issues", func() {
 			j := `{"show_issues":false,"show_pull_requests":true}`
