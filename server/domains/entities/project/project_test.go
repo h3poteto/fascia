@@ -5,7 +5,7 @@ import (
 	"github.com/h3poteto/fascia/db/seed"
 	"github.com/h3poteto/fascia/lib/modules/database"
 	. "github.com/h3poteto/fascia/server/domains/entities/project"
-	"github.com/h3poteto/fascia/server/handlers"
+	"github.com/h3poteto/fascia/server/usecases/account"
 
 	"database/sql"
 
@@ -24,11 +24,11 @@ var _ = Describe("Project", func() {
 		seed.Seeds()
 		email := "save@example.com"
 		password := "hogehoge"
-		user, err := handlers.RegistrationUser(email, password, password)
+		user, err := account.RegistrationUser(email, password, password)
 		if err != nil {
 			panic(err)
 		}
-		uid = user.UserEntity.ID
+		uid = user.ID
 		db = database.SharedInstance().Connection
 	})
 

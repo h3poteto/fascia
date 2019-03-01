@@ -4,7 +4,6 @@ import (
 	"github.com/h3poteto/fascia/server"
 	. "github.com/h3poteto/fascia/server/controllers"
 	resetpassword "github.com/h3poteto/fascia/server/domains/reset_password"
-	"github.com/h3poteto/fascia/server/handlers"
 	usecase "github.com/h3poteto/fascia/server/usecases/account"
 
 	"fmt"
@@ -35,8 +34,8 @@ var _ = Describe("PasswordsController", func() {
 	JustBeforeEach(func() {
 		email = "hoge@example.com"
 		password = "hogehoge"
-		user, _ := handlers.RegistrationUser(email, password, password)
-		uid = user.UserEntity.ID
+		user, _ := usecase.RegistrationUser(email, password, password)
+		uid = user.ID
 		GenerateCSRFToken = func(c echo.Context) (string, error) { return "hoge", nil }
 	})
 

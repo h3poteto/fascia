@@ -2,10 +2,11 @@ package controllers_test
 
 import (
 	"github.com/h3poteto/fascia/db/seed"
-	"github.com/h3poteto/fascia/server/commands/account"
 	"github.com/h3poteto/fascia/server/commands/board"
 	. "github.com/h3poteto/fascia/server/controllers"
+	"github.com/h3poteto/fascia/server/domains/user"
 	"github.com/h3poteto/fascia/server/handlers"
+	usecase "github.com/h3poteto/fascia/server/usecases/account"
 	"github.com/h3poteto/fascia/server/views"
 
 	"database/sql"
@@ -26,7 +27,7 @@ var _ = Describe("TasksController", func() {
 		e       *echo.Echo
 		rec     *httptest.ResponseRecorder
 		project *board.Project
-		user    *account.User
+		user    *user.User
 		list    *board.List
 	)
 	email := "task@example.com"
@@ -37,12 +38,12 @@ var _ = Describe("TasksController", func() {
 	})
 	JustBeforeEach(func() {
 		seed.Seeds()
-		user, _ = handlers.RegistrationUser(email, password, password)
+		user, _ = usecase.RegistrationUser(email, password, password)
 		// projectを作っておく
-		project, _ = handlers.CreateProject(user.UserEntity.ID, "projectTitle", "", 0, sql.NullString{})
+		project, _ = handlers.CreateProject(user.ID, "projectTitle", "", 0, sql.NullString{})
 
 		// listも作っておく
-		list = handlers.NewList(0, project.ProjectEntity.ID, user.UserEntity.ID, "listTitle", "008ed5", sql.NullInt64{}, false)
+		list = handlers.NewList(0, project.ProjectEntity.ID, user.ID, "listTitle", "008ed5", sql.NullInt64{}, false)
 		list.Save()
 	})
 
@@ -83,7 +84,7 @@ var _ = Describe("TasksController", func() {
 	Describe("Show", func() {
 		var newTask *board.Task
 		JustBeforeEach(func() {
-			newTask = board.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.UserEntity.ID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
+			newTask = board.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.ID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
 			newTask.Save()
 		})
 		It("should receive a task", func() {
@@ -111,9 +112,9 @@ var _ = Describe("TasksController", func() {
 			newList *board.List
 		)
 		JustBeforeEach(func() {
-			newList = handlers.NewList(0, project.ProjectEntity.ID, user.UserEntity.ID, "list2", "", sql.NullInt64{}, false)
+			newList = handlers.NewList(0, project.ProjectEntity.ID, user.ID, "list2", "", sql.NullInt64{}, false)
 			newList.Save()
-			newTask = board.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.UserEntity.ID, sql.NullInt64{}, "taskTitle", "taskDescription", false, sql.NullString{})
+			newTask = board.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.ID, sql.NullInt64{}, "taskTitle", "taskDescription", false, sql.NullString{})
 			newTask.Save()
 		})
 		It("should change list the task belongs", func() {
@@ -143,7 +144,7 @@ var _ = Describe("TasksController", func() {
 	Describe("Update", func() {
 		var newTask *board.Task
 		JustBeforeEach(func() {
-			newTask = board.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.UserEntity.ID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
+			newTask = board.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.ID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
 			newTask.Save()
 		})
 		It("should update a task", func() {
@@ -172,7 +173,7 @@ var _ = Describe("TasksController", func() {
 		var newTask *board.Task
 		Context("When a task does not relate issue", func() {
 			JustBeforeEach(func() {
-				newTask = board.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.UserEntity.ID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
+				newTask = board.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.ID, sql.NullInt64{}, "sampleTask", "sampleDescription", false, sql.NullString{})
 				newTask.Save()
 			})
 			It("should delete a task", func() {
@@ -192,7 +193,7 @@ var _ = Describe("TasksController", func() {
 		})
 		Context("When a task relate issue", func() {
 			JustBeforeEach(func() {
-				newTask = board.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.UserEntity.ID, sql.NullInt64{Int64: 1, Valid: true}, "sampleTask", "sampleDescription", false, sql.NullString{})
+				newTask = board.NewTask(0, list.ListEntity.ID, project.ProjectEntity.ID, user.ID, sql.NullInt64{Int64: 1, Valid: true}, "sampleTask", "sampleDescription", false, sql.NullString{})
 				newTask.Save()
 			})
 			It("should not delete a task", func() {

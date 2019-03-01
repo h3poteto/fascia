@@ -3,7 +3,7 @@ package controllers_test
 import (
 	"github.com/h3poteto/fascia/server"
 	. "github.com/h3poteto/fascia/server/controllers"
-	"github.com/h3poteto/fascia/server/handlers"
+	usecase "github.com/h3poteto/fascia/server/usecases/account"
 
 	"net/http"
 	"net/http/httptest"
@@ -83,7 +83,7 @@ var _ = Describe("SessionsController", func() {
 		})
 		Context("after registration", func() {
 			JustBeforeEach(func() {
-				handlers.RegistrationUser("registration@example.com", "hogehoge", "hogehoge")
+				usecase.RegistrationUser("registration@example.com", "hogehoge", "hogehoge")
 			})
 			Context("when use correctly password", func() {
 				It("can login", func() {
@@ -132,7 +132,7 @@ var _ = Describe("SessionsController", func() {
 
 	Describe("Update", func() {
 		JustBeforeEach(func() {
-			handlers.RegistrationUser("update@example.com", "hogehoge", "hogehoge")
+			usecase.RegistrationUser("update@example.com", "hogehoge", "hogehoge")
 		})
 		It("can update session", func() {
 			req := httptest.NewRequest(echo.POST, "/update", nil)

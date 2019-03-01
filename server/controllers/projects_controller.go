@@ -46,7 +46,7 @@ func (u *Projects) Index(c echo.Context) error {
 		return err
 	}
 
-	currentUser := uc.CurrentUserService
+	currentUser := uc.CurrentUser
 	projects, err := currentUser.Projects()
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -55,7 +55,7 @@ func (u *Projects) Index(c echo.Context) error {
 
 	var projectEntities []*project.Project
 	for _, p := range projects {
-		projectEntities = append(projectEntities, p.ProjectEntity)
+		projectEntities = append(projectEntities, p)
 	}
 	jsonProjects, err := views.ParseProjectsJSON(projectEntities)
 	if err != nil {
@@ -92,7 +92,7 @@ func (u *Projects) Create(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	currentUser := uc.CurrentUserService
+	currentUser := uc.CurrentUser
 
 	newProjectForm := new(NewProjectForm)
 	err := c.Bind(newProjectForm)
@@ -114,11 +114,11 @@ func (u *Projects) Create(c echo.Context) error {
 	}
 
 	projectService, err := handlers.CreateProject(
-		currentUser.UserEntity.ID,
+		currentUser.ID,
 		newProjectForm.Title,
 		newProjectForm.Description,
 		newProjectForm.RepositoryID,
-		currentUser.UserEntity.OauthToken,
+		currentUser.OauthToken,
 	)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)

@@ -2,11 +2,13 @@ package task_test
 
 import (
 	"database/sql"
+
 	"github.com/h3poteto/fascia/db/seed"
 	"github.com/h3poteto/fascia/lib/modules/database"
 	"github.com/h3poteto/fascia/server/commands/board"
 	. "github.com/h3poteto/fascia/server/domains/entities/task"
 	"github.com/h3poteto/fascia/server/handlers"
+	account "github.com/h3poteto/fascia/server/usecases/account"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -23,9 +25,9 @@ var _ = Describe("Task", func() {
 		seed.Seeds()
 		email := "save@example.com"
 		password := "hogehoge"
-		user, _ := handlers.RegistrationUser(email, password, password)
+		user, _ := account.RegistrationUser(email, password, password)
 		db = database.SharedInstance().Connection
-		projectService, _ = handlers.CreateProject(user.UserEntity.ID, "title", "desc", 0, sql.NullString{})
+		projectService, _ = handlers.CreateProject(user.ID, "title", "desc", 0, sql.NullString{})
 		listService = handlers.NewList(0, projectService.ProjectEntity.ID, projectService.ProjectEntity.UserID, "list title", "", sql.NullInt64{}, false)
 		listService.Save()
 		newTask = New(0, listService.ListEntity.ID, projectService.ProjectEntity.ID, listService.ListEntity.UserID, sql.NullInt64{}, "task title", "task description", false, sql.NullString{})

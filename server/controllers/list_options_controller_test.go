@@ -3,15 +3,16 @@ package controllers_test
 import (
 	"github.com/h3poteto/fascia/db/seed"
 	. "github.com/h3poteto/fascia/server/controllers"
-	"github.com/h3poteto/fascia/server/handlers"
+	usecase "github.com/h3poteto/fascia/server/usecases/account"
 	"github.com/h3poteto/fascia/server/views"
 
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+
 	"github.com/labstack/echo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"net/http"
-	"net/http/httptest"
 )
 
 var _ = Describe("ListOptionsController", func() {
@@ -29,7 +30,7 @@ var _ = Describe("ListOptionsController", func() {
 
 	Describe("Index", func() {
 		JustBeforeEach(func() {
-			handlers.RegistrationUser("list_options@example.com", "hogehoge", "hogehoge")
+			usecase.RegistrationUser("list_options@example.com", "hogehoge", "hogehoge")
 		})
 		It("should return", func() {
 			req := httptest.NewRequest(echo.GET, "/list_options", nil)

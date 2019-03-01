@@ -2,10 +2,11 @@ package middlewares
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/commands/account"
 	"github.com/h3poteto/fascia/server/commands/board"
+	"github.com/h3poteto/fascia/server/domains/user"
 	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/session"
+	usecaseAccount "github.com/h3poteto/fascia/server/usecases/account"
 	"github.com/h3poteto/fascia/server/validators"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -41,7 +42,7 @@ func NewValidationError(err error, code int, c echo.Context) error {
 // LoginContext prepare login information for users
 type LoginContext struct {
 	echo.Context
-	CurrentUserService *account.User
+	CurrentUser *user.User
 }
 
 // ProjectContext prepare a project service
@@ -82,12 +83,12 @@ func Login() echo.MiddlewareFunc {
 }
 
 // CheckLogin authenticate user
-func CheckLogin(c echo.Context) (*account.User, error) {
+func CheckLogin(c echo.Context) (*user.User, error) {
 	id, err := session.SharedInstance().Get(c.Request(), "current_user_id")
 	if id == nil {
 		return nil, errors.New("not logined")
 	}
-	currentUser, err := handlers.FindUser(id.(int64))
+	currentUser, err := usecaseAccount.FindUser(id.(int64))
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +112,7 @@ func Project() echo.MiddlewareFunc {
 				return NewJSONError(err, http.StatusNotFound, c)
 			}
 			projectService, err := handlers.FindProject(projectID)
-			if err != nil || !(projectService.CheckOwner(uc.CurrentUserService.UserEntity.ID)) {
+			if err != nil || !(projectService.CheckOwner(uc.CurrentUser.ID)) {
 				logging.SharedInstance().Controller(c).Warnf("project not found: %v", err)
 				return NewJSONError(err, http.StatusNotFound, c)
 			}

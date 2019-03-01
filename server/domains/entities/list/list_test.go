@@ -8,6 +8,7 @@ import (
 	"github.com/h3poteto/fascia/server/commands/board"
 	. "github.com/h3poteto/fascia/server/domains/entities/list"
 	"github.com/h3poteto/fascia/server/handlers"
+	account "github.com/h3poteto/fascia/server/usecases/account"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -24,9 +25,9 @@ var _ = Describe("List", func() {
 		seed.Seeds()
 		email := "save@example.com"
 		password := "hogehoge"
-		user, _ := handlers.RegistrationUser(email, password, password)
+		user, _ := account.RegistrationUser(email, password, password)
 		db = database.SharedInstance().Connection
-		projectService, _ = handlers.CreateProject(user.UserEntity.ID, "title", "desc", 0, sql.NullString{})
+		projectService, _ = handlers.CreateProject(user.ID, "title", "desc", 0, sql.NullString{})
 		newList = New(0, projectService.ProjectEntity.ID, projectService.ProjectEntity.UserID, "list title", "", sql.NullInt64{}, false)
 	})
 
