@@ -11,26 +11,32 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// InjectUserRepository inject db connection and return repository instance.
 func InjectUserRepository() domain.Repository {
 	return repo.New(InjectDB())
 }
 
+// RegistrationUser registers a user.
 func RegistrationUser(email, password, passwordConfirm string) (*domain.User, error) {
 	return domain.Registration(email, password, passwordConfirm, InjectUserRepository())
 }
 
+// FindUser finds a user.
 func FindUser(id int64) (*domain.User, error) {
 	return domain.Find(id, InjectUserRepository())
 }
 
+// FindUserByEmail finds a user.
 func FindUserByEmail(email string) (*domain.User, error) {
 	return domain.FindByEmail(email, InjectUserRepository())
 }
 
+// LoginUser check password and login.
 func LoginUser(email, password string) (*domain.User, error) {
 	return domain.Login(email, password, InjectUserRepository())
 }
 
+// FindOrCreateUserFromGithub creates a user from github.
 func FindOrCreateUserFromGithub(token string) (*domain.User, error) {
 	// GitHub authentication
 	ts := oauth2.StaticTokenSource(
@@ -65,7 +71,7 @@ var _ = Describe("User", func() {
 		token := os.Getenv("TEST_TOKEN")
 		Context("after registration from github", func() {
 			user, err := FindOrCreateUserFromGithub(token)
-			It("registration suceeded", func() {
+			It("registration succeeded", func() {
 				Expect(err).To(BeNil())
 				Expect(user).NotTo(BeNil())
 				findUser, _ := FindOrCreateUserFromGithub(token)

@@ -19,6 +19,7 @@ type User struct {
 	infrastructure Repository
 }
 
+// Repository defines repository interface.
 type Repository interface {
 	Find(int64) (int64, string, string, sql.NullString, sql.NullString, sql.NullInt64, sql.NullString, sql.NullString, error)
 	FindByEmail(string) (int64, string, string, sql.NullString, sql.NullString, sql.NullInt64, sql.NullString, sql.NullString, error)
@@ -27,6 +28,7 @@ type Repository interface {
 	UpdatePassword(int64, string) error
 }
 
+// New returns a User struct.
 func New(id int64, email, password string, provider, oauthToken sql.NullString, uuid sql.NullInt64, userName, avatar sql.NullString, infrastructure Repository) *User {
 	return &User{
 		id,

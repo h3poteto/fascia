@@ -16,6 +16,7 @@ func New(db *sql.DB) *User {
 	}
 }
 
+// Find finds a user which has specified id.
 func (u *User) Find(id int64) (int64, string, string, sql.NullString, sql.NullString, sql.NullInt64, sql.NullString, sql.NullString, error) {
 	var uuid sql.NullInt64
 	var email, password string
