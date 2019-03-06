@@ -169,6 +169,7 @@ func (t *Task) ChangeList(id, listID int64, prevToTaskID *int64) error {
 		return errors.Wrap(err, "task repository")
 	}
 
+	// TODO: ロジックをentityに移動させたい
 	var prevToTaskIndex int
 	if prevToTaskID != nil {
 		// 途中に入れるパターン
