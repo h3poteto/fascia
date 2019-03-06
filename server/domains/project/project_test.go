@@ -1,127 +1,32 @@
 package project_test
 
 import (
-	"github.com/h3poteto/fascia/config"
-	"github.com/h3poteto/fascia/db/seed"
-	"github.com/h3poteto/fascia/lib/modules/database"
-	. "github.com/h3poteto/fascia/server/domains/entities/project"
-	"github.com/h3poteto/fascia/server/usecases/account"
-
 	"database/sql"
+
+	. "github.com/h3poteto/fascia/server/domains/project"
+	dummy "github.com/h3poteto/fascia/server/test/helpers/repositories"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
+func dummyInjector() Repository {
+	return &dummy.DummyProject{
+		UserID: 1306,
+	}
+}
+
 var _ = Describe("Project", func() {
-	var (
-		newProject *Project
-		uid        int64
-		db         *sql.DB
-	)
-
-	BeforeEach(func() {
-		seed.Seeds()
-		email := "save@example.com"
-		password := "hogehoge"
-		user, err := account.RegistrationUser(email, password, password)
-		if err != nil {
-			panic(err)
-		}
-		uid = user.ID
-		db = database.SharedInstance().Connection
-	})
-
-	Describe("Update", func() {
-		BeforeEach(func() {
-			var repoID sql.NullInt64
-			newProject = New(0, uid, "new project", "description", repoID, false, false)
-			newProject.Save(nil)
+	Describe("CheckOwner", func() {
+		It("owner", func() {
+			p := New(0, 1306, "title", "description", sql.NullInt64{}, true, true, dummyInjector())
+			owner := p.CheckOwner(1306)
+			Expect(owner).To(Equal(true))
 		})
-		It("should set new value", func() {
-			err := newProject.Update("newTitle", "newDescription", true, false)
-			Expect(err).To(BeNil())
-			Expect(newProject.Title).To(Equal("newTitle"))
-			Expect(newProject.Description).To(Equal("newDescription"))
-			Expect(newProject.RepositoryID.Valid).To(BeFalse())
-			Expect(newProject.ShowIssues).To(BeTrue())
-			Expect(newProject.ShowPullRequests).To(BeFalse())
-		})
-	})
-
-	Describe("CreateInitialLists", func() {
-		var (
-			tx         *sql.Tx
-			newProject *Project
-		)
-		BeforeEach(func() {
-			tx, _ = database.SharedInstance().Connection.Begin()
-			newProject = New(0, uid, "new project", "description", sql.NullInt64{}, false, false)
-			newProject.Save(tx)
-		})
-		It("should success to create", func() {
-			err := newProject.CreateInitialLists(tx)
-			Expect(err).To(BeNil())
-			err = tx.Commit()
-			Expect(err).To(BeNil())
-		})
-	})
-
-	Describe("Lists and NoneLists", func() {
-		var (
-			newProject *Project
-		)
-		BeforeEach(func() {
-			tx, _ := database.SharedInstance().Connection.Begin()
-			newProject = New(0, uid, "new project", "description", sql.NullInt64{}, false, false)
-			newProject.Save(tx)
-			newProject.CreateInitialLists(tx)
-			tx.Commit()
-		})
-		Describe("Lists", func() {
-			It("should relate project and list", func() {
-				lists, err := newProject.Lists()
-				Expect(err).To(BeNil())
-				Expect(lists).NotTo(BeEmpty())
-			})
-		})
-
-		Describe("NoneList", func() {
-			It("should contain only none list", func() {
-				noneList, err := newProject.NoneList()
-				Expect(err).To(BeNil())
-				Expect(noneList.Title.String).To(Equal(config.Element("init_list").(map[interface{}]interface{})["none"].(string)))
-			})
-		})
-	})
-
-	Describe("DeleteLists", func() {
-		var (
-			newProject *Project
-		)
-		BeforeEach(func() {
-			tx, _ := database.SharedInstance().Connection.Begin()
-			newProject = New(0, uid, "new project", "description", sql.NullInt64{}, false, false)
-			newProject.Save(tx)
-			newProject.CreateInitialLists(tx)
-			tx.Commit()
-		})
-		It("should delete lists", func() {
-			err := newProject.DeleteLists()
-			Expect(err).To(BeNil())
-			lists, _ := newProject.Lists()
-			Expect(len(lists)).To(Equal(0))
-			noneList, _ := newProject.NoneList()
-			Expect(noneList).To(BeNil())
-		})
-	})
-
-	Describe("Delete", func() {
-		It("should delete project", func() {
-			newProject := New(0, uid, "new project", "description", sql.NullInt64{}, false, false)
-			newProject.Save(nil)
-			err := newProject.Delete()
-			Expect(err).To(BeNil())
+		It("not owner", func() {
+			p := New(0, 1306, "title", "description", sql.NullInt64{}, true, true, dummyInjector())
+			owner := p.CheckOwner(1)
+			Expect(owner).To(Equal(false))
 		})
 	})
 })
