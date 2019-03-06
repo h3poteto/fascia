@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/middlewares"
+	"github.com/h3poteto/fascia/server/usecases/board"
 	"github.com/h3poteto/fascia/server/validators"
 	"github.com/h3poteto/fascia/server/views"
 
@@ -40,13 +40,12 @@ func (u *Lists) Index(c echo.Context) error {
 		return err
 	}
 
-	projectService := pc.ProjectService
-	lists, err := projectService.ProjectEntity.Lists()
+	lists, err := board.ProjectLists(pc.Project)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	noneList, err := projectService.ProjectEntity.NoneList()
+	noneList, err := board.ProjectNoneList(pc.Project)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
@@ -69,7 +68,7 @@ func (u *Lists) Create(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	projectService := pc.ProjectService
+	project := pc.Project
 	currentUser := pc.CurrentUser
 
 	newListForm := new(NewListForm)
@@ -87,13 +86,13 @@ func (u *Lists) Create(c echo.Context) error {
 		return NewValidationError(err, http.StatusUnprocessableEntity, c)
 	}
 
-	list := handlers.NewList(0, projectService.ProjectEntity.ID, currentUser.ID, newListForm.Title, newListForm.Color, sql.NullInt64{}, false)
-
-	if err := list.Save(); err != nil {
+	list, err := board.CreateList(project.ID, currentUser.ID, newListForm.Title, newListForm.Color, sql.NullInt64{}, false)
+	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	jsonList, err := views.ParseListJSON(list.ListEntity)
+
+	jsonList, err := views.ParseListJSON(list)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
@@ -110,7 +109,7 @@ func (u *Lists) Update(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	targetList := lc.ListService
+	targetList := lc.List
 
 	editListForm := new(EditListForm)
 	err := c.Bind(editListForm)
@@ -131,11 +130,12 @@ func (u *Lists) Update(c echo.Context) error {
 		return NewValidationError(err, http.StatusUnprocessableEntity, c)
 	}
 
-	if err := targetList.Update(editListForm.Title, editListForm.Color, editListForm.OptionID); err != nil {
+	l, err := board.UpdateList(targetList, editListForm.Title, editListForm.Color, editListForm.OptionID)
+	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	jsonList, err := views.ParseListJSON(targetList.ListEntity)
+	jsonList, err := views.ParseListJSON(l)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
@@ -152,8 +152,8 @@ func (u *Lists) Hide(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	targetList := lc.ListService
-	projectService := lc.ProjectService
+	targetList := lc.List
+	project := lc.Project
 
 	if err := targetList.Hide(); err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -161,12 +161,12 @@ func (u *Lists) Hide(c echo.Context) error {
 	}
 
 	// prepare response
-	lists, err := projectService.ProjectEntity.Lists()
+	lists, err := board.ProjectLists(project)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	noneList, err := projectService.ProjectEntity.NoneList()
+	noneList, err := board.ProjectNoneList(project)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
@@ -189,8 +189,8 @@ func (u *Lists) Display(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	projectService := lc.ProjectService
-	targetList := lc.ListService
+	project := lc.Project
+	targetList := lc.List
 
 	if err := targetList.Display(); err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -198,12 +198,12 @@ func (u *Lists) Display(c echo.Context) error {
 	}
 
 	// prepare response
-	lists, err := projectService.ProjectEntity.Lists()
+	lists, err := board.ProjectLists(project)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	noneList, err := projectService.ProjectEntity.NoneList()
+	noneList, err := board.ProjectNoneList(project)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err

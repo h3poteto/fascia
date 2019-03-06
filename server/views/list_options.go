@@ -1,8 +1,6 @@
 package views
 
-import (
-	"github.com/h3poteto/fascia/server/domains/entities/list_option"
-)
+import "github.com/h3poteto/fascia/server/domains/list"
 
 // ListOption provides a response structure for list option
 type ListOption struct {
@@ -11,7 +9,7 @@ type ListOption struct {
 }
 
 // ParseListOptionJSON returns a ListOption struct for response
-func ParseListOptionJSON(option *list_option.ListOption) (*ListOption, error) {
+func ParseListOptionJSON(option *list.Option) (*ListOption, error) {
 	return &ListOption{
 		ID:     option.ID,
 		Action: option.Action,
@@ -19,7 +17,7 @@ func ParseListOptionJSON(option *list_option.ListOption) (*ListOption, error) {
 }
 
 // ParseListOptionsJSON returns some ListOption structs for response
-func ParseListOptionsJSON(options []*list_option.ListOption) ([]*ListOption, error) {
+func ParseListOptionsJSON(options []*list.Option) ([]*ListOption, error) {
 	results := []*ListOption{}
 	for _, o := range options {
 		parse, err := ParseListOptionJSON(o)

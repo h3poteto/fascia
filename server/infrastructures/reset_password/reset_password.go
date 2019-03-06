@@ -27,7 +27,7 @@ func (r *ResetPassword) Authenticate(id int64, token string) error {
 	var targetID int64
 	err := r.db.QueryRow("select id from reset_passwords where id = ? and token = ? and expires_at > now();", id, token).Scan(&targetID)
 	if err != nil {
-		return errors.Wrap(err, "authenticate error")
+		return errors.Wrap(err, "reset_password repository")
 	}
 
 	return nil
@@ -38,7 +38,10 @@ func (r *ResetPassword) FindAvailable(id int64, token string) (int64, int64, str
 	var userID int64
 	var expiresAt time.Time
 	err := r.db.QueryRow("select user_id, expires_at from reset_passwords where id = ? and token = ? and expires_at > now();", id, token).Scan(&userID, &expiresAt)
-	return id, userID, token, expiresAt, err
+	if err != nil {
+		return 0, 0, "", expiresAt, errors.Wrap(err, "reset_password repository")
+	}
+	return id, userID, token, expiresAt, nil
 }
 
 // Find find a reset password by id.
@@ -48,14 +51,17 @@ func (r *ResetPassword) Find(id int64) (int64, int64, string, time.Time, error) 
 	var expiresAt time.Time
 	db := database.SharedInstance().Connection
 	err := db.QueryRow("select user_id, token, expires_at from reset_passwords where id = ?;", id).Scan(&userID, &token, &expiresAt)
-	return id, userID, token, expiresAt, err
+	if err != nil {
+		return 0, 0, "", expiresAt, errors.Wrap(err, "reset_password repository")
+	}
+	return id, userID, token, expiresAt, nil
 }
 
 // Create save object to record
 func (r *ResetPassword) Create(userID int64, token string, expiresAt time.Time) (int64, error) {
 	result, err := r.db.Exec("insert into reset_passwords (user_id, token, expires_at, created_at) values (?, ?, ?, now());", userID, token, expiresAt)
 	if err != nil {
-		return 0, err
+		return 0, errors.Wrap(err, "reset_password repository")
 	}
 	id, _ := result.LastInsertId()
 	return id, nil
@@ -65,7 +71,7 @@ func (r *ResetPassword) Create(userID int64, token string, expiresAt time.Time) 
 func (r *ResetPassword) UpdateExpire(id int64) error {
 	_, err := r.db.Exec("update reset_passwords set expires_at = now() where id = ?;", id)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "reset_password repository")
 	}
 	return nil
 }

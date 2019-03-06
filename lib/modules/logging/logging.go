@@ -112,7 +112,14 @@ func (u *LogStruct) ControllerWithStacktrace(err error, context echo.Context) *l
 
 	stackErr, ok := err.(stackTracer)
 	if !ok {
-		panic("oops, err does not implement Stacktrace")
+		return u.Log.WithFields(logrus.Fields{
+			"time":       time.Now(),
+			"method":     context.Request().Method,
+			"requestID":  requestID,
+			"User-Agent": userAgent,
+			"path":       context.Path(),
+			"stacktrace": "oops, err does not implement Stacktrace",
+		})
 	}
 	st := stackErr.StackTrace()
 	traceLength := len(st)

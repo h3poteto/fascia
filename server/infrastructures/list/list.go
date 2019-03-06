@@ -2,7 +2,6 @@ package list
 
 import (
 	"github.com/h3poteto/fascia/config"
-	"github.com/h3poteto/fascia/lib/modules/database"
 
 	"database/sql"
 
@@ -11,132 +10,94 @@ import (
 
 // List has list record
 type List struct {
-	ID           int64
-	ProjectID    int64
-	UserID       int64
-	Title        sql.NullString
-	Color        sql.NullString
-	ListOptionID sql.NullInt64
-	IsHidden     bool
-	db           *sql.DB
+	db *sql.DB
 }
 
 // New returns a new list object
-func New(id int64, projectID int64, userID int64, title string, color string, optionID sql.NullInt64, isHidden bool) *List {
-	if projectID == 0 {
-		return nil
+func New(db *sql.DB) *List {
+	return &List{
+		db,
 	}
-	nullTitle := sql.NullString{String: title, Valid: true}
-	nullColor := sql.NullString{String: color, Valid: true}
-
-	list := &List{ID: id, ProjectID: projectID, UserID: userID, Title: nullTitle, Color: nullColor, ListOptionID: optionID, IsHidden: isHidden}
-	list.initialize()
-	return list
 }
 
-// FindByID search a list according to id
-func FindByID(projectID int64, listID int64) (*List, error) {
-	db := database.SharedInstance().Connection
-	var id, userID int64
+// Find search a list according to id
+func (l *List) Find(targetProjectID int64, listID int64) (int64, int64, int64, sql.NullString, sql.NullString, sql.NullInt64, bool, error) {
+	var id, projectID, userID int64
 	var title, color sql.NullString
 	var optionID sql.NullInt64
 	var isHidden bool
-	rows, err := db.Query("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where id = ? AND project_id = ?;", listID, projectID)
+	err := l.db.QueryRow("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where id = ? AND project_id = ?;", listID, targetProjectID).Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
 	if err != nil {
-		return nil, errors.Wrap(err, "sql select error")
-	}
-	for rows.Next() {
-		err = rows.Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
-		if err != nil {
-			return nil, errors.Wrap(err, "sql scan error")
-		}
+		return 0, 0, 0, sql.NullString{}, sql.NullString{}, sql.NullInt64{}, false, errors.Wrap(err, "list repository")
 	}
 	if id != listID {
-		return nil, errors.New("cannot find list or project did not contain list")
+		return 0, 0, 0, sql.NullString{}, sql.NullString{}, sql.NullInt64{}, false, errors.New("cannot find list or project did not contain list")
 	}
-	list := New(id, projectID, userID, title.String, color.String, optionID, isHidden)
-	return list, nil
-
+	return id, projectID, userID, title, color, optionID, isHidden, nil
 }
 
-func (l *List) initialize() {
-	l.db = database.SharedInstance().Connection
+// FindByTaskID retruns parent list of a task.
+func (l *List) FindByTaskID(taskID int64) (int64, int64, int64, sql.NullString, sql.NullString, sql.NullInt64, bool, error) {
+	var id, projectID, userID int64
+	var title, color sql.NullString
+	var optionID sql.NullInt64
+	var isHidden bool
+	err := l.db.QueryRow("SELECT lists.id, lists.project_id, lists.user_id, list.title, list.color, list.list_option_id, lists.is_hidden FROM tasks INNER JOIN lists on tasks.list_id = lists.id WHERE tasks.id = ?;", taskID).Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
+	if err != nil {
+		return 0, 0, 0, sql.NullString{}, sql.NullString{}, sql.NullInt64{}, false, errors.Wrap(err, "list repository")
+	}
+	return id, projectID, userID, title, color, optionID, isHidden, nil
 }
 
-// Save save list object to record
-func (l *List) Save(tx *sql.Tx) error {
+// Create save list object to record
+func (l *List) Create(projectID int64, userID int64, title sql.NullString, color sql.NullString, listOptionID sql.NullInt64, isHidden bool, tx *sql.Tx) (int64, error) {
 	var err error
 	var result sql.Result
 	if tx != nil {
-		result, err = tx.Exec("insert into lists (project_id, user_id, title, color, list_option_id, is_hidden, created_at) values (?, ?, ?, ?, ?, ?, now());", l.ProjectID, l.UserID, l.Title, l.Color, l.ListOptionID, l.IsHidden)
+		result, err = tx.Exec("insert into lists (project_id, user_id, title, color, list_option_id, is_hidden, created_at) values (?, ?, ?, ?, ?, ?, now());", projectID, userID, title, color, listOptionID, isHidden)
 	} else {
-		result, err = l.db.Exec("insert into lists (project_id, user_id, title, color, list_option_id, is_hidden, created_at) values (?, ?, ?, ?, ?, ?, now());", l.ProjectID, l.UserID, l.Title, l.Color, l.ListOptionID, l.IsHidden)
+		result, err = l.db.Exec("insert into lists (project_id, user_id, title, color, list_option_id, is_hidden, created_at) values (?, ?, ?, ?, ?, ?, now());", projectID, userID, title, color, listOptionID, isHidden)
 	}
 	if err != nil {
-		return errors.Wrap(err, "sql execute error")
+		return 0, errors.Wrap(err, "list repository")
 	}
-	l.ID, _ = result.LastInsertId()
-	return nil
+	id, _ := result.LastInsertId()
+	return id, nil
 }
 
 // Update update and save list in database
-func (l *List) Update(title, color string, optionID sql.NullInt64) (e error) {
-	_, err := l.db.Exec("update lists set title = ?, color = ?, list_option_id = ?, is_hidden = ? where id = ?;", title, color, optionID, l.IsHidden, l.ID)
+func (l *List) Update(id int64, projectID int64, userID int64, title sql.NullString, color sql.NullString, listOptionID sql.NullInt64, isHidden bool) error {
+	_, err := l.db.Exec("update lists set project_id = ?, user_id = ?, title = ?, color = ?, list_option_id = ?, is_hidden = ? where id = ?;", projectID, userID, title, color, listOptionID, isHidden, id)
 	if err != nil {
-		return errors.Wrap(err, "sql execute error")
+		return errors.Wrap(err, "list repository")
 	}
-
-	l.Title = sql.NullString{String: title, Valid: true}
-	l.Color = sql.NullString{String: color, Valid: true}
-	l.ListOptionID = optionID
-	return nil
-}
-
-// Hide can hide a list, it change is_hidden field
-func (l *List) Hide() error {
-	_, err := l.db.Exec("update lists set is_hidden = true where id = ?;", l.ID)
-	if err != nil {
-		return errors.Wrap(err, "sql execute error")
-	}
-	l.IsHidden = true
-	return nil
-}
-
-// Display can display a list, it change is_hidden filed
-func (l *List) Display() error {
-	_, err := l.db.Exec("update lists set is_hidden = false where id = ?;", l.ID)
-	if err != nil {
-		return errors.Wrap(err, "sql execute error")
-	}
-	l.IsHidden = false
 	return nil
 }
 
 // Delete delete a list model in record
-func (l *List) Delete() error {
-	_, err := l.db.Exec("DELETE FROM lists WHERE id = ?;", l.ID)
+func (l *List) Delete(id int64) error {
+	_, err := l.db.Exec("DELETE FROM lists WHERE id = ?;", id)
 	if err != nil {
-		return errors.Wrap(err, "list delete error")
+		return errors.Wrap(err, "list repository")
 	}
 	return nil
 }
 
 // DeleteTasks delete all tasks related a list
-func (l *List) DeleteTasks() error {
-	_, err := l.db.Exec("DELETE FROM tasks WHERE list_id = ?;", l.ID)
+func (l *List) DeleteTasks(id int64) error {
+	_, err := l.db.Exec("DELETE FROM tasks WHERE list_id = ?;", id)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "list repository")
 	}
 	return nil
 }
 
 // Lists returns all lists related a project.
-func Lists(parentProjectID int64) ([]*List, error) {
-	db := database.SharedInstance().Connection
-	var slice []*List
-	rows, err := db.Query("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where project_id = ? and title != ?;", parentProjectID, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
+func (l *List) Lists(parentProjectID int64) ([]map[string]interface{}, error) {
+	var result []map[string]interface{}
+	rows, err := l.db.Query("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where project_id = ? and title != ?;", parentProjectID, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
 	if err != nil {
-		return nil, errors.Wrap(err, "sql select error")
+		return result, errors.Wrap(err, "list repository")
 	}
 	for rows.Next() {
 		var id, projectID, userID int64
@@ -145,29 +106,76 @@ func Lists(parentProjectID int64) ([]*List, error) {
 		var isHidden bool
 		err = rows.Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
 		if err != nil {
-			return nil, errors.Wrap(err, "sql select error")
+			return nil, errors.Wrap(err, "list repository")
 		}
 		if projectID == parentProjectID && title.Valid {
-			l := New(id, projectID, userID, title.String, color.String, optionID, isHidden)
-			slice = append(slice, l)
+			l := map[string]interface{}{
+				"id":        id,
+				"projectID": projectID,
+				"userID":    userID,
+				"title":     title,
+				"color":     color,
+				"optionID":  optionID,
+				"isHidden":  isHidden,
+			}
+			result = append(result, l)
 		}
 	}
-	return slice, nil
+	return result, nil
 }
 
 // NoneList returns a none list related a project.
-func NoneList(parentProjectID int64) (*List, error) {
-	db := database.SharedInstance().Connection
+func (l *List) NoneList(parentProjectID int64) (int64, int64, int64, sql.NullString, sql.NullString, sql.NullInt64, bool, error) {
 	var id, projectID, userID int64
 	var title, color sql.NullString
 	var optionID sql.NullInt64
 	var isHidden bool
-	err := db.QueryRow("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where project_id = ? and title = ?;", parentProjectID, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
+	err := l.db.QueryRow("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where project_id = ? and title = ?;", parentProjectID, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
 	if err != nil {
-		return nil, errors.Wrap(err, "sql select error")
+		return 0, 0, 0, sql.NullString{}, sql.NullString{}, sql.NullInt64{}, false, err
 	}
 	if projectID == parentProjectID && title.Valid {
-		return New(id, projectID, userID, title.String, color.String, optionID, isHidden), nil
+		return id, projectID, userID, title, color, optionID, isHidden, nil
 	}
-	return nil, errors.New("none list not found")
+	return 0, 0, 0, sql.NullString{}, sql.NullString{}, sql.NullInt64{}, false, errors.New("none list not found")
+}
+
+// FindOptionByAction search a list option according to action
+func (l *List) FindOptionByAction(action string) (int64, string, error) {
+	var id int64
+	err := l.db.QueryRow("select id from list_options where action = ?;", action).Scan(&id)
+	if err != nil {
+		return 0, "", err
+	}
+	return id, action, nil
+}
+
+// FindOptionByID search a list option according to id
+func (l *List) FindOptionByID(id int64) (int64, string, error) {
+	var action string
+	err := l.db.QueryRow("select action from list_options where id = ?;", id).Scan(&action)
+	if err != nil {
+		return 0, "", err
+	}
+	return id, action, nil
+}
+
+// AllOption returns all list options.
+func (l *List) AllOption() ([]map[string]interface{}, error) {
+	slice := []map[string]interface{}{}
+	rows, err := l.db.Query("select id, action from list_options;")
+	if err != nil {
+		return slice, err
+	}
+	for rows.Next() {
+		var id int64
+		var action string
+		err = rows.Scan(&id, &action)
+		if err != nil {
+			return nil, err
+		}
+		m := map[string]interface{}{"id": id, "action": action}
+		slice = append(slice, m)
+	}
+	return slice, nil
 }

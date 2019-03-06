@@ -5,8 +5,10 @@ import (
 	"time"
 
 	"github.com/google/go-github/github"
+	"github.com/h3poteto/fascia/server/domains/project"
 	domain "github.com/h3poteto/fascia/server/domains/user"
 	repo "github.com/h3poteto/fascia/server/infrastructures/user"
+	"github.com/h3poteto/fascia/server/usecases/board"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 )
@@ -63,6 +65,10 @@ func FindOrCreateUserFromGithub(token string) (*domain.User, error) {
 	}
 
 	return domain.FindOrCreateFromGithub(githubUser, token, primaryEmail, InjectUserRepository())
+}
+
+func UserProjects(u *domain.User) ([]*project.Project, error) {
+	return u.Projects(board.InjectProjectRepository())
 }
 
 /* Tests:

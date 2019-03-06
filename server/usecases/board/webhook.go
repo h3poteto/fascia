@@ -1,4 +1,4 @@
-package handlers
+package board
 
 import (
 	"math/rand"
@@ -6,47 +6,48 @@ import (
 
 	"github.com/google/go-github/github"
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/commands/board"
+	"github.com/h3poteto/fascia/server/domains/project"
+	"github.com/h3poteto/fascia/server/domains/repo"
 )
 
 // ApplyIssueChangesToRepository apply updating information of issue to each task
-func ApplyIssueChangesToRepository(repository *board.Repository, githubBody github.IssuesEvent) error {
-	projectServices, err := board.FindProjectByRepositoryID(repository.RepositoryEntity.ID)
+func ApplyIssueChangesToRepository(repo *repo.Repo, githubBody github.IssuesEvent) error {
+	projects, err := findProjectByRepoID(repo.ID)
 	if err != nil {
 		return err
 	}
 
-	go func(projectServices []*board.Project, githubBody github.IssuesEvent) {
+	go func(projects []*project.Project, githubBody github.IssuesEvent) {
 		waitWebhookReadtime()
-		for _, p := range projectServices {
-			err = p.ApplyIssueChanges(githubBody)
+		for _, p := range projects {
+			err = applyIssueChanges(p, githubBody)
 			if err != nil {
 				logging.SharedInstance().MethodInfoWithStacktrace("Webhook", "ApplyIssueChangesToRepository", err).Error(err)
 				return
 			}
 		}
-	}(projectServices, githubBody)
+	}(projects, githubBody)
 	return nil
 }
 
 // ApplyPullRequestChangesToRepository apply updating information of pull request to each task
-func ApplyPullRequestChangesToRepository(repository *board.Repository, githubBody github.PullRequestEvent) error {
+func ApplyPullRequestChangesToRepository(repo *repo.Repo, githubBody github.PullRequestEvent) error {
 
-	projectServices, err := board.FindProjectByRepositoryID(repository.RepositoryEntity.ID)
+	projects, err := findProjectByRepoID(repo.ID)
 	if err != nil {
 		return err
 	}
 
-	go func(projectServices []*board.Project, githubBody github.PullRequestEvent) {
+	go func(projects []*project.Project, githubBody github.PullRequestEvent) {
 		waitWebhookReadtime()
-		for _, p := range projectServices {
-			err = p.ApplyPullRequestChanges(githubBody)
+		for _, p := range projects {
+			err = applyPullRequestChanges(p, githubBody)
 			if err != nil {
 				logging.SharedInstance().MethodInfoWithStacktrace("Webhook", "ApplyPullRequestChangesToRepository", err).Error(err)
 				return
 			}
 		}
-	}(projectServices, githubBody)
+	}(projects, githubBody)
 	return nil
 }
 

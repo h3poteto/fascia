@@ -2,9 +2,10 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/domains/entities/project"
-	"github.com/h3poteto/fascia/server/handlers"
+	"github.com/h3poteto/fascia/server/domains/project"
 	"github.com/h3poteto/fascia/server/middlewares"
+	"github.com/h3poteto/fascia/server/usecases/account"
+	"github.com/h3poteto/fascia/server/usecases/board"
 	"github.com/h3poteto/fascia/server/validators"
 	"github.com/h3poteto/fascia/server/views"
 
@@ -47,7 +48,7 @@ func (u *Projects) Index(c echo.Context) error {
 	}
 
 	currentUser := uc.CurrentUser
-	projects, err := currentUser.Projects()
+	projects, err := account.UserProjects(currentUser)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
@@ -75,8 +76,8 @@ func (u *Projects) Show(c echo.Context) error {
 		return err
 	}
 
-	projectService := pc.ProjectService
-	jsonProject, err := views.ParseProjectJSON(projectService.ProjectEntity)
+	p := pc.Project
+	jsonProject, err := views.ParseProjectJSON(p)
 	if err != nil {
 		logging.SharedInstance().Controller(c).Error(err)
 		return err
@@ -113,7 +114,7 @@ func (u *Projects) Create(c echo.Context) error {
 		return NewValidationError(err, http.StatusUnprocessableEntity, c)
 	}
 
-	projectService, err := handlers.CreateProject(
+	p, err := board.CreateProject(
 		currentUser.ID,
 		newProjectForm.Title,
 		newProjectForm.Description,
@@ -125,7 +126,7 @@ func (u *Projects) Create(c echo.Context) error {
 		return err
 	}
 
-	jsonProject, err := views.ParseProjectJSON(projectService.ProjectEntity)
+	jsonProject, err := views.ParseProjectJSON(p)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
@@ -142,7 +143,7 @@ func (u *Projects) Update(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	projectService := pc.ProjectService
+	p := pc.Project
 
 	editProjectForm := new(EditProjectForm)
 	err := c.Bind(editProjectForm)
@@ -162,13 +163,13 @@ func (u *Projects) Update(c echo.Context) error {
 		return NewValidationError(err, http.StatusUnprocessableEntity, c)
 	}
 
-	if err := projectService.Update(editProjectForm.Title, editProjectForm.Description, projectService.ProjectEntity.ShowIssues, projectService.ProjectEntity.ShowPullRequests); err != nil {
+	if err := p.Update(editProjectForm.Title, editProjectForm.Description, p.ShowIssues, p.ShowPullRequests); err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
 	logging.SharedInstance().Controller(c).Info("success to update project")
 
-	jsonProject, err := views.ParseProjectJSON(projectService.ProjectEntity)
+	jsonProject, err := views.ParseProjectJSON(p)
 	if err != nil {
 		logging.SharedInstance().Controller(c).Error(err)
 		return err
@@ -184,7 +185,7 @@ func (u *Projects) Settings(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	projectService := pc.ProjectService
+	p := pc.Project
 
 	settingsProjectForm := new(SettingsProjectForm)
 	err := c.Bind(settingsProjectForm)
@@ -194,9 +195,9 @@ func (u *Projects) Settings(c echo.Context) error {
 		return err
 	}
 	logging.SharedInstance().Controller(c).Debugf("post edit project parameter: %+v", settingsProjectForm)
-	if err := projectService.Update(
-		projectService.ProjectEntity.Title,
-		projectService.ProjectEntity.Description,
+	if err := p.Update(
+		p.Title,
+		p.Description,
 		settingsProjectForm.ShowIssues,
 		settingsProjectForm.ShowPullRequests,
 	); err != nil {
@@ -205,7 +206,7 @@ func (u *Projects) Settings(c echo.Context) error {
 	}
 	logging.SharedInstance().Controller(c).Info("success to update project")
 
-	jsonProject, err := views.ParseProjectJSON(projectService.ProjectEntity)
+	jsonProject, err := views.ParseProjectJSON(p)
 	if err != nil {
 		logging.SharedInstance().Controller(c).Error(err)
 		return err
@@ -221,19 +222,19 @@ func (u *Projects) FetchGithub(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	projectService := pc.ProjectService
+	p := pc.Project
 
-	_, err := projectService.FetchGithub()
+	_, err := board.FetchGithub(p)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Errorf("github fetch error: %v", err)
 		return err
 	}
-	lists, err := projectService.ProjectEntity.Lists()
+	lists, err := board.ProjectLists(p)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	noneList, err := projectService.ProjectEntity.NoneList()
+	noneList, err := board.ProjectNoneList(p)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
@@ -256,18 +257,15 @@ func (u *Projects) Webhook(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	projectService := pc.ProjectService
+	p := pc.Project
 
-	_, find, err := projectService.ProjectEntity.Repository()
+	r, err := board.ProjectRepository(p)
 	if err != nil {
 		logging.SharedInstance().Controller(c).Error(err)
-		return err
-	}
-	if !find {
-		logging.SharedInstance().Controller(c).Warn("repository not found: %v", err)
 		return NewJSONError(err, http.StatusNotFound, c)
 	}
-	err = projectService.CreateWebhook()
+	token, _ := p.OauthToken()
+	err = r.CreateWebhook(token)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Errorf("failed to create webhook: %v", err)
 		return err
@@ -284,9 +282,9 @@ func (u *Projects) Destroy(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	projectService := pc.ProjectService
+	p := pc.Project
 
-	err := handlers.DestroyProject(projectService.ProjectEntity.ID)
+	err := board.DeleteProject(p.ID)
 	if err != nil {
 		logging.SharedInstance().Controller(c).Errorf("project destroy error: %v", err)
 		return err

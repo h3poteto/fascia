@@ -1,7 +1,8 @@
 package views
 
 import (
-	"github.com/h3poteto/fascia/server/domains/entities/project"
+	"github.com/h3poteto/fascia/server/domains/project"
+	"github.com/h3poteto/fascia/server/usecases/board"
 )
 
 // Project provides a response structure for project
@@ -18,11 +19,8 @@ type Project struct {
 // ParseProjectJSON returns a project struct for response
 func ParseProjectJSON(project *project.Project) (*Project, error) {
 	var repositoryID int64
-	repo, find, err := project.Repository()
-	if err != nil {
-		return nil, err
-	}
-	if find {
+	repo, err := board.ProjectRepository(project)
+	if err == nil {
 		repositoryID = repo.ID
 	}
 

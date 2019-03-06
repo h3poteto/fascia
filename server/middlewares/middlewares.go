@@ -2,11 +2,13 @@ package middlewares
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/commands/board"
+	"github.com/h3poteto/fascia/server/domains/list"
+	"github.com/h3poteto/fascia/server/domains/project"
+	"github.com/h3poteto/fascia/server/domains/task"
 	"github.com/h3poteto/fascia/server/domains/user"
-	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/session"
-	usecaseAccount "github.com/h3poteto/fascia/server/usecases/account"
+	"github.com/h3poteto/fascia/server/usecases/account"
+	"github.com/h3poteto/fascia/server/usecases/board"
 	"github.com/h3poteto/fascia/server/validators"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -48,19 +50,19 @@ type LoginContext struct {
 // ProjectContext prepare a project service
 type ProjectContext struct {
 	LoginContext
-	ProjectService *board.Project
+	Project *project.Project
 }
 
 // ListContext prepare a list service
 type ListContext struct {
 	ProjectContext
-	ListService *board.List
+	List *list.List
 }
 
 // TaskContext prepare a task service
 type TaskContext struct {
 	ListContext
-	TaskService *board.Task
+	Task *task.Task
 }
 
 // Login requires login session
@@ -68,14 +70,14 @@ type TaskContext struct {
 func Login() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			userService, err := CheckLogin(c)
+			user, err := CheckLogin(c)
 			if err != nil {
 				logging.SharedInstance().Controller(c).Info(err)
 				return NewJSONError(err, http.StatusUnauthorized, c)
 			}
 			uc := &LoginContext{
 				c,
-				userService,
+				user,
 			}
 			return next(uc)
 		}
@@ -88,7 +90,7 @@ func CheckLogin(c echo.Context) (*user.User, error) {
 	if id == nil {
 		return nil, errors.New("not logined")
 	}
-	currentUser, err := usecaseAccount.FindUser(id.(int64))
+	currentUser, err := account.FindUser(id.(int64))
 	if err != nil {
 		return nil, err
 	}
@@ -111,15 +113,15 @@ func Project() echo.MiddlewareFunc {
 				logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 				return NewJSONError(err, http.StatusNotFound, c)
 			}
-			projectService, err := handlers.FindProject(projectID)
-			if err != nil || !(projectService.CheckOwner(uc.CurrentUser.ID)) {
+			p, err := board.FindProject(projectID)
+			if err != nil || !(p.CheckOwner(uc.CurrentUser.ID)) {
 				logging.SharedInstance().Controller(c).Warnf("project not found: %v", err)
 				return NewJSONError(err, http.StatusNotFound, c)
 			}
 
 			pc := &ProjectContext{
 				*uc,
-				projectService,
+				p,
 			}
 			return next(pc)
 		}
@@ -142,14 +144,14 @@ func List() echo.MiddlewareFunc {
 				logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 				return NewJSONError(err, http.StatusNotFound, c)
 			}
-			listService, err := handlers.FindList(pc.ProjectService.ProjectEntity.ID, listID)
+			l, err := board.FindList(pc.Project.ID, listID)
 			if err != nil {
 				logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 				return NewJSONError(err, http.StatusNotFound, c)
 			}
 			lc := &ListContext{
 				*pc,
-				listService,
+				l,
 			}
 			return next(lc)
 		}
@@ -172,14 +174,14 @@ func Task() echo.MiddlewareFunc {
 				logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 				return NewJSONError(err, http.StatusNotFound, c)
 			}
-			taskService, err := handlers.FindTask(lc.ListService.ListEntity.ID, taskID)
+			t, err := board.FindTask(taskID)
 			if err != nil {
 				logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 				return NewJSONError(err, http.StatusNotFound, c)
 			}
 			tc := &TaskContext{
 				*lc,
-				taskService,
+				t,
 			}
 			return next(tc)
 		}

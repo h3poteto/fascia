@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/commands/board"
+	"github.com/h3poteto/fascia/server/domains/project"
 	"github.com/h3poteto/fascia/server/middlewares"
+	"github.com/h3poteto/fascia/server/usecases/board"
 	"github.com/h3poteto/fascia/server/validators"
 	"github.com/h3poteto/fascia/server/views"
 
@@ -44,8 +45,8 @@ func (u *Tasks) Create(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	projectService := lc.ProjectService
-	parentList := lc.ListService
+	p := lc.Project
+	parentList := lc.List
 
 	newTaskForm := new(NewTaskForm)
 	err := c.Bind(newTaskForm)
@@ -62,11 +63,10 @@ func (u *Tasks) Create(c echo.Context) error {
 		return NewValidationError(err, http.StatusUnprocessableEntity, c)
 	}
 
-	task := board.NewTask(
-		0,
-		parentList.ListEntity.ID,
-		projectService.ProjectEntity.ID,
-		parentList.ListEntity.UserID,
+	t, err := board.CreateTask(
+		parentList.ID,
+		p.ID,
+		parentList.UserID,
 		sql.NullInt64{},
 		newTaskForm.Title,
 		newTaskForm.Description,
@@ -74,16 +74,16 @@ func (u *Tasks) Create(c echo.Context) error {
 		sql.NullString{},
 	)
 
-	if err := task.Save(); err != nil {
+	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Errorf("save failed: %v", err)
 		return err
 	}
 
-	jsonAllLists, err := allListsResponse(projectService)
+	jsonAllLists, err := allListsResponse(p)
 	if err != nil {
 		return err
 	}
-	logging.SharedInstance().Controller(c).Debugf("create task success: %+v", task)
+	logging.SharedInstance().Controller(c).Debugf("create task success: %+v", t)
 	logging.SharedInstance().Controller(c).Info("success to create task")
 	return c.JSON(http.StatusOK, jsonAllLists)
 }
@@ -96,9 +96,9 @@ func (u *Tasks) Show(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	task := tc.TaskService
+	t := tc.Task
 
-	jsonTask, err := views.ParseTaskJSON(task.TaskEntity)
+	jsonTask, err := views.ParseTaskJSON(t)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
@@ -115,8 +115,8 @@ func (u *Tasks) MoveTask(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	projectService := tc.ProjectService
-	task := tc.TaskService
+	p := tc.Project
+	t := tc.Task
 
 	moveTaskFrom := new(MoveTaskForm)
 	err := c.Bind(moveTaskFrom)
@@ -138,16 +138,16 @@ func (u *Tasks) MoveTask(c echo.Context) error {
 		prevToTaskID = &moveTaskFrom.PrevToTaskID
 	}
 
-	if err := task.ChangeList(moveTaskFrom.ToListID, prevToTaskID); err != nil {
+	if err := board.TaskChangeList(t, moveTaskFrom.ToListID, prevToTaskID); err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Errorf("failed change list: %v", err)
 		return err
 	}
 
-	jsonAllLists, err := allListsResponse(projectService)
+	jsonAllLists, err := allListsResponse(p)
 	if err != nil {
 		return err
 	}
-	logging.SharedInstance().Controller(c).Debugf("move task: %+v", task)
+	logging.SharedInstance().Controller(c).Debugf("move task: %+v", t)
 	logging.SharedInstance().Controller(c).Info("success to move task")
 	return c.JSON(http.StatusOK, jsonAllLists)
 }
@@ -160,8 +160,8 @@ func (u *Tasks) Update(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	projectService := tc.ProjectService
-	task := tc.TaskService
+	p := tc.Project
+	t := tc.Task
 
 	editTaskForm := new(EditTaskForm)
 	err := c.Bind(editTaskForm)
@@ -178,24 +178,25 @@ func (u *Tasks) Update(c echo.Context) error {
 		return NewValidationError(err, http.StatusUnprocessableEntity, c)
 	}
 
-	err = task.Update(
-		task.TaskEntity.ListID,
-		task.TaskEntity.IssueNumber,
+	err = board.UpdateTask(
+		t,
+		t.ListID,
+		t.IssueNumber,
 		editTaskForm.Title,
 		editTaskForm.Description,
-		task.TaskEntity.PullRequest,
-		task.TaskEntity.HTMLURL,
+		t.PullRequest,
+		t.HTMLURL,
 	)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
 
-	jsonAllLists, err := allListsResponse(projectService)
+	jsonAllLists, err := allListsResponse(p)
 	if err != nil {
 		return err
 	}
-	logging.SharedInstance().Controller(c).Debugf("update task: %+v", task)
+	logging.SharedInstance().Controller(c).Debugf("update task: %+v", t)
 	logging.SharedInstance().Controller(c).Info("success to update task")
 	return c.JSON(http.StatusOK, jsonAllLists)
 }
@@ -208,15 +209,15 @@ func (u *Tasks) Delete(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	projectService := tc.ProjectService
-	task := tc.TaskService
+	p := tc.Project
+	t := tc.Task
 
-	err := task.Delete()
+	err := t.Delete()
 	if err != nil {
 		logging.SharedInstance().Controller(c).Info(err)
 		return NewJSONError(err, http.StatusBadRequest, c)
 	}
-	jsonAllLists, err := allListsResponse(projectService)
+	jsonAllLists, err := allListsResponse(p)
 	if err != nil {
 		return err
 	}
@@ -224,12 +225,12 @@ func (u *Tasks) Delete(c echo.Context) error {
 	return c.JSON(http.StatusOK, jsonAllLists)
 }
 
-func allListsResponse(projectService *board.Project) (*views.AllLists, error) {
-	allLists, err := projectService.ProjectEntity.Lists()
+func allListsResponse(p *project.Project) (*views.AllLists, error) {
+	allLists, err := board.ProjectLists(p)
 	if err != nil {
 		return nil, err
 	}
-	noneList, err := projectService.ProjectEntity.NoneList()
+	noneList, err := board.ProjectNoneList(p)
 	if err != nil {
 		return nil, err
 	}

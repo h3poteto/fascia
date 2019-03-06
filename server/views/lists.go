@@ -1,7 +1,8 @@
 package views
 
 import (
-	"github.com/h3poteto/fascia/server/domains/entities/list"
+	"github.com/h3poteto/fascia/server/domains/list"
+	"github.com/h3poteto/fascia/server/usecases/board"
 )
 
 // List provides a response structure for list
@@ -25,7 +26,7 @@ type AllLists struct {
 
 // ParseListJSON returns a List struct for response
 func ParseListJSON(list *list.List) (*List, error) {
-	tasks, err := list.Tasks()
+	tasks, err := board.ListTasks(list)
 	if err != nil {
 		return nil, err
 	}
