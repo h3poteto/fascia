@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/handlers"
 	"github.com/h3poteto/fascia/server/middlewares"
+	"github.com/h3poteto/fascia/server/usecases/board"
 
 	"net/http"
 	"strconv"
@@ -32,8 +32,8 @@ func (u *Root) Index(c echo.Context) error {
 
 	projectID, _ := strconv.ParseInt(c.Param("project_id"), 10, 64)
 	if projectID != 0 {
-		projectService, err := handlers.FindProject(projectID)
-		if err != nil || !(projectService.CheckOwner(currentUser.ID)) {
+		p, err := board.FindProject(projectID)
+		if err != nil || !(p.CheckOwner(currentUser.ID)) {
 			logging.SharedInstance().Controller(c).Warnf("project not found: %v", err)
 			return NewJSONError(err, http.StatusNotFound, c)
 		}

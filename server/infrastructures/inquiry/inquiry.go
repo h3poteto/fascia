@@ -23,7 +23,7 @@ func New(db *sql.DB) *Inquiry {
 func (i *Inquiry) Create(email, name, message string) (int64, error) {
 	result, err := i.db.Exec("insert into inquiries (email, name, message, created_at) values (?, ?, ?, now());", email, name, message)
 	if err != nil {
-		return 0, errors.Wrap(err, "sql execute error")
+		return 0, errors.Wrap(err, "inquiry repository")
 	}
 	id, _ := result.LastInsertId()
 	return id, nil

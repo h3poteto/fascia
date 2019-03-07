@@ -1,8 +1,6 @@
 package project
 
 import (
-	"github.com/h3poteto/fascia/lib/modules/database"
-
 	"database/sql"
 
 	"github.com/pkg/errors"
@@ -10,144 +8,126 @@ import (
 
 // Project has project record
 type Project struct {
-	ID               int64
-	UserID           int64
-	Title            string
-	Description      string
-	RepositoryID     sql.NullInt64
-	ShowIssues       bool
-	ShowPullRequests bool
-	db               *sql.DB
+	db *sql.DB
 }
 
 // New returns a new project object
-func New(id int64, userID int64, title string, description string, repositoryID sql.NullInt64, showIssues bool, showPullRequests bool) *Project {
-	if userID == 0 {
-		return nil
+func New(db *sql.DB) *Project {
+	return &Project{
+		db,
 	}
-
-	project := &Project{ID: id, UserID: userID, Title: title, Description: description, RepositoryID: repositoryID, ShowIssues: showIssues, ShowPullRequests: showPullRequests}
-	project.initialize()
-	return project
 }
 
 // Find search a project according to id
-func Find(projectID int64) (*Project, error) {
-	db := database.SharedInstance().Connection
-
+func (p *Project) Find(projectID int64) (int64, int64, string, string, sql.NullInt64, bool, bool, error) {
 	var id, userID int64
 	var repositoryID sql.NullInt64
-	var title string
-	var description string
+	var title, description string
 	var showIssues, showPullRequests bool
-	err := db.QueryRow("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where id = ?;", projectID).Scan(&id, &userID, &repositoryID, &title, &description, &showIssues, &showPullRequests)
-	if err != nil {
-		return nil, errors.Wrap(err, "sql select error")
-	}
-	project := New(id, userID, title, description, repositoryID, showIssues, showPullRequests)
-	return project, nil
+	err := p.db.QueryRow("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where id = ?;", projectID).Scan(&id, &userID, &repositoryID, &title, &description, &showIssues, &showPullRequests)
+	return id, userID, title, description, repositoryID, showIssues, showPullRequests, err
 }
 
 // FindByRepositoryID search projects according to repository id
-func FindByRepositoryID(repoID int64) ([]*Project, error) {
-	db := database.SharedInstance().Connection
-
-	var slice []*Project
-	rows, err := db.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where repository_id = ?;", repoID)
+func (p *Project) FindByRepositoryID(repoID int64) ([]map[string]interface{}, error) {
+	var result []map[string]interface{}
+	rows, err := p.db.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where repository_id = ?;", repoID)
 	if err != nil {
-		return nil, errors.Wrap(err, "find project error")
+		return nil, errors.Wrap(err, "project repository")
 	}
 	for rows.Next() {
 		var id, userID int64
 		var repositoryID sql.NullInt64
-		var title string
-		var description string
+		var title, description string
 		var showIssues, showPullRequests bool
 		err = rows.Scan(&id, &userID, &repositoryID, &title, &description, &showIssues, &showPullRequests)
 		if err != nil {
-			return nil, errors.Wrap(err, "scan project error")
+			return nil, errors.Wrap(err, "project repository")
 		}
-		p := New(id, userID, title, description, repositoryID, showIssues, showPullRequests)
-		slice = append(slice, p)
+		p := map[string]interface{}{
+			"id":               id,
+			"userID":           userID,
+			"title":            title,
+			"description":      description,
+			"repositoryID":     repositoryID,
+			"showIssues":       showIssues,
+			"showPullRequests": showPullRequests,
+		}
+		result = append(result, p)
 	}
-	return slice, nil
+	return result, nil
 }
 
-func (p *Project) initialize() {
-	p.db = database.SharedInstance().Connection
-}
-
-// Save save project model in record
-func (p *Project) Save(tx *sql.Tx) error {
+// Create save project model in record
+func (p *Project) Create(userID int64, title string, description string, repositoryID sql.NullInt64, showIssues bool, showPullRequests bool, tx *sql.Tx) (int64, error) {
 	var err error
 	var result sql.Result
 	if tx != nil {
-		result, err = tx.Exec("insert into projects (user_id, repository_id, title, description, show_issues, show_pull_requests, created_at) values (?, ?, ?, ?, ?, ?, now());", p.UserID, p.RepositoryID, p.Title, p.Description, p.ShowIssues, p.ShowPullRequests)
+		result, err = tx.Exec("insert into projects (user_id, repository_id, title, description, show_issues, show_pull_requests, created_at) values (?, ?, ?, ?, ?, ?, now());", userID, repositoryID, title, description, showIssues, showPullRequests)
 	} else {
-		result, err = p.db.Exec("insert into projects (user_id, repository_id, title, description, show_issues, show_pull_requests, created_at) values (?, ?, ?, ?, ?, ?, now());", p.UserID, p.RepositoryID, p.Title, p.Description, p.ShowIssues, p.ShowPullRequests)
+		result, err = p.db.Exec("insert into projects (user_id, repository_id, title, description, show_issues, show_pull_requests, created_at) values (?, ?, ?, ?, ?, ?, now());", userID, repositoryID, title, description, showIssues, showPullRequests)
 	}
 	if err != nil {
-		return errors.Wrap(err, "sql execute error")
+		return 0, errors.Wrap(err, "project repository")
 	}
-	p.ID, _ = result.LastInsertId()
-	return nil
+	id, _ := result.LastInsertId()
+	return id, nil
 }
 
 // Update update project model in record
-func (p *Project) Update(title string, description string, showIssues bool, showPullRequests bool) error {
-	_, err := p.db.Exec("update projects set title = ?, description = ?, show_issues = ?, show_pull_requests = ? where id = ?;", title, description, showIssues, showPullRequests, p.ID)
+func (p *Project) Update(id, userID int64, title string, description string, repositoryID sql.NullInt64, showIssues bool, showPullRequests bool) error {
+	_, err := p.db.Exec("update projects set user_id = ?, title = ?, description = ?, repository_id = ?, show_issues = ?, show_pull_requests = ? where id = ?;", userID, title, description, repositoryID, showIssues, showPullRequests, id)
 	if err != nil {
-		return errors.Wrap(err, "sql execute error")
+		return errors.Wrap(err, "project repository")
 	}
-	p.Title = title
-	p.Description = description
-	p.ShowIssues = showIssues
-	p.ShowPullRequests = showPullRequests
-
 	return nil
 }
 
 // Delete delete a project model in record
-func (p *Project) Delete() error {
-	_, err := p.db.Exec("DELETE FROM projects WHERE id = ?;", p.ID)
+func (p *Project) Delete(id int64) error {
+	_, err := p.db.Exec("DELETE FROM projects WHERE id = ?;", id)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "project repository")
 	}
 	return nil
 }
 
 // Projects returns a project related a user.
-func Projects(userID int64) ([]*Project, error) {
-	db := database.SharedInstance().Connection
-	var slice []*Project
-	rows, err := db.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where user_id = ?;", userID)
+func (p *Project) Projects(targetUserID int64) ([]map[string]interface{}, error) {
+	var result []map[string]interface{}
+	rows, err := p.db.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where user_id = ?;", targetUserID)
 	if err != nil {
-		return nil, errors.Wrap(err, "sql select error")
+		return nil, errors.Wrap(err, "project repository")
 	}
 	for rows.Next() {
 		var id, userID int64
 		var repositoryID sql.NullInt64
-		var title string
-		var description string
+		var title, description string
 		var showIssues, showPullRequests bool
 		err := rows.Scan(&id, &userID, &repositoryID, &title, &description, &showIssues, &showPullRequests)
 		if err != nil {
-			return nil, errors.Wrap(err, "sql select error")
+			return nil, errors.Wrap(err, "project repository")
 		}
-		if id != 0 {
-			p := New(id, userID, title, description, repositoryID, showIssues, showPullRequests)
-			slice = append(slice, p)
+		p := map[string]interface{}{
+			"id":               id,
+			"userID":           userID,
+			"title":            title,
+			"description":      description,
+			"repositoryID":     repositoryID,
+			"showIssues":       showIssues,
+			"showPullRequests": showPullRequests,
 		}
+		result = append(result, p)
 	}
-	return slice, nil
+	return result, nil
 }
 
 // OauthToken get oauth token related this project
-func (p *Project) OauthToken() (string, error) {
+func (p *Project) OauthToken(id int64) (string, error) {
 	var oauthToken sql.NullString
-	err := p.db.QueryRow("select users.oauth_token from projects left join users on users.id = projects.user_id where projects.id = ?;", p.ID).Scan(&oauthToken)
+	err := p.db.QueryRow("select users.oauth_token from projects left join users on users.id = projects.user_id where projects.id = ?;", id).Scan(&oauthToken)
 	if err != nil {
-		return "", errors.Wrap(err, "sql select error")
+		return "", errors.Wrap(err, "project repository")
 	}
 	if !oauthToken.Valid {
 		return "", errors.New("oauth token isn't exist")

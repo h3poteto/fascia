@@ -3,7 +3,7 @@ package user
 import (
 	"database/sql"
 
-	"github.com/h3poteto/fascia/server/domains/entities/project"
+	"github.com/h3poteto/fascia/server/domains/project"
 )
 
 // User has a user model object
@@ -74,6 +74,6 @@ func (u *User) UpdatePassword(password string) error {
 }
 
 // Projects list up projects related a user
-func (u *User) Projects() ([]*project.Project, error) {
-	return project.Projects(u.ID)
+func (u *User) Projects(infrastructure project.Repository) ([]*project.Project, error) {
+	return project.Projects(u.ID, infrastructure)
 }

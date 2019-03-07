@@ -1,7 +1,6 @@
 package task
 
 import (
-	"github.com/h3poteto/fascia/lib/modules/database"
 	"github.com/h3poteto/fascia/lib/modules/logging"
 
 	"database/sql"
@@ -9,72 +8,55 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Task has task record
+// Task has db connection.
 type Task struct {
-	ID          int64
-	ListID      int64
-	ProjectID   int64
-	UserID      int64
-	IssueNumber sql.NullInt64
-	Title       string
-	Description string
-	PullRequest bool
-	HTMLURL     sql.NullString
-	db          *sql.DB
+	db *sql.DB
 }
 
 // New returns a task object
-func New(id int64, listID int64, projectID int64, userID int64, issueNumber sql.NullInt64, title string, description string, pullRequest bool, htmlURL sql.NullString) *Task {
-	task := &Task{ID: id, ListID: listID, ProjectID: projectID, UserID: userID, IssueNumber: issueNumber, Title: title, Description: description, PullRequest: pullRequest, HTMLURL: htmlURL}
-	task.initialize()
-	return task
+func New(db *sql.DB) *Task {
+	return &Task{
+		db,
+	}
 }
 
 // Find search a task according to id.
-func Find(id int64) (*Task, error) {
-	db := database.SharedInstance().Connection
-
+func (t *Task) Find(id int64) (int64, int64, int64, int64, sql.NullInt64, string, string, bool, sql.NullString, error) {
 	var listID, userID, projectID int64
 	var title, description string
 	var issueNumber sql.NullInt64
 	var pullRequest bool
 	var htmlURL sql.NullString
-	err := db.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where id = ?;", id).Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
+	err := t.db.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where id = ?;", id).Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
 	if err != nil {
-		return nil, errors.Wrap(err, "sql select error")
+		return 0, 0, 0, 0, sql.NullInt64{}, "", "", false, sql.NullString{}, errors.Wrap(err, "task repository")
 	}
-	task := New(id, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL)
-	return task, nil
+	return id, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL, nil
 }
 
 // FindByIssueNumber search a task according to issue number in github
-func FindByIssueNumber(projectID int64, issueNumber int) (*Task, error) {
-	db := database.SharedInstance().Connection
-
+func (t *Task) FindByIssueNumber(projectID int64, issueNumber int) (int64, int64, int64, int64, sql.NullInt64, string, string, bool, sql.NullString, error) {
 	var id, listID, userID int64
 	var title, description string
 	var number sql.NullInt64
 	var pullRequest bool
 	var htmlURL sql.NullString
-	err := db.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where issue_number = ? and project_id = ?;", issueNumber, projectID).Scan(&id, &listID, &projectID, &userID, &number, &title, &description, &pullRequest, &htmlURL)
+	err := t.db.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where issue_number = ? and project_id = ?;", issueNumber, projectID).Scan(&id, &listID, &projectID, &userID, &number, &title, &description, &pullRequest, &htmlURL)
 	if err != nil {
-		return nil, errors.Wrap(err, "sql select error")
+		return 0, 0, 0, 0, sql.NullInt64{}, "", "", false, sql.NullString{}, errors.Wrap(err, "task repository")
 	}
 	if !number.Valid || number.Int64 != int64(issueNumber) {
-		return nil, errors.New("task not found")
+		return 0, 0, 0, 0, sql.NullInt64{}, "", "", false, sql.NullString{}, errors.New("task not found")
 	}
-	task := New(id, listID, projectID, userID, number, title, description, pullRequest, htmlURL)
-	return task, nil
+	return id, listID, projectID, userID, number, title, description, pullRequest, htmlURL, nil
 }
 
 // Tasks returns all tasks related a list.
-func Tasks(parentListID int64) ([]*Task, error) {
-	db := database.SharedInstance().Connection
-
-	var slice []*Task
-	rows, err := db.Query("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where list_id = ? order by display_index;", parentListID)
+func (t *Task) Tasks(parentListID int64) ([]map[string]interface{}, error) {
+	result := []map[string]interface{}{}
+	rows, err := t.db.Query("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where list_id = ? order by display_index;", parentListID)
 	if err != nil {
-		return nil, errors.Wrap(err, "sql select error")
+		return result, errors.Wrap(err, "task repository")
 	}
 
 	for rows.Next() {
@@ -85,62 +67,95 @@ func Tasks(parentListID int64) ([]*Task, error) {
 		var htmlURL sql.NullString
 		err := rows.Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
 		if err != nil {
-			return nil, errors.Wrap(err, "sql select error")
+			return []map[string]interface{}{}, errors.Wrap(err, "task repository")
 		}
 		if listID == parentListID {
-			l := New(id, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL)
-			slice = append(slice, l)
+			l := map[string]interface{}{
+				"id":          id,
+				"listID":      listID,
+				"projectID":   projectID,
+				"userID":      userID,
+				"issueNumber": issueNumber,
+				"title":       title,
+				"description": description,
+				"pullRequest": pullRequest,
+				"htmlURL":     htmlURL,
+			}
+			result = append(result, l)
 		}
 	}
-	return slice, nil
+	return result, nil
 }
 
-func (t *Task) initialize() {
-	t.db = database.SharedInstance().Connection
+// NonIssueTasks returns all tasks related a list.
+func (t *Task) NonIssueTasks(projectID, userID int64) ([]map[string]interface{}, error) {
+	result := []map[string]interface{}{}
+	rows, err := t.db.Query("SELECT id, list_id, project_id, user_id, issue_number, title, description, pullRequest, htmlURL FROM tasks WHERE project_id = ? and user_id = ? and issue_number IS NULL;", projectID, userID)
+	if err != nil {
+		return result, errors.Wrap(err, "task repository")
+	}
+
+	for rows.Next() {
+		var id, listID, userID, projectID int64
+		var title, description string
+		var issueNumber sql.NullInt64
+		var pullRequest bool
+		var htmlURL sql.NullString
+		err := rows.Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
+		if err != nil {
+			return []map[string]interface{}{}, errors.Wrap(err, "task repository")
+		}
+		l := map[string]interface{}{
+			"id":          id,
+			"listID":      listID,
+			"projectID":   projectID,
+			"userID":      userID,
+			"issueNumber": issueNumber,
+			"title":       title,
+			"description": description,
+			"pullRequest": pullRequest,
+			"htmlURL":     htmlURL,
+		}
+		result = append(result, l)
+	}
+	return result, nil
 }
 
-// Save save task model in database, and arrange order tasks
-func (t *Task) Save() error {
+// Create save task model in database, and arrange order tasks
+func (t *Task) Create(listID int64, projectID int64, userID int64, issueNumber sql.NullInt64, title string, description string, pullRequest bool, htmlURL sql.NullString) (int64, error) {
 	transaction, err := t.db.Begin()
 	if err != nil {
-		return errors.Wrap(err, "sql execute error")
+		return 0, errors.Wrap(err, "task repository")
 	}
 
 	// display_indexを自動挿入する
 	count := 0
-	err = transaction.QueryRow("SELECT COUNT(id) FROM tasks WHERE list_id = ?;", t.ListID).Scan(&count)
+	err = transaction.QueryRow("SELECT COUNT(id) FROM tasks WHERE list_id = ?;", listID).Scan(&count)
 	if err != nil {
 		transaction.Rollback()
-		return errors.Wrap(err, "sql select error")
+		return 0, errors.Wrap(err, "task repository")
 	}
-	result, err := transaction.Exec("insert into tasks (list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index, created_at) values (?,?,?, ?, ?, ?, ?, ?, ?, now());", t.ListID, t.ProjectID, t.UserID, t.IssueNumber, t.Title, t.Description, t.PullRequest, t.HTMLURL, count+1)
+	result, err := transaction.Exec("insert into tasks (list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index, created_at) values (?,?,?, ?, ?, ?, ?, ?, ?, now());", listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL, count+1)
 	if err != nil {
 		transaction.Rollback()
-		return errors.Wrap(err, "sql execute error")
+		return 0, errors.Wrap(err, "task repository")
 	}
-	t.ID, _ = result.LastInsertId()
+	id, _ := result.LastInsertId()
 	err = transaction.Commit()
 	if err != nil {
 		transaction.Rollback()
-		return errors.Wrap(err, "sql execute error")
+		return 0, errors.Wrap(err, "task repository")
 	}
 	logging.SharedInstance().MethodInfo("task", "Save").Debugf("new task saved: %+v", t)
-	return nil
+	return id, nil
 }
 
 // Update is update task in database
-func (t *Task) Update(listID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString) error {
-	_, err := t.db.Exec("update tasks set list_id = ?, issue_number = ?, title = ?, description = ?, pull_request = ?, html_url = ? where id = ?;", listID, issueNumber, title, description, pullRequest, htmlURL, t.ID)
+func (t *Task) Update(id, listID, projectID, userID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString) error {
+	_, err := t.db.Exec("update tasks set list_id = ?, project_id = ?, user_id = ?, issue_number = ?, title = ?, description = ?, pull_request = ?, html_url = ? where id = ?;", listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL, id)
 	if err != nil {
-		return errors.Wrap(err, "sql execute error")
+		return errors.Wrap(err, "task repository")
 	}
-	t.ListID = listID
-	t.IssueNumber = issueNumber
-	t.Title = title
-	t.Description = description
-	t.PullRequest = pullRequest
-	t.HTMLURL = htmlURL
-
 	logging.SharedInstance().MethodInfo("task", "Update").Debugf("task updated: %+v", t)
 
 	return nil
@@ -148,26 +163,27 @@ func (t *Task) Update(listID int64, issueNumber sql.NullInt64, title, descriptio
 
 // ChangeList change list which is belonged a task
 // If add task in bottom, transmit null to prevToTaskID
-func (t *Task) ChangeList(listID int64, prevToTaskID *int64) error {
+func (t *Task) ChangeList(id, listID int64, prevToTaskID *int64) error {
 	transaction, err := t.db.Begin()
 	if err != nil {
-		return errors.Wrap(err, "sql execute error")
+		return errors.Wrap(err, "task repository")
 	}
 
+	// TODO: ロジックをentityに移動させたい
 	var prevToTaskIndex int
 	if prevToTaskID != nil {
 		// 途中に入れるパターン
 		err := transaction.QueryRow("select display_index from tasks where id = ?;", *prevToTaskID).Scan(&prevToTaskIndex)
 		if err != nil {
 			transaction.Rollback()
-			return errors.Wrap(err, "sql select error")
+			return errors.Wrap(err, "task repository")
 		}
 		// 先に後ろにいる奴らを押し出しておかないとprevToTaskIndexのg位置が開かない
 		// prevToTaskIndex = nilのときは，末尾挿入なので払い出しは不要
 		_, err = transaction.Exec("update tasks set display_index = display_index + 1 where id in (select id from (select id from tasks where list_id = ? and display_index >= ?) as tmp);", listID, prevToTaskIndex)
 		if err != nil {
 			transaction.Rollback()
-			return errors.Wrap(err, "sql execute error")
+			return errors.Wrap(err, "task repository")
 		}
 	} else {
 		// 最後尾に入れるパターン
@@ -178,7 +194,7 @@ func (t *Task) ChangeList(listID int64, prevToTaskID *int64) error {
 		if err != nil {
 			// 該当するtaskが存在しないとき，indexにはnillが入るが，エラーにはならないので，ここのハンドリングには入らない
 			transaction.Rollback()
-			return errors.Wrap(err, "sql select error")
+			return errors.Wrap(err, "task repository")
 		}
 		if index == nil {
 			prevToTaskIndex = 1
@@ -187,43 +203,25 @@ func (t *Task) ChangeList(listID int64, prevToTaskID *int64) error {
 		}
 	}
 
-	_, err = transaction.Exec("update tasks set list_id = ?, display_index = ? where id = ?;", listID, prevToTaskIndex, t.ID)
+	_, err = transaction.Exec("update tasks set list_id = ?, display_index = ? where id = ?;", listID, prevToTaskIndex, id)
 	if err != nil {
 		transaction.Rollback()
-		return errors.Wrap(err, "sql execute error")
+		return errors.Wrap(err, "task repository")
 	}
 
 	err = transaction.Commit()
 	if err != nil {
-		return errors.Wrap(err, "sql execute error")
+		return errors.Wrap(err, "task repository")
 	}
-	t.ListID = listID
-
 	return nil
 }
 
 // Delete is delete a task in db
-func (t *Task) Delete() error {
-	if t.IssueNumber.Valid {
-		return errors.New("cannot delete")
-	}
-
-	_, err := t.db.Exec("delete from tasks where id = ?;", t.ID)
+func (t *Task) Delete(id int64) error {
+	_, err := t.db.Exec("delete from tasks where id = ?;", id)
 	if err != nil {
-		return errors.Wrap(err, "sql delelet error")
+		return errors.Wrap(err, "task repository")
 	}
-	logging.SharedInstance().MethodInfo("task", "Delete").Infof("task deleted: %v", t.ID)
-	t.ID = 0
+	logging.SharedInstance().MethodInfo("task", "Delete").Infof("task deleted: %v", id)
 	return nil
-}
-
-// List retruns parent list of a task.
-func (t *Task) List() (sql.NullString, sql.NullString, sql.NullInt64, error) {
-	var listTitle, listColor sql.NullString
-	var listOptionID sql.NullInt64
-	err := t.db.QueryRow("select title, color, list_option_id from lists where id = ?;", t.ListID).Scan(&listTitle, &listColor, &listOptionID)
-	if err != nil {
-		return sql.NullString{}, sql.NullString{}, sql.NullInt64{}, errors.Wrap(err, "sql select error")
-	}
-	return listTitle, listColor, listOptionID, nil
 }

@@ -23,11 +23,11 @@ func hashPassword(password string) ([]byte, error) {
 	cost := 10
 	hashed, err := bcrypt.GenerateFromPassword(bytePassword, cost)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "generate password error")
 	}
 	err = bcrypt.CompareHashAndPassword(hashed, bytePassword)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "compare password error")
 	}
 	return hashed, nil
 }

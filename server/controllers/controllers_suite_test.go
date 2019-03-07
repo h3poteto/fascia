@@ -5,12 +5,14 @@ import (
 
 	"github.com/flosch/pongo2"
 	"github.com/h3poteto/fascia/db/seed"
-	"github.com/h3poteto/fascia/server/commands/board"
 	. "github.com/h3poteto/fascia/server/controllers"
+	"github.com/h3poteto/fascia/server/domains/list"
+	"github.com/h3poteto/fascia/server/domains/project"
+	"github.com/h3poteto/fascia/server/domains/task"
 	"github.com/h3poteto/fascia/server/domains/user"
 	"github.com/h3poteto/fascia/server/filters"
 	"github.com/h3poteto/fascia/server/middlewares"
-	usecase "github.com/h3poteto/fascia/server/usecases/account"
+	"github.com/h3poteto/fascia/server/usecases/account"
 	"github.com/labstack/echo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -37,7 +39,7 @@ func CSRFFaker() {
 }
 
 func LoginFaker(c echo.Context, email string, password string) (*user.User, echo.Context) {
-	user, err := usecase.LoginUser(email, password)
+	user, err := account.LoginUser(email, password)
 	if err != nil {
 		panic(err)
 	}
@@ -49,7 +51,7 @@ func LoginFaker(c echo.Context, email string, password string) (*user.User, echo
 	return user, ctx
 }
 
-func ProjectContext(c echo.Context, p *board.Project) echo.Context {
+func ProjectContext(c echo.Context, p *project.Project) echo.Context {
 	lc, ok := c.(*middlewares.LoginContext)
 	if !ok {
 		panic("Cast context")
@@ -62,7 +64,7 @@ func ProjectContext(c echo.Context, p *board.Project) echo.Context {
 	return ctx
 }
 
-func ListContext(c echo.Context, l *board.List) echo.Context {
+func ListContext(c echo.Context, l *list.List) echo.Context {
 	pc, ok := c.(*middlewares.ProjectContext)
 	if !ok {
 		panic("Cast context")
@@ -75,7 +77,7 @@ func ListContext(c echo.Context, l *board.List) echo.Context {
 	return ctx
 }
 
-func TaskContext(c echo.Context, t *board.Task) echo.Context {
+func TaskContext(c echo.Context, t *task.Task) echo.Context {
 	lc, ok := c.(*middlewares.ListContext)
 	if !ok {
 		panic("Cast context")

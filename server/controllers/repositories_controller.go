@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
-	"github.com/h3poteto/fascia/server/handlers"
+	"github.com/h3poteto/fascia/server/usecases/board"
 
 	"encoding/json"
 	"io/ioutil"
@@ -36,7 +36,7 @@ func (u *Repositories) Hook(c echo.Context) error {
 		json.Unmarshal(data, &githubBody)
 		id := int64(*githubBody.Repo.ID)
 
-		repo, err := handlers.FindRepositoryByGithubRepoID(id)
+		repo, err := board.FindRepositoryByGithubRepoID(id)
 		if err != nil {
 			logging.SharedInstance().ControllerWithStacktrace(err, c).Errorf("could not find repository: %v", err)
 			return NewJSONError(err, http.StatusNotFound, c)
@@ -45,7 +45,7 @@ func (u *Repositories) Hook(c echo.Context) error {
 			logging.SharedInstance().Controller(c).Infof("cannot authenticate to repository: %v", err)
 			return NewJSONError(err, http.StatusNotFound, c)
 		}
-		err = handlers.ApplyIssueChangesToRepository(repo, githubBody)
+		err = board.ApplyIssueChangesToRepository(repo, githubBody)
 		if err != nil {
 			logging.SharedInstance().ControllerWithStacktrace(err, c).Error("could not apply issue changes: %v", err)
 			return err
@@ -58,7 +58,7 @@ func (u *Repositories) Hook(c echo.Context) error {
 		json.Unmarshal(data, &githubBody)
 		id := int64(*githubBody.Repo.ID)
 
-		repo, err := handlers.FindRepositoryByGithubRepoID(id)
+		repo, err := board.FindRepositoryByGithubRepoID(id)
 		if err != nil {
 			logging.SharedInstance().ControllerWithStacktrace(err, c).Errorf("could not find repository: %v", err)
 			return NewJSONError(err, http.StatusNotFound, c)
@@ -68,7 +68,7 @@ func (u *Repositories) Hook(c echo.Context) error {
 			return NewJSONError(err, http.StatusNotFound, c)
 		}
 
-		err = handlers.ApplyPullRequestChangesToRepository(repo, githubBody)
+		err = board.ApplyPullRequestChangesToRepository(repo, githubBody)
 		if err != nil {
 			logging.SharedInstance().ControllerWithStacktrace(err, c).Errorf("could not apply pull request changes: %v", err)
 			return err
