@@ -2,11 +2,11 @@ package controllers_test
 
 import (
 	"github.com/h3poteto/fascia/db/seed"
-	"github.com/h3poteto/fascia/server/commands/board"
 	. "github.com/h3poteto/fascia/server/controllers"
+	"github.com/h3poteto/fascia/server/domains/project"
 	"github.com/h3poteto/fascia/server/domains/user"
-	"github.com/h3poteto/fascia/server/handlers"
-	usecase "github.com/h3poteto/fascia/server/usecases/account"
+	"github.com/h3poteto/fascia/server/usecases/account"
+	"github.com/h3poteto/fascia/server/usecases/board"
 	"github.com/h3poteto/fascia/server/views"
 
 	"database/sql"
@@ -36,7 +36,7 @@ var _ = Describe("ProjectsController", func() {
 	})
 	JustBeforeEach(func() {
 		seed.Seeds()
-		user, _ = usecase.RegistrationUser(email, password, password)
+		user, _ = account.RegistrationUser(email, password, password)
 	})
 
 	Describe("Create", func() {
@@ -66,29 +66,29 @@ var _ = Describe("ProjectsController", func() {
 			var contents interface{}
 			json.Unmarshal(rec.Body.Bytes(), &contents)
 			parseContents := contents.(map[string]interface{})
-			newProject, err := handlers.FindProject(int64(parseContents["ID"].(float64)))
+			newProject, err := board.FindProject(int64(parseContents["ID"].(float64)))
 			Expect(err).To(BeNil())
-			Expect(newProject.ProjectEntity.ID).To(BeEquivalentTo(parseContents["ID"]))
-			Expect(newProject.ProjectEntity.Title).To(Equal("projectTitle"))
+			Expect(newProject.ID).To(BeEquivalentTo(parseContents["ID"]))
+			Expect(newProject.Title).To(Equal("projectTitle"))
 		})
 		It("should have list which have list_option", func() {
 			var contents interface{}
 			json.Unmarshal(rec.Body.Bytes(), &contents)
 			parseContents := contents.(map[string]interface{})
-			newProject, _ := handlers.FindProject(int64(parseContents["ID"].(float64)))
-			lists, err := newProject.ProjectEntity.Lists()
+			newProject, _ := board.FindProject(int64(parseContents["ID"].(float64)))
+			lists, err := board.ProjectLists(newProject)
 			Expect(err).To(BeNil())
 			Expect(len(lists)).To(Equal(3))
 			closeListOption, err := board.FindListOptionByAction("close")
 			Expect(err).To(BeNil())
-			Expect(lists[2].ListOptionID.Int64).To(Equal(closeListOption.ListOptionEntity.ID))
+			Expect(lists[2].ListOptionID.Int64).To(Equal(closeListOption.ID))
 		})
 	})
 
 	Describe("Index", func() {
 		JustBeforeEach(func() {
-			handlers.CreateProject(user.ID, "project1", "", 0, sql.NullString{})
-			handlers.CreateProject(user.ID, "project2", "", 0, sql.NullString{})
+			board.CreateProject(user.ID, "project1", "", 0, sql.NullString{})
+			board.CreateProject(user.ID, "project2", "", 0, sql.NullString{})
 		})
 		It("should receive projects", func() {
 			req := httptest.NewRequest(echo.GET, "/projects", nil)
@@ -106,9 +106,9 @@ var _ = Describe("ProjectsController", func() {
 	})
 
 	Describe("Show", func() {
-		var newProject *board.Project
+		var newProject *project.Project
 		JustBeforeEach(func() {
-			newProject, _ = handlers.CreateProject(user.ID, "title", "desc", 0, sql.NullString{})
+			newProject, _ = board.CreateProject(user.ID, "title", "desc", 0, sql.NullString{})
 		})
 		It("should receive project title", func() {
 			req := httptest.NewRequest(echo.GET, "/projects/:project_id/show", nil)
@@ -116,7 +116,7 @@ var _ = Describe("ProjectsController", func() {
 			_, c = LoginFaker(c, email, password)
 			c = ProjectContext(c, newProject)
 			c.SetParamNames("project_id")
-			c.SetParamValues(strconv.FormatInt(newProject.ProjectEntity.ID, 10))
+			c.SetParamValues(strconv.FormatInt(newProject.ID, 10))
 			resource := Projects{}
 			err := resource.Show(c)
 			Expect(err).To(BeNil())
@@ -128,9 +128,9 @@ var _ = Describe("ProjectsController", func() {
 	})
 
 	Describe("Update", func() {
-		var newProject *board.Project
+		var newProject *project.Project
 		JustBeforeEach(func() {
-			newProject, _ = handlers.CreateProject(user.ID, "title", "desc", 0, sql.NullString{})
+			newProject, _ = board.CreateProject(user.ID, "title", "desc", 0, sql.NullString{})
 		})
 		It("should receive new project", func() {
 			j := `{"title":"newTitle"}`
@@ -140,7 +140,7 @@ var _ = Describe("ProjectsController", func() {
 			_, c = LoginFaker(c, email, password)
 			c = ProjectContext(c, newProject)
 			c.SetParamNames("project_id")
-			c.SetParamValues(strconv.FormatInt(newProject.ProjectEntity.ID, 10))
+			c.SetParamValues(strconv.FormatInt(newProject.ID, 10))
 			resource := Projects{}
 			err := resource.Update(c)
 			Expect(err).To(BeNil())
@@ -152,9 +152,9 @@ var _ = Describe("ProjectsController", func() {
 	})
 
 	Describe("Settings", func() {
-		var newProject *board.Project
+		var newProject *project.Project
 		JustBeforeEach(func() {
-			newProject, _ = handlers.CreateProject(user.ID, "title", "desc", 0, sql.NullString{})
+			newProject, _ = board.CreateProject(user.ID, "title", "desc", 0, sql.NullString{})
 		})
 		It("should update show issues", func() {
 			j := `{"show_issues":false,"show_pull_requests":true}`
@@ -164,7 +164,7 @@ var _ = Describe("ProjectsController", func() {
 			_, c = LoginFaker(c, email, password)
 			c = ProjectContext(c, newProject)
 			c.SetParamNames("project_id")
-			c.SetParamValues(strconv.FormatInt(newProject.ProjectEntity.ID, 10))
+			c.SetParamValues(strconv.FormatInt(newProject.ID, 10))
 			resource := Projects{}
 			err := resource.Settings(c)
 			Expect(err).To(BeNil())
@@ -183,7 +183,7 @@ var _ = Describe("ProjectsController", func() {
 			_, c = LoginFaker(c, email, password)
 			c = ProjectContext(c, newProject)
 			c.SetParamNames("project_id")
-			c.SetParamValues(strconv.FormatInt(newProject.ProjectEntity.ID, 10))
+			c.SetParamValues(strconv.FormatInt(newProject.ID, 10))
 			resource := Projects{}
 			err := resource.Settings(c)
 			Expect(err).To(BeNil())

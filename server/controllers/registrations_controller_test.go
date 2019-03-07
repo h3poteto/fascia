@@ -4,7 +4,7 @@ import (
 	"github.com/h3poteto/fascia/lib/modules/database"
 	"github.com/h3poteto/fascia/server"
 	. "github.com/h3poteto/fascia/server/controllers"
-	usecase "github.com/h3poteto/fascia/server/usecases/account"
+	"github.com/h3poteto/fascia/server/usecases/account"
 
 	"database/sql"
 	"net/http"
@@ -81,7 +81,7 @@ var _ = Describe("RegistrationsController", func() {
 		})
 		Context("既に登録されているとき", func() {
 			JustBeforeEach(func() {
-				usecase.RegistrationUser("registration@example.com", "hogehoge", "hogehoge")
+				account.RegistrationUser("registration@example.com", "hogehoge", "hogehoge")
 			})
 			It("エラーになること", func() {
 				f := make(url.Values)

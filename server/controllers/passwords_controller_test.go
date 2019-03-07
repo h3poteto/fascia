@@ -4,7 +4,7 @@ import (
 	"github.com/h3poteto/fascia/server"
 	. "github.com/h3poteto/fascia/server/controllers"
 	resetpassword "github.com/h3poteto/fascia/server/domains/reset_password"
-	usecase "github.com/h3poteto/fascia/server/usecases/account"
+	"github.com/h3poteto/fascia/server/usecases/account"
 
 	"fmt"
 	"net/http"
@@ -34,7 +34,7 @@ var _ = Describe("PasswordsController", func() {
 	JustBeforeEach(func() {
 		email = "hoge@example.com"
 		password = "hogehoge"
-		user, _ := usecase.RegistrationUser(email, password, password)
+		user, _ := account.RegistrationUser(email, password, password)
 		uid = user.ID
 		GenerateCSRFToken = func(c echo.Context) (string, error) { return "hoge", nil }
 	})
@@ -72,7 +72,7 @@ var _ = Describe("PasswordsController", func() {
 	Describe("Edit", func() {
 		var resetPassword *resetpassword.ResetPassword
 		JustBeforeEach(func() {
-			resetPassword, _ = usecase.GenerateResetPassword(uid, email)
+			resetPassword, _ = account.GenerateResetPassword(uid, email)
 		})
 		Context("token is invalid", func() {
 			It("should internal server error", func() {
@@ -107,7 +107,7 @@ var _ = Describe("PasswordsController", func() {
 		var resetPassword *resetpassword.ResetPassword
 		JustBeforeEach(func() {
 			CheckCSRFToken = func(c echo.Context, token string) bool { return true }
-			resetPassword, _ = usecase.GenerateResetPassword(uid, email)
+			resetPassword, _ = account.GenerateResetPassword(uid, email)
 		})
 		Context("token is invalid", func() {
 			It("should internal server error", func() {

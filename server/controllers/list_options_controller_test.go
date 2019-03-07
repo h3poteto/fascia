@@ -3,7 +3,7 @@ package controllers_test
 import (
 	"github.com/h3poteto/fascia/db/seed"
 	. "github.com/h3poteto/fascia/server/controllers"
-	usecase "github.com/h3poteto/fascia/server/usecases/account"
+	"github.com/h3poteto/fascia/server/usecases/account"
 	"github.com/h3poteto/fascia/server/views"
 
 	"encoding/json"
@@ -30,7 +30,7 @@ var _ = Describe("ListOptionsController", func() {
 
 	Describe("Index", func() {
 		JustBeforeEach(func() {
-			usecase.RegistrationUser("list_options@example.com", "hogehoge", "hogehoge")
+			account.RegistrationUser("list_options@example.com", "hogehoge", "hogehoge")
 		})
 		It("should return", func() {
 			req := httptest.NewRequest(echo.GET, "/list_options", nil)
