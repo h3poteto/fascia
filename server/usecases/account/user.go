@@ -67,34 +67,7 @@ func FindOrCreateUserFromGithub(token string) (*domain.User, error) {
 	return domain.FindOrCreateFromGithub(githubUser, token, primaryEmail, InjectUserRepository())
 }
 
+// UserProjects returns projects related the user.
 func UserProjects(u *domain.User) ([]*project.Project, error) {
 	return u.Projects(board.InjectProjectRepository())
 }
-
-/* Tests:
-var _ = Describe("User", func() {
-	Describe("FindOrCreateUserFromGithub", func() {
-		token := os.Getenv("TEST_TOKEN")
-		Context("after registration from github", func() {
-			user, err := FindOrCreateUserFromGithub(token)
-			It("registration succeeded", func() {
-				Expect(err).To(BeNil())
-				Expect(user).NotTo(BeNil())
-				findUser, _ := FindOrCreateUserFromGithub(token)
-				Expect(findUser.UserEntity.ID).To(Equal(user.UserEntity.ID))
-				Expect(findUser.UserEntity.ID).NotTo(BeZero())
-			})
-		})
-		Context("after regist with email address", func() {
-			email := "already_regist@example.com"
-			RegistrationUser(email, "hogehoge", "hogehoge")
-			user, _ := FindOrCreateUserFromGithub(token)
-			It("should update github information", func() {
-				Expect(user.UserEntity.OauthToken.Valid).To(BeTrue())
-				Expect(user.UserEntity.OauthToken.String).To(Equal(token))
-				Expect(user.UserEntity.UUID.Valid).To(BeTrue())
-			})
-		})
-	})
-})
-*/

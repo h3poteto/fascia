@@ -6,12 +6,12 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Repository has repository record
+// Repo has db connection.
 type Repo struct {
 	db *sql.DB
 }
 
-// New is build new Repository struct
+// New is build new Repo struct
 func New(db *sql.DB) *Repo {
 	return &Repo{
 		db,

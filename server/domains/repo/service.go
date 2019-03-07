@@ -30,7 +30,7 @@ func FindByProjectID(targetProjectID int64, infrastructure Repository) (*Repo, e
 	return New(id, repositoryID, owner, name, webhookKey, infrastructure), nil
 }
 
-// CreateRepository create repository record based on github repository
+// CreateRepo create repository record based on github repository
 func CreateRepo(targetRepositoryID int64, oauthToken string, infrastructure Repository) (*Repo, error) {
 	// confirm github
 	h := hub.New(oauthToken)
@@ -60,6 +60,7 @@ func generateWebhookKey(seed string) string {
 	return token
 }
 
+// CreateWebhook creates or updates the webhook.
 func (r *Repo) CreateWebhook(oauthToken string) error {
 	url := fmt.Sprintf("%s://%s/repositories/hooks/github", config.Element("protocol").(string), config.Element("fqdn"))
 	// If the webhook already exist, we update the webhook.

@@ -9,7 +9,7 @@ type Option struct {
 	infrastructure Repository
 }
 
-// New returns a list option entity
+// NewOption returns a list option entity
 func NewOption(id int64, action string, infrastructure Repository) *Option {
 	return &Option{
 		id,

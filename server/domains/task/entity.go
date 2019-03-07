@@ -20,6 +20,7 @@ type Task struct {
 	infrastructure Repository
 }
 
+// Repository defines repository interface.
 type Repository interface {
 	Find(int64) (int64, int64, int64, int64, sql.NullInt64, string, string, bool, sql.NullString, error)
 	FindByIssueNumber(int64, int) (int64, int64, int64, int64, sql.NullInt64, string, string, bool, sql.NullString, error)

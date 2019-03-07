@@ -74,7 +74,7 @@ func Tasks(targetListID int64, infrastructure Repository) ([]*Task, error) {
 	return result, nil
 }
 
-// NoIssueTasks returns all tasks related a list.
+// NonIssueTasks returns all tasks related a list.
 func NonIssueTasks(targetProjectID, targetUserID int64, infrastructure Repository) ([]*Task, error) {
 	var result []*Task
 

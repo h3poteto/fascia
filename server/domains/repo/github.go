@@ -5,7 +5,7 @@ import (
 	"github.com/h3poteto/fascia/lib/modules/hub"
 )
 
-// CheckLabelPresent confirm existance label in github
+// CheckLabelPresent confirm existence label in github
 func (r *Repo) CheckLabelPresent(token, title string) (*github.Label, error) {
 	return hub.CheckLabelPresent(token, r.Owner.String, r.Name.String, title)
 }
@@ -45,12 +45,12 @@ func (r *Repo) ListLabels(token string) ([]*github.Label, error) {
 	return hub.ListLabels(token, r.Owner.String, r.Name.String)
 }
 
-// CreateWebhook create a new webhook in github
+// CreateWebhookInGithub create a new webhook in github
 func (r *Repo) CreateWebhookInGithub(token, url string) error {
 	return hub.CreateWebhook(token, r.Owner.String, r.Name.String, r.WebhookKey, url)
 }
 
-// UpdateWebhook update a exist webhook in github
+// UpdateWebhookInGithub update a exist webhook in github
 func (r *Repo) UpdateWebhookInGithub(token, url string, hook *github.Hook) error {
 	return hub.EditWebhook(token, r.Owner.String, r.Name.String, r.WebhookKey, url, hook)
 }
@@ -59,7 +59,7 @@ func (r *Repo) listWebhooksInGithub(token string) ([]*github.Hook, error) {
 	return hub.ListWebhooks(token, r.Owner.String, r.Name.String)
 }
 
-// SearchWebhook search a webhook according to configured url
+// SearchWebhookInGithub search a webhook according to configured url
 func (r *Repo) SearchWebhookInGithub(token, url string) (*github.Hook, error) {
 	hooks, err := r.listWebhooksInGithub(token)
 	if err != nil {
@@ -74,7 +74,7 @@ func (r *Repo) SearchWebhookInGithub(token, url string) (*github.Hook, error) {
 	return nil, nil
 }
 
-// DeleteWebhook delete a webhook
+// DeleteWebhookInGithub delete a webhook
 func (r *Repo) DeleteWebhookInGithub(token string, hook *github.Hook) error {
 	return hub.DeleteWebhook(token, r.Owner.String, r.Name.String, hook)
 }

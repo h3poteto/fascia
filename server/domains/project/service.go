@@ -17,7 +17,7 @@ func Find(targetID int64, infrastructure Repository) (*Project, error) {
 	return New(id, userID, title, description, repositoryID, showIssues, showPullRequests, infrastructure), nil
 }
 
-// FindByRepositoryID returns project entities
+// FindByRepoID returns project entities.
 func FindByRepoID(targetRepoID int64, infrastructure Repository) ([]*Project, error) {
 	projects, err := infrastructure.FindByRepositoryID(targetRepoID)
 	if err != nil {

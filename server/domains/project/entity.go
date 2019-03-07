@@ -16,6 +16,7 @@ type Project struct {
 	infrastructure   Repository
 }
 
+// Repository defines repository interface.
 type Repository interface {
 	Find(int64) (int64, int64, string, string, sql.NullInt64, bool, bool, error)
 	FindByRepositoryID(int64) ([]map[string]interface{}, error)
@@ -72,6 +73,7 @@ func (p *Project) OauthToken() (string, error) {
 	return p.infrastructure.OauthToken(p.ID)
 }
 
+// CheckOwner returns either owner of the project.
 func (p *Project) CheckOwner(userID int64) bool {
 	return p.UserID == userID
 }

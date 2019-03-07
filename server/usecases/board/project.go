@@ -11,10 +11,12 @@ import (
 	repository "github.com/h3poteto/fascia/server/infrastructures/project"
 )
 
+// InjectProjectRepository returns a project Repository.
 func InjectProjectRepository() domain.Repository {
 	return repository.New(InjectDB())
 }
 
+// FindProject finds a project.
 func FindProject(id int64) (*domain.Project, error) {
 	return domain.Find(id, InjectProjectRepository())
 }
@@ -55,6 +57,7 @@ func fetchCreatedInitialList(p *domain.Project) error {
 	return nil
 }
 
+// CreateProject create a project and sync it to github.
 func CreateProject(userID int64, title string, description string, repositoryID int64, oauthToken sql.NullString) (*domain.Project, error) {
 	var repoID sql.NullInt64
 	if repositoryID != 0 && oauthToken.Valid {
@@ -233,14 +236,17 @@ func deleteLists(p *domain.Project) error {
 	return noneList.Delete()
 }
 
+// ProjectRepository returns a repo related the project.
 func ProjectRepository(p *domain.Project) (*repo.Repo, error) {
 	return p.Repository(InjectRepoRepository())
 }
 
+// ProjectLists returns all lists related the project.
 func ProjectLists(p *domain.Project) ([]*list.List, error) {
 	return p.Lists(InjectListRepository())
 }
 
+// ProjectNoneList returns the none list related the project.
 func ProjectNoneList(p *domain.Project) (*list.List, error) {
 	return p.NoneList(InjectListRepository())
 }

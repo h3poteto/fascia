@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Repository has repository model object
+// Repo has repository model object
 type Repo struct {
 	ID             int64
 	RepositoryID   int64
@@ -19,6 +19,7 @@ type Repo struct {
 	infrastructure Repository
 }
 
+// Repository defines repository interface.
 type Repository interface {
 	FindByGithubRepoID(int64) (int64, int64, sql.NullString, sql.NullString, string, error)
 	FindByProjectID(int64) (int64, int64, sql.NullString, sql.NullString, string, error)
@@ -37,6 +38,7 @@ func New(id int64, repositoryID int64, owner sql.NullString, name sql.NullString
 	}
 }
 
+// Create a repo entity.
 func (r *Repo) Create() error {
 	id, err := r.infrastructure.Create(r.RepositoryID, r.Owner, r.Name, r.WebhookKey)
 	if err != nil {

@@ -16,18 +16,22 @@ func InjectDB() *sql.DB {
 	return database.SharedInstance().Connection
 }
 
+// InjectListRepository returns list Repository.
 func InjectListRepository() list.Repository {
 	return repository.New(InjectDB())
 }
 
+// ListHasCloseAction returns either close action or not.
 func ListHasCloseAction(list *list.List) (bool, error) {
 	return list.HasCloseAction()
 }
 
+// FindList returns a list.
 func FindList(projectID, listID int64) (*list.List, error) {
 	return list.Find(projectID, listID, InjectListRepository())
 }
 
+// CreateList creates a list, and sync to github.
 func CreateList(projectID, userID int64, title, color string, optionID sql.NullInt64, isHidden bool) (*list.List, error) {
 	nullableTitle := sql.NullString{String: title, Valid: true}
 	nullableColor := sql.NullString{String: color, Valid: true}
@@ -82,6 +86,7 @@ func fetchCreatedList(l *list.List, oauthToken string, repo *repo.Repo) error {
 	return nil
 }
 
+// UpdateList updates a list, and sync to github.
 func UpdateList(l *list.List, title, color string, optionID int64) (*list.List, error) {
 	nullableTitle := sql.NullString{String: title, Valid: true}
 	nullableColor := sql.NullString{String: color, Valid: true}
@@ -148,6 +153,7 @@ func listsWithCloseAction(lists []list.List) []list.List {
 	return closeLists
 }
 
+// ListTasks returns tasks related the list.
 func ListTasks(l *list.List) ([]*task.Task, error) {
 	return l.Tasks(InjectTaskRepository())
 }

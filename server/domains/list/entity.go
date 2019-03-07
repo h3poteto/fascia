@@ -21,6 +21,7 @@ type List struct {
 	infrastructure Repository
 }
 
+// Repository defines repository interface.
 type Repository interface {
 	Find(int64, int64) (int64, int64, int64, sql.NullString, sql.NullString, sql.NullInt64, bool, error)
 	FindByTaskID(int64) (int64, int64, int64, sql.NullString, sql.NullString, sql.NullInt64, bool, error)
@@ -90,7 +91,7 @@ func (l *List) Update(title, color sql.NullString, optionID int64) error {
 	return nil
 }
 
-// Hide call list model hide
+// Hide hide list, and update.
 func (l *List) Hide() error {
 	err := l.infrastructure.Update(l.ID, l.ProjectID, l.UserID, l.Title, l.Color, l.ListOptionID, true)
 	if err != nil {
@@ -100,7 +101,7 @@ func (l *List) Hide() error {
 	return nil
 }
 
-// Display call list model display
+// Display display list, and update.
 func (l *List) Display() error {
 	err := l.infrastructure.Update(l.ID, l.ProjectID, l.UserID, l.Title, l.Color, l.ListOptionID, false)
 	if err != nil {

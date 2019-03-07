@@ -16,6 +16,7 @@ func Find(targetProjectID, targetListID int64, infrastructure Repository) (*List
 	return New(id, projectID, userID, title, color, optionID, isHidden, infrastructure), nil
 }
 
+// FindByTaskID finds a list based on task id.
 func FindByTaskID(targetTaskID int64, infrastructure Repository) (*List, error) {
 	id, projectID, userID, title, color, optionID, isHidden, err := infrastructure.FindByTaskID(targetTaskID)
 	if err != nil {
@@ -76,6 +77,7 @@ func NoneList(targetProjectID int64, infrastructure Repository) (*List, error) {
 	return New(id, projectID, userID, title, color, optionID, isHidden, infrastructure), nil
 }
 
+// ListOption get a option from the list.
 func (l *List) ListOption() (*Option, error) {
 	if !l.ListOptionID.Valid {
 		return nil, errors.New("list has no list option")
@@ -87,7 +89,7 @@ func (l *List) ListOption() (*Option, error) {
 	return option, nil
 }
 
-// // HasCloseAction check a list has close list option
+// HasCloseAction checks a list has close list option
 func (l *List) HasCloseAction() (bool, error) {
 	option, err := l.ListOption()
 	if err != nil {
@@ -96,6 +98,7 @@ func (l *List) HasCloseAction() (bool, error) {
 	return option.IsCloseAction(), nil
 }
 
+// Tasks returns all tasks related the list.
 func (l *List) Tasks(infrastructure task.Repository) ([]*task.Task, error) {
 	return task.Tasks(l.ID, infrastructure)
 }
