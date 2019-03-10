@@ -18,10 +18,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-type Redis struct {
-	Client *redis.Client
-}
-
 // applyIssueChanges apply issue changes to task
 func applyIssueChanges(p *project.Project, body github.IssuesEvent) error {
 	logging.SharedInstance().MethodInfo("Project", "applyIssueChanges").Debugf("project: %+v", p)
@@ -356,6 +352,7 @@ func githubLabelLists(issue *github.Issue, projectLists []*list.List) []list.Lis
 	return githubLabels
 }
 
+// InjectRedis returns a redis client instance.
 func InjectRedis() *redis.Client {
 	return rediscli.SharedInstance().Client
 }

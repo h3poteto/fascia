@@ -7,12 +7,14 @@ import (
 	"github.com/go-redis/redis"
 )
 
+// Redis has client for redis.
 type Redis struct {
 	Client *redis.Client
 }
 
 var sharedInstance = New()
 
+// New returns a redis struct.
 func New() *Redis {
 	host := os.Getenv("REDIS_HOST")
 	port := os.Getenv("REDIS_PORT")
@@ -28,6 +30,7 @@ func New() *Redis {
 	}
 }
 
+// SharedInstance has redis struct.
 func SharedInstance() *Redis {
 	return sharedInstance
 }
