@@ -90,7 +90,7 @@ func (t *Task) Tasks(parentListID int64) ([]map[string]interface{}, error) {
 // NonIssueTasks returns all tasks related a list.
 func (t *Task) NonIssueTasks(projectID, userID int64) ([]map[string]interface{}, error) {
 	result := []map[string]interface{}{}
-	rows, err := t.db.Query("SELECT id, list_id, project_id, user_id, issue_number, title, description, pullRequest, htmlURL FROM tasks WHERE project_id = ? and user_id = ? and issue_number IS NULL;", projectID, userID)
+	rows, err := t.db.Query("SELECT id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url FROM tasks WHERE project_id = ? and user_id = ? and issue_number IS NULL;", projectID, userID)
 	if err != nil {
 		return result, errors.Wrap(err, "task repository")
 	}
