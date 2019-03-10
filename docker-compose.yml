@@ -46,13 +46,21 @@ services:
       CLIENT_ID: $CLIENT_ID
       CLIENT_SECRET: $CLIENT_SECRET
       SLACK_URL: $SLACK_URL
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB_NUMBER: 0
     volumes:
       - .:/go/src/github.com/h3poteto/fascia
     working_dir: /go/src/github.com/h3poteto/fascia
     links:
       - mysql:mysql
+      - redis:redis
     ports:
       - "9090:9090"
     command: /bin/sh
+
+  redis:
+    image: redis:5.0-alpine
+
 volumes:
   storage:

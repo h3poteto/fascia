@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"github.com/h3poteto/fascia/lib/modules/hub"
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/middlewares"
+	"github.com/h3poteto/fascia/server/usecases/board"
 
 	"net/http"
 
@@ -29,7 +29,7 @@ func (u *Github) Repositories(c echo.Context) error {
 		return c.JSON(http.StatusOK, nil)
 	}
 
-	repositories, err := hub.New(currentUser.OauthToken.String).AllRepositories()
+	repositories, err := board.GetAllRepositories(currentUser.OauthToken.String)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
