@@ -1,4 +1,4 @@
-FROM h3poteto/node:10.12.0-alpine AS frontend
+FROM node:10.16.3-alpine AS frontend
 
 ENV APPROOT /var/opt/app
 
@@ -11,7 +11,7 @@ RUN set -x \
     && npm run release-compile
 
 
-FROM h3poteto/golang:1.9.4
+FROM h3poteto/golang:1.11.2
 
 USER root
 ENV GOPATH /go
