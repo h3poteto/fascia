@@ -7,12 +7,14 @@ jobs:
           GO111MODULE: "on"
           APPROOT: /go/src/github.com/h3poteto/fascia
           APPENV: test
-          DATABASE_URL: 127.0.0.1
-          DB_TEST_NAME: fascia_test
-          DB_USER: root
+          POSTGRES_URL: 127.0.0.1
+          POSTGRES_DB: fascia_test
+          POSTGRES_USER: master
+          POSTGRES_PASSWORD: docker
       - image: postgres:11.2-alpine
         environment:
-          POSTGRES_USER: root
+          POSTGRES_USER: master
+          POSTGRES_PASSWORD: docker
           POSTGRES_DB: fascia_test
 
     working_directory: /go/src/github.com/h3poteto/fascia
