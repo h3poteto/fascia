@@ -47,7 +47,7 @@ func (u *Repositories) Hook(c echo.Context) error {
 		}
 		err = board.ApplyIssueChangesToRepository(repo, githubBody)
 		if err != nil {
-			logging.SharedInstance().ControllerWithStacktrace(err, c).Error("could not apply issue changes: %v", err)
+			logging.SharedInstance().ControllerWithStacktrace(err, c).Errorf("could not apply issue changes: %v", err)
 			return err
 		}
 		logging.SharedInstance().Controller(c).Info("success apply issues event from webhook")
