@@ -24,8 +24,3 @@ func (d *DummyUser) Create(email string, password string, provider sql.NullStrin
 func (d *DummyUser) Update(id int64, email string, provider sql.NullString, token sql.NullString, uuid sql.NullInt64, userName sql.NullString, avatar sql.NullString) error {
 	return nil
 }
-
-// UpdatePassword returns no error.
-func (d *DummyUser) UpdatePassword(id int64, pasword string) error {
-	return nil
-}

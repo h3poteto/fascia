@@ -25,7 +25,6 @@ type Repository interface {
 	FindByEmail(string) (int64, string, string, sql.NullString, sql.NullString, sql.NullInt64, sql.NullString, sql.NullString, error)
 	Create(string, string, sql.NullString, sql.NullString, sql.NullInt64, sql.NullString, sql.NullString) (int64, error)
 	Update(int64, string, sql.NullString, sql.NullString, sql.NullInt64, sql.NullString, sql.NullString) error
-	UpdatePassword(int64, string) error
 }
 
 // New returns a User struct.
@@ -58,19 +57,6 @@ func (u *User) create() error {
 // It does not contain password field. Please use UpdatePassword when you want to update password.
 func (u *User) Update() error {
 	return u.infrastructure.Update(u.ID, u.Email, u.Provider, u.OauthToken, u.UUID, u.UserName, u.Avatar)
-}
-
-// UpdatePassword updates user password.
-func (u *User) UpdatePassword(password string) error {
-	hashed, err := hashPassword(password)
-	if err != nil {
-		return err
-	}
-	if err := u.infrastructure.UpdatePassword(u.ID, string(hashed)); err != nil {
-		return err
-	}
-	u.Password = password
-	return nil
 }
 
 // Projects list up projects related a user

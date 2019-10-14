@@ -5,9 +5,7 @@ import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/middlewares"
 	"github.com/h3poteto/fascia/server/session"
-	usecase "github.com/h3poteto/fascia/server/usecases/account"
 
-	"html/template"
 	"net/http"
 
 	"github.com/gorilla/sessions"
@@ -17,13 +15,6 @@ import (
 
 // Sessions is controller struct for sessions
 type Sessions struct {
-}
-
-// SignInForm is struct for new session
-type SignInForm struct {
-	Email    string `form:"email"`
-	Password string `form:"password"`
-	Token    string `form:"token"`
 }
 
 // SignIn renders a sign in form
@@ -38,51 +29,6 @@ func (u *Sessions) SignIn(c echo.Context) error {
 		"title": "SignIn",
 		"token": token,
 	})
-}
-
-// NewSession login and create a session
-func (u *Sessions) NewSession(c echo.Context) error {
-	// 旧セッションの削除
-	err := session.SharedInstance().Clear(c.Request(), c.Response())
-	if err != nil {
-		err := errors.Wrap(err, "session error")
-		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return err
-	}
-
-	signInForm := new(SignInForm)
-	err = c.Bind(signInForm)
-	if err != nil {
-		err := errors.Wrap(err, "wrong parameter")
-		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return err
-	}
-
-	if !CheckCSRFToken(c, signInForm.Token) {
-		err := errors.New("cannot verify CSRF token")
-		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return err
-	}
-
-	userService, err := usecase.LoginUser(template.HTMLEscapeString(signInForm.Email), template.HTMLEscapeString(signInForm.Password))
-	if err != nil {
-		logging.SharedInstance().Controller(c).Infof("login error: %v", err)
-		return c.Redirect(http.StatusFound, "/sign_in")
-	}
-	logging.SharedInstance().Controller(c).Debugf("login success: %+v", userService)
-
-	option := &sessions.Options{
-		Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int),
-		HttpOnly: true,
-	}
-	err = session.SharedInstance().Set(c.Request(), c.Response(), "current_user_id", userService.ID, option)
-	if err != nil {
-		err := errors.Wrap(err, "session error")
-		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
-		return err
-	}
-	logging.SharedInstance().Controller(c).Info("login success")
-	return c.Redirect(http.StatusFound, "/")
 }
 
 // SignOut delete a session and logout
