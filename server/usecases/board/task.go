@@ -186,8 +186,9 @@ func syncTaskToIssue(t *domain.Task, r *repo.Repo, token string) (*github.Issue,
 	// Get all actions which are defined at list option.
 	var issueAction string
 	var listOption *list.Option
-	if l.ListOptionID.Valid {
-		listOption, err := list.FindOptionByID(l.ListOptionID.Int64, InjectListRepository())
+	listRepo := InjectListRepository()
+	if l.Option != nil {
+		listOption, err := listRepo.FindOptionByID(l.Option.ID)
 		if err != nil {
 			return nil, err
 		}

@@ -37,7 +37,8 @@ func fetchCreatedInitialList(p *domain.Project) error {
 		return err
 	}
 
-	lists, err := p.Lists(InjectListRepository())
+	listRepo := InjectListRepository()
+	lists, err := listRepo.Lists(p.ID)
 	if err != nil {
 		return err
 	}
@@ -137,9 +138,8 @@ func createInitialLists(project *domain.Project, tx *sql.Tx) error {
 		project.UserID,
 		sql.NullString{String: todoName, Valid: true},
 		sql.NullString{String: "f37b1d", Valid: true},
-		sql.NullInt64{},
 		false,
-		InjectListRepository(),
+		nil,
 	)
 	inprogressName := config.Element("init_list").(map[interface{}]interface{})["inprogress"].(string)
 	inprogress := list.New(
@@ -148,9 +148,8 @@ func createInitialLists(project *domain.Project, tx *sql.Tx) error {
 		project.UserID,
 		sql.NullString{String: inprogressName, Valid: true},
 		sql.NullString{String: "5eb95e", Valid: true},
-		sql.NullInt64{},
 		false,
-		InjectListRepository(),
+		nil,
 	)
 	doneName := config.Element("init_list").(map[interface{}]interface{})["done"].(string)
 	done := list.New(
@@ -159,9 +158,8 @@ func createInitialLists(project *domain.Project, tx *sql.Tx) error {
 		project.UserID,
 		sql.NullString{String: doneName, Valid: true},
 		sql.NullString{String: "333333", Valid: true},
-		sql.NullInt64{Int64: closeListOption.ID, Valid: true},
 		false,
-		InjectListRepository(),
+		closeListOption,
 	)
 	noneName := config.Element("init_list").(map[interface{}]interface{})["none"].(string)
 	none := list.New(
@@ -170,24 +168,24 @@ func createInitialLists(project *domain.Project, tx *sql.Tx) error {
 		project.UserID,
 		sql.NullString{String: noneName, Valid: true},
 		sql.NullString{String: "ffffff", Valid: true},
-		sql.NullInt64{},
 		false,
-		InjectListRepository(),
+		nil,
 	)
 
+	repo := InjectListRepository()
 	// This method only save lists.
 	// Use another methods to sync github.
-	if err := none.Create(tx); err != nil {
+	if _, err := repo.Create(none.ProjectID, none.UserID, none.Title, none.Color, sql.NullInt64{}, none.IsHidden, tx); err != nil {
 		return err
 	}
 
-	if err := todo.Create(tx); err != nil {
+	if _, err := repo.Create(todo.ProjectID, todo.UserID, todo.Title, todo.Color, sql.NullInt64{}, todo.IsHidden, tx); err != nil {
 		return err
 	}
-	if err := inprogress.Create(tx); err != nil {
+	if _, err := repo.Create(inprogress.ProjectID, inprogress.UserID, inprogress.Title, inprogress.Color, sql.NullInt64{}, inprogress.IsHidden, tx); err != nil {
 		return err
 	}
-	if err := done.Create(tx); err != nil {
+	if _, err := repo.Create(done.ProjectID, done.UserID, done.Title, done.Color, sql.NullInt64{Int64: done.Option.ID, Valid: true}, done.IsHidden, tx); err != nil {
 		return err
 	}
 	return nil
@@ -214,26 +212,27 @@ func DeleteProject(projectID int64) error {
 
 // deleteLists delete all lists related a project
 func deleteLists(p *domain.Project) error {
-	lists, err := p.Lists(InjectListRepository())
+	repoList := InjectListRepository()
+	lists, err := repoList.Lists(p.ID)
 	if err != nil {
 		return err
 	}
 	for _, l := range lists {
-		err := l.DeleteTasks()
+		err := repoList.DeleteTasks(l.ID)
 		if err != nil {
 			return err
 		}
-		err = l.Delete()
+		err = repoList.Delete(l.ID)
 		if err != nil {
 			return err
 		}
 	}
-	noneList, err := p.NoneList(InjectListRepository())
-	err = noneList.DeleteTasks()
+	noneList, err := repoList.NoneList(p.ID)
+	err = repoList.DeleteTasks(noneList.ID)
 	if err != nil {
 		return err
 	}
-	return noneList.Delete()
+	return repoList.Delete(noneList.ID)
 }
 
 // ProjectRepository returns a repo related the project.
@@ -243,10 +242,12 @@ func ProjectRepository(p *domain.Project) (*repo.Repo, error) {
 
 // ProjectLists returns all lists related the project.
 func ProjectLists(p *domain.Project) ([]*list.List, error) {
-	return p.Lists(InjectListRepository())
+	repo := InjectListRepository()
+	return repo.Lists(p.ID)
 }
 
 // ProjectNoneList returns the none list related the project.
 func ProjectNoneList(p *domain.Project) (*list.List, error) {
-	return p.NoneList(InjectListRepository())
+	repo := InjectListRepository()
+	return repo.NoneList(p.ID)
 }

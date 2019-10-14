@@ -3,7 +3,6 @@ package project
 import (
 	"database/sql"
 
-	"github.com/h3poteto/fascia/server/domains/list"
 	"github.com/h3poteto/fascia/server/domains/repo"
 	"github.com/pkg/errors"
 )
@@ -103,17 +102,6 @@ func Projects(targetUserID int64, infrastructure Repository) ([]*Project, error)
 
 	}
 	return result, nil
-}
-
-// Lists list up lists related this project
-func (p *Project) Lists(infrastructure list.Repository) ([]*list.List, error) {
-	return list.Lists(p.ID, infrastructure)
-}
-
-// NoneList returns a none list related this project
-func (p *Project) NoneList(infrastructure list.Repository) (*list.List, error) {
-	// noneが存在しないということはProjectsController#Createがうまく行ってないので，そっちでエラーハンドリングしてほしい
-	return list.NoneList(p.ID, infrastructure)
 }
 
 // Repository returns a repository entity related this project

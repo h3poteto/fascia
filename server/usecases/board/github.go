@@ -151,7 +151,8 @@ func FetchGithub(p *project.Project) (bool, error) {
 		return false, err
 	}
 	for _, t := range tasks {
-		l, err := list.FindByTaskID(t.ID, InjectListRepository())
+		listRepo := InjectListRepository()
+		l, err := listRepo.FindByTaskID(t.ID)
 		if err != nil {
 			return false, err
 		}
@@ -243,7 +244,8 @@ func taskApplyLabel(p *project.Project, targetTask *task.Task, issue *github.Iss
 func applyListToTask(p *project.Project, issueTask *task.Task, issue *github.Issue) (*task.Task, error) {
 	// close noneの用意
 	var closedList, noneList *list.List
-	lists, err := p.Lists(InjectListRepository())
+	listRepo := InjectListRepository()
+	lists, err := listRepo.Lists(p.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -256,7 +258,7 @@ func applyListToTask(p *project.Project, issueTask *task.Task, issue *github.Iss
 		return nil, errors.New("cannot find close list")
 	}
 
-	noneList, err = p.NoneList(InjectListRepository())
+	noneList, err = listRepo.NoneList(p.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -314,7 +316,8 @@ func taskLoadFromGithub(p *project.Project, issues []*github.Issue) error {
 
 // listLoadFromGithub load lists from github labels
 func listLoadFromGithub(p *project.Project, labels []*github.Label) error {
-	lists, err := p.Lists(InjectListRepository())
+	listRepo := InjectListRepository()
+	lists, err := listRepo.Lists(p.ID)
 	if err != nil {
 		return err
 	}
@@ -331,7 +334,11 @@ func labelUpdate(l *list.List, labels []*github.Label) error {
 		if strings.ToLower(*label.Name) == strings.ToLower(l.Title.String) {
 			title := sql.NullString{String: l.Title.String, Valid: true}
 			color := sql.NullString{String: *label.Color, Valid: true}
-			if err := l.Update(title, color, l.ListOptionID.Int64); err != nil {
+			if err := l.Update(title, color, l.Option); err != nil {
+				return err
+			}
+			repo := InjectListRepository()
+			if err := repo.Update(l); err != nil {
 				return err
 			}
 		}

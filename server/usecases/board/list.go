@@ -28,15 +28,20 @@ func ListHasCloseAction(list *list.List) (bool, error) {
 
 // FindList returns a list.
 func FindList(projectID, listID int64) (*list.List, error) {
-	return list.Find(projectID, listID, InjectListRepository())
+	repo := InjectListRepository()
+	return repo.Find(projectID, listID)
 }
 
 // CreateList creates a list, and sync to github.
 func CreateList(projectID, userID int64, title, color string, optionID sql.NullInt64, isHidden bool) (*list.List, error) {
 	nullableTitle := sql.NullString{String: title, Valid: true}
 	nullableColor := sql.NullString{String: color, Valid: true}
-	l := list.New(0, projectID, userID, nullableTitle, nullableColor, optionID, isHidden, InjectListRepository())
-	err := l.Create(nil)
+	repo := InjectListRepository()
+	id, err := repo.Create(projectID, userID, nullableTitle, nullableColor, optionID, isHidden, nil)
+	if err != nil {
+		return nil, err
+	}
+	l, err := repo.Find(projectID, id)
 	if err != nil {
 		return nil, err
 	}
@@ -90,8 +95,16 @@ func fetchCreatedList(l *list.List, oauthToken string, repo *repo.Repo) error {
 func UpdateList(l *list.List, title, color string, optionID int64) (*list.List, error) {
 	nullableTitle := sql.NullString{String: title, Valid: true}
 	nullableColor := sql.NullString{String: color, Valid: true}
-	err := l.Update(nullableTitle, nullableColor, optionID)
+	repo := InjectListRepository()
+	option, err := repo.FindOptionByID(optionID)
 	if err != nil {
+		return nil, err
+	}
+	err = l.Update(nullableTitle, nullableColor, option)
+	if err != nil {
+		return nil, err
+	}
+	if err = repo.Update(l); err != nil {
 		return nil, err
 	}
 
@@ -155,20 +168,36 @@ func listsWithCloseAction(lists []list.List) []list.List {
 
 // ListTasks returns tasks related the list.
 func ListTasks(l *list.List) ([]*task.Task, error) {
-	return l.Tasks(InjectTaskRepository())
+	repo := InjectTaskRepository()
+	return task.Tasks(l.ID, repo)
 }
 
 // ListOptionAll returns all list options
 func ListOptionAll() ([]*list.Option, error) {
-	return list.AllOption(InjectListRepository())
+	repo := InjectListRepository()
+	return repo.AllOption()
 }
 
 // FindListOptionByID returns a list option service
 func FindListOptionByID(id int64) (*list.Option, error) {
-	return list.FindOptionByID(id, InjectListRepository())
+	repo := InjectListRepository()
+	return repo.FindOptionByID(id)
 }
 
 // FindListOptionByAction returns a list option service
 func FindListOptionByAction(action string) (*list.Option, error) {
-	return list.FindOptionByAction(action, InjectListRepository())
+	repo := InjectListRepository()
+	return repo.FindOptionByAction(action)
+}
+
+func HideList(l *list.List) error {
+	l.Hide()
+	repo := InjectListRepository()
+	return repo.Update(l)
+}
+
+func DisplayList(l *list.List) error {
+	l.Display()
+	repo := InjectListRepository()
+	return repo.Update(l)
 }
