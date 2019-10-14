@@ -20,10 +20,11 @@ func InjectInquiryRepository() domain.Repository {
 
 // CreateInquiry create a new inquiry.
 func CreateInquiry(email, name, message string) (*domain.Inquiry, error) {
-	inquiry := domain.New(0, email, name, message, InjectInquiryRepository())
-	err := inquiry.Create()
+	repo := InjectInquiryRepository()
+	id, err := repo.Create(email, name, message)
 	if err != nil {
 		return nil, err
 	}
+	inquiry := domain.New(id, email, name, message)
 	return inquiry, nil
 }
