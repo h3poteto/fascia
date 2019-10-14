@@ -2,9 +2,11 @@ package controllers_test
 
 import (
 	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/lib/modules/database"
 	. "github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/domains/project"
 	"github.com/h3poteto/fascia/server/domains/user"
+	userRepo "github.com/h3poteto/fascia/server/infrastructures/user"
 	"github.com/h3poteto/fascia/server/usecases/account"
 	"github.com/h3poteto/fascia/server/usecases/board"
 	"github.com/h3poteto/fascia/server/views"
@@ -29,14 +31,23 @@ var _ = Describe("ProjectsController", func() {
 		user *user.User
 	)
 	email := "projects@example.com"
-	password := "hogehoge"
 	BeforeEach(func() {
 		e = echo.New()
 		rec = httptest.NewRecorder()
 	})
 	JustBeforeEach(func() {
 		seed.Seeds()
-		user, _ = account.RegistrationUser(email, password, password)
+		db := database.SharedInstance().Connection
+		repo := userRepo.New(db)
+		repo.Create(
+			email,
+			"hogehoge",
+			sql.NullString{},
+			sql.NullString{},
+			sql.NullInt64{},
+			sql.NullString{},
+			sql.NullString{})
+		user, _ = account.FindUserByEmail(email)
 	})
 
 	Describe("Create", func() {
@@ -48,7 +59,7 @@ var _ = Describe("ProjectsController", func() {
 			req := httptest.NewRequest(echo.POST, "/projects", strings.NewReader(j))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
-			_, c = LoginFaker(c, email, password)
+			_, c = LoginFaker(c, user)
 			resource := Projects{}
 			err = resource.Create(c)
 		})
@@ -93,7 +104,7 @@ var _ = Describe("ProjectsController", func() {
 		It("should receive projects", func() {
 			req := httptest.NewRequest(echo.GET, "/projects", nil)
 			c := e.NewContext(req, rec)
-			_, c = LoginFaker(c, email, password)
+			_, c = LoginFaker(c, user)
 			resource := Projects{}
 			err := resource.Index(c)
 			Expect(err).To(BeNil())
@@ -113,7 +124,7 @@ var _ = Describe("ProjectsController", func() {
 		It("should receive project title", func() {
 			req := httptest.NewRequest(echo.GET, "/projects/:project_id/show", nil)
 			c := e.NewContext(req, rec)
-			_, c = LoginFaker(c, email, password)
+			_, c = LoginFaker(c, user)
 			c = ProjectContext(c, newProject)
 			c.SetParamNames("project_id")
 			c.SetParamValues(strconv.FormatInt(newProject.ID, 10))
@@ -137,7 +148,7 @@ var _ = Describe("ProjectsController", func() {
 			req := httptest.NewRequest(echo.POST, "/projects/:project_id", strings.NewReader(j))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
-			_, c = LoginFaker(c, email, password)
+			_, c = LoginFaker(c, user)
 			c = ProjectContext(c, newProject)
 			c.SetParamNames("project_id")
 			c.SetParamValues(strconv.FormatInt(newProject.ID, 10))
@@ -161,7 +172,7 @@ var _ = Describe("ProjectsController", func() {
 			req := httptest.NewRequest(echo.POST, "/projects/:project_id/settings", strings.NewReader(j))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
-			_, c = LoginFaker(c, email, password)
+			_, c = LoginFaker(c, user)
 			c = ProjectContext(c, newProject)
 			c.SetParamNames("project_id")
 			c.SetParamValues(strconv.FormatInt(newProject.ID, 10))
@@ -180,7 +191,7 @@ var _ = Describe("ProjectsController", func() {
 			req := httptest.NewRequest(echo.POST, "/projects/:project_id/settings", strings.NewReader(j))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
-			_, c = LoginFaker(c, email, password)
+			_, c = LoginFaker(c, user)
 			c = ProjectContext(c, newProject)
 			c.SetParamNames("project_id")
 			c.SetParamValues(strconv.FormatInt(newProject.ID, 10))

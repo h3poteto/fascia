@@ -58,9 +58,3 @@ func (u *User) Update(id int64, email string, provider sql.NullString, oauthToke
 	_, err := u.db.Exec("update users set email = ?, provider = ?, oauth_token = ?, uuid = ?, user_name = ?, avatar_url = ? where id = ?;", email, provider, oauthToken, uuid, userName, avatar, id)
 	return errors.Wrap(err, "user repository")
 }
-
-// UpdatePassword update password in user.
-func (u *User) UpdatePassword(id int64, password string) error {
-	_, err := u.db.Exec("update users set password = ? where id = ?;", password, id)
-	return errors.Wrap(err, "user repository")
-}

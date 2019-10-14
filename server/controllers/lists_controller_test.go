@@ -10,10 +10,12 @@ import (
 	"strings"
 
 	"github.com/h3poteto/fascia/db/seed"
+	"github.com/h3poteto/fascia/lib/modules/database"
 	. "github.com/h3poteto/fascia/server/controllers"
 	"github.com/h3poteto/fascia/server/domains/list"
 	"github.com/h3poteto/fascia/server/domains/project"
 	"github.com/h3poteto/fascia/server/domains/user"
+	userRepo "github.com/h3poteto/fascia/server/infrastructures/user"
 	"github.com/h3poteto/fascia/server/usecases/account"
 	"github.com/h3poteto/fascia/server/usecases/board"
 	"github.com/h3poteto/fascia/server/views"
@@ -30,14 +32,23 @@ var _ = Describe("ListsController", func() {
 		u   *user.User
 	)
 	email := "lists@example.com"
-	password := "hogehoge"
 	BeforeEach(func() {
 		e = echo.New()
 		rec = httptest.NewRecorder()
 	})
 	JustBeforeEach(func() {
 		seed.Seeds()
-		u, _ = account.RegistrationUser(email, password, password)
+		db := database.SharedInstance().Connection
+		repo := userRepo.New(db)
+		repo.Create(
+			email,
+			"hogehoge",
+			sql.NullString{},
+			sql.NullString{},
+			sql.NullInt64{},
+			sql.NullString{},
+			sql.NullString{})
+		u, _ = account.FindUserByEmail(email)
 		p, _ = board.CreateProject(u.ID, "projectTitle", "", 0, sql.NullString{})
 	})
 
@@ -50,7 +61,7 @@ var _ = Describe("ListsController", func() {
 			req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists", strings.NewReader(j))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
-			_, c = LoginFaker(c, email, password)
+			_, c = LoginFaker(c, u)
 			c = ProjectContext(c, p)
 			c.SetParamNames("project_id")
 			c.SetParamValues(strconv.FormatInt(p.ID, 10))
@@ -87,7 +98,7 @@ var _ = Describe("ListsController", func() {
 				req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id", strings.NewReader(j))
 				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 				c := e.NewContext(req, rec)
-				_, c = LoginFaker(c, email, password)
+				_, c = LoginFaker(c, u)
 				c = ProjectContext(c, p)
 				c = ListContext(c, newList)
 				c.SetParamNames("project_id", "list_id")
@@ -113,7 +124,7 @@ var _ = Describe("ListsController", func() {
 				req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id", strings.NewReader(j))
 				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 				c := e.NewContext(req, rec)
-				_, c = LoginFaker(c, email, password)
+				_, c = LoginFaker(c, u)
 				c = ProjectContext(c, p)
 				c = ListContext(c, newList)
 				c.SetParamNames("project_id", "list_id")
@@ -140,7 +151,7 @@ var _ = Describe("ListsController", func() {
 		It("should receive lists", func() {
 			req := httptest.NewRequest(echo.GET, "/projects/:project_id/lists", nil)
 			c := e.NewContext(req, rec)
-			_, c = LoginFaker(c, email, password)
+			_, c = LoginFaker(c, u)
 			c = ProjectContext(c, p)
 			c.SetParamNames("project_id")
 			c.SetParamValues(strconv.FormatInt(p.ID, 10))
@@ -164,7 +175,7 @@ var _ = Describe("ListsController", func() {
 		It("should hide list", func() {
 			req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id/hide", nil)
 			c := e.NewContext(req, rec)
-			_, c = LoginFaker(c, email, password)
+			_, c = LoginFaker(c, u)
 			c = ProjectContext(c, p)
 			c = ListContext(c, newList)
 			c.SetParamNames("project_id", "list_id")
@@ -190,7 +201,7 @@ var _ = Describe("ListsController", func() {
 		It("should display list", func() {
 			req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id/display", nil)
 			c := e.NewContext(req, rec)
-			_, c = LoginFaker(c, email, password)
+			_, c = LoginFaker(c, u)
 			c = ProjectContext(c, p)
 			c = ListContext(c, newList)
 			c.SetParamNames("project_id", "list_id")

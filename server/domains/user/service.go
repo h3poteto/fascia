@@ -51,37 +51,6 @@ func FindByEmail(targetEmail string, infrastructure Repository) (*User, error) {
 	return New(id, email, password, provider, oauthToken, uuid, userName, avatar, infrastructure), nil
 }
 
-// Registration create a new user record
-func Registration(email, password, passwordConfirm string, infrastructure Repository) (*User, error) {
-	if password != passwordConfirm {
-		return nil, errors.New("password is incorrect")
-	}
-	hashed, err := hashPassword(password)
-	if err != nil {
-		return nil, err
-	}
-	u := New(0, email, string(hashed), sql.NullString{}, sql.NullString{}, sql.NullInt64{}, sql.NullString{}, sql.NullString{}, infrastructure)
-	if err := u.create(); err != nil {
-		return nil, err
-	}
-	return u, nil
-}
-
-// Login authenticate email and password
-func Login(targetEmail string, targetPassword string, infrastructure Repository) (*User, error) {
-	id, email, password, provider, oauthToken, uuid, userName, avatar, err := infrastructure.FindByEmail(targetEmail)
-	if err != nil {
-		return nil, err
-	}
-
-	bytePassword := []byte(targetPassword)
-	err = bcrypt.CompareHashAndPassword([]byte(password), bytePassword)
-	if err != nil {
-		return nil, errors.Wrap(err, "password did not match")
-	}
-	return New(id, email, password, provider, oauthToken, uuid, userName, avatar, infrastructure), nil
-}
-
 // FindOrCreateFromGithub create or update user based on github user.
 func FindOrCreateFromGithub(githubUser *github.User, token string, primaryEmail string, infrastructure Repository) (*User, error) {
 	id, email, password, provider, oauthToken, uuid, userName, avatar, err := infrastructure.FindByEmail(primaryEmail)

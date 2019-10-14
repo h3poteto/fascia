@@ -12,7 +12,6 @@ import (
 	"github.com/h3poteto/fascia/server/domains/user"
 	"github.com/h3poteto/fascia/server/filters"
 	"github.com/h3poteto/fascia/server/middlewares"
-	"github.com/h3poteto/fascia/server/usecases/account"
 	"github.com/labstack/echo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -38,17 +37,13 @@ func CSRFFaker() {
 	CheckCSRFToken = func(c echo.Context, token string) bool { return true }
 }
 
-func LoginFaker(c echo.Context, email string, password string) (*user.User, echo.Context) {
-	user, err := account.LoginUser(email, password)
-	if err != nil {
-		panic(err)
-	}
+func LoginFaker(c echo.Context, u *user.User) (*user.User, echo.Context) {
 	var ctx echo.Context
 	ctx = &middlewares.LoginContext{
 		c,
-		user,
+		u,
 	}
-	return user, ctx
+	return u, ctx
 }
 
 func ProjectContext(c echo.Context, p *project.Project) echo.Context {

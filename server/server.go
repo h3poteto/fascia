@@ -41,23 +41,12 @@ func Routes(e *echo.Echo) {
 	login.Use(middlewares.Login())
 	sessions := &controllers.Sessions{}
 	e.GET("/sign_in", sessions.SignIn)
-	e.POST("/sign_in", sessions.NewSession)
 	login.PATCH("session", sessions.Update)
 	e.DELETE("/sign_out", sessions.SignOut)
-
-	registrations := &controllers.Registrations{}
-	e.GET("/sign_up", registrations.SignUp)
-	e.POST("/sign_up", registrations.Registration)
 
 	oauth := &controllers.Oauth{}
 	e.GET("/oauth/sign_in", oauth.SignIn)
 	e.GET("/auth/github", oauth.Github)
-
-	passwords := &controllers.Passwords{}
-	e.GET("/passwords/new", passwords.New)
-	e.POST("/passwords/create", passwords.Create)
-	e.GET("/passwords/:id/edit", passwords.Edit)
-	e.POST("/passwords/:id/update", passwords.Update)
 
 	// webview
 	webviews := &controllers.Webviews{}

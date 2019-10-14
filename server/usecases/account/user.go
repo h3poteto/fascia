@@ -2,9 +2,11 @@ package account
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/go-github/github"
+	"github.com/h3poteto/fascia/lib/modules/database"
 	"github.com/h3poteto/fascia/server/domains/project"
 	domain "github.com/h3poteto/fascia/server/domains/user"
 	repo "github.com/h3poteto/fascia/server/infrastructures/user"
@@ -13,14 +15,14 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// InjectDB set DB connection from connection pool.
+func InjectDB() *sql.DB {
+	return database.SharedInstance().Connection
+}
+
 // InjectUserRepository inject db connection and return repository instance.
 func InjectUserRepository() domain.Repository {
 	return repo.New(InjectDB())
-}
-
-// RegistrationUser registers a user.
-func RegistrationUser(email, password, passwordConfirm string) (*domain.User, error) {
-	return domain.Registration(email, password, passwordConfirm, InjectUserRepository())
 }
 
 // FindUser finds a user.
@@ -31,11 +33,6 @@ func FindUser(id int64) (*domain.User, error) {
 // FindUserByEmail finds a user.
 func FindUserByEmail(email string) (*domain.User, error) {
 	return domain.FindByEmail(email, InjectUserRepository())
-}
-
-// LoginUser check password and login.
-func LoginUser(email, password string) (*domain.User, error) {
-	return domain.Login(email, password, InjectUserRepository())
 }
 
 // FindOrCreateUserFromGithub creates a user from github.
