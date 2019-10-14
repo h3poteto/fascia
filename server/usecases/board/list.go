@@ -96,11 +96,9 @@ func UpdateList(l *list.List, title, color string, optionID int64) (*list.List, 
 	nullableTitle := sql.NullString{String: title, Valid: true}
 	nullableColor := sql.NullString{String: color, Valid: true}
 	repo := InjectListRepository()
-	option, err := repo.FindOptionByID(optionID)
-	if err != nil {
-		return nil, err
-	}
-	err = l.Update(nullableTitle, nullableColor, option)
+	// Allow null option, so ignore error.
+	option, _ := repo.FindOptionByID(optionID)
+	err := l.Update(nullableTitle, nullableColor, option)
 	if err != nil {
 		return nil, err
 	}
@@ -190,12 +188,14 @@ func FindListOptionByAction(action string) (*list.Option, error) {
 	return repo.FindOptionByAction(action)
 }
 
+// HideList hides a list.
 func HideList(l *list.List) error {
 	l.Hide()
 	repo := InjectListRepository()
 	return repo.Update(l)
 }
 
+// DisplayList display a list.
 func DisplayList(l *list.List) error {
 	l.Display()
 	repo := InjectListRepository()
