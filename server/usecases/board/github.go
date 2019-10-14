@@ -22,9 +22,10 @@ import (
 func applyIssueChanges(p *project.Project, body github.IssuesEvent) error {
 	logging.SharedInstance().MethodInfo("Project", "applyIssueChanges").Debugf("project: %+v", p)
 	logging.SharedInstance().MethodInfo("Project", "applyIssueChanges").Debugf("issues event: %+v", *body.Issue)
+	infra := InjectTaskRepository()
 	// When the task does not exist, we create a new task.
 	// So if this method returns an error, we can ignore it.
-	targetTask, _ := task.FindByIssueNumber(p.ID, *body.Issue.Number, InjectTaskRepository())
+	targetTask, _ := infra.FindByIssueNumber(p.ID, *body.Issue.Number)
 
 	// create時点ではlabelsが空の状態でhookが飛んできている場合がある
 	// editedの場合であってもwebhookにはchangeだけしか載っておらず，最新の状態は載っていない場合がある
@@ -73,14 +74,14 @@ func createNewTask(p *project.Project, issue *github.Issue) error {
 		*issue.Body,
 		hub.IsPullRequest(issue),
 		sql.NullString{String: *issue.HTMLURL, Valid: true},
-		InjectTaskRepository(),
 	)
 
 	issueTask, err := applyListToTask(p, issueTask, issue)
 	if err != nil {
 		return err
 	}
-	if err := issueTask.Create(); err != nil {
+	infra := InjectTaskRepository()
+	if _, err := infra.Create(issueTask.ListID, issueTask.ProjectID, issueTask.UserID, issueTask.IssueNumber, issueTask.Title, issueTask.Description, issueTask.PullRequest, issueTask.HTMLURL); err != nil {
 		return err
 	}
 	return nil
@@ -94,8 +95,12 @@ func reopenTask(p *project.Project, targetTask *task.Task, issue *github.Issue) 
 	if err != nil {
 		return err
 	}
-	err = issueTask.Update(
+	infra := InjectTaskRepository()
+	err = infra.Update(
+		issueTask.ID,
 		issueTask.ListID,
+		issueTask.ProjectID,
+		issueTask.UserID,
 		issueTask.IssueNumber,
 		issueTask.Title,
 		issueTask.Description,
@@ -148,7 +153,8 @@ func FetchGithub(p *project.Project) (bool, error) {
 	//-------------------------------------
 	// Export lists and tasks to Github.
 	//------------------------------------
-	tasks, err := task.NonIssueTasks(p.ID, p.UserID, InjectTaskRepository())
+	taskInfra := InjectTaskRepository()
+	tasks, err := taskInfra.NonIssueTasks(p.ID, p.UserID)
 	if err != nil {
 		return false, err
 	}
@@ -181,7 +187,8 @@ func FetchGithub(p *project.Project) (bool, error) {
 func applyPullRequestChanges(p *project.Project, body github.PullRequestEvent) error {
 	// When the task does not exist, we create a new task.
 	// So if this method returns an error, we can ignore it.
-	targetTask, _ := task.FindByIssueNumber(p.ID, *body.Number, InjectTaskRepository())
+	taskInfra := InjectTaskRepository()
+	targetTask, _ := taskInfra.FindByIssueNumber(p.ID, *body.Number)
 
 	infra := InjectProjectRepository()
 	oauthToken, err := infra.OauthToken(p.ID)
@@ -230,8 +237,12 @@ func taskApplyLabel(p *project.Project, targetTask *task.Task, issue *github.Iss
 	if err != nil {
 		return err
 	}
-	err = issueTask.Update(
+	infra := InjectTaskRepository()
+	err = infra.Update(
+		issueTask.ID,
 		issueTask.ListID,
+		issueTask.ProjectID,
+		issueTask.UserID,
 		issueTask.IssueNumber,
 		issueTask.Title,
 		issueTask.Description,
@@ -306,8 +317,9 @@ func applyIssueInfoToTask(p *project.Project, targetTask *task.Task, issue *gith
 
 // taskLoadFromGithub load tasks from github issues
 func taskLoadFromGithub(p *project.Project, issues []*github.Issue) error {
+	infra := InjectTaskRepository()
 	for _, issue := range issues {
-		targetTask, _ := task.FindByIssueNumber(p.ID, *issue.Number, InjectTaskRepository())
+		targetTask, _ := infra.FindByIssueNumber(p.ID, *issue.Number)
 
 		err := taskApplyLabel(p, targetTask, issue)
 		if err != nil {

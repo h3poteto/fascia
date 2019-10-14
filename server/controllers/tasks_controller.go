@@ -212,7 +212,7 @@ func (u *Tasks) Delete(c echo.Context) error {
 	p := tc.Project
 	t := tc.Task
 
-	err := t.Delete()
+	err := board.DeleteTask(t)
 	if err != nil {
 		logging.SharedInstance().Controller(c).Info(err)
 		return NewJSONError(err, http.StatusBadRequest, c)

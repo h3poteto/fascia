@@ -2,6 +2,7 @@ package task
 
 import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
+	"github.com/h3poteto/fascia/server/domains/task"
 
 	"database/sql"
 
@@ -21,7 +22,7 @@ func New(db *sql.DB) *Task {
 }
 
 // Find search a task according to id.
-func (t *Task) Find(id int64) (int64, int64, int64, int64, sql.NullInt64, string, string, bool, sql.NullString, error) {
+func (t *Task) Find(id int64) (*task.Task, error) {
 	var listID, userID, projectID int64
 	var title, description string
 	var issueNumber sql.NullInt64
@@ -29,13 +30,23 @@ func (t *Task) Find(id int64) (int64, int64, int64, int64, sql.NullInt64, string
 	var htmlURL sql.NullString
 	err := t.db.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where id = ?;", id).Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
 	if err != nil {
-		return 0, 0, 0, 0, sql.NullInt64{}, "", "", false, sql.NullString{}, errors.Wrap(err, "task repository")
+		return nil, errors.Wrap(err, "task repository")
 	}
-	return id, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL, nil
+	return &task.Task{
+		ID:          id,
+		ListID:      listID,
+		ProjectID:   projectID,
+		UserID:      userID,
+		IssueNumber: issueNumber,
+		Title:       title,
+		Description: description,
+		PullRequest: pullRequest,
+		HTMLURL:     htmlURL,
+	}, nil
 }
 
 // FindByIssueNumber search a task according to issue number in github
-func (t *Task) FindByIssueNumber(projectID int64, issueNumber int) (int64, int64, int64, int64, sql.NullInt64, string, string, bool, sql.NullString, error) {
+func (t *Task) FindByIssueNumber(projectID int64, issueNumber int) (*task.Task, error) {
 	var id, listID, userID int64
 	var title, description string
 	var number sql.NullInt64
@@ -43,20 +54,30 @@ func (t *Task) FindByIssueNumber(projectID int64, issueNumber int) (int64, int64
 	var htmlURL sql.NullString
 	err := t.db.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where issue_number = ? and project_id = ?;", issueNumber, projectID).Scan(&id, &listID, &projectID, &userID, &number, &title, &description, &pullRequest, &htmlURL)
 	if err != nil {
-		return 0, 0, 0, 0, sql.NullInt64{}, "", "", false, sql.NullString{}, errors.Wrap(err, "task repository")
+		return nil, errors.Wrap(err, "task repository")
 	}
 	if !number.Valid || number.Int64 != int64(issueNumber) {
-		return 0, 0, 0, 0, sql.NullInt64{}, "", "", false, sql.NullString{}, errors.New("task not found")
+		return nil, errors.New("task not found")
 	}
-	return id, listID, projectID, userID, number, title, description, pullRequest, htmlURL, nil
+	return &task.Task{
+		ID:          id,
+		ListID:      listID,
+		ProjectID:   projectID,
+		UserID:      userID,
+		IssueNumber: sql.NullInt64{Int64: int64(issueNumber), Valid: true},
+		Title:       title,
+		Description: description,
+		PullRequest: pullRequest,
+		HTMLURL:     htmlURL,
+	}, nil
 }
 
 // Tasks returns all tasks related a list.
-func (t *Task) Tasks(parentListID int64) ([]map[string]interface{}, error) {
-	result := []map[string]interface{}{}
+func (t *Task) Tasks(parentListID int64) ([]*task.Task, error) {
+	result := []*task.Task{}
 	rows, err := t.db.Query("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url from tasks where list_id = ? order by display_index;", parentListID)
 	if err != nil {
-		return result, errors.Wrap(err, "task repository")
+		return nil, errors.Wrap(err, "task repository")
 	}
 
 	for rows.Next() {
@@ -67,19 +88,19 @@ func (t *Task) Tasks(parentListID int64) ([]map[string]interface{}, error) {
 		var htmlURL sql.NullString
 		err := rows.Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
 		if err != nil {
-			return []map[string]interface{}{}, errors.Wrap(err, "task repository")
+			return nil, errors.Wrap(err, "task repository")
 		}
 		if listID == parentListID {
-			l := map[string]interface{}{
-				"id":          id,
-				"listID":      listID,
-				"projectID":   projectID,
-				"userID":      userID,
-				"issueNumber": issueNumber,
-				"title":       title,
-				"description": description,
-				"pullRequest": pullRequest,
-				"htmlURL":     htmlURL,
+			l := &task.Task{
+				ID:          id,
+				ListID:      listID,
+				ProjectID:   projectID,
+				UserID:      userID,
+				IssueNumber: issueNumber,
+				Title:       title,
+				Description: description,
+				PullRequest: pullRequest,
+				HTMLURL:     htmlURL,
 			}
 			result = append(result, l)
 		}
@@ -88,11 +109,11 @@ func (t *Task) Tasks(parentListID int64) ([]map[string]interface{}, error) {
 }
 
 // NonIssueTasks returns all tasks related a list.
-func (t *Task) NonIssueTasks(projectID, userID int64) ([]map[string]interface{}, error) {
-	result := []map[string]interface{}{}
+func (t *Task) NonIssueTasks(projectID, userID int64) ([]*task.Task, error) {
+	result := []*task.Task{}
 	rows, err := t.db.Query("SELECT id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url FROM tasks WHERE project_id = ? and user_id = ? and issue_number IS NULL;", projectID, userID)
 	if err != nil {
-		return result, errors.Wrap(err, "task repository")
+		return nil, errors.Wrap(err, "task repository")
 	}
 
 	for rows.Next() {
@@ -103,18 +124,18 @@ func (t *Task) NonIssueTasks(projectID, userID int64) ([]map[string]interface{},
 		var htmlURL sql.NullString
 		err := rows.Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL)
 		if err != nil {
-			return []map[string]interface{}{}, errors.Wrap(err, "task repository")
+			return nil, errors.Wrap(err, "task repository")
 		}
-		l := map[string]interface{}{
-			"id":          id,
-			"listID":      listID,
-			"projectID":   projectID,
-			"userID":      userID,
-			"issueNumber": issueNumber,
-			"title":       title,
-			"description": description,
-			"pullRequest": pullRequest,
-			"htmlURL":     htmlURL,
+		l := &task.Task{
+			ID:          id,
+			ListID:      listID,
+			ProjectID:   projectID,
+			UserID:      userID,
+			IssueNumber: issueNumber,
+			Title:       title,
+			Description: description,
+			PullRequest: pullRequest,
+			HTMLURL:     htmlURL,
 		}
 		result = append(result, l)
 	}

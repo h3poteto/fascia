@@ -169,7 +169,7 @@ func listsWithCloseAction(lists []list.List) []list.List {
 // ListTasks returns tasks related the list.
 func ListTasks(l *list.List) ([]*task.Task, error) {
 	repo := InjectTaskRepository()
-	return task.Tasks(l.ID, repo)
+	return repo.Tasks(l.ID)
 }
 
 // ListOptionAll returns all list options
