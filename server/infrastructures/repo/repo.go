@@ -3,6 +3,7 @@ package repo
 import (
 	"database/sql"
 
+	"github.com/h3poteto/fascia/server/domains/repo"
 	"github.com/pkg/errors"
 )
 
@@ -19,27 +20,39 @@ func New(db *sql.DB) *Repo {
 }
 
 // FindByGithubRepoID is return a Repository struct from repository_id
-func (r *Repo) FindByGithubRepoID(githubRepoID int64) (int64, int64, sql.NullString, sql.NullString, string, error) {
+func (r *Repo) FindByGithubRepoID(githubRepoID int64) (*repo.Repo, error) {
 	var id, repoID int64
 	var owner, name sql.NullString
 	var webhookKey string
 	err := r.db.QueryRow("select id, repository_id, owner, name, webhook_key from repositories where repository_id = ?;", githubRepoID).Scan(&id, &repoID, &owner, &name, &webhookKey)
 	if err != nil {
-		return 0, 0, sql.NullString{}, sql.NullString{}, "", errors.Wrap(err, "repo repository")
+		return nil, errors.Wrap(err, "repo repository")
 	}
-	return id, repoID, owner, name, webhookKey, nil
+	return &repo.Repo{
+		ID:           id,
+		RepositoryID: repoID,
+		Owner:        owner,
+		Name:         name,
+		WebhookKey:   webhookKey,
+	}, nil
 }
 
 // FindByProjectID returns a repository related a project.
-func (r *Repo) FindByProjectID(projectID int64) (int64, int64, sql.NullString, sql.NullString, string, error) {
+func (r *Repo) FindByProjectID(projectID int64) (*repo.Repo, error) {
 	var id, repoID int64
 	var owner, name sql.NullString
 	var webhookKey string
 	err := r.db.QueryRow("select repositories.id, repositories.repository_id, repositories.owner, repositories.name, repositories.webhook_key from projects inner join repositories on repositories.id = projects.repository_id where projects.id = ?;", projectID).Scan(&id, &repoID, &owner, &name, &webhookKey)
 	if err != nil {
-		return 0, 0, sql.NullString{}, sql.NullString{}, "", errors.Wrap(err, "repo repository")
+		return nil, errors.Wrap(err, "repo repository")
 	}
-	return id, repoID, owner, name, webhookKey, nil
+	return &repo.Repo{
+		ID:           id,
+		RepositoryID: repoID,
+		Owner:        owner,
+		Name:         name,
+		WebhookKey:   webhookKey,
+	}, nil
 }
 
 // Create save repository model in record

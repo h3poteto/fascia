@@ -1,9 +1,15 @@
 package board
 
 import (
+	"crypto/md5"
 	"database/sql"
+	"fmt"
+	"io"
+	"strconv"
+	"time"
 
 	"github.com/h3poteto/fascia/config"
+	"github.com/h3poteto/fascia/lib/modules/hub"
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/domains/list"
 	domain "github.com/h3poteto/fascia/server/domains/project"
@@ -27,7 +33,7 @@ func findProjectByRepoID(repoID int64) ([]*domain.Project, error) {
 
 // fetchCreatedInitialList fetch initial list to github
 func fetchCreatedInitialList(p *domain.Project) error {
-	repo, err := p.Repository(InjectRepoRepository())
+	repo, err := ProjectRepository(p)
 	if err != nil {
 		return err
 	}
@@ -62,9 +68,10 @@ func fetchCreatedInitialList(p *domain.Project) error {
 func CreateProject(userID int64, title string, description string, repositoryID int64, oauthToken sql.NullString) (*domain.Project, error) {
 	var repoID sql.NullInt64
 	if repositoryID != 0 && oauthToken.Valid {
-		r, err := repo.FindByGithubRepoID(repositoryID, InjectRepoRepository())
+		infra := InjectRepoRepository()
+		r, err := infra.FindByGithubRepoID(repositoryID)
 		if err != nil {
-			r, err = repo.CreateRepo(repositoryID, oauthToken.String, InjectRepoRepository())
+			r, err = createRepo(repositoryID, oauthToken.String)
 			if err != nil {
 				return nil, err
 			}
@@ -104,7 +111,7 @@ func CreateProject(userID int64, title string, description string, repositoryID 
 		}
 
 		// Create Webhook in github
-		r, err := project.Repository(InjectRepoRepository())
+		r, err := ProjectRepository(project)
 		if err != nil {
 			logging.SharedInstance().MethodInfoWithStacktrace("Project", "Create", err).Error(err)
 			return
@@ -198,7 +205,7 @@ func DeleteProject(projectID int64) error {
 		return err
 	}
 
-	r, err := project.Repository(InjectRepoRepository())
+	r, err := ProjectRepository(project)
 	if err == nil {
 		token, _ := project.OauthToken()
 		r.DeleteWebhook(token)
@@ -237,7 +244,8 @@ func deleteLists(p *domain.Project) error {
 
 // ProjectRepository returns a repo related the project.
 func ProjectRepository(p *domain.Project) (*repo.Repo, error) {
-	return p.Repository(InjectRepoRepository())
+	repo := InjectRepoRepository()
+	return repo.FindByProjectID(p.ID)
 }
 
 // ProjectLists returns all lists related the project.
@@ -250,4 +258,35 @@ func ProjectLists(p *domain.Project) ([]*list.List, error) {
 func ProjectNoneList(p *domain.Project) (*list.List, error) {
 	repo := InjectListRepository()
 	return repo.NoneList(p.ID)
+}
+
+// CreateRepo create repository record based on github repository
+func createRepo(targetRepositoryID int64, oauthToken string) (*repo.Repo, error) {
+	// confirm github
+	h := hub.New(oauthToken)
+	githubRepo, err := h.GetRepository(int(targetRepositoryID))
+	if err != nil {
+		return nil, err
+	}
+	// generate webhook key
+	key := generateWebhookKey(*githubRepo.Name)
+	owner := sql.NullString{String: *githubRepo.Owner.Login, Valid: true}
+	name := sql.NullString{String: *githubRepo.Name, Valid: true}
+	infra := InjectRepoRepository()
+	_, err = infra.Create(int64(*githubRepo.ID), owner, name, key)
+	if err != nil {
+		return nil, err
+	}
+	repo, err := infra.FindByGithubRepoID(int64(*githubRepo.ID))
+	return repo, nil
+}
+
+// generateWebhookKey create new md5 hash
+func generateWebhookKey(seed string) string {
+	h := md5.New()
+	io.WriteString(h, strconv.FormatInt(time.Now().Unix(), 10))
+	io.WriteString(h, seed)
+	token := fmt.Sprintf("%x", h.Sum(nil))
+
+	return token
 }

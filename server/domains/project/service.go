@@ -3,7 +3,6 @@ package project
 import (
 	"database/sql"
 
-	"github.com/h3poteto/fascia/server/domains/repo"
 	"github.com/pkg/errors"
 )
 
@@ -105,6 +104,6 @@ func Projects(targetUserID int64, infrastructure Repository) ([]*Project, error)
 }
 
 // Repository returns a repository entity related this project
-func (p *Project) Repository(infrastructure repo.Repository) (*repo.Repo, error) {
-	return repo.FindByProjectID(p.ID, infrastructure)
-}
+// func (p *Project) Repository(infrastructure repo.Repository) (*repo.Repo, error) {
+// 	return repo.FindByProjectID(p.ID, infrastructure)
+// }

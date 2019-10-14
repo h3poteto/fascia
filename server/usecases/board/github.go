@@ -53,7 +53,7 @@ func reacquireIssue(p *project.Project, issue *github.Issue) (*github.Issue, err
 		return nil, err
 	}
 
-	r, err := p.Repository(InjectRepoRepository())
+	r, err := ProjectRepository(p)
 	if err != nil {
 		return nil, errors.Wrap(err, "can not find repository")
 	}
@@ -109,7 +109,7 @@ func reopenTask(p *project.Project, targetTask *task.Task, issue *github.Issue) 
 
 // FetchGithub fetch all lists and all tasks
 func FetchGithub(p *project.Project) (bool, error) {
-	repo, err := p.Repository(InjectRepoRepository())
+	repo, err := ProjectRepository(p)
 	if err != nil {
 		return false, err
 	}
@@ -186,7 +186,7 @@ func applyPullRequestChanges(p *project.Project, body github.PullRequestEvent) e
 		return err
 	}
 
-	repo, err := p.Repository(InjectRepoRepository())
+	repo, err := ProjectRepository(p)
 	if err != nil {
 		return err
 	}

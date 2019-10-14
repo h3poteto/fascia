@@ -42,7 +42,7 @@ func CreateTask(listID, projectID, userID int64, issueNumber sql.NullInt64, titl
 		if err != nil {
 			return
 		}
-		repo, err := p.Repository(InjectRepoRepository())
+		repo, err := ProjectRepository(p)
 		if err != nil {
 			return
 		}
@@ -73,7 +73,7 @@ func UpdateTask(task *domain.Task, listID int64, issueNumber sql.NullInt64, titl
 		if err != nil {
 			return
 		}
-		repo, err := p.Repository(InjectRepoRepository())
+		repo, err := ProjectRepository(p)
 		if err != nil {
 			return
 		}
@@ -104,7 +104,7 @@ func TaskChangeList(task *domain.Task, listID int64, prevToTaskID *int64) error 
 		if err != nil {
 			return
 		}
-		repo, err := p.Repository(InjectRepoRepository())
+		repo, err := ProjectRepository(p)
 		if err != nil {
 			return
 		}

@@ -57,7 +57,7 @@ func CreateList(projectID, userID int64, title, color string, optionID sql.NullI
 		if err != nil {
 			return
 		}
-		repo, err := p.Repository(InjectRepoRepository())
+		repo, err := ProjectRepository(p)
 		if err != nil {
 			return
 		}
@@ -116,7 +116,7 @@ func UpdateList(l *list.List, title, color string, optionID int64) (*list.List, 
 		if err != nil {
 			return
 		}
-		repo, err := p.Repository(InjectRepoRepository())
+		repo, err := ProjectRepository(p)
 		if err != nil {
 			return
 		}
