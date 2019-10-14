@@ -2,7 +2,10 @@ package account
 
 import (
 	"context"
+	"crypto/rand"
 	"database/sql"
+	"encoding/binary"
+	"strconv"
 	"time"
 
 	"github.com/google/go-github/github"
@@ -12,6 +15,7 @@ import (
 	repo "github.com/h3poteto/fascia/server/infrastructures/user"
 	"github.com/h3poteto/fascia/server/usecases/board"
 	"github.com/pkg/errors"
+	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/oauth2"
 )
 
@@ -27,12 +31,14 @@ func InjectUserRepository() domain.Repository {
 
 // FindUser finds a user.
 func FindUser(id int64) (*domain.User, error) {
-	return domain.Find(id, InjectUserRepository())
+	repo := InjectUserRepository()
+	return repo.Find(id)
 }
 
 // FindUserByEmail finds a user.
 func FindUserByEmail(email string) (*domain.User, error) {
-	return domain.FindByEmail(email, InjectUserRepository())
+	repo := InjectUserRepository()
+	return repo.FindByEmail(email)
 }
 
 // FindOrCreateUserFromGithub creates a user from github.
@@ -61,10 +67,72 @@ func FindOrCreateUserFromGithub(token string) (*domain.User, error) {
 		}
 	}
 
-	return domain.FindOrCreateFromGithub(githubUser, token, primaryEmail, InjectUserRepository())
+	return findOrCreateFromGithub(githubUser, token, primaryEmail)
 }
 
 // UserProjects returns projects related the user.
 func UserProjects(u *domain.User) ([]*project.Project, error) {
 	return u.Projects(board.InjectProjectRepository())
+}
+
+// FindOrCreateFromGithub create or update user based on github user.
+func findOrCreateFromGithub(githubUser *github.User, token string, primaryEmail string) (*domain.User, error) {
+	repo := InjectUserRepository()
+	u, err := repo.FindByEmail(primaryEmail)
+	if err != nil {
+		// Create new user if does not exist
+		u, err := createGithubUser(githubUser, token, primaryEmail, repo)
+		if err != nil {
+			return nil, err
+		}
+		return u, nil
+	}
+
+	// When oauth information is updated, we have to update user
+	if !u.OauthToken.Valid || u.OauthToken.String != token {
+		u.UpdateGithubUser(githubUser, u.ID, u.Email, token)
+		if err := repo.Update(u.ID, u.Email, u.Provider, u.OauthToken, u.UUID, u.UserName, u.Avatar); err != nil {
+			return nil, err
+		}
+	}
+	return u, nil
+}
+
+func createGithubUser(githubUser *github.User, token, primaryEmail string, repo domain.Repository) (*domain.User, error) {
+	bytePassword, err := hashPassword(randomString())
+	if err != nil {
+		return nil, err
+	}
+	provider := sql.NullString{String: "github", Valid: true}
+	oauthToken := sql.NullString{String: token, Valid: true}
+	userName := sql.NullString{String: *githubUser.Login, Valid: true}
+	uuid := sql.NullInt64{Int64: int64(*githubUser.ID), Valid: true}
+	avatar := sql.NullString{String: *githubUser.AvatarURL, Valid: true}
+	id, err := repo.Create(primaryEmail, string(bytePassword), provider, oauthToken, uuid, userName, avatar)
+	if err != nil {
+		return nil, err
+	}
+	u, err := repo.Find(id)
+	return u, nil
+}
+
+// hashPassword generate hash password
+func hashPassword(password string) ([]byte, error) {
+	bytePassword := []byte(password)
+	cost := 10
+	hashed, err := bcrypt.GenerateFromPassword(bytePassword, cost)
+	if err != nil {
+		return nil, errors.Wrap(err, "generate password error")
+	}
+	err = bcrypt.CompareHashAndPassword(hashed, bytePassword)
+	if err != nil {
+		return nil, errors.Wrap(err, "compare password error")
+	}
+	return hashed, nil
+}
+
+func randomString() string {
+	var n uint64
+	binary.Read(rand.Reader, binary.LittleEndian, &n)
+	return strconv.FormatUint(n, 36)
 }

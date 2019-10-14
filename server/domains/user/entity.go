@@ -3,6 +3,7 @@ package user
 import (
 	"database/sql"
 
+	"github.com/google/go-github/github"
 	"github.com/h3poteto/fascia/server/domains/project"
 )
 
@@ -10,53 +11,46 @@ import (
 type User struct {
 	ID             int64
 	Email          string
-	Password       string
+	HashedPassword string
 	Provider       sql.NullString
 	OauthToken     sql.NullString
 	UUID           sql.NullInt64
 	UserName       sql.NullString
 	Avatar         sql.NullString
-	infrastructure Repository
-}
-
-// Repository defines repository interface.
-type Repository interface {
-	Find(int64) (int64, string, string, sql.NullString, sql.NullString, sql.NullInt64, sql.NullString, sql.NullString, error)
-	FindByEmail(string) (int64, string, string, sql.NullString, sql.NullString, sql.NullInt64, sql.NullString, sql.NullString, error)
-	Create(string, string, sql.NullString, sql.NullString, sql.NullInt64, sql.NullString, sql.NullString) (int64, error)
-	Update(int64, string, sql.NullString, sql.NullString, sql.NullInt64, sql.NullString, sql.NullString) error
 }
 
 // New returns a User struct.
-func New(id int64, email, password string, provider, oauthToken sql.NullString, uuid sql.NullInt64, userName, avatar sql.NullString, infrastructure Repository) *User {
+func New(id int64, email, hashedPassword string, provider, oauthToken sql.NullString, uuid sql.NullInt64, userName, avatar sql.NullString) *User {
 	return &User{
 		id,
 		email,
-		password,
+		hashedPassword,
 		provider,
 		oauthToken,
 		uuid,
 		userName,
 		avatar,
-		infrastructure,
 	}
 }
 
-// create crates a new record.
-// It contains password and does not transform the password in this method.
-func (u *User) create() error {
-	id, err := u.infrastructure.Create(u.Email, u.Password, u.Provider, u.OauthToken, u.UUID, u.UserName, u.Avatar)
-	if err != nil {
-		return err
-	}
-	u.ID = id
-	return nil
+// Update updates a user entity.
+func (u *User) Update(email, hashedPassword string, provider, oauthToken sql.NullString, uuid sql.NullInt64, userName, avatar sql.NullString) {
+	u.Email = email
+	u.HashedPassword = hashedPassword
+	u.Provider = provider
+	u.OauthToken = oauthToken
+	u.UUID = uuid
+	u.UserName = userName
+	u.Avatar = avatar
 }
 
-// Update updates a record.
-// It does not contain password field. Please use UpdatePassword when you want to update password.
-func (u *User) Update() error {
-	return u.infrastructure.Update(u.ID, u.Email, u.Provider, u.OauthToken, u.UUID, u.UserName, u.Avatar)
+// UpdateGithubUser updates a user entity with github user.
+func (u *User) UpdateGithubUser(githubUser *github.User, id int64, email, token string) {
+	u.Provider = sql.NullString{String: "github", Valid: true}
+	u.OauthToken = sql.NullString{String: token, Valid: true}
+	u.UserName = sql.NullString{String: *githubUser.Login, Valid: true}
+	u.UUID = sql.NullInt64{Int64: int64(*githubUser.ID), Valid: true}
+	u.Avatar = sql.NullString{String: *githubUser.AvatarURL, Valid: true}
 }
 
 // Projects list up projects related a user
