@@ -1,9 +1,15 @@
 package board
 
 import (
+	"crypto/md5"
 	"database/sql"
+	"fmt"
+	"io"
+	"strconv"
+	"time"
 
 	"github.com/h3poteto/fascia/config"
+	"github.com/h3poteto/fascia/lib/modules/hub"
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/domains/list"
 	domain "github.com/h3poteto/fascia/server/domains/project"
@@ -18,26 +24,30 @@ func InjectProjectRepository() domain.Repository {
 
 // FindProject finds a project.
 func FindProject(id int64) (*domain.Project, error) {
-	return domain.Find(id, InjectProjectRepository())
+	infra := InjectProjectRepository()
+	return infra.Find(id)
 }
 
 func findProjectByRepoID(repoID int64) ([]*domain.Project, error) {
-	return domain.FindByRepoID(repoID, InjectProjectRepository())
+	infra := InjectProjectRepository()
+	return infra.FindByRepositoryID(repoID)
 }
 
 // fetchCreatedInitialList fetch initial list to github
 func fetchCreatedInitialList(p *domain.Project) error {
-	repo, err := p.Repository(InjectRepoRepository())
+	repo, err := ProjectRepository(p)
 	if err != nil {
 		return err
 	}
 
-	oauthToken, err := p.OauthToken()
+	infra := InjectProjectRepository()
+	oauthToken, err := infra.OauthToken(p.ID)
 	if err != nil {
 		return err
 	}
 
-	lists, err := p.Lists(InjectListRepository())
+	listRepo := InjectListRepository()
+	lists, err := listRepo.Lists(p.ID)
 	if err != nil {
 		return err
 	}
@@ -61,9 +71,10 @@ func fetchCreatedInitialList(p *domain.Project) error {
 func CreateProject(userID int64, title string, description string, repositoryID int64, oauthToken sql.NullString) (*domain.Project, error) {
 	var repoID sql.NullInt64
 	if repositoryID != 0 && oauthToken.Valid {
-		r, err := repo.FindByGithubRepoID(repositoryID, InjectRepoRepository())
+		infra := InjectRepoRepository()
+		r, err := infra.FindByGithubRepoID(repositoryID)
 		if err != nil {
-			r, err = repo.CreateRepo(repositoryID, oauthToken.String, InjectRepoRepository())
+			r, err = createRepo(repositoryID, oauthToken.String)
 			if err != nil {
 				return nil, err
 			}
@@ -75,10 +86,13 @@ func CreateProject(userID int64, title string, description string, repositoryID 
 	if err != nil {
 		return nil, err
 	}
-	project := domain.New(0, userID, title, description, repoID, true, true, InjectProjectRepository())
-	if err := project.Create(tx); err != nil {
+	project := domain.New(0, userID, title, description, repoID, true, true)
+	infra := InjectProjectRepository()
+	id, err := infra.Create(project.UserID, project.Title, project.Description, project.RepositoryID, project.ShowIssues, project.ShowPullRequests, tx)
+	if err != nil {
 		return nil, err
 	}
+	project.ID = id
 	err = createInitialLists(project, tx)
 	if err != nil {
 		tx.Rollback()
@@ -103,12 +117,13 @@ func CreateProject(userID int64, title string, description string, repositoryID 
 		}
 
 		// Create Webhook in github
-		r, err := project.Repository(InjectRepoRepository())
+		r, err := ProjectRepository(project)
 		if err != nil {
 			logging.SharedInstance().MethodInfoWithStacktrace("Project", "Create", err).Error(err)
 			return
 		}
-		token, err := project.OauthToken()
+		infra := InjectProjectRepository()
+		token, err := infra.OauthToken(project.ID)
 		if err != nil {
 			logging.SharedInstance().MethodInfoWithStacktrace("Project", "Create", err).Error(err)
 			return
@@ -137,9 +152,8 @@ func createInitialLists(project *domain.Project, tx *sql.Tx) error {
 		project.UserID,
 		sql.NullString{String: todoName, Valid: true},
 		sql.NullString{String: "f37b1d", Valid: true},
-		sql.NullInt64{},
 		false,
-		InjectListRepository(),
+		nil,
 	)
 	inprogressName := config.Element("init_list").(map[interface{}]interface{})["inprogress"].(string)
 	inprogress := list.New(
@@ -148,9 +162,8 @@ func createInitialLists(project *domain.Project, tx *sql.Tx) error {
 		project.UserID,
 		sql.NullString{String: inprogressName, Valid: true},
 		sql.NullString{String: "5eb95e", Valid: true},
-		sql.NullInt64{},
 		false,
-		InjectListRepository(),
+		nil,
 	)
 	doneName := config.Element("init_list").(map[interface{}]interface{})["done"].(string)
 	done := list.New(
@@ -159,9 +172,8 @@ func createInitialLists(project *domain.Project, tx *sql.Tx) error {
 		project.UserID,
 		sql.NullString{String: doneName, Valid: true},
 		sql.NullString{String: "333333", Valid: true},
-		sql.NullInt64{Int64: closeListOption.ID, Valid: true},
 		false,
-		InjectListRepository(),
+		closeListOption,
 	)
 	noneName := config.Element("init_list").(map[interface{}]interface{})["none"].(string)
 	none := list.New(
@@ -170,24 +182,24 @@ func createInitialLists(project *domain.Project, tx *sql.Tx) error {
 		project.UserID,
 		sql.NullString{String: noneName, Valid: true},
 		sql.NullString{String: "ffffff", Valid: true},
-		sql.NullInt64{},
 		false,
-		InjectListRepository(),
+		nil,
 	)
 
+	repo := InjectListRepository()
 	// This method only save lists.
 	// Use another methods to sync github.
-	if err := none.Create(tx); err != nil {
+	if _, err := repo.Create(none.ProjectID, none.UserID, none.Title, none.Color, sql.NullInt64{}, none.IsHidden, tx); err != nil {
 		return err
 	}
 
-	if err := todo.Create(tx); err != nil {
+	if _, err := repo.Create(todo.ProjectID, todo.UserID, todo.Title, todo.Color, sql.NullInt64{}, todo.IsHidden, tx); err != nil {
 		return err
 	}
-	if err := inprogress.Create(tx); err != nil {
+	if _, err := repo.Create(inprogress.ProjectID, inprogress.UserID, inprogress.Title, inprogress.Color, sql.NullInt64{}, inprogress.IsHidden, tx); err != nil {
 		return err
 	}
-	if err := done.Create(tx); err != nil {
+	if _, err := repo.Create(done.ProjectID, done.UserID, done.Title, done.Color, sql.NullInt64{Int64: done.Option.ID, Valid: true}, done.IsHidden, tx); err != nil {
 		return err
 	}
 	return nil
@@ -200,53 +212,102 @@ func DeleteProject(projectID int64) error {
 		return err
 	}
 
-	r, err := project.Repository(InjectRepoRepository())
+	infra := InjectProjectRepository()
+	r, err := ProjectRepository(project)
 	if err == nil {
-		token, _ := project.OauthToken()
+		token, _ := infra.OauthToken(project.ID)
 		r.DeleteWebhook(token)
 	}
 	err = deleteLists(project)
 	if err != nil {
 		return err
 	}
-	return project.Delete()
+	return infra.Delete(project.ID)
 }
 
 // deleteLists delete all lists related a project
 func deleteLists(p *domain.Project) error {
-	lists, err := p.Lists(InjectListRepository())
+	repoList := InjectListRepository()
+	lists, err := repoList.Lists(p.ID)
 	if err != nil {
 		return err
 	}
 	for _, l := range lists {
-		err := l.DeleteTasks()
+		err := repoList.DeleteTasks(l.ID)
 		if err != nil {
 			return err
 		}
-		err = l.Delete()
+		err = repoList.Delete(l.ID)
 		if err != nil {
 			return err
 		}
 	}
-	noneList, err := p.NoneList(InjectListRepository())
-	err = noneList.DeleteTasks()
+	noneList, err := repoList.NoneList(p.ID)
+	err = repoList.DeleteTasks(noneList.ID)
 	if err != nil {
 		return err
 	}
-	return noneList.Delete()
+	return repoList.Delete(noneList.ID)
 }
 
 // ProjectRepository returns a repo related the project.
 func ProjectRepository(p *domain.Project) (*repo.Repo, error) {
-	return p.Repository(InjectRepoRepository())
+	repo := InjectRepoRepository()
+	return repo.FindByProjectID(p.ID)
 }
 
 // ProjectLists returns all lists related the project.
 func ProjectLists(p *domain.Project) ([]*list.List, error) {
-	return p.Lists(InjectListRepository())
+	repo := InjectListRepository()
+	return repo.Lists(p.ID)
 }
 
 // ProjectNoneList returns the none list related the project.
 func ProjectNoneList(p *domain.Project) (*list.List, error) {
-	return p.NoneList(InjectListRepository())
+	repo := InjectListRepository()
+	return repo.NoneList(p.ID)
+}
+
+// CreateRepo create repository record based on github repository
+func createRepo(targetRepositoryID int64, oauthToken string) (*repo.Repo, error) {
+	// confirm github
+	h := hub.New(oauthToken)
+	githubRepo, err := h.GetRepository(int(targetRepositoryID))
+	if err != nil {
+		return nil, err
+	}
+	// generate webhook key
+	key := generateWebhookKey(*githubRepo.Name)
+	owner := sql.NullString{String: *githubRepo.Owner.Login, Valid: true}
+	name := sql.NullString{String: *githubRepo.Name, Valid: true}
+	infra := InjectRepoRepository()
+	_, err = infra.Create(int64(*githubRepo.ID), owner, name, key)
+	if err != nil {
+		return nil, err
+	}
+	repo, err := infra.FindByGithubRepoID(int64(*githubRepo.ID))
+	return repo, nil
+}
+
+// generateWebhookKey create new md5 hash
+func generateWebhookKey(seed string) string {
+	h := md5.New()
+	io.WriteString(h, strconv.FormatInt(time.Now().Unix(), 10))
+	io.WriteString(h, seed)
+	token := fmt.Sprintf("%x", h.Sum(nil))
+
+	return token
+}
+
+// UpdateProject updates a project.
+func UpdateProject(p *domain.Project, title, description string, showIssues, showPullRequests bool) error {
+	p.Update(title, description, showIssues, showPullRequests)
+	infra := InjectProjectRepository()
+	return infra.Update(p.ID, p.UserID, p.Title, p.Description, p.RepositoryID, p.ShowIssues, p.ShowPullRequests)
+}
+
+// OauthTokenFromProject gets oauth token form specified project.
+func OauthTokenFromProject(p *domain.Project) (string, error) {
+	infra := InjectProjectRepository()
+	return infra.OauthToken(p.ID)
 }

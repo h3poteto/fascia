@@ -20,16 +20,19 @@ func InjectTaskRepository() domain.Repository {
 
 // FindTask finds a task.
 func FindTask(id int64) (*domain.Task, error) {
-	return domain.Find(id, InjectTaskRepository())
+	infra := InjectTaskRepository()
+	return infra.Find(id)
 }
 
 // CreateTask creates a task, and sync to github.
 func CreateTask(listID, projectID, userID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString) (*domain.Task, error) {
-	task := domain.New(0, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL, InjectTaskRepository())
-	err := task.Create()
+	task := domain.New(0, listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL)
+	infra := InjectTaskRepository()
+	id, err := infra.Create(task.ListID, task.ProjectID, task.UserID, task.IssueNumber, task.Title, task.Description, task.PullRequest, task.HTMLURL)
 	if err != nil {
 		return nil, err
 	}
+	task.ID = id
 
 	go func(task *domain.Task) {
 		projectID := task.ProjectID
@@ -38,11 +41,12 @@ func CreateTask(listID, projectID, userID int64, issueNumber sql.NullInt64, titl
 		if err != nil {
 			return
 		}
-		token, err := p.OauthToken()
+		infra := InjectProjectRepository()
+		token, err := infra.OauthToken(p.ID)
 		if err != nil {
 			return
 		}
-		repo, err := p.Repository(InjectRepoRepository())
+		repo, err := ProjectRepository(p)
 		if err != nil {
 			return
 		}
@@ -61,6 +65,21 @@ func UpdateTask(task *domain.Task, listID int64, issueNumber sql.NullInt64, titl
 	if err != nil {
 		return err
 	}
+	infra := InjectTaskRepository()
+	err = infra.Update(
+		task.ID,
+		task.ListID,
+		task.ProjectID,
+		task.UserID,
+		task.IssueNumber,
+		task.Title,
+		task.Description,
+		task.PullRequest,
+		task.HTMLURL,
+	)
+	if err != nil {
+		return err
+	}
 
 	go func(task *domain.Task) {
 		projectID := task.ProjectID
@@ -69,11 +88,12 @@ func UpdateTask(task *domain.Task, listID int64, issueNumber sql.NullInt64, titl
 		if err != nil {
 			return
 		}
-		token, err := p.OauthToken()
+		infra := InjectProjectRepository()
+		token, err := infra.OauthToken(p.ID)
 		if err != nil {
 			return
 		}
-		repo, err := p.Repository(InjectRepoRepository())
+		repo, err := ProjectRepository(p)
 		if err != nil {
 			return
 		}
@@ -92,6 +112,11 @@ func TaskChangeList(task *domain.Task, listID int64, prevToTaskID *int64) error 
 	if err != nil {
 		return err
 	}
+	infra := InjectTaskRepository()
+	err = infra.ChangeList(task.ID, listID, prevToTaskID)
+	if err != nil {
+		return err
+	}
 
 	go func(task *domain.Task, isReorder bool) {
 		projectID := task.ProjectID
@@ -100,11 +125,12 @@ func TaskChangeList(task *domain.Task, listID int64, prevToTaskID *int64) error 
 		if err != nil {
 			return
 		}
-		token, err := p.OauthToken()
+		infra := InjectProjectRepository()
+		token, err := infra.OauthToken(p.ID)
 		if err != nil {
 			return
 		}
-		repo, err := p.Repository(InjectRepoRepository())
+		repo, err := ProjectRepository(p)
 		if err != nil {
 			return
 		}
@@ -125,13 +151,25 @@ func fetchCreatedTask(t *domain.Task, oauthToken string, repo *repo.Repo) error 
 		issueNumber := sql.NullInt64{Int64: int64(*issue.Number), Valid: true}
 		HTMLURL := sql.NullString{String: *issue.HTMLURL, Valid: true}
 
-		err = t.Update(
+		t.Update(
 			t.ListID,
 			issueNumber,
 			t.Title,
 			t.Description,
 			t.PullRequest,
 			HTMLURL,
+		)
+		infra := InjectTaskRepository()
+		err = infra.Update(
+			t.ID,
+			t.ListID,
+			t.ProjectID,
+			t.UserID,
+			t.IssueNumber,
+			t.Title,
+			t.Description,
+			t.PullRequest,
+			t.HTMLURL,
 		)
 		if err != nil {
 			// note: この時にはすでにissueが作られてしまっているが，DBへの保存には失敗したということ
@@ -186,8 +224,9 @@ func syncTaskToIssue(t *domain.Task, r *repo.Repo, token string) (*github.Issue,
 	// Get all actions which are defined at list option.
 	var issueAction string
 	var listOption *list.Option
-	if l.ListOptionID.Valid {
-		listOption, err := list.FindOptionByID(l.ListOptionID.Int64, InjectListRepository())
+	listRepo := InjectListRepository()
+	if l.Option != nil {
+		listOption, err := listRepo.FindOptionByID(l.Option.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -245,4 +284,13 @@ func syncLabel(t *domain.Task, listTitle string, listColor string, token string,
 		}
 	}
 	return []string{*label.Name}, nil
+}
+
+// DeleteTask deletes a task.
+func DeleteTask(t *domain.Task) error {
+	if err := t.Deletable(); err != nil {
+		return err
+	}
+	infra := InjectTaskRepository()
+	return infra.Delete(t.ID)
 }

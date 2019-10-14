@@ -34,6 +34,19 @@ func ParseListJSON(list *list.List) (*List, error) {
 	if err != nil {
 		return nil, err
 	}
+	if list.Option != nil {
+		return &List{
+			ID:           list.ID,
+			ProjectID:    list.ProjectID,
+			UserID:       list.UserID,
+			Title:        list.Title.String,
+			ListTasks:    jsonTasks,
+			Color:        list.Color.String,
+			ListOptionID: list.Option.ID,
+			IsHidden:     list.IsHidden,
+			IsInitList:   list.IsInitList(),
+		}, nil
+	}
 	return &List{
 		ID:           list.ID,
 		ProjectID:    list.ProjectID,
@@ -41,7 +54,7 @@ func ParseListJSON(list *list.List) (*List, error) {
 		Title:        list.Title.String,
 		ListTasks:    jsonTasks,
 		Color:        list.Color.String,
-		ListOptionID: list.ListOptionID.Int64,
+		ListOptionID: 0,
 		IsHidden:     list.IsHidden,
 		IsInitList:   list.IsInitList(),
 	}, nil

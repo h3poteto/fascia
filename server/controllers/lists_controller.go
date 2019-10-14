@@ -155,7 +155,7 @@ func (u *Lists) Hide(c echo.Context) error {
 	targetList := lc.List
 	project := lc.Project
 
-	if err := targetList.Hide(); err != nil {
+	if err := board.HideList(targetList); err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
@@ -192,7 +192,7 @@ func (u *Lists) Display(c echo.Context) error {
 	project := lc.Project
 	targetList := lc.List
 
-	if err := targetList.Display(); err != nil {
+	if err := board.DisplayList(targetList); err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}

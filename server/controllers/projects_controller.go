@@ -163,7 +163,7 @@ func (u *Projects) Update(c echo.Context) error {
 		return NewValidationError(err, http.StatusUnprocessableEntity, c)
 	}
 
-	if err := p.Update(editProjectForm.Title, editProjectForm.Description, p.ShowIssues, p.ShowPullRequests); err != nil {
+	if err := board.UpdateProject(p, editProjectForm.Title, editProjectForm.Description, p.ShowIssues, p.ShowPullRequests); err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
@@ -195,7 +195,8 @@ func (u *Projects) Settings(c echo.Context) error {
 		return err
 	}
 	logging.SharedInstance().Controller(c).Debugf("post edit project parameter: %+v", settingsProjectForm)
-	if err := p.Update(
+	if err := board.UpdateProject(
+		p,
 		p.Title,
 		p.Description,
 		settingsProjectForm.ShowIssues,
@@ -264,7 +265,7 @@ func (u *Projects) Webhook(c echo.Context) error {
 		logging.SharedInstance().Controller(c).Error(err)
 		return NewJSONError(err, http.StatusNotFound, c)
 	}
-	token, _ := p.OauthToken()
+	token, _ := board.OauthTokenFromProject(p)
 	err = r.CreateWebhook(token)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Errorf("failed to create webhook: %v", err)

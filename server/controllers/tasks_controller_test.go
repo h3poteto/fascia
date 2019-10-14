@@ -51,12 +51,21 @@ var _ = Describe("TasksController", func() {
 			sql.NullInt64{},
 			sql.NullString{},
 			sql.NullString{})
-		user, _ = account.FindUserByEmail(email)
+		var err error
+		user, err = account.FindUserByEmail(email)
+		if err != nil {
+			panic(err)
+		}
 		// projectを作っておく
-		p, _ = board.CreateProject(user.ID, "projectTitle", "", 0, sql.NullString{})
-
+		p, err = board.CreateProject(user.ID, "projectTitle", "", 0, sql.NullString{})
+		if err != nil {
+			panic(err)
+		}
 		// listも作っておく
-		l, _ = board.CreateList(p.ID, user.ID, "listTitle", "008ed5", sql.NullInt64{}, false)
+		l, err = board.CreateList(p.ID, user.ID, "listTitle", "008ed5", sql.NullInt64{}, false)
+		if err != nil {
+			panic(err)
+		}
 	})
 
 	Describe("Create", func() {

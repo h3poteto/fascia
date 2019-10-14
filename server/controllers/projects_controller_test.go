@@ -92,7 +92,7 @@ var _ = Describe("ProjectsController", func() {
 			Expect(len(lists)).To(Equal(3))
 			closeListOption, err := board.FindListOptionByAction("close")
 			Expect(err).To(BeNil())
-			Expect(lists[2].ListOptionID.Int64).To(Equal(closeListOption.ID))
+			Expect(lists[2].Option.ID).To(Equal(closeListOption.ID))
 		})
 	})
 

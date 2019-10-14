@@ -12,5 +12,6 @@ func InjectRepoRepository() repo.Repository {
 
 // FindRepositoryByGithubRepoID search repository according to github repository id
 func FindRepositoryByGithubRepoID(id int64) (*repo.Repo, error) {
-	return repo.FindByGithubRepoID(id, InjectRepoRepository())
+	infra := InjectRepoRepository()
+	return infra.FindByGithubRepoID(id)
 }
