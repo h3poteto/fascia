@@ -13,6 +13,7 @@ import (
 	"github.com/google/go-github/github"
 	"github.com/h3poteto/fascia/lib/modules/database"
 	. "github.com/h3poteto/fascia/server/controllers"
+	userRepo "github.com/h3poteto/fascia/server/infrastructures/user"
 	"github.com/h3poteto/fascia/server/usecases/account"
 	"github.com/labstack/echo"
 	. "github.com/onsi/ginkgo"
@@ -48,16 +49,23 @@ var _ = Describe("GithubController", func() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		account.RegistrationUser(userEmail, "hogehoge", "hogehoge")
-		db.Exec("update users set provider = ?, oauth_token = ?, user_name = ?, uuid = ?, avatar_url = ? where email = ?;", "github", token, *githubUser.Login, *githubUser.ID, *githubUser.AvatarURL, userEmail)
+		repo := userRepo.New(db)
+		repo.Create(
+			userEmail,
+			"hogehoge",
+			sql.NullString{String: "github", Valid: true},
+			sql.NullString{String: token, Valid: true},
+			sql.NullInt64{Int64: int64(*githubUser.ID), Valid: true},
+			sql.NullString{String: *githubUser.Login, Valid: true},
+			sql.NullString{String: *githubUser.AvatarURL, Valid: true})
 
 	})
 	Describe("Repositories", func() {
 		It("should receive repositories", func() {
-			account.FindUserByEmail(userEmail)
+			u, _ := account.FindUserByEmail(userEmail)
 			req := httptest.NewRequest(echo.GET, "/github/repositories", nil)
 			c := e.NewContext(req, rec)
-			_, c = LoginFaker(c, userEmail, "hogehoge")
+			_, c = LoginFaker(c, u)
 			resource := Github{}
 			err := resource.Repositories(c)
 			Expect(err).To(BeNil())
