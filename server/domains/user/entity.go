@@ -4,7 +4,6 @@ import (
 	"database/sql"
 
 	"github.com/google/go-github/github"
-	"github.com/h3poteto/fascia/server/domains/project"
 )
 
 // User has a user model object
@@ -51,9 +50,4 @@ func (u *User) UpdateGithubUser(githubUser *github.User, id int64, email, token 
 	u.UserName = sql.NullString{String: *githubUser.Login, Valid: true}
 	u.UUID = sql.NullInt64{Int64: int64(*githubUser.ID), Valid: true}
 	u.Avatar = sql.NullString{String: *githubUser.AvatarURL, Valid: true}
-}
-
-// Projects list up projects related a user
-func (u *User) Projects(infrastructure project.Repository) ([]*project.Project, error) {
-	return project.Projects(u.ID, infrastructure)
 }

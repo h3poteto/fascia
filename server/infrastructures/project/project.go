@@ -3,6 +3,7 @@ package project
 import (
 	"database/sql"
 
+	"github.com/h3poteto/fascia/server/domains/project"
 	"github.com/pkg/errors"
 )
 
@@ -19,18 +20,29 @@ func New(db *sql.DB) *Project {
 }
 
 // Find search a project according to id
-func (p *Project) Find(projectID int64) (int64, int64, string, string, sql.NullInt64, bool, bool, error) {
+func (p *Project) Find(projectID int64) (*project.Project, error) {
 	var id, userID int64
 	var repositoryID sql.NullInt64
 	var title, description string
 	var showIssues, showPullRequests bool
 	err := p.db.QueryRow("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where id = ?;", projectID).Scan(&id, &userID, &repositoryID, &title, &description, &showIssues, &showPullRequests)
-	return id, userID, title, description, repositoryID, showIssues, showPullRequests, err
+	if err != nil {
+		return nil, err
+	}
+	return &project.Project{
+		ID:               id,
+		UserID:           userID,
+		Title:            title,
+		Description:      description,
+		RepositoryID:     repositoryID,
+		ShowIssues:       showIssues,
+		ShowPullRequests: showPullRequests,
+	}, nil
 }
 
 // FindByRepositoryID search projects according to repository id
-func (p *Project) FindByRepositoryID(repoID int64) ([]map[string]interface{}, error) {
-	var result []map[string]interface{}
+func (p *Project) FindByRepositoryID(repoID int64) ([]*project.Project, error) {
+	result := []*project.Project{}
 	rows, err := p.db.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where repository_id = ?;", repoID)
 	if err != nil {
 		return nil, errors.Wrap(err, "project repository")
@@ -44,14 +56,14 @@ func (p *Project) FindByRepositoryID(repoID int64) ([]map[string]interface{}, er
 		if err != nil {
 			return nil, errors.Wrap(err, "project repository")
 		}
-		p := map[string]interface{}{
-			"id":               id,
-			"userID":           userID,
-			"title":            title,
-			"description":      description,
-			"repositoryID":     repositoryID,
-			"showIssues":       showIssues,
-			"showPullRequests": showPullRequests,
+		p := &project.Project{
+			ID:               id,
+			UserID:           userID,
+			Title:            title,
+			Description:      description,
+			RepositoryID:     repositoryID,
+			ShowIssues:       showIssues,
+			ShowPullRequests: showPullRequests,
 		}
 		result = append(result, p)
 	}
@@ -93,8 +105,8 @@ func (p *Project) Delete(id int64) error {
 }
 
 // Projects returns a project related a user.
-func (p *Project) Projects(targetUserID int64) ([]map[string]interface{}, error) {
-	var result []map[string]interface{}
+func (p *Project) Projects(targetUserID int64) ([]*project.Project, error) {
+	result := []*project.Project{}
 	rows, err := p.db.Query("select id, user_id, repository_id, title, description, show_issues, show_pull_requests from projects where user_id = ?;", targetUserID)
 	if err != nil {
 		return nil, errors.Wrap(err, "project repository")
@@ -108,14 +120,14 @@ func (p *Project) Projects(targetUserID int64) ([]map[string]interface{}, error)
 		if err != nil {
 			return nil, errors.Wrap(err, "project repository")
 		}
-		p := map[string]interface{}{
-			"id":               id,
-			"userID":           userID,
-			"title":            title,
-			"description":      description,
-			"repositoryID":     repositoryID,
-			"showIssues":       showIssues,
-			"showPullRequests": showPullRequests,
+		p := &project.Project{
+			ID:               id,
+			UserID:           userID,
+			Title:            title,
+			Description:      description,
+			RepositoryID:     repositoryID,
+			ShowIssues:       showIssues,
+			ShowPullRequests: showPullRequests,
 		}
 		result = append(result, p)
 	}

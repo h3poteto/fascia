@@ -48,7 +48,8 @@ func applyIssueChanges(p *project.Project, body github.IssuesEvent) error {
 
 // reacquireIssue get again a issue from github
 func reacquireIssue(p *project.Project, issue *github.Issue) (*github.Issue, error) {
-	oauthToken, err := p.OauthToken()
+	repo := InjectProjectRepository()
+	oauthToken, err := repo.OauthToken(p.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +115,8 @@ func FetchGithub(p *project.Project) (bool, error) {
 		return false, err
 	}
 
-	oauthToken, err := p.OauthToken()
+	infra := InjectProjectRepository()
+	oauthToken, err := infra.OauthToken(p.ID)
 	if err != nil {
 		return false, err
 	}
@@ -181,7 +183,8 @@ func applyPullRequestChanges(p *project.Project, body github.PullRequestEvent) e
 	// So if this method returns an error, we can ignore it.
 	targetTask, _ := task.FindByIssueNumber(p.ID, *body.Number, InjectTaskRepository())
 
-	oauthToken, err := p.OauthToken()
+	infra := InjectProjectRepository()
+	oauthToken, err := infra.OauthToken(p.ID)
 	if err != nil {
 		return err
 	}

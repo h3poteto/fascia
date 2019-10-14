@@ -48,8 +48,15 @@ var _ = Describe("ListsController", func() {
 			sql.NullInt64{},
 			sql.NullString{},
 			sql.NullString{})
-		u, _ = account.FindUserByEmail(email)
-		p, _ = board.CreateProject(u.ID, "projectTitle", "", 0, sql.NullString{})
+		var err error
+		u, err = account.FindUserByEmail(email)
+		if err != nil {
+			panic(err)
+		}
+		p, err = board.CreateProject(u.ID, "projectTitle", "", 0, sql.NullString{})
+		if err != nil {
+			panic(err)
+		}
 	})
 
 	Describe("Create", func() {

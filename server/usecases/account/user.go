@@ -72,7 +72,8 @@ func FindOrCreateUserFromGithub(token string) (*domain.User, error) {
 
 // UserProjects returns projects related the user.
 func UserProjects(u *domain.User) ([]*project.Project, error) {
-	return u.Projects(board.InjectProjectRepository())
+	infra := board.InjectProjectRepository()
+	return infra.Projects(u.ID)
 }
 
 // FindOrCreateFromGithub create or update user based on github user.

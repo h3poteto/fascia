@@ -24,11 +24,13 @@ func InjectProjectRepository() domain.Repository {
 
 // FindProject finds a project.
 func FindProject(id int64) (*domain.Project, error) {
-	return domain.Find(id, InjectProjectRepository())
+	infra := InjectProjectRepository()
+	return infra.Find(id)
 }
 
 func findProjectByRepoID(repoID int64) ([]*domain.Project, error) {
-	return domain.FindByRepoID(repoID, InjectProjectRepository())
+	infra := InjectProjectRepository()
+	return infra.FindByRepositoryID(repoID)
 }
 
 // fetchCreatedInitialList fetch initial list to github
@@ -38,7 +40,8 @@ func fetchCreatedInitialList(p *domain.Project) error {
 		return err
 	}
 
-	oauthToken, err := p.OauthToken()
+	infra := InjectProjectRepository()
+	oauthToken, err := infra.OauthToken(p.ID)
 	if err != nil {
 		return err
 	}
@@ -83,10 +86,13 @@ func CreateProject(userID int64, title string, description string, repositoryID 
 	if err != nil {
 		return nil, err
 	}
-	project := domain.New(0, userID, title, description, repoID, true, true, InjectProjectRepository())
-	if err := project.Create(tx); err != nil {
+	project := domain.New(0, userID, title, description, repoID, true, true)
+	infra := InjectProjectRepository()
+	id, err := infra.Create(project.UserID, project.Title, project.Description, project.RepositoryID, project.ShowIssues, project.ShowPullRequests, tx)
+	if err != nil {
 		return nil, err
 	}
+	project.ID = id
 	err = createInitialLists(project, tx)
 	if err != nil {
 		tx.Rollback()
@@ -116,7 +122,8 @@ func CreateProject(userID int64, title string, description string, repositoryID 
 			logging.SharedInstance().MethodInfoWithStacktrace("Project", "Create", err).Error(err)
 			return
 		}
-		token, err := project.OauthToken()
+		infra := InjectProjectRepository()
+		token, err := infra.OauthToken(project.ID)
 		if err != nil {
 			logging.SharedInstance().MethodInfoWithStacktrace("Project", "Create", err).Error(err)
 			return
@@ -205,16 +212,17 @@ func DeleteProject(projectID int64) error {
 		return err
 	}
 
+	infra := InjectProjectRepository()
 	r, err := ProjectRepository(project)
 	if err == nil {
-		token, _ := project.OauthToken()
+		token, _ := infra.OauthToken(project.ID)
 		r.DeleteWebhook(token)
 	}
 	err = deleteLists(project)
 	if err != nil {
 		return err
 	}
-	return project.Delete()
+	return infra.Delete(project.ID)
 }
 
 // deleteLists delete all lists related a project
@@ -289,4 +297,17 @@ func generateWebhookKey(seed string) string {
 	token := fmt.Sprintf("%x", h.Sum(nil))
 
 	return token
+}
+
+// UpdateProject updates a project.
+func UpdateProject(p *domain.Project, title, description string, showIssues, showPullRequests bool) error {
+	p.Update(title, description, showIssues, showPullRequests)
+	infra := InjectProjectRepository()
+	return infra.Update(p.ID, p.UserID, p.Title, p.Description, p.RepositoryID, p.ShowIssues, p.ShowPullRequests)
+}
+
+// OauthTokenFromProject gets oauth token form specified project.
+func OauthTokenFromProject(p *domain.Project) (string, error) {
+	infra := InjectProjectRepository()
+	return infra.OauthToken(p.ID)
 }
