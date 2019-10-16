@@ -4,9 +4,8 @@ import (
 	"database/sql"
 
 	"github.com/h3poteto/fascia/lib/modules/database"
-	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/domains/list"
-	"github.com/h3poteto/fascia/server/domains/repo"
+	"github.com/h3poteto/fascia/server/domains/services"
 	"github.com/h3poteto/fascia/server/domains/task"
 	repository "github.com/h3poteto/fascia/server/infrastructures/list"
 )
@@ -46,50 +45,8 @@ func CreateList(projectID, userID int64, title, color string, optionID sql.NullI
 		return nil, err
 	}
 
-	go func(l *list.List) {
-		projectID := l.ProjectID
-		p, err := FindProject(projectID)
-		// TODO: log
-		if err != nil {
-			return
-		}
-		infra := InjectProjectRepository()
-		token, err := infra.OauthToken(p.ID)
-		if err != nil {
-			return
-		}
-		repo, err := ProjectRepository(p)
-		if err != nil {
-			return
-		}
-		err = fetchCreatedList(l, token, repo)
-		if err != nil {
-			return
-		}
-	}(l)
+	go services.AfterCreateList(l, InjectProjectRepository(), InjectRepoRepository())
 	return l, nil
-}
-
-func fetchCreatedList(l *list.List, oauthToken string, repo *repo.Repo) error {
-	if repo != nil {
-		label, err := repo.CheckLabelPresent(oauthToken, l.Title.String)
-		if err != nil {
-			return err
-		} else if label == nil {
-			label, err = repo.CreateGithubLabel(oauthToken, l.Title.String, l.Color.String)
-			if err != nil {
-				return err
-			}
-		} else {
-			// 色だけはこちら指定のものに変更したい
-			_, err := repo.UpdateGithubLabel(oauthToken, l.Title.String, l.Title.String, l.Color.String)
-			if err != nil {
-				return err
-			}
-			logging.SharedInstance().MethodInfo("list", "Save").Info("github label already exist")
-		}
-	}
-	return nil
 }
 
 // UpdateList updates a list, and sync to github.
@@ -107,63 +64,8 @@ func UpdateList(l *list.List, title, color string, optionID int64) (*list.List, 
 		return nil, err
 	}
 
-	go func(l *list.List, title, color string) {
-		projectID := l.ProjectID
-		p, err := FindProject(projectID)
-		if err != nil {
-			return
-		}
-		infra := InjectProjectRepository()
-		token, err := infra.OauthToken(p.ID)
-		if err != nil {
-			return
-		}
-		repo, err := ProjectRepository(p)
-		if err != nil {
-			return
-		}
-		err = fetchUpdatedList(l, token, repo, title, color)
-		if err != nil {
-			return
-		}
-	}(l, title, color)
+	go services.AfterUpdateList(l, title, color, InjectProjectRepository(), InjectRepoRepository())
 	return l, nil
-}
-
-func fetchUpdatedList(l *list.List, oauthToken string, repo *repo.Repo, newTitle, newColor string) error {
-	if repo != nil {
-		// 編集前のラベルがそもそも存在しているかどうかを確認する
-		existLabel, err := repo.CheckLabelPresent(oauthToken, l.Title.String)
-		if err != nil {
-			return err
-		} else if existLabel == nil {
-			// editの場合ここに入る可能性は，createのgithub同期がうまく動いていない場合のみ
-			// 編集前のラベルが存在しなければ新しく作る
-			_, err := repo.CreateGithubLabel(oauthToken, newTitle, newColor)
-			if err != nil {
-				return err
-			}
-		} else {
-			_, err := repo.UpdateGithubLabel(oauthToken, l.Title.String, newTitle, newColor)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
-func listsWithCloseAction(lists []list.List) []list.List {
-	var closeLists []list.List
-	for _, list := range lists {
-		result, err := list.HasCloseAction()
-		if err != nil {
-			logging.SharedInstance().MethodInfo("Project", "listsWithCloseAction").Info(err)
-		} else if result {
-			closeLists = append(closeLists, list)
-		}
-	}
-	return closeLists
 }
 
 // ListTasks returns tasks related the list.

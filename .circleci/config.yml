@@ -12,7 +12,7 @@ jobs:
           # MySQLの起動チェック用
           HEALTH_CHECK_RETRY_LIMIT: 10
           HEALTH_CHECK_RETRY_WAIT: 3
-      - image: mysql:5.7
+      - image: mysql:5.7.27
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
 
