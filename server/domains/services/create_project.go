@@ -17,6 +17,7 @@ import (
 	"github.com/h3poteto/fascia/server/domains/task"
 )
 
+// AfterCreateProject sync issues from github.
 func AfterCreateProject(p *project.Project, projectInfra project.Repository, listInfra list.Repository, taskInfra task.Repository, repoInfra repo.Repository) {
 	// Create initial list before get issues from github
 	err := fetchCreatedInitialList(p, projectInfra, listInfra, repoInfra)

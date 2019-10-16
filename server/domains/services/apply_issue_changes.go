@@ -12,6 +12,7 @@ import (
 	"github.com/h3poteto/fascia/server/domains/task"
 )
 
+// ApplyIssueChangesToRepository applies github changes to lists and tasks.
 func ApplyIssueChangesToRepository(projects []*project.Project, githubBody github.IssuesEvent, projectInfra project.Repository, listInfra list.Repository, taskInfra task.Repository, repoInfra repo.Repository) {
 	waitWebhookReadtime()
 	for _, p := range projects {

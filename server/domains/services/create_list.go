@@ -7,6 +7,7 @@ import (
 	"github.com/h3poteto/fascia/server/domains/repo"
 )
 
+// AfterCreateList fetch the created list.
 func AfterCreateList(l *list.List, projectInfra project.Repository, repoInfra repo.Repository) {
 	projectID := l.ProjectID
 	p, err := projectInfra.Find(projectID)

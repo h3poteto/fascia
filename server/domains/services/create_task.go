@@ -13,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// AfterCreateTask fetch the created task.
 func AfterCreateTask(t *task.Task, projectInfra project.Repository, listInfra list.Repository, taskInfra task.Repository, repoInfra repo.Repository) {
 	projectID := t.ProjectID
 	p, err := projectInfra.Find(projectID)

@@ -8,6 +8,7 @@ import (
 	"github.com/h3poteto/fascia/server/domains/task"
 )
 
+// AfterTaskChangeList fetch the changed list.
 func AfterTaskChangeList(t *task.Task, isReorder bool, projectInfra project.Repository, listInfra list.Repository, repoInfra repo.Repository) {
 	projectID := t.ProjectID
 	p, err := projectInfra.Find(projectID)

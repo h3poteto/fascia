@@ -6,6 +6,7 @@ import (
 	"github.com/h3poteto/fascia/server/domains/repo"
 )
 
+// AfterUpdateList fetch the updated list.
 func AfterUpdateList(l *list.List, title, color string, projectInfra project.Repository, repoInfra repo.Repository) {
 	projectID := l.ProjectID
 	p, err := projectInfra.Find(projectID)

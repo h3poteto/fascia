@@ -9,6 +9,7 @@ import (
 	"github.com/h3poteto/fascia/server/domains/task"
 )
 
+// ApplyPullRequestChangesToRepository applies github changes to lists and tasks.
 func ApplyPullRequestChangesToRepository(projects []*project.Project, githubBody github.PullRequestEvent, projectInfra project.Repository, listInfra list.Repository, taskInfra task.Repository, repoInfra repo.Repository) {
 	waitWebhookReadtime()
 	for _, p := range projects {

@@ -8,6 +8,7 @@ import (
 	"github.com/h3poteto/fascia/server/domains/task"
 )
 
+// AfterUpdateTask fetch the updated task.
 func AfterUpdateTask(t *task.Task, projectInfra project.Repository, listInfra list.Repository, repoInfra repo.Repository) {
 	projectID := t.ProjectID
 	p, err := projectInfra.Find(projectID)
