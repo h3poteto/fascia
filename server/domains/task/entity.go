@@ -7,53 +7,43 @@ import (
 
 // Task has a task model object
 type Task struct {
-	ID          int64
-	ListID      int64
-	ProjectID   int64
-	UserID      int64
-	IssueNumber sql.NullInt64
-	Title       string
-	Description string
-	PullRequest bool
-	HTMLURL     sql.NullString
+	ID           int64
+	ListID       int64
+	ProjectID    int64
+	UserID       int64
+	IssueNumber  sql.NullInt64
+	Title        string
+	Description  string
+	PullRequest  bool
+	HTMLURL      sql.NullString
+	DisplayIndex int64
 }
 
 // New returns a task entity
 func New(id, listID, projectID, userID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString) *Task {
 	return &Task{
-		id,
-		listID,
-		projectID,
-		userID,
-		issueNumber,
-		title,
-		description,
-		pullRequest,
-		htmlURL,
+		ID:          id,
+		ListID:      listID,
+		ProjectID:   projectID,
+		UserID:      userID,
+		IssueNumber: issueNumber,
+		Title:       title,
+		Description: description,
+		PullRequest: pullRequest,
+		HTMLURL:     htmlURL,
 	}
 }
 
 // Update updates a task.
-func (t *Task) Update(listID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString) error {
+func (t *Task) Update(listID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString, displayIndex int64) error {
 	t.ListID = listID
 	t.IssueNumber = issueNumber
 	t.Title = title
 	t.Description = description
 	t.PullRequest = pullRequest
 	t.HTMLURL = htmlURL
+	t.DisplayIndex = displayIndex
 	return nil
-}
-
-// ChangeList change list of a task, and reorder task
-// returns isReorder, error.
-func (t *Task) ChangeList(listID int64, prevToTaskID *int64) (bool, error) {
-	var isReorder bool
-	if listID == t.ListID {
-		isReorder = true
-	} else {
-		isReorder = false
-	}
-	return isReorder, nil
 }
 
 // Deletable returns whether the task can delete or not.

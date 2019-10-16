@@ -152,6 +152,8 @@ func taskApplyLabel(p *project.Project, targetTask *task.Task, issue *github.Iss
 		issueTask.Description,
 		issueTask.PullRequest,
 		issueTask.HTMLURL,
+		issueTask.DisplayIndex,
+		nil,
 	)
 	if err != nil {
 		return err
@@ -303,6 +305,8 @@ func reopenTask(p *project.Project, targetTask *task.Task, issue *github.Issue, 
 		issueTask.Description,
 		issueTask.PullRequest,
 		issueTask.HTMLURL,
+		issueTask.DisplayIndex,
+		nil,
 	)
 	if err != nil {
 		return err
