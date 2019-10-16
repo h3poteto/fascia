@@ -10,6 +10,7 @@ import (
 	"github.com/h3poteto/fascia/server/domains/task"
 )
 
+// TaskInsertMiddle inserts a task at the middle of the list.
 func TaskInsertMiddle(targetTask *task.Task, listID int64, prevToTaskID int64, taskInfra task.Repository, tx *sql.Tx) (*task.Task, error) {
 	prevTask, err := taskInfra.Find(prevToTaskID)
 	if err != nil {
@@ -24,6 +25,7 @@ func TaskInsertMiddle(targetTask *task.Task, listID int64, prevToTaskID int64, t
 	return targetTask, nil
 }
 
+// TaskInsertLast inserts a task at the last of the list.
 func TaskInsertLast(targetTask *task.Task, listID int64, taskInfra task.Repository) (*task.Task, error) {
 	maxIndex, err := taskInfra.GetMaxDisplayIndex(listID)
 	if err != nil {

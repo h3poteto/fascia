@@ -46,24 +46,6 @@ func (t *Task) Update(listID int64, issueNumber sql.NullInt64, title, descriptio
 	return nil
 }
 
-// ChangeList change list of a task, and reorder task
-// returns isReorder, error.
-// func (t *Task) ChangeList(listID int64, prevToTaskID *int64) (bool, error) {
-// 	var isReorder bool
-// 	if listID == t.ListID {
-// 		isReorder = true
-// 	} else {
-// 		isReorder = false
-// 	}
-
-// 	if prevToTaskID != nil {
-
-// 	} else {
-
-// 	}
-// 	return isReorder, nil
-// }
-
 // Deletable returns whether the task can delete or not.
 func (t *Task) Deletable() error {
 	if t.IssueNumber.Valid {

@@ -191,11 +191,13 @@ func (t *Task) Update(id, listID, projectID, userID int64, issueNumber sql.NullI
 	return nil
 }
 
+// PushOutAfterTasks updates display_index of after tasks.
 func (t *Task) PushOutAfterTasks(listID int64, sinceDisplayIndex int64, tx *sql.Tx) error {
 	_, err := tx.Exec("update tasks set display_index = display_index + 1 where id in (select id from (select id from tasks where list_id = ? and display_index >= ?) as tmp);", listID, sinceDisplayIndex)
 	return err
 }
 
+// GetMaxDisplayIndex gets display index of the last task.
 func (t *Task) GetMaxDisplayIndex(listID int64) (*int64, error) {
 	// When the list does not have any tasks, max id is null.
 	// But null is not error, so we have to accept null value.
