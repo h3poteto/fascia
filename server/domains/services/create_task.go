@@ -51,6 +51,7 @@ func fetchCreatedTask(t *task.Task, oauthToken string, repo *repo.Repo, listInfr
 			t.Description,
 			t.PullRequest,
 			HTMLURL,
+			t.DisplayIndex,
 		)
 		err = taskInfra.Update(
 			t.ID,
@@ -62,6 +63,8 @@ func fetchCreatedTask(t *task.Task, oauthToken string, repo *repo.Repo, listInfr
 			t.Description,
 			t.PullRequest,
 			t.HTMLURL,
+			t.DisplayIndex,
+			nil,
 		)
 		if err != nil {
 			// note: この時にはすでにissueが作られてしまっているが，DBへの保存には失敗したということ

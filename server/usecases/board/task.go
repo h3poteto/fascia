@@ -36,7 +36,7 @@ func CreateTask(listID, projectID, userID int64, issueNumber sql.NullInt64, titl
 
 // UpdateTask updates a task, and sync to github.
 func UpdateTask(task *domain.Task, listID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString) error {
-	err := task.Update(listID, issueNumber, title, description, pullRequest, htmlURL)
+	err := task.Update(listID, issueNumber, title, description, pullRequest, htmlURL, task.DisplayIndex)
 	if err != nil {
 		return err
 	}
@@ -51,6 +51,8 @@ func UpdateTask(task *domain.Task, listID int64, issueNumber sql.NullInt64, titl
 		task.Description,
 		task.PullRequest,
 		task.HTMLURL,
+		task.DisplayIndex,
+		nil,
 	)
 	if err != nil {
 		return err
@@ -63,14 +65,31 @@ func UpdateTask(task *domain.Task, listID int64, issueNumber sql.NullInt64, titl
 
 // TaskChangeList changes the task and sync it to github.
 func TaskChangeList(task *domain.Task, listID int64, prevToTaskID *int64) error {
-	isReorder, err := task.ChangeList(listID, prevToTaskID)
+	tx, err := InjectDB().Begin()
 	if err != nil {
 		return err
 	}
 	infra := InjectTaskRepository()
-	err = infra.ChangeList(task.ID, listID, prevToTaskID)
+	if prevToTaskID != nil {
+		task, err = services.TaskInsertMiddle(task, listID, *prevToTaskID, infra, tx)
+	} else {
+		task, err = services.TaskInsertLast(task, listID, infra)
+	}
 	if err != nil {
 		return err
+	}
+	err = infra.Update(task.ID, task.ListID, task.ProjectID, task.UserID, task.IssueNumber, task.Title, task.Description, task.PullRequest, task.HTMLURL, task.DisplayIndex, tx)
+	if err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	isReorder := true
+	if listID != task.ListID {
+		isReorder = false
 	}
 
 	go services.AfterTaskChangeList(task, isReorder, InjectProjectRepository(), InjectListRepository(), InjectRepoRepository())

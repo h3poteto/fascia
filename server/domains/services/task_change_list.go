@@ -1,12 +1,41 @@
 package services
 
 import (
+	"database/sql"
+
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/domains/list"
 	"github.com/h3poteto/fascia/server/domains/project"
 	"github.com/h3poteto/fascia/server/domains/repo"
 	"github.com/h3poteto/fascia/server/domains/task"
 )
+
+func TaskInsertMiddle(targetTask *task.Task, listID int64, prevToTaskID int64, taskInfra task.Repository, tx *sql.Tx) (*task.Task, error) {
+	prevTask, err := taskInfra.Find(prevToTaskID)
+	if err != nil {
+		return nil, err
+	}
+	prevToTaskIndex := prevTask.DisplayIndex
+	err = taskInfra.PushOutAfterTasks(listID, prevToTaskIndex, tx)
+	if err != nil {
+		return nil, err
+	}
+	targetTask.Update(listID, targetTask.IssueNumber, targetTask.Title, targetTask.Description, targetTask.PullRequest, targetTask.HTMLURL, prevToTaskIndex)
+	return targetTask, nil
+}
+
+func TaskInsertLast(targetTask *task.Task, listID int64, taskInfra task.Repository) (*task.Task, error) {
+	maxIndex, err := taskInfra.GetMaxDisplayIndex(listID)
+	if err != nil {
+		return nil, err
+	}
+	displayIndex := int64(1)
+	if maxIndex != nil {
+		displayIndex = *maxIndex + 1
+	}
+	targetTask.Update(listID, targetTask.IssueNumber, targetTask.Title, targetTask.Description, targetTask.PullRequest, targetTask.HTMLURL, displayIndex)
+	return targetTask, nil
+}
 
 // AfterTaskChangeList fetch the changed list.
 func AfterTaskChangeList(t *task.Task, isReorder bool, projectInfra project.Repository, listInfra list.Repository, repoInfra repo.Repository) {
