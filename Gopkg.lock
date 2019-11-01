@@ -379,7 +379,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:1fdc053eea4187f76186ecd43bad5d0f5f808973398231651a2d22ea421aabd2"
+  digest = "1:47cd7b63835b62da6a8c3817fafde2e07aaf952ce170a6ecafedb06946be6ddb"
   name = "golang.org/x/crypto"
   packages = [
     "acme",
@@ -389,7 +389,7 @@
     "ssh/terminal",
   ]
   pruneopts = ""
-  revision = "541b9d50ad47e36efd8fb423e938e59ff1691f68"
+  revision = "8986dd9e96cf0a6f74da406c005ba3df38527c04"
 
 [[projects]]
   branch = "master"
@@ -401,6 +401,7 @@
     "html",
     "html/atom",
     "html/charset",
+    "idna",
   ]
   pruneopts = ""
   revision = "aabf50738bcdd9b207582cbe796b59ed65d56680"
@@ -433,6 +434,8 @@
   digest = "1:706747bb1e3f870cf0dc52459cb94324cd347142fff3b61db56c0157a5f598d0"
   name = "golang.org/x/text"
   packages = [
+    "collate",
+    "collate/build",
     "encoding",
     "encoding/charmap",
     "encoding/htmlindex",
@@ -443,6 +446,7 @@
     "encoding/simplifiedchinese",
     "encoding/traditionalchinese",
     "encoding/unicode",
+    "internal/colltab",
     "internal/gen",
     "internal/tag",
     "internal/triegen",
@@ -450,9 +454,12 @@
     "internal/utf8internal",
     "language",
     "runes",
+    "secure/bidirule",
     "transform",
+    "unicode/bidi",
     "unicode/cldr",
     "unicode/norm",
+    "unicode/rangetable",
   ]
   pruneopts = ""
   revision = "c01e4764d870b77f8abe5096ee19ad20d80e8075"
