@@ -219,11 +219,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:07325e5cdac820960dec48dbf30df3b6b445be8c84071840250d025fa4e79adc"
+  digest = "1:7abe0d83ffb4c20fce461c314b1dc858cba274580cf1508f698b5f9fd9e1cde9"
   name = "github.com/johntdyer/slackrus"
   packages = ["."]
   pruneopts = ""
-  revision = "3992f319fd0ac349483279ef74742cd787841cba"
+  revision = "f7aae3243a0786c5a974bce71ed951c459876e64"
 
 [[projects]]
   branch = "master"
