@@ -2,8 +2,9 @@ version: 2
 jobs:
   build:
     docker:
-      - image: h3poteto/golang:1.11.2
+      - image: h3poteto/golang:1.13.4
         environment:
+          GO11MODULE: "on"
           APPROOT: /go/src/github.com/h3poteto/fascia
           APPENV: test
           DATABASE_URL: 127.0.0.1
@@ -25,18 +26,18 @@ jobs:
       - restore_cache:
           name: Restoring cache - vendor
           keys:
-            - vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
+            - mod-{{ arch }}-{{ checksum "go.mod" }}-{{ checksum "go.sum" }}
+      - run:
+          name: Install
+          command: go mod download
       - run:
           name: Generate assets file
           command: go generate
-      - run:
-          name: Go packages install
-          command: .circleci/scripts/dep_ensure.sh
       - save_cache:
           name: Saving cache - vendor
-          key: vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
+          key: mod-{{arch }}-{{ checksum "go.mod" }}-{{ checksum "go.sum" }}
           paths:
-            - "vendor"
+            - "/go/pkg/mod"
       - run:
           name: Checking mysql connection
           command: |

@@ -28,8 +28,9 @@ services:
       "npm install && \
       npm run watch"
   go:
-    image: h3poteto/golang:1.11.2
+    image: h3poteto/golang:1.13.4
     environment:
+      GO11MODULE: "on"
       APPROOT: /go/src/github.com/h3poteto/fascia
       APPENV: development
       AWS_DEFAULT_REGION: us-east-1
@@ -47,6 +48,7 @@ services:
       REDIS_DB_NUMBER: 0
     volumes:
       - .:/go/src/github.com/h3poteto/fascia
+      - module:/go/pkg/mod
     working_dir: /go/src/github.com/h3poteto/fascia
     links:
       - mysql:mysql
@@ -60,3 +62,4 @@ services:
 
 volumes:
   storage:
+  module:
