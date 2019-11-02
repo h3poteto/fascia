@@ -35,7 +35,7 @@ require (
 	github.com/mattn/go-isatty v0.0.3 // indirect
 	github.com/onsi/ginkgo v1.4.0
 	github.com/onsi/gomega v1.2.0
-	github.com/pkg/errors v0.8.0
+	github.com/pkg/errors v0.8.1
 	github.com/russross/blackfriday v0.0.0-20170728175326-4048872b16cc
 	github.com/sirupsen/logrus v1.0.3
 	github.com/smartystreets/goconvey v1.6.4 // indirect
