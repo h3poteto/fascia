@@ -35,7 +35,7 @@ RUN chown -R go:go ${APPROOT}
 USER go
 
 RUN set -x \
-   && go module download \
+   && go mod download \
    && go generate \
    && go build -o bin/fascia
 
