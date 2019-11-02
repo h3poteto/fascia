@@ -17,7 +17,7 @@ USER root
 ENV GOPATH /go
 ENV APPROOT ${GOPATH}/src/github.com/h3poteto/fascia
 ENV APPENV production
-ENV GO11MODULE on
+ENV GO111MODULE on
 
 RUN set -x \
     && apk add --no-cache \

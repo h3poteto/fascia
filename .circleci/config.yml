@@ -4,7 +4,7 @@ jobs:
     docker:
       - image: h3poteto/golang:1.13.4
         environment:
-          GO11MODULE: "on"
+          GO111MODULE: "on"
           APPROOT: /go/src/github.com/h3poteto/fascia
           APPENV: test
           DATABASE_URL: 127.0.0.1
