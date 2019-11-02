@@ -11,12 +11,13 @@ RUN set -x \
     && npm run release-compile
 
 
-FROM h3poteto/golang:1.11.2
+FROM h3poteto/golang:1.13.4
 
 USER root
 ENV GOPATH /go
 ENV APPROOT ${GOPATH}/src/github.com/h3poteto/fascia
 ENV APPENV production
+ENV GO11MODULE on
 
 RUN set -x \
     && apk add --no-cache \
@@ -34,7 +35,7 @@ RUN chown -R go:go ${APPROOT}
 USER go
 
 RUN set -x \
-   && dep ensure \
+   && go module download \
    && go generate \
    && go build -o bin/fascia
 
