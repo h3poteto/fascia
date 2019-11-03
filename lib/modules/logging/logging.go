@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/johntdyer/slackrus"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )

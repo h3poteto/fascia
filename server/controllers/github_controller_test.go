@@ -15,7 +15,7 @@ import (
 	. "github.com/h3poteto/fascia/server/controllers"
 	userRepo "github.com/h3poteto/fascia/server/infrastructures/user"
 	"github.com/h3poteto/fascia/server/usecases/account"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"golang.org/x/oauth2"

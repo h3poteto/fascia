@@ -15,8 +15,8 @@ import (
 	"time"
 
 	"github.com/h3poteto/pongo2echo"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 // Routes defines all routes
