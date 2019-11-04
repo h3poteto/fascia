@@ -29,7 +29,7 @@ require (
 	github.com/juju/loggo v0.0.0-20190526231331-6e530bcce5d8 // indirect
 	github.com/juju/testing v0.0.0-20191001232224-ce9dec17d28b // indirect
 	github.com/kr/pretty v0.1.0 // indirect
-	github.com/labstack/echo v3.3.10+incompatible
+	github.com/labstack/echo v3.2.3+incompatible
 	github.com/labstack/gommon v0.2.2-0.20170925052817-57409ada9da0 // indirect
 	github.com/mattn/go-colorable v0.0.9 // indirect
 	github.com/mattn/go-isatty v0.0.3 // indirect
