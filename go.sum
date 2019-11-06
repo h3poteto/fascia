@@ -2,6 +2,8 @@ github.com/asaskevich/govalidator v0.0.0-20170903095215-73945b6115bf h1:wXq5VXJj
 github.com/asaskevich/govalidator v0.0.0-20170903095215-73945b6115bf/go.mod h1:lB+ZfQJz7igIIfQNfa7Ml4HSf2uFQQRzpGGRXenZAgY=
 github.com/aws/aws-sdk-go v1.12.14 h1:xxl/x7uyqxXWx2ub8VFKktpLhHqrPCBNmeRVffi9lF8=
 github.com/aws/aws-sdk-go v1.12.14/go.mod h1:ZRmQr0FajVIyZ4ZzBYKG5P3ZqPz9IHG41ZoMu1ADI3k=
+github.com/aws/aws-sdk-go v1.25.27 h1:UANmajXi1Vn7eZ9GgdDtkFjxDiaHY6tUixCiB6Bj128=
+github.com/aws/aws-sdk-go v1.25.27/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dgrijalva/jwt-go v3.1.0+incompatible h1:FFziAwDQQ2dz1XClWMkwvukur3evtZx7x/wMHKM1i20=
@@ -42,6 +44,7 @@ github.com/jessevdk/go-assets v0.0.0-20160921144138-4f4301a06e15 h1:cW/amwGEJK5M
 github.com/jessevdk/go-assets v0.0.0-20160921144138-4f4301a06e15/go.mod h1:Fdm/oWRW+CH8PRbLntksCNtmcCBximKPkVQYvmMl80k=
 github.com/jmespath/go-jmespath v0.0.0-20160202185014-0b12d6b521d8 h1:12VvqtR6Aowv3l/EQUlocDHW2Cp4G9WJVH7uyH8QFJE=
 github.com/jmespath/go-jmespath v0.0.0-20160202185014-0b12d6b521d8/go.mod h1:Nht3zPeWKUH0NzdCt2Blrr5ys8VGpn0CEB0cQHVjt7k=
+github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af/go.mod h1:Nht3zPeWKUH0NzdCt2Blrr5ys8VGpn0CEB0cQHVjt7k=
 github.com/johntdyer/slack-go v0.0.0-20150106011025-88736fd63eed h1:Ibiy4/+qhKCOkqWDT9gIK1j+nZooQbNiArjtwR1s1Jc=
 github.com/johntdyer/slack-go v0.0.0-20150106011025-88736fd63eed/go.mod h1:u0Jo4f2dNlTJeeOywkM6bLwxq6gC3pZ9rEFHn3AhTdk=
 github.com/johntdyer/slackrus v0.0.0-20170926115001-3992f319fd0a h1:n9lumog5dF2zAwe366FRl7YQWP04xPAEffdMgqUTBjo=
