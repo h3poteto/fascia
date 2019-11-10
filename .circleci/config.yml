@@ -7,7 +7,7 @@ jobs:
           GO111MODULE: "on"
           APPROOT: /go/src/github.com/h3poteto/fascia
           APPENV: test
-          POSTGRES_URL: 127.0.0.1
+          POSTGRES_HOST: 127.0.0.1
           POSTGRES_DB: fascia_test
           POSTGRES_USER: master
           POSTGRES_PASSWORD: docker
