@@ -20,26 +20,25 @@ export const RECEIVE_CREATE_PROJECT = 'RECEIVE_CREATE_PROJECT'
 function receiveCreateProject(body) {
   return {
     type: RECEIVE_CREATE_PROJECT,
-    project: {ID: body.ID, UserID: body.UserID, Title: body.Title, Description: body.Description}
+    project: { ID: body.ID, UserID: body.UserID, Title: body.Title, Description: body.Description }
   }
 }
-
 
 export function fetchCreateProject(params) {
   return dispatch => {
     dispatch(startLoading())
     dispatch(requestCreateProject())
     return axios
-      .post('/projects', params)
-      .then((res) => {
+      .post('/api/projects', params)
+      .then(res => {
         dispatch(stopLoading())
         dispatch(receiveCreateProject(res.data))
       })
-      .catch((err) => {
+      .catch(err => {
         dispatch(stopLoading())
         ErrorHandler(err)
           .then()
-          .catch((error) => {
+          .catch(error => {
             dispatch(ServerError(error))
           })
       })
