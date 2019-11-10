@@ -28,21 +28,29 @@ function receiveCreateTask(lists) {
 
 export function fetchCreateTask(params) {
   return (dispatch, getState) => {
-    const { ListReducer: { project: { ID: projectID }}} = getState()
-    const { ListReducer: { selectedList: { ID: listID }}} = getState()
+    const {
+      ListReducer: {
+        project: { ID: projectID }
+      }
+    } = getState()
+    const {
+      ListReducer: {
+        selectedList: { ID: listID }
+      }
+    } = getState()
     dispatch(startLoading())
     dispatch(requestCreateTask())
     return axios
-      .post(`/projects/${projectID}/lists/${listID}/tasks`, params)
-      .then((res) => {
+      .post(`/api/projects/${projectID}/lists/${listID}/tasks`, params)
+      .then(res => {
         dispatch(stopLoading())
         dispatch(receiveCreateTask(res.data))
       })
-      .catch((err) => {
+      .catch(err => {
         dispatch(stopLoading())
         ErrorHandler(err)
           .then()
-          .catch((error) => {
+          .catch(error => {
             dispatch(ServerError(error))
           })
       })

@@ -35,7 +35,6 @@ export function openEditListModal(list) {
   }
 }
 
-
 export const REQUEST_LISTS = 'REQUEST_LISTS'
 function requestLists() {
   return {
@@ -56,14 +55,14 @@ export function fetchLists(projectID) {
   return dispatch => {
     dispatch(requestLists())
     return axios
-      .get(`/projects/${projectID}/lists`)
-      .then((res) => {
+      .get(`/api/projects/${projectID}/lists`)
+      .then(res => {
         dispatch(receiveLists(res.data))
       })
-      .catch((err) => {
+      .catch(err => {
         ErrorHandler(err)
           .then()
-          .catch((error) => {
+          .catch(error => {
             dispatch(ServerError(error))
           })
       })
@@ -89,20 +88,19 @@ export function fetchProject(projectID) {
   return dispatch => {
     dispatch(requestProject())
     return axios
-      .get(`/projects/${projectID}/show`)
-      .then((res) => {
+      .get(`/api/projects/${projectID}/show`)
+      .then(res => {
         dispatch(receiveProject(res.data))
       })
-      .catch((err) => {
+      .catch(err => {
         ErrorHandlerWithoutSubmission(err)
           .then()
-          .catch((error) => {
+          .catch(error => {
             dispatch(ServerError(error))
           })
       })
   }
 }
-
 
 export const TASK_DRAG_START = 'TASK_DRAG_START'
 export function taskDragStart(ev) {
@@ -159,18 +157,18 @@ export function taskDrop(projectID, taskDraggingFrom, taskDraggingTo) {
     return dispatch => {
       dispatch(requestMoveTask())
       return axios
-        .post(`/projects/${projectID}/lists/${taskDraggingFrom.fromList.ID}/tasks/${taskDraggingFrom.fromTask.ID}/move_task`, {
+        .post(`/api/projects/${projectID}/lists/${taskDraggingFrom.fromList.ID}/tasks/${taskDraggingFrom.fromTask.ID}/move_task`, {
           to_list_id: taskDraggingTo.toList.ID,
-          prev_to_task_id: prevToTaskID,
+          prev_to_task_id: prevToTaskID
         })
-        .then((res) => {
+        .then(res => {
           dispatch(receiveMoveTask(res.data))
         })
-        .catch((err) => {
+        .catch(err => {
           // TODO: ここはドラッグしたviewを元に戻す必要がある
           ErrorHandlerWithoutSubmission(err)
             .then()
-            .catch((error) => {
+            .catch(error => {
               dispatch(ServerError(error))
             })
         })
@@ -186,22 +184,22 @@ export const TASK_DRAG_OVER = 'TASK_DRAG_OVER'
 export function taskDragOver(ev) {
   ev.preventDefault()
   var targetList
-  switch(ev.target.dataset.droppedDepth) {
-  case '0':
-    targetList = ev.target
-    break
-  case '1':
-    targetList = ev.target.parentNode
-    break
-  case '2':
-    targetList = ev.target.parentNode.parentNode
-    break
-  case '3':
-    targetList = ev.target.parentNode.parentNode.parentNode
-    break
-  default:
-    targetList = ev.target.parentNode.parentNode
-    break
+  switch (ev.target.dataset.droppedDepth) {
+    case '0':
+      targetList = ev.target
+      break
+    case '1':
+      targetList = ev.target.parentNode
+      break
+    case '2':
+      targetList = ev.target.parentNode.parentNode
+      break
+    case '3':
+      targetList = ev.target.parentNode.parentNode.parentNode
+      break
+    default:
+      targetList = ev.target.parentNode.parentNode
+      break
   }
   return {
     type: TASK_DRAG_OVER,
@@ -232,16 +230,16 @@ export function fetchProjectGithub(projectID) {
     dispatch(startLoading())
     dispatch(requestFetchGithub())
     return axios
-      .post(`/projects/${projectID}/fetch_github`)
-      .then((res) => {
+      .post(`/api/projects/${projectID}/fetch_github`)
+      .then(res => {
         dispatch(stopLoading())
         dispatch(receiveFetchGithub(res.data))
       })
-      .catch((err) => {
+      .catch(err => {
         dispatch(stopLoading())
         ErrorHandlerWithoutSubmission(err)
           .then()
-          .catch((error) => {
+          .catch(error => {
             dispatch(ServerError(error))
           })
       })
@@ -268,14 +266,14 @@ export function fetchListOptions() {
   return dispatch => {
     dispatch(requestListOptions())
     return axios
-      .get('/list_options')
-      .then((res) => {
+      .get('/api/list_options')
+      .then(res => {
         dispatch(receiveListOptions(res.data))
       })
-      .catch((err) => {
+      .catch(err => {
         ErrorHandlerWithoutSubmission(err)
           .then()
-          .catch((error) => {
+          .catch(error => {
             dispatch(ServerError(error))
           })
       })
@@ -302,17 +300,17 @@ export function showIssues(projectID, showIssues, showPullRequests) {
   return dispatch => {
     dispatch(requestSettingsProject())
     return axios
-      .patch(`/projects/${projectID}/settings`, {
+      .patch(`/api/projects/${projectID}/settings`, {
         show_issues: !showIssues,
-        show_pull_requests: showPullRequests,
+        show_pull_requests: showPullRequests
       })
-      .then((res) => {
+      .then(res => {
         dispatch(receiveProject(res.data))
       })
-      .catch((err) => {
+      .catch(err => {
         ErrorHandlerWithoutSubmission(err)
           .then()
-          .catch((error) => {
+          .catch(error => {
             dispatch(ServerError(error))
           })
       })
@@ -324,23 +322,22 @@ export function showPullRequests(projectID, showIssues, showPullRequests) {
   return dispatch => {
     dispatch(requestSettingsProject())
     return axios
-      .patch(`/projects/${projectID}/settings`, {
+      .patch(`/api/projects/${projectID}/settings`, {
         show_issues: showIssues,
-        show_pull_requests: !showPullRequests,
+        show_pull_requests: !showPullRequests
       })
-      .then((res) => {
+      .then(res => {
         dispatch(receiveProject(res.data))
       })
-      .catch((err) => {
+      .catch(err => {
         ErrorHandlerWithoutSubmission(err)
           .then()
-          .catch((error) => {
+          .catch(error => {
             dispatch(ServerError(error))
           })
       })
   }
 }
-
 
 export const REQUEST_HIDE_LIST = 'REQUEST_HIDE_LIST'
 function requestHideList() {
@@ -363,14 +360,14 @@ export function hideList(projectID, listID) {
   return dispatch => {
     dispatch(requestHideList())
     return axios
-      .patch(`/projects/${projectID}/lists/${listID}/hide`)
-      .then((res) => {
+      .patch(`/api/projects/${projectID}/lists/${listID}/hide`)
+      .then(res => {
         dispatch(receiveHideList(res.data))
       })
-      .catch((err) => {
+      .catch(err => {
         ErrorHandlerWithoutSubmission(err)
           .then()
-          .catch((error) => {
+          .catch(error => {
             dispatch(ServerError(error))
           })
       })
@@ -398,14 +395,14 @@ export function displayList(projectID, listID) {
   return dispatch => {
     dispatch(requestDisplayList())
     return axios
-      .patch(`/projects/${projectID}/lists/${listID}/display`)
-      .then((res) => {
+      .patch(`/api/projects/${projectID}/lists/${listID}/display`)
+      .then(res => {
         dispatch(receiveDisplayList(res.data))
       })
-      .catch((err) => {
+      .catch(err => {
         ErrorHandlerWithoutSubmission(err)
           .then()
-          .catch((error) => {
+          .catch(error => {
             dispatch(ServerError(error))
           })
       })
@@ -423,6 +420,6 @@ export function openShowTaskModal(task) {
 export const OPEN_DELETE_PROJECT = 'OPEN_DELETE_PROJECT'
 export function openDeleteProjectModal() {
   return {
-    type: OPEN_DELETE_PROJECT,
+    type: OPEN_DELETE_PROJECT
   }
 }

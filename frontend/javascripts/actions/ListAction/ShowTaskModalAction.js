@@ -35,22 +35,34 @@ function receiveUpdateTask(lists) {
 
 export function fetchUpdateTask(params) {
   return (dispatch, getState) => {
-    const { ListReducer: { project: { ID: projectID }}} = getState()
-    const { ListReducer: { selectedTask: { ListID: listID }}} = getState()
-    const { ListReducer: { selectedTask: {ID: taskID }}} = getState()
+    const {
+      ListReducer: {
+        project: { ID: projectID }
+      }
+    } = getState()
+    const {
+      ListReducer: {
+        selectedTask: { ListID: listID }
+      }
+    } = getState()
+    const {
+      ListReducer: {
+        selectedTask: { ID: taskID }
+      }
+    } = getState()
     dispatch(startLoading())
     dispatch(requestUpdateTask())
     return axios
-      .patch(`/projects/${projectID}/lists/${listID}/tasks/${taskID}`, params)
-      .then((res) => {
+      .patch(`/api/projects/${projectID}/lists/${listID}/tasks/${taskID}`, params)
+      .then(res => {
         dispatch(stopLoading())
         dispatch(receiveUpdateTask(res.data))
       })
-      .catch((err) => {
+      .catch(err => {
         dispatch(stopLoading())
         ErrorHandler(err)
           .then()
-          .catch((error) => {
+          .catch(error => {
             dispatch(ServerError(error))
           })
       })
@@ -75,22 +87,34 @@ function receiveDeleteTask(lists) {
 
 export function fetchDeleteTask() {
   return (dispatch, getState) => {
-    const { ListReducer: { project: { ID: projectID }}} = getState()
-    const { ListReducer: { selectedTask: { ListID: listID }}} = getState()
-    const { ListReducer: { selectedTask: {ID: taskID }}} = getState()
+    const {
+      ListReducer: {
+        project: { ID: projectID }
+      }
+    } = getState()
+    const {
+      ListReducer: {
+        selectedTask: { ListID: listID }
+      }
+    } = getState()
+    const {
+      ListReducer: {
+        selectedTask: { ID: taskID }
+      }
+    } = getState()
     dispatch(startLoading())
     dispatch(requestDeleteTask())
     return axios
-      .delete(`/projects/${projectID}/lists/${listID}/tasks/${taskID}`)
-      .then((res) => {
+      .delete(`/api/projects/${projectID}/lists/${listID}/tasks/${taskID}`)
+      .then(res => {
         dispatch(stopLoading())
         dispatch(receiveDeleteTask(res.data))
       })
-      .catch((err) => {
+      .catch(err => {
         dispatch(stopLoading())
         ErrorHandler(err)
           .then()
-          .catch((error) => {
+          .catch(error => {
             dispatch(ServerError(error))
           })
       })

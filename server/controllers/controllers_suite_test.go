@@ -12,7 +12,7 @@ import (
 	"github.com/h3poteto/fascia/server/domains/user"
 	"github.com/h3poteto/fascia/server/filters"
 	"github.com/h3poteto/fascia/server/middlewares"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

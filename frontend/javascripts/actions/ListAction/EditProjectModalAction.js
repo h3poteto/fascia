@@ -19,20 +19,24 @@ function receiveCreateWebhook() {
 export const CREATE_WEBHOOK = 'CREATE_WEBHOOK'
 export function createWebhook() {
   return (dispatch, getState) => {
-    const { ListReducer: { project: { ID: projectID }}} = getState()
+    const {
+      ListReducer: {
+        project: { ID: projectID }
+      }
+    } = getState()
     dispatch(startLoading())
     dispatch(requestCreateWebhook())
     return axios
-      .post(`/projects/${projectID}/webhook`)
-      .then((_res) => {
+      .post(`/api/projects/${projectID}/webhook`)
+      .then(_res => {
         dispatch(stopLoading())
         dispatch(receiveCreateWebhook())
       })
-      .catch((err) => {
+      .catch(err => {
         dispatch(stopLoading())
         ErrorHandler(err)
           .then()
-          .catch((error) => {
+          .catch(error => {
             dispatch(ServerError(error))
           })
       })
@@ -64,20 +68,24 @@ function receiveUpdateProject(project) {
 export const FETCH_UPDATE_PROJECT = 'FETCH_UPDATE_PROJECT'
 export function fetchUpdateProject(params) {
   return (dispatch, getState) => {
-    const { ListReducer: { project: { ID: projectID }}} = getState()
+    const {
+      ListReducer: {
+        project: { ID: projectID }
+      }
+    } = getState()
     dispatch(startLoading())
     dispatch(requestUpdateProject())
     return axios
-      .patch(`/projects/${projectID}`, params)
-      .then((res) => {
+      .patch(`/api/projects/${projectID}`, params)
+      .then(res => {
         dispatch(stopLoading())
         dispatch(receiveUpdateProject(res.data))
       })
-      .catch((err) => {
+      .catch(err => {
         dispatch(stopLoading())
         ErrorHandler(err)
           .then()
-          .catch((error) => {
+          .catch(error => {
             dispatch(ServerError(error))
           })
       })

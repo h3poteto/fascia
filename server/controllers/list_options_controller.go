@@ -7,7 +7,7 @@ import (
 	"github.com/h3poteto/fascia/server/domains/list"
 	board "github.com/h3poteto/fascia/server/usecases/board"
 	"github.com/h3poteto/fascia/server/views"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // ListOptions is controlelr struct for list options

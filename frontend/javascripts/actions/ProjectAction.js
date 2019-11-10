@@ -27,13 +27,13 @@ export function fetchSession() {
     dispatch(requestSession())
     return axios
       .patch('/session')
-      .then((_) => {
+      .then(_ => {
         dispatch(receiveSession())
       })
-      .catch((err) => {
+      .catch(err => {
         ErrorHandler(err)
           .then()
-          .catch((error) => {
+          .catch(error => {
             dispatch(ServerError(error))
           })
       })
@@ -59,14 +59,14 @@ export function fetchProjects() {
   return dispatch => {
     dispatch(requestPosts())
     return axios
-      .get('/projects')
-      .then((res) => {
+      .get('/api/projects')
+      .then(res => {
         dispatch(receivePosts(res.data))
       })
-      .catch((err) => {
+      .catch(err => {
         ErrorHandler(err)
           .then()
-          .catch((error) => {
+          .catch(error => {
             dispatch(ServerError(error))
           })
       })
@@ -80,7 +80,6 @@ export function openNewProjectModal() {
     isModalOpen: true
   }
 }
-
 
 export const REQUEST_REPOSITORIES = 'REQUEST_REPOSITORIES'
 function requestRepositories() {
@@ -101,14 +100,14 @@ export function fetchRepositories() {
   return dispatch => {
     dispatch(requestRepositories())
     return axios
-      .get('/github/repositories')
-      .then((res) => {
+      .get('/api/github/repositories')
+      .then(res => {
         dispatch(receiveRepositories(res.data))
       })
-      .catch((err) => {
+      .catch(err => {
         ErrorHandler(err)
           .then()
-          .catch((error) => {
+          .catch(error => {
             dispatch(ServerError(error))
           })
       })

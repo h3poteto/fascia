@@ -21,41 +21,55 @@ export const RECEIVE_UPDATE_LIST = 'RECEIVE_UPDATE_LIST'
 function receiveUpdateList(list) {
   return {
     type: RECEIVE_UPDATE_LIST,
-    list: {ID: list.ID, ProjectID: list.ProjectID, Title: list.Title, Color: list.Color, ListTasks: list.ListTasks, ListOptionID: list.ListOptionID}
+    list: {
+      ID: list.ID,
+      ProjectID: list.ProjectID,
+      Title: list.Title,
+      Color: list.Color,
+      ListTasks: list.ListTasks,
+      ListOptionID: list.ListOptionID
+    }
   }
 }
 
 export function fetchUpdateList(params) {
   return (dispatch, getState) => {
-    const { ListReducer: { project: { ID: projectID }}} = getState()
-    const { ListReducer: { selectedList: { ID: listID }}} = getState()
+    const {
+      ListReducer: {
+        project: { ID: projectID }
+      }
+    } = getState()
+    const {
+      ListReducer: {
+        selectedList: { ID: listID }
+      }
+    } = getState()
     dispatch(startLoading())
     dispatch(requestUpdateList())
     const form = Object.assign({}, params, {
       option_id: params.option_id.toString(10)
     })
     return axios
-      .patch(`/projects/${projectID}/lists/${listID}`, form)
-      .then((res) => {
+      .patch(`/api/projects/${projectID}/lists/${listID}`, form)
+      .then(res => {
         dispatch(stopLoading())
         dispatch(receiveUpdateList(res.data))
       })
-      .catch((err) => {
+      .catch(err => {
         dispatch(stopLoading())
         ErrorHandler(err)
           .then()
-          .catch((error) => {
+          .catch(error => {
             dispatch(ServerError(error))
           })
       })
   }
 }
 
-
 export const CHANGE_COLOR = 'CHANGE_COLOR'
 export function changeColor(color) {
   return {
     type: CHANGE_COLOR,
-    color: color,
+    color: color
   }
 }

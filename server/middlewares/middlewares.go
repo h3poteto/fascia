@@ -10,8 +10,8 @@ import (
 	"github.com/h3poteto/fascia/server/usecases/account"
 	"github.com/h3poteto/fascia/server/usecases/board"
 	"github.com/h3poteto/fascia/server/validators"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/pkg/errors"
 
 	"fmt"

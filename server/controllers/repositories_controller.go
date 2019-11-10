@@ -9,7 +9,7 @@ import (
 	"net/http"
 
 	"github.com/google/go-github/github"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 )
 

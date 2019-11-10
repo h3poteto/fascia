@@ -15,8 +15,8 @@ import (
 	"time"
 
 	"github.com/h3poteto/pongo2echo"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 // Routes defines all routes
@@ -37,11 +37,9 @@ func Routes(e *echo.Echo) {
 	e.GET("/", root.Index)
 	e.GET("/projects/:project_id", root.Index)
 
-	login := e.Group("/")
-	login.Use(middlewares.Login())
 	sessions := &controllers.Sessions{}
 	e.GET("/sign_in", sessions.SignIn)
-	login.PATCH("session", sessions.Update)
+	e.PATCH("/session", sessions.Update, middlewares.Login())
 	e.DELETE("/sign_out", sessions.SignOut)
 
 	oauth := &controllers.Oauth{}
@@ -60,43 +58,45 @@ func Routes(e *echo.Echo) {
 	e.POST("/inquiries", inquiries.Create)
 
 	github := &controllers.Github{}
-	login.GET("github/repositories", github.Repositories)
+	e.GET("/api/github/repositories", github.Repositories, middlewares.Login())
 
 	projects := &controllers.Projects{}
-	login.POST("projects", projects.Create)
-	login.GET("projects", projects.Index)
+	e.POST("/api/projects", projects.Create, middlewares.Login())
+	e.GET("/api/projects", projects.Index, middlewares.Login())
 
-	p := login.Group("projects")
+	// TODO: APIはapi/に移動すべき．区別がつかない
+	p := e.Group("/api/projects/:project_id")
+	p.Use(middlewares.Login())
 	p.Use(middlewares.Project())
-	p.PATCH("/:project_id", projects.Update)
-	p.GET("/:project_id/show", projects.Show)
-	p.POST("/:project_id/fetch_github", projects.FetchGithub)
-	p.PATCH("/:project_id/settings", projects.Settings)
-	p.POST("/:project_id/webhook", projects.Webhook)
-	p.DELETE("/:project_id", projects.Destroy)
+	p.PATCH("", projects.Update)
+	p.GET("/show", projects.Show)
+	p.POST("/fetch_github", projects.FetchGithub)
+	p.PATCH("/settings", projects.Settings)
+	p.POST("/webhook", projects.Webhook)
+	p.DELETE("", projects.Destroy)
 
 	lists := &controllers.Lists{}
-	p.GET("/:project_id/lists", lists.Index)
-	p.POST("/:project_id/lists", lists.Create)
+	p.GET("/lists", lists.Index)
+	p.POST("/lists", lists.Create)
 
-	l := p.Group("/:project_id/lists")
+	l := p.Group("/lists/:list_id")
 	l.Use(middlewares.List())
-	l.PATCH("/:list_id", lists.Update)
-	l.PATCH("/:list_id/hide", lists.Hide)
-	l.PATCH("/:list_id/display", lists.Display)
+	l.PATCH("", lists.Update)
+	l.PATCH("/hide", lists.Hide)
+	l.PATCH("/display", lists.Display)
 
 	tasks := &controllers.Tasks{}
-	l.POST("/:list_id/tasks", tasks.Create)
+	l.POST("/tasks", tasks.Create)
 
-	t := l.Group("/:list_id/tasks")
+	t := l.Group("/tasks/:task_id")
 	t.Use(middlewares.Task())
-	t.GET("/:task_id", tasks.Show)
-	t.POST("/:task_id/move_task", tasks.MoveTask)
-	t.PATCH("/:task_id", tasks.Update)
-	t.DELETE("/:task_id", tasks.Delete)
+	t.GET("", tasks.Show)
+	t.POST("/move_task", tasks.MoveTask)
+	t.PATCH("", tasks.Update)
+	t.DELETE("", tasks.Delete)
 
 	listOptions := &controllers.ListOptions{}
-	login.GET("list_options", listOptions.Index)
+	e.GET("/api/list_options", listOptions.Index, middlewares.Login())
 
 	repositories := &controllers.Repositories{}
 	e.POST("/repositories/hooks/github", repositories.Hook)
