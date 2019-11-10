@@ -1,7 +1,7 @@
 
 -- +goose Up
 -- SQL in section 'Up' is executed when this migration is applied
-ALTER TABLE lists ADD COLUMN color varchar(255) DEFAULT NULL AFTER title;
+ALTER TABLE lists ADD COLUMN color varchar(255) DEFAULT NULL;
 
 -- +goose Down
 -- SQL section 'Down' is executed when this migration is rolled back

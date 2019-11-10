@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	_ "github.com/lib/pq"
 	"gopkg.in/yaml.v2"
@@ -17,7 +18,8 @@ var sharedInstance = New()
 
 func New() *Database {
 	env := os.Getenv("APPENV")
-	path := "db/dbconf.yml"
+	root := os.Getenv("APPROOT")
+	path := filepath.Join(root, "db/dbconf.yml")
 	buf, err := ioutil.ReadFile(path)
 	if err != nil {
 		panic(err)
