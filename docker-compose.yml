@@ -20,6 +20,8 @@ services:
       POSTGRES_USER: master
       POSTGRES_PASSWORD: docker
       POSTGRES_DB: fascia
+    ports:
+      - "5432:5432"
     volumes:
       - storage:/var/lib/postgres/data
 
@@ -70,6 +72,13 @@ services:
 
   redis:
     image: redis:5.0-alpine
+
+  pgloader:
+    image: dimitri/pgloader
+    links:
+      - mysql:mysql
+      - postgres:postgres
+    command: /bin/bash
 
 volumes:
   storage:
