@@ -3,15 +3,5 @@
   "stylesheets/application.css": "stylesheets/application.css",
   "stylesheets/application.js": "stylesheets/application.js",
   "stylesheets/application-webview.css": "stylesheets/application-webview.css",
-  "stylesheets/application-webview.js": "stylesheets/application-webview.js",
-  "images/120.jpg": "images/120.jpg",
-  "images/167.jpg": "images/167.jpg",
-  "images/83.jpg": "images/83.jpg",
-  "images/fascia-icon.png": "images/fascia-icon.png",
-  "images/fascia-ss-1.png": "images/fascia-ss-1.png",
-  "images/fascia-ss-2.png": "images/fascia-ss-2.png",
-  "images/fascia-ss-3.png": "images/fascia-ss-3.png",
-  "images/favicon.ico": "images/favicon.ico",
-  "images/github-ss-1.png": "images/github-ss-1.png",
-  "images/login_back.jpg": "images/login_back.jpg"
+  "stylesheets/application-webview.js": "stylesheets/application-webview.js"
 }
