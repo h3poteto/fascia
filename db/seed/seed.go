@@ -17,9 +17,11 @@ func TruncateAll() error {
 	tables := []string{"tasks", "lists", "projects", "repositories", "reset_passwords", "users", "list_options"}
 	// To invalidate foreign key checks for truncate
 	// It is valid when database connection pool is not used
-	_, err := db.Exec("SET GLOBAL foreign_key_checks = 0;")
-	if err != nil {
-		return err
+	for _, t := range tables {
+		_, err := db.Exec("ALTER TABLE " + t + " DISABLE TRIGGER ALL;")
+		if err != nil {
+			return err
+		}
 	}
 	for _, t := range tables {
 		_, err := db.Exec("TRUNCATE TABLE " + t + ";")
@@ -27,9 +29,11 @@ func TruncateAll() error {
 			return errors.Wrapf(err, "truncate failed: %s", t)
 		}
 	}
-	_, err = db.Exec("SET GLOBAL foreign_key_checks = 1;")
-	if err != nil {
-		return err
+	for _, t := range tables {
+		_, err := db.Exec("ALTER TABLE " + t + " ENABLE TRIGGER ALL;")
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -37,7 +41,7 @@ func TruncateAll() error {
 
 func listOptions() error {
 	db := database.SharedInstance().Connection
-	_, err := db.Exec("INSERT INTO list_options (action, created_at) values (?, now()), (?, now())",
+	_, err := db.Exec("INSERT INTO list_options (action) values ($1), ($2)",
 		"open",
 		"close")
 	if err != nil {

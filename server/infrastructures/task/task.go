@@ -28,7 +28,7 @@ func (t *Task) Find(id int64) (*task.Task, error) {
 	var issueNumber sql.NullInt64
 	var pullRequest bool
 	var htmlURL sql.NullString
-	err := t.db.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index from tasks where id = ?;", id).Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL, &displayIndex)
+	err := t.db.QueryRow("SELECT id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index FROM tasks WHERE id = $1;", id).Scan(&id, &listID, &projectID, &userID, &issueNumber, &title, &description, &pullRequest, &htmlURL, &displayIndex)
 	if err != nil {
 		return nil, errors.Wrap(err, "task repository")
 	}
@@ -53,7 +53,7 @@ func (t *Task) FindByIssueNumber(projectID int64, issueNumber int) (*task.Task, 
 	var number sql.NullInt64
 	var pullRequest bool
 	var htmlURL sql.NullString
-	err := t.db.QueryRow("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index from tasks where issue_number = ? and project_id = ?;", issueNumber, projectID).Scan(&id, &listID, &projectID, &userID, &number, &title, &description, &pullRequest, &htmlURL, &displayIndex)
+	err := t.db.QueryRow("SELECT id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index FROM tasks WHERE issue_number = $1 AND project_id = $2;", issueNumber, projectID).Scan(&id, &listID, &projectID, &userID, &number, &title, &description, &pullRequest, &htmlURL, &displayIndex)
 	if err != nil {
 		return nil, errors.Wrap(err, "task repository")
 	}
@@ -77,7 +77,7 @@ func (t *Task) FindByIssueNumber(projectID int64, issueNumber int) (*task.Task, 
 // Tasks returns all tasks related a list.
 func (t *Task) Tasks(parentListID int64) ([]*task.Task, error) {
 	result := []*task.Task{}
-	rows, err := t.db.Query("select id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index from tasks where list_id = ? order by display_index;", parentListID)
+	rows, err := t.db.Query("SELECT id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index FROM tasks WHERE list_id = $1 ORDER BY display_index;", parentListID)
 	if err != nil {
 		return nil, errors.Wrap(err, "task repository")
 	}
@@ -114,7 +114,7 @@ func (t *Task) Tasks(parentListID int64) ([]*task.Task, error) {
 // NonIssueTasks returns all tasks related a list.
 func (t *Task) NonIssueTasks(projectID, userID int64) ([]*task.Task, error) {
 	result := []*task.Task{}
-	rows, err := t.db.Query("SELECT id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index FROM tasks WHERE project_id = ? and user_id = ? and issue_number IS NULL;", projectID, userID)
+	rows, err := t.db.Query("SELECT id, list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index FROM tasks WHERE project_id = $1 AND user_id = $2 AND issue_number IS NULL;", projectID, userID)
 	if err != nil {
 		return nil, errors.Wrap(err, "task repository")
 	}
@@ -155,17 +155,19 @@ func (t *Task) Create(listID int64, projectID int64, userID int64, issueNumber s
 
 	// display_indexを自動挿入する
 	count := 0
-	err = transaction.QueryRow("SELECT COUNT(id) FROM tasks WHERE list_id = ?;", listID).Scan(&count)
+	err = transaction.QueryRow("SELECT COUNT(id) FROM tasks WHERE list_id = $1;", listID).Scan(&count)
 	if err != nil {
 		transaction.Rollback()
 		return 0, errors.Wrap(err, "task repository")
 	}
-	result, err := transaction.Exec("insert into tasks (list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index, created_at) values (?,?,?, ?, ?, ?, ?, ?, ?, now());", listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL, count+1)
+
+	var id int64
+
+	err = transaction.QueryRow("INSERT INTO tasks (list_id, project_id, user_id, issue_number, title, description, pull_request, html_url, display_index) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id;", listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL, count+1).Scan(&id)
 	if err != nil {
 		transaction.Rollback()
 		return 0, errors.Wrap(err, "task repository")
 	}
-	id, _ := result.LastInsertId()
 	err = transaction.Commit()
 	if err != nil {
 		transaction.Rollback()
@@ -179,9 +181,9 @@ func (t *Task) Create(listID int64, projectID int64, userID int64, issueNumber s
 func (t *Task) Update(id, listID, projectID, userID int64, issueNumber sql.NullInt64, title, description string, pullRequest bool, htmlURL sql.NullString, displayIndex int64, tx *sql.Tx) error {
 	var err error
 	if tx != nil {
-		_, err = tx.Exec("update tasks set list_id = ?, project_id = ?, user_id = ?, issue_number = ?, title = ?, description = ?, pull_request = ?, html_url = ?, display_index = ? where id = ?;", listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL, displayIndex, id)
+		_, err = tx.Exec("UPDATE tasks SET list_id = $1, project_id = $2, user_id = $3, issue_number = $4, title = $5, description = $6, pull_request = $7, html_url = $8, display_index = $9 WHERE id = $10;", listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL, displayIndex, id)
 	} else {
-		_, err = t.db.Exec("update tasks set list_id = ?, project_id = ?, user_id = ?, issue_number = ?, title = ?, description = ?, pull_request = ?, html_url = ?, display_index = ? where id = ?;", listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL, displayIndex, id)
+		_, err = t.db.Exec("UPDATE tasks SET list_id = $1, project_id = $2, user_id = $3, issue_number = $4, title = $5, description = $6, pull_request = $7, html_url = $8, display_index = $9 WHERE id = %10;", listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL, displayIndex, id)
 	}
 	if err != nil {
 		return errors.Wrap(err, "task repository")
@@ -193,7 +195,7 @@ func (t *Task) Update(id, listID, projectID, userID int64, issueNumber sql.NullI
 
 // PushOutAfterTasks updates display_index of after tasks.
 func (t *Task) PushOutAfterTasks(listID int64, sinceDisplayIndex int64, tx *sql.Tx) error {
-	_, err := tx.Exec("update tasks set display_index = display_index + 1 where id in (select id from (select id from tasks where list_id = ? and display_index >= ?) as tmp);", listID, sinceDisplayIndex)
+	_, err := tx.Exec("UPDATE tasks SET display_index = display_index + 1 WHERE id IN (SELECT id FROM (SELECT id FROM tasks WHERE list_id = $1 AND display_index >= $2) as tmp);", listID, sinceDisplayIndex)
 	return err
 }
 
@@ -202,7 +204,7 @@ func (t *Task) GetMaxDisplayIndex(listID int64) (*int64, error) {
 	// When the list does not have any tasks, max id is null.
 	// But null is not error, so we have to accept null value.
 	var index interface{}
-	err := t.db.QueryRow("select max(display_index) from tasks where list_id = ?;", listID).Scan(&index)
+	err := t.db.QueryRow("SELECT max(display_index) FROM tasks WHERE list_id = $1;", listID).Scan(&index)
 	if err != nil {
 		return nil, err
 	}
@@ -215,7 +217,7 @@ func (t *Task) GetMaxDisplayIndex(listID int64) (*int64, error) {
 
 // Delete is delete a task in db
 func (t *Task) Delete(id int64) error {
-	_, err := t.db.Exec("delete from tasks where id = ?;", id)
+	_, err := t.db.Exec("DELETE FROM tasks WHERE id = $1;", id)
 	if err != nil {
 		return errors.Wrap(err, "task repository")
 	}

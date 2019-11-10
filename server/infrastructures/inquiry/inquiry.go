@@ -21,10 +21,10 @@ func New(db *sql.DB) *Inquiry {
 
 // Create a inquiry object in database.
 func (i *Inquiry) Create(email, name, message string) (int64, error) {
-	result, err := i.db.Exec("insert into inquiries (email, name, message, created_at) values (?, ?, ?, now());", email, name, message)
+	var id int64
+	err := i.db.QueryRow("INSERT INTO inquiries (email, name, message) VALUES ($1, $2, $3) RETURNING id;", email, name, message).Scan(&id)
 	if err != nil {
 		return 0, errors.Wrap(err, "inquiry repository")
 	}
-	id, _ := result.LastInsertId()
 	return id, nil
 }
