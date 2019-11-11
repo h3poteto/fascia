@@ -183,7 +183,7 @@ func (t *Task) Update(id, listID, projectID, userID int64, issueNumber sql.NullI
 	if tx != nil {
 		_, err = tx.Exec("UPDATE tasks SET list_id = $1, project_id = $2, user_id = $3, issue_number = $4, title = $5, description = $6, pull_request = $7, html_url = $8, display_index = $9 WHERE id = $10;", listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL, displayIndex, id)
 	} else {
-		_, err = t.db.Exec("UPDATE tasks SET list_id = $1, project_id = $2, user_id = $3, issue_number = $4, title = $5, description = $6, pull_request = $7, html_url = $8, display_index = $9 WHERE id = %10;", listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL, displayIndex, id)
+		_, err = t.db.Exec("UPDATE tasks SET list_id = $1, project_id = $2, user_id = $3, issue_number = $4, title = $5, description = $6, pull_request = $7, html_url = $8, display_index = $9 WHERE id = $10;", listID, projectID, userID, issueNumber, title, description, pullRequest, htmlURL, displayIndex, id)
 	}
 	if err != nil {
 		return errors.Wrap(err, "task repository")
