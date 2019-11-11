@@ -15,24 +15,10 @@ func TruncateAll() error {
 	db := database.SharedInstance().Connection
 
 	tables := []string{"tasks", "lists", "projects", "repositories", "reset_passwords", "users", "list_options"}
-	// To invalidate foreign key checks for truncate
-	// It is valid when database connection pool is not used
 	for _, t := range tables {
-		_, err := db.Exec("ALTER TABLE " + t + " DISABLE TRIGGER ALL;")
-		if err != nil {
-			return err
-		}
-	}
-	for _, t := range tables {
-		_, err := db.Exec("TRUNCATE TABLE " + t + ";")
+		_, err := db.Exec("DELETE FROM " + t + ";")
 		if err != nil {
 			return errors.Wrapf(err, "truncate failed: %s", t)
-		}
-	}
-	for _, t := range tables {
-		_, err := db.Exec("ALTER TABLE " + t + " ENABLE TRIGGER ALL;")
-		if err != nil {
-			return err
 		}
 	}
 
