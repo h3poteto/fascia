@@ -127,9 +127,9 @@ func (l *List) NoneList(parentProjectID int64) (*list.List, error) {
 	var title, color sql.NullString
 	var optionID sql.NullInt64
 	var isHidden bool
-	err := l.db.QueryRow("SELECT id, project_id, user_id, title, color, list_option_id, is_hidden FROM lists WHERE project_id = $1 AND title = $1;", parentProjectID, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
+	err := l.db.QueryRow("SELECT id, project_id, user_id, title, color, list_option_id, is_hidden FROM lists WHERE project_id = $1 AND title = $2;", parentProjectID, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "list repository")
 	}
 	var option *list.Option
 	if optionID.Valid {
@@ -180,7 +180,7 @@ func (l *List) FindOptionByID(id int64) (*list.Option, error) {
 
 // AllOption returns all list options.
 func (l *List) AllOption() ([]*list.Option, error) {
-	rows, err := l.db.Query("SELECT id, action FROM list_options;")
+	rows, err := l.db.Query("SELECT id, action FROM list_options ORDER BY id;")
 	if err != nil {
 		return nil, err
 	}

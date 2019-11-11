@@ -50,7 +50,6 @@ func (u *Lists) Index(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-
 	jsonAllLists, err := views.ParseAllListsJSON(noneList, lists)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
