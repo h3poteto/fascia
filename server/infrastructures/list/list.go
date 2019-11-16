@@ -27,7 +27,7 @@ func (l *List) Find(targetProjectID int64, listID int64) (*list.List, error) {
 	var title, color sql.NullString
 	var optionID sql.NullInt64
 	var isHidden bool
-	err := l.db.QueryRow("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where id = ? AND project_id = ?;", listID, targetProjectID).Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
+	err := l.db.QueryRow("SELECT id, project_id, user_id, title, color, list_option_id, is_hidden FROM lists WHERE id = $1 AND project_id = $2;", listID, targetProjectID).Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
 	if err != nil {
 		return nil, errors.Wrap(err, "list repository")
 	}
@@ -59,7 +59,7 @@ func (l *List) FindByTaskID(taskID int64) (*list.List, error) {
 	var title, color sql.NullString
 	var optionID sql.NullInt64
 	var isHidden bool
-	err := l.db.QueryRow("SELECT lists.id, lists.project_id, lists.user_id, list.title, list.color, list.list_option_id, lists.is_hidden FROM tasks INNER JOIN lists on tasks.list_id = lists.id WHERE tasks.id = ?;", taskID).Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
+	err := l.db.QueryRow("SELECT lists.id, lists.project_id, lists.user_id, list.title, list.color, list.list_option_id, lists.is_hidden FROM tasks INNER JOIN lists ON tasks.list_id = lists.id WHERE tasks.id = $1;", taskID).Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
 	if err != nil {
 		return nil, errors.Wrap(err, "list repository")
 	}
@@ -83,7 +83,7 @@ func (l *List) FindByTaskID(taskID int64) (*list.List, error) {
 
 // Lists returns all lists related a project.
 func (l *List) Lists(parentProjectID int64) ([]*list.List, error) {
-	rows, err := l.db.Query("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where project_id = ? and title != ?;", parentProjectID, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
+	rows, err := l.db.Query("SELECT id, project_id, user_id, title, color, list_option_id, is_hidden FROM lists WHERE project_id = $1 AND title != $2;", parentProjectID, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
 	if err != nil {
 		return nil, errors.Wrap(err, "list repository")
 	}
@@ -127,9 +127,9 @@ func (l *List) NoneList(parentProjectID int64) (*list.List, error) {
 	var title, color sql.NullString
 	var optionID sql.NullInt64
 	var isHidden bool
-	err := l.db.QueryRow("select id, project_id, user_id, title, color, list_option_id, is_hidden from lists where project_id = ? and title = ?;", parentProjectID, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
+	err := l.db.QueryRow("SELECT id, project_id, user_id, title, color, list_option_id, is_hidden FROM lists WHERE project_id = $1 AND title = $2;", parentProjectID, config.Element("init_list").(map[interface{}]interface{})["none"].(string)).Scan(&id, &projectID, &userID, &title, &color, &optionID, &isHidden)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "list repository")
 	}
 	var option *list.Option
 	if optionID.Valid {
@@ -155,7 +155,7 @@ func (l *List) NoneList(parentProjectID int64) (*list.List, error) {
 // FindOptionByAction search a list option according to action
 func (l *List) FindOptionByAction(action string) (*list.Option, error) {
 	var id int64
-	err := l.db.QueryRow("select id from list_options where action = ?;", action).Scan(&id)
+	err := l.db.QueryRow("SELECT id FROM list_options WHERE action = $1;", action).Scan(&id)
 	if err != nil {
 		return nil, err
 	}
@@ -168,7 +168,7 @@ func (l *List) FindOptionByAction(action string) (*list.Option, error) {
 // FindOptionByID search a list option according to id
 func (l *List) FindOptionByID(id int64) (*list.Option, error) {
 	var action string
-	err := l.db.QueryRow("select action from list_options where id = ?;", id).Scan(&action)
+	err := l.db.QueryRow("SELECT action FROM list_options WHERE id = $1;", id).Scan(&action)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +180,7 @@ func (l *List) FindOptionByID(id int64) (*list.Option, error) {
 
 // AllOption returns all list options.
 func (l *List) AllOption() ([]*list.Option, error) {
-	rows, err := l.db.Query("select id, action from list_options;")
+	rows, err := l.db.Query("SELECT id, action FROM list_options ORDER BY id;")
 	if err != nil {
 		return nil, err
 	}
@@ -204,16 +204,15 @@ func (l *List) AllOption() ([]*list.Option, error) {
 // Create save list object to record
 func (l *List) Create(projectID int64, userID int64, title sql.NullString, color sql.NullString, listOptionID sql.NullInt64, isHidden bool, tx *sql.Tx) (int64, error) {
 	var err error
-	var result sql.Result
+	var id int64
 	if tx != nil {
-		result, err = tx.Exec("insert into lists (project_id, user_id, title, color, list_option_id, is_hidden, created_at) values (?, ?, ?, ?, ?, ?, now());", projectID, userID, title, color, listOptionID, isHidden)
+		err = tx.QueryRow("INSERT INTO lists (project_id, user_id, title, color, list_option_id, is_hidden) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;", projectID, userID, title, color, listOptionID, isHidden).Scan(&id)
 	} else {
-		result, err = l.db.Exec("insert into lists (project_id, user_id, title, color, list_option_id, is_hidden, created_at) values (?, ?, ?, ?, ?, ?, now());", projectID, userID, title, color, listOptionID, isHidden)
+		err = l.db.QueryRow("INSERT INTO lists (project_id, user_id, title, color, list_option_id, is_hidden) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;", projectID, userID, title, color, listOptionID, isHidden).Scan(&id)
 	}
 	if err != nil {
 		return 0, errors.Wrap(err, "list repository")
 	}
-	id, _ := result.LastInsertId()
 	return id, nil
 }
 
@@ -226,7 +225,7 @@ func (l *List) Update(object *list.List) error {
 			Valid: true,
 		}
 	}
-	_, err := l.db.Exec("update lists set project_id = ?, user_id = ?, title = ?, color = ?, list_option_id = ?, is_hidden = ? where id = ?;", object.ProjectID, object.UserID, object.Title, object.Color, optionID, object.IsHidden, object.ID)
+	_, err := l.db.Exec("UPDATE lists SET project_id = $1, user_id = $2, title = $3, color = $4, list_option_id = $5, is_hidden = $6 WHERE id = $7;", object.ProjectID, object.UserID, object.Title, object.Color, optionID, object.IsHidden, object.ID)
 
 	if err != nil {
 		return errors.Wrap(err, "list repository")
@@ -236,7 +235,7 @@ func (l *List) Update(object *list.List) error {
 
 // Delete delete a list model in record
 func (l *List) Delete(id int64) error {
-	_, err := l.db.Exec("DELETE FROM lists WHERE id = ?;", id)
+	_, err := l.db.Exec("DELETE FROM lists WHERE id = $1;", id)
 	if err != nil {
 		return errors.Wrap(err, "list repository")
 	}
@@ -245,7 +244,7 @@ func (l *List) Delete(id int64) error {
 
 // DeleteTasks delete all tasks related a list
 func (l *List) DeleteTasks(id int64) error {
-	_, err := l.db.Exec("DELETE FROM tasks WHERE list_id = ?;", id)
+	_, err := l.db.Exec("DELETE FROM tasks WHERE list_id = $1;", id)
 	if err != nil {
 		return errors.Wrap(err, "list repository")
 	}

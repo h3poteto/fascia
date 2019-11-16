@@ -1,8 +1,8 @@
 
 -- +goose Up
 -- SQL in section 'Up' is executed when this migration is applied
-ALTER TABLE tasks ADD COLUMN pull_request boolean NOT NULL DEFAULT FALSE AFTER description;
-ALTER TABLE tasks ADD COLUMN html_url varchar(255) DEFAULT NULL AFTER pull_request;
+ALTER TABLE tasks ADD COLUMN pull_request boolean NOT NULL DEFAULT FALSE;
+ALTER TABLE tasks ADD COLUMN html_url varchar(255) DEFAULT NULL;
 
 
 -- +goose Down

@@ -7,15 +7,15 @@ jobs:
           GO111MODULE: "on"
           APPROOT: /go/src/github.com/h3poteto/fascia
           APPENV: test
-          DATABASE_URL: 127.0.0.1
-          DB_TEST_NAME: fascia_test
-          DB_USER: root
-          # MySQLの起動チェック用
-          HEALTH_CHECK_RETRY_LIMIT: 10
-          HEALTH_CHECK_RETRY_WAIT: 3
-      - image: mysql:5.7.27
+          POSTGRES_HOST: 127.0.0.1
+          POSTGRES_DB: fascia_test
+          POSTGRES_USER: master
+          POSTGRES_PASSWORD: docker
+      - image: postgres:11.2-alpine
         environment:
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          POSTGRES_USER: master
+          POSTGRES_PASSWORD: docker
+          POSTGRES_DB: fascia_test
 
     working_directory: /go/src/github.com/h3poteto/fascia
     steps:
@@ -38,16 +38,6 @@ jobs:
           key: mod-{{arch }}-{{ checksum "go.mod" }}-{{ checksum "go.sum" }}
           paths:
             - "/go/pkg/mod"
-      - run:
-          name: Checking mysql connection
-          command: |
-            for i in $(seq $HEALTH_CHECK_RETRY_LIMIT)
-            do
-              mysql -u root -h 127.0.0.1 -e 'show databases' || (sleep $HEALTH_CHECK_RETRY_WAIT; false) && break
-            done
-      - run:
-          name: Create database
-          command: mysql -u root -h 127.0.0.1 -e "CREATE DATABASE $DB_TEST_NAME CHARACTER SET utf8mb4;"
       - run:
           name: Migration database
           command: goose -env test up

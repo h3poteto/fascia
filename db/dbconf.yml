@@ -1,30 +1,14 @@
 test:
-    driver: mymysql
-    host: $DATABASE_URL
-    name: $DB_TEST_NAME
-    user: $DB_USER
-    password: $DB_PASSWORD
-    pool: 0
-    open: tcp:$DATABASE_URL:3306*$DB_TEST_NAME/$DB_USER/$DB_PASSWORD
+    driver: postgres
+    open:  host=$POSTGRES_HOST user=$POSTGRES_USER password=$POSTGRES_PASSWORD dbname=$POSTGRES_DB sslmode=disable
+    pool: 5
 
 development:
-    driver: mymysql
-    host: $DATABASE_URL
-    name: $DB_NAME
-    user: $DB_USER
-    password: $DB_PASSWORD
+    driver: postgres
+    open:  host=$POSTGRES_HOST user=$POSTGRES_USER password=$POSTGRES_PASSWORD dbname=$POSTGRES_DB sslmode=disable
     pool: 5
-    open: tcp:$DATABASE_URL:3306*$DB_NAME/$DB_USER/$DB_PASSWORD
 
 production:
-    driver: mymysql
-    host: $DATABASE_URL
-    name: $DB_NAME
-    user: $DB_USER
-    password: $DB_PASSWORD
+    driver: postgres
+    open:  host=$POSTGRES_HOST user=$POSTGRES_USER password=$POSTGRES_PASSWORD dbname=$POSTGRES_DB sslmode=disable
     pool: 5
-    open: tcp:$DATABASE_URL:3306*$DB_NAME/$DB_USER/$DB_PASSWORD
-
-environment_variable_config:
-    driver: $DB_DRIVER
-    open: $DATABASE_URL

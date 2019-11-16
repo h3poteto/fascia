@@ -13,7 +13,19 @@ services:
         max-file: "3"
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "true"
-  node:
+
+  postgres:
+    image: postgres:11.2-alpine
+    environment:
+      POSTGRES_USER: master
+      POSTGRES_PASSWORD: docker
+      POSTGRES_DB: fascia
+    ports:
+      - "5432:5432"
+    volumes:
+      - storage:/var/lib/postgres/data
+
+  frontend:
     image: node:10.16.3-alpine
     volumes:
       - .:/var/opt/app
@@ -36,10 +48,10 @@ services:
       AWS_DEFAULT_REGION: us-east-1
       AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
       AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
-      DATABASE_URL: mysql
-      DB_USER: root
-      DB_NAME: fascia
-      DB_TEST_NAME: fascia_test
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: master
+      POSTGRES_PASSWORD: docker
+      POSTGRES_DB: fascia
       CLIENT_ID: $CLIENT_ID
       CLIENT_SECRET: $CLIENT_SECRET
       SLACK_URL: $SLACK_URL
@@ -53,12 +65,20 @@ services:
     links:
       - mysql:mysql
       - redis:redis
+      - postgres:postgres
     ports:
       - "9090:9090"
     command: /bin/sh
 
   redis:
     image: redis:5.0-alpine
+
+  pgloader:
+    image: dimitri/pgloader
+    links:
+      - mysql:mysql
+      - postgres:postgres
+    command: /bin/bash
 
 volumes:
   storage:
