@@ -2,6 +2,8 @@ github.com/asaskevich/govalidator v0.0.0-20170903095215-73945b6115bf h1:wXq5VXJj
 github.com/asaskevich/govalidator v0.0.0-20170903095215-73945b6115bf/go.mod h1:lB+ZfQJz7igIIfQNfa7Ml4HSf2uFQQRzpGGRXenZAgY=
 github.com/aws/aws-sdk-go v1.25.29 h1:XMAoVra1O2paI3ZgiougWydq6zGt6sLzWn4qb7oVbBY=
 github.com/aws/aws-sdk-go v1.25.29/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
+github.com/aws/aws-sdk-go v1.26.4 h1:vQ1XmULJriCx8QTmvtEl511rskbZeTkr0xq59ky3kfI=
+github.com/aws/aws-sdk-go v1.26.4/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
