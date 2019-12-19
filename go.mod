@@ -25,7 +25,7 @@ require (
 	github.com/labstack/echo/v4 v4.1.11
 	github.com/lib/pq v1.2.0
 	github.com/onsi/ginkgo v1.4.0
-	github.com/onsi/gomega v1.2.0
+	github.com/onsi/gomega v1.8.0
 	github.com/pkg/errors v0.8.1
 	github.com/russross/blackfriday v0.0.0-20170728175326-4048872b16cc
 	github.com/sirupsen/logrus v1.0.3
