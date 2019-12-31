@@ -22,7 +22,7 @@ require (
 	github.com/jessevdk/go-assets v0.0.0-20160921144138-4f4301a06e15
 	github.com/johntdyer/slack-go v0.0.0-20150106011025-88736fd63eed // indirect
 	github.com/johntdyer/slackrus v0.0.0-20170926115001-3992f319fd0a
-	github.com/labstack/echo/v4 v4.1.11
+	github.com/labstack/echo/v4 v4.1.12
 	github.com/lib/pq v1.2.0
 	github.com/onsi/ginkgo v1.4.0
 	github.com/onsi/gomega v1.2.0
