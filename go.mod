@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20170903095215-73945b6115bf
-	github.com/aws/aws-sdk-go v1.25.29
+	github.com/aws/aws-sdk-go v1.28.8
 	github.com/extemporalgenome/slug v0.0.0-20150414033109-0320c85e32e0 // indirect
 	github.com/flosch/go-humanize v0.0.0-20140728123800-3ba51eabe506 // indirect
 	github.com/flosch/pongo2 v0.0.0-20170906222041-1f4be1efe3b3
