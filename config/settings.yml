@@ -35,8 +35,8 @@ production:
   session:
     timeout: 2592000 # 1month
   mail:
-    from: "support@fascia.io"
-    to: "support@fascia.io"
+    from: "fascia.server@gmail.com"
+    to: "h3.poteto@gmail.com"
   fqdn: "fascia.io"
   protocol: "https"
   asset_host: "/"
