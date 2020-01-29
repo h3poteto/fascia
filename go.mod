@@ -10,7 +10,7 @@ require (
 	github.com/flosch/pongo2 v0.0.0-20170906222041-1f4be1efe3b3
 	github.com/flosch/pongo2-addons v0.0.0-20170902001113-86b9b7b80512
 	github.com/go-redis/redis v6.15.2+incompatible
-	github.com/go-sql-driver/mysql v1.3.0
+	github.com/go-sql-driver/mysql v1.5.0
 	github.com/golang/protobuf v0.0.0-20170920220647-130e6b02ab05 // indirect
 	github.com/google/go-github v13.0.1-0.20171014143926-a021c14a5f19+incompatible
 	github.com/google/go-querystring v0.0.0-20170111101155-53e6ce116135 // indirect
