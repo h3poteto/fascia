@@ -1,19 +1,5 @@
 version: '3'
 services:
-  mysql:
-    image: mysql:5.7.27
-    volumes:
-      - storage:/var/lib/mysql
-    ports:
-      - "3306:3306"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "1m"
-        max-file: "3"
-    environment:
-      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
-
   postgres:
     image: postgres:11.2-alpine
     environment:
@@ -58,12 +44,12 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_DB_NUMBER: 0
+      GMAIL_APP_PASSWORD: $GMAIL_APP_PASSWORD
     volumes:
       - .:/go/src/github.com/h3poteto/fascia
       - module:/go/pkg/mod
     working_dir: /go/src/github.com/h3poteto/fascia
     links:
-      - mysql:mysql
       - redis:redis
       - postgres:postgres
     ports:
@@ -72,13 +58,6 @@ services:
 
   redis:
     image: redis:5.0-alpine
-
-  pgloader:
-    image: dimitri/pgloader
-    links:
-      - mysql:mysql
-      - postgres:postgres
-    command: /bin/bash
 
 volumes:
   storage:
