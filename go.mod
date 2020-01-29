@@ -29,7 +29,7 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/russross/blackfriday v0.0.0-20170728175326-4048872b16cc
 	github.com/sirupsen/logrus v1.4.2
-	github.com/spf13/cobra v0.0.1
+	github.com/spf13/cobra v0.0.5
 	github.com/spf13/pflag v1.0.0 // indirect
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
 	golang.org/x/oauth2 v0.0.0-20170928010508-bb50c06baba3
