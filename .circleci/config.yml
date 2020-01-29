@@ -113,8 +113,8 @@ jobs:
       - run:
           name: install kube-job
           command: |
-            wget https://github.com/h3poteto/kube-job/releases/download/v0.1.1/kube-job_0.1.1_linux_amd64.zip
-            unzip kube-job_0.1.1_linux_amd64.zip
+            wget https://github.com/h3poteto/kube-job/releases/download/v0.3.1/kube-job_0.3.1_linux_amd64.zip
+            unzip kube-job_0.3.1_linux_amd64.zip
             ./kube-job version
       - run:
           name: clone k8s services
