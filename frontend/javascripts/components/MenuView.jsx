@@ -21,6 +21,9 @@ class MenuView extends React.Component {
                 <a href="#" className="pure-menu-link">account</a>
                 <ul className="pure-menu-children">
                   <li className="pure-menu-item fascia-menu-item">
+                    <Link to='/users/settings' className="pure-menu-link">Settings</Link>
+                  </li>
+                  <li className="pure-menu-item fascia-menu-item">
                     <a href="#" className="pure-menu-link" onClick={this.props.menuActions.signOut}>Sign Out</a>
                   </li>
                 </ul>

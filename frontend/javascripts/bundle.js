@@ -6,6 +6,7 @@ import { loadProgressBar } from 'axios-progress-bar'
 import ProjectContainer from './containers/ProjectContainer'
 import ListContainer from './containers/ListContainer'
 import MenuContainer from './containers/MenuContainer'
+import UserSettingsContainer from './containers/UserSettingsContainer'
 import { history, store } from './store/configStore'
 import { ConnectedRouter } from 'connected-react-router'
 
@@ -19,6 +20,7 @@ ReactDOM.render(
           <Switch>
             <Route exact path="/" component={ProjectContainer}></Route>
             <Route path="/projects/:projectID" component={ListContainer}></Route>
+            <Route paht="/users/settings" component={UserSettingsContainer}></Route>
           </Switch>
         </MenuContainer>
       </div>
