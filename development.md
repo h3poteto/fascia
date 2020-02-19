@@ -15,9 +15,6 @@ CLIENT_ID=hogehoge                      ## GitHub application client id
 CLIENT_SECRET=fugafuga                  ## GitHub application client secret key
 TEST_TOKEN=testhoge                     ## GitHub access token for test environments
 SLACK_URL=https://hooks.slack.com/services/hogehoge/fugafuga
-AWS_ACCESS_KEY_ID=hogehoge              ## These will use AWS SES in mailer
-AWS_SECRET_ACCESS_KEY=fugafuga
-AWS_REGION=region
 ```
 
 ## Docker
