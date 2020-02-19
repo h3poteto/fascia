@@ -4,9 +4,6 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/defaults"
 	"gopkg.in/yaml.v2"
 )
 
@@ -26,28 +23,6 @@ func Element(elem string) interface{} {
 		panic(err)
 	}
 	return m[env].(map[interface{}]interface{})[elem]
-}
-
-// AWS returns a aws config authorized profile, env, or IAMRole
-func AWS(region string) *aws.Config {
-	defaultConfig := defaults.Get().Config
-	cred := newCredentials(getenv(region, "AWS_DEFAULT_REGION"))
-	return defaultConfig.WithCredentials(cred).WithRegion(getenv(region, "AWS_DEFAULT_REGION"))
-}
-
-func newCredentials(region string) *credentials.Credentials {
-	// temporary config to resolve RemoteCredProvider
-	tmpConfig := defaults.Get().Config.WithRegion(region)
-	tmpHandlers := defaults.Handlers()
-
-	return credentials.NewChainCredentials(
-		[]credentials.Provider{
-			// Read profile before environment variables
-			&credentials.SharedCredentialsProvider{},
-			&credentials.EnvProvider{},
-			// for IAM Task Role (ECS) and IAM Role
-			defaults.RemoteCredProvider(*tmpConfig, tmpHandlers),
-		})
 }
 
 func getenv(value, key string) string {
