@@ -1,6 +1,8 @@
 package repo
 
 import (
+	"fmt"
+
 	"github.com/google/go-github/github"
 	"github.com/h3poteto/fascia/lib/modules/hub"
 )
@@ -67,8 +69,12 @@ func (r *Repo) SearchWebhookInGithub(token, url string) (*github.Hook, error) {
 	}
 	for _, h := range hooks {
 		config := h.Config
-		if config["url"].(string) == url {
-			return h, nil
+		fmt.Printf("debug: %+v", config)
+		// Sometimes url does not exist in webhook config.
+		if val, ok := config["url"]; ok {
+			if val.(string) == url {
+				return h, nil
+			}
 		}
 	}
 	return nil, nil
