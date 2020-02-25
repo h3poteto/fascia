@@ -3,15 +3,16 @@ package filters
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/flosch/pongo2"
-	_ "github.com/flosch/pongo2-addons"
-	"github.com/h3poteto/fascia/config"
-	_ "github.com/russross/blackfriday" // pongo2-addonsが依存するblackfridayが古いため明示的な依存を書く必要がある
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
 	"syscall"
+
+	"github.com/flosch/pongo2"
+	_ "github.com/flosch/pongo2-addons"
+	"github.com/h3poteto/fascia/config"
+	_ "github.com/russross/blackfriday" // pongo2-addonsが依存するblackfridayが古いため明示的な依存を書く必要がある
 )
 
 // SuffixAssetsUpdate add suffix from timestamp at asset file path.
@@ -60,7 +61,14 @@ func DigestedAssets(in *pongo2.Value, param *pongo2.Value) (out *pongo2.Value, e
 	}
 
 	// nilの場合は積極的にエラーにして落としたい
-	digested := manifest[assetsFile].(string)
+	value, ok := manifest[assetsFile]
+	if !ok {
+		return nil, &pongo2.Error{
+			Sender:    "digestedAssets",
+			OrigError: fmt.Errorf("Specified key does not exist in manifest: %s", assetsFile),
+		}
+	}
+	digested := value.(string)
 
 	assetHost := config.Element("asset_host").(string)
 	return pongo2.AsValue(assetHost + digested), nil

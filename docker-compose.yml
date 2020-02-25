@@ -11,11 +11,12 @@ services:
     volumes:
       - storage:/var/lib/postgres/data
 
-  frontend:
+  assets:
     image: node:10.16.3-alpine
+    user: node
     volumes:
       - .:/var/opt/app
-    working_dir: /var/opt/app
+    working_dir: /var/opt/app/assets
     entrypoint: sh -c
     logging:
       driver: "json-file"
@@ -24,7 +25,7 @@ services:
         max-file: "3"
     command: |
       "npm install && \
-      npm run watch"
+      npm run dev"
   go:
     image: h3poteto/golang:1.13.4
     environment:

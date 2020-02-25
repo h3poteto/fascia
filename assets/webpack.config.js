@@ -5,17 +5,17 @@ const ManifestPlugin = require('webpack-manifest-plugin')
 
 // eslint-disable-next-line no-undef
 const production = process.env.NODE_ENV === 'production'
-const filename = production ? '[name]-[hash]' : '[name]'
+// const filename = production ? '[name]-[hash]' : '[name]'
 
 module.exports = {
   entry: {
-    'js/bundle': path.join(__dirname, './js/main.tsx')
+    'js/main': path.join(__dirname, './js/main.tsx')
     //'css/application': path.join(__dirname, './css/application.scss'),
     //'css/application-webview': path.join(__dirname, './css/application-webview.scss')
   },
   output: {
     path: path.resolve(__dirname, '../public/assets'),
-    filename: '[name].js'
+    filename: '[name]-[hash].js'
   },
   cache: true,
   watchOptions: {

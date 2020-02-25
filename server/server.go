@@ -27,7 +27,7 @@ func Routes(e *echo.Echo) {
 
 	// assets
 	e.Static("/stylesheets", filepath.Join(rootDir, "public/assets/stylesheets"))
-	e.Static("/javascripts", filepath.Join(rootDir, "public/assets/javascripts"))
+	e.Static("/js", filepath.Join(rootDir, "public/assets/js"))
 	e.Static("/images", filepath.Join(rootDir, "public/assets/images"))
 	e.Static("/fonts", filepath.Join(rootDir, "public/assets/fonts"))
 	// routing
