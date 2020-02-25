@@ -3,6 +3,7 @@ import * as ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import { BrowserRouter, Route } from 'react-router-dom'
 import { ConnectedRouter } from 'connected-react-router'
+import 'bootstrap/dist/css/bootstrap.min.css'
 
 import Menu from './containers/menu'
 import projects from './components/projects.tsx'

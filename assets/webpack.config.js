@@ -1,17 +1,13 @@
 const path = require('path')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const ManifestPlugin = require('webpack-manifest-plugin')
 
 // eslint-disable-next-line no-undef
 const production = process.env.NODE_ENV === 'production'
-// const filename = production ? '[name]-[hash]' : '[name]'
 
 module.exports = {
   entry: {
     'js/main': path.join(__dirname, './js/main.tsx')
-    //'css/application': path.join(__dirname, './css/application.scss'),
-    //'css/application-webview': path.join(__dirname, './css/application-webview.scss')
   },
   output: {
     path: path.resolve(__dirname, '../public/assets'),
@@ -49,17 +45,7 @@ module.exports = {
       },
       {
         test: /\.(scss|css)$/,
-        exclude: /node_modules/,
-        use: [
-          {
-            loader: MiniCssExtractPlugin.loader,
-            options: {
-              publicPath: path.resolve(__dirname, '../public/assets')
-            }
-          },
-          'css-loader',
-          'sass-loader'
-        ]
+        use: ['style-loader', 'css-loader', 'sass-loader']
       },
       {
         test: /\.(woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
@@ -81,12 +67,6 @@ module.exports = {
   },
   plugins: [
     new ManifestPlugin(),
-    new MiniCssExtractPlugin({
-      // Options similar to the same options in webpackOptions.output
-      // both options are optional
-      filename: production ? '[name].[hash].css' : '[name].css',
-      chunkFilename: production ? '[id].[hash].css' : '[id].css'
-    }),
     new CopyWebpackPlugin([{ from: path.resolve(__dirname, './images'), to: path.resolve(__dirname, '../public/assets/images') }])
   ]
 }
