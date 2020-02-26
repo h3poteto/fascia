@@ -1,12 +1,18 @@
 import { combineReducers } from 'redux'
 import { History } from 'history'
-import { connectRouter } from 'connected-react-router'
+import { connectRouter, RouterState } from 'connected-react-router'
 
-export type Store = {}
+import projectsReducer, { State as ProjectState } from './projects'
+
+export type RootStore = {
+  router: RouterState
+  projects: ProjectState
+}
 
 const reducers = (history: History) =>
-  combineReducers<Store>({
-    router: connectRouter(history)
+  combineReducers<RootStore>({
+    router: connectRouter(history),
+    projects: projectsReducer
   })
 
 export default reducers
