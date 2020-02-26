@@ -6,7 +6,7 @@ import { ConnectedRouter } from 'connected-react-router'
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 import Menu from './containers/menu'
-import projects from './components/projects.tsx'
+import projects from './containers/projects'
 import store, { history } from './store'
 
 ReactDOM.render(
@@ -16,7 +16,7 @@ ReactDOM.render(
         <BrowserRouter>
           <div>
             <Menu>
-              <Route exact path="/" component={projects}></Route>
+              <Route exact path="/" component={projects} />
             </Menu>
           </div>
         </BrowserRouter>
