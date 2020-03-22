@@ -10,7 +10,7 @@ type Props = {
 
 const task: React.FC<Props> = props => {
   const border = {
-    'border-left': `6px solid #${props.color}`
+    'borderLeft': `6px solid #${props.color}`
   } as React.CSSProperties
 
   return (
