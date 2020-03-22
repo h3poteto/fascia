@@ -7,6 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 
 import Menu from './containers/menu'
 import projects from './containers/projects'
+import lists from './containers/projects/lists'
 import store, { history } from './store'
 
 ReactDOM.render(
@@ -17,6 +18,7 @@ ReactDOM.render(
           <div>
             <Menu>
               <Route exact path="/" component={projects} />
+              <Route path="/projects/:project_id" component={lists} />
             </Menu>
           </div>
         </BrowserRouter>
@@ -25,4 +27,3 @@ ReactDOM.render(
   </Provider>,
   document.getElementById('app')
 )
-

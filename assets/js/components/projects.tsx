@@ -13,16 +13,15 @@ type Props = {
 class ProjectsComponent extends React.Component<Props> {
   componentDidMount() {
     this.props.dispatch(getProjects())
-    console.log(this.props)
   }
 
   render() {
     const projects = this.props.projects.projects
     return (
       <div className={styles.projects}>
-        {projects.map(p => {
-          return <Project title={p.title} />
-        })}
+        {projects.map(p => (
+          <Project key={p.id} id={p.id} title={p.title} />
+        ))}
         <div>{this.props.children}</div>
       </div>
     )

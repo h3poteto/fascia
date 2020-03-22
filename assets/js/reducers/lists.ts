@@ -1,33 +1,34 @@
-import Actions, { Project, RequestGetProjects, ReceiveGetProjects } from '../actions/projects'
+import Actions, { List, RequestGetLists, ReceiveGetLists } from '@/actions/projects/lists'
 import { Reducer } from 'redux'
 
 export type State = {
   loading: boolean
   errors: Error | null
-  projects: Array<Project>
+  lists: Array<List>
 }
 
 const initState: State = {
   loading: false,
   errors: null,
-  projects: []
+  lists: []
 }
 
 const reducer: Reducer<State, Actions> = (state: State = initState, action: Actions): State => {
   switch (action.type) {
-    case RequestGetProjects:
+    case RequestGetLists:
       return {
         ...state,
         loading: true
       }
-    case ReceiveGetProjects:
+    case ReceiveGetLists:
       return {
         ...state,
         loading: false,
-        projects: action.payload
+        lists: action.payload
       }
     default:
       return state
   }
 }
+
 export default reducer
