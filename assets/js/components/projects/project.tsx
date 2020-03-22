@@ -1,15 +1,18 @@
 import React from 'react'
-import styles from "./project.scss"
+import { Link } from 'react-router-dom'
+
+import styles from './project.scss'
 
 type Props = {
+  id: number
   title: string
 }
 
-const project: React.FC<Props> = (props) => {
+const project: React.FC<Props> = props => {
   return (
-    <div className={styles.project}>
+    <Link className={styles.project} to={`/projects/${props.id}`}>
       {props.title}
-    </div>
+    </Link>
   )
 }
 

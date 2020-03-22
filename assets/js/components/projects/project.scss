@@ -8,4 +8,8 @@
   color: #fff;
   cursor: pointer;
 
+  &:hover, :visited, :active {
+    color: #fff;
+    text-decoration: none;
+  }
 }
