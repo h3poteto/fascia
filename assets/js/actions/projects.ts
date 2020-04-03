@@ -23,6 +23,9 @@ export type Project = {
 
 export const RequestGetProjects = 'RequestGetProjects' as const
 export const ReceiveGetProjects = 'ReceiveGetProjects' as const
+export const OpenNew = 'OpenNew' as const
+export const CloseNew = 'CloseNew' as const
+
 export const requestGetProjects = () => ({
   type: RequestGetProjects
 })
@@ -54,6 +57,14 @@ export const getProjects = () => {
   }
 }
 
-type Actions = ReturnType<typeof requestGetProjects | typeof receiveGetProjects>
+export const openNew = () => ({
+  type: OpenNew
+})
+
+export const closeNew = () => ({
+  type: CloseNew
+})
+
+type Actions = ReturnType<typeof requestGetProjects | typeof receiveGetProjects | typeof openNew | typeof closeNew>
 
 export default Actions

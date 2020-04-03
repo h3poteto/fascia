@@ -30,7 +30,6 @@ class Show extends React.Component<Props> {
         show={show}
         onHide={hide}
         size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
         centered
       >
         <Modal.Header closeButton>
