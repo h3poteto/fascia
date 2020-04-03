@@ -1,12 +1,14 @@
 import React from 'react'
 import { Card } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
 
 import styles from './list.scss'
-import { List } from '@/actions/projects/lists'
 import Task from './list/task.tsx'
+import { List } from '@/actions/projects/lists'
+
 
 type Props = {
-  list: List
+  list: List,
 }
 
 const list: React.FC<Props> = props => (
@@ -15,7 +17,11 @@ const list: React.FC<Props> = props => (
       <Card.Header>{props.list.title}</Card.Header>
       <Card.Body className={styles.tasks}>
         {props.list.tasks.map(t => (
-          <Task key={t.id} task={t} color={props.list.color} />
+          <div key={t.id}>
+            <Link to={`/projects/${props.list.project_id}/lists/${props.list.id}/tasks/${t.id}`}>
+              <Task key={t.id} task={t} color={props.list.color} />
+            </Link>
+          </div>
         ))}
       </Card.Body>
     </Card>

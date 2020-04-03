@@ -53,6 +53,7 @@ export type List = {
 
 export const RequestGetLists = 'RequestGetLists' as const
 export const ReceiveGetLists = 'ReceiveGetLists' as const
+
 export const requestGetLists = () => ({
   type: RequestGetLists
 })
