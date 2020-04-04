@@ -1,4 +1,13 @@
-import Actions, { Project, RequestGetProjects, ReceiveGetProjects, OpenNew, CloseNew } from '../actions/projects'
+import Actions, {
+  Project,
+  RequestGetProjects,
+  ReceiveGetProjects,
+  OpenNew,
+  CloseNew,
+  ReceiveGetRepositories,
+  Repository,
+  ReceiveCreateProject
+} from '../actions/projects'
 import { Reducer } from 'redux'
 
 export type State = {
@@ -6,13 +15,15 @@ export type State = {
   errors: Error | null
   projects: Array<Project>
   newModal: boolean
+  repositories: Array<Repository>
 }
 
 const initState: State = {
   loading: false,
   errors: null,
   projects: [],
-  newModal: false
+  newModal: false,
+  repositories: []
 }
 
 const reducer: Reducer<State, Actions> = (state: State = initState, action: Actions): State => {
@@ -34,6 +45,16 @@ const reducer: Reducer<State, Actions> = (state: State = initState, action: Acti
         newModal: true
       }
     case CloseNew:
+      return {
+        ...state,
+        newModal: false
+      }
+    case ReceiveGetRepositories:
+      return {
+        ...state,
+        repositories: action.payload
+      }
+    case ReceiveCreateProject:
       return {
         ...state,
         newModal: false

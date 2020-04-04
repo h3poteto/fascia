@@ -21,10 +21,19 @@ export type Project = {
   showPullRequests: boolean
 }
 
+export type Repository = {
+  id: number
+  full_name: string
+}
+
 export const RequestGetProjects = 'RequestGetProjects' as const
 export const ReceiveGetProjects = 'ReceiveGetProjects' as const
 export const OpenNew = 'OpenNew' as const
 export const CloseNew = 'CloseNew' as const
+export const RequestGetRepositories = 'RequestGetRepositories' as const
+export const ReceiveGetRepositories = 'ReceiveGetRepositories' as const
+export const RequestCreateProject = 'RequestCreateProject' as const
+export const ReceiveCreateProject = 'ReceiveCreateProject' as const
 
 export const requestGetProjects = () => ({
   type: RequestGetProjects
@@ -65,6 +74,63 @@ export const closeNew = () => ({
   type: CloseNew
 })
 
-type Actions = ReturnType<typeof requestGetProjects | typeof receiveGetProjects | typeof openNew | typeof closeNew>
+export const requestGetRepositories = () => ({
+  type: RequestGetRepositories
+})
+
+export const receiveGetRepositories = (repositories: Array<Repository>) => {
+  return {
+    type: ReceiveGetRepositories,
+    payload: repositories
+  }
+}
+
+export const getRepositories = () => {
+  return (dispatch: Dispatch<Action>) => {
+    dispatch(requestGetRepositories())
+    axios.get<Array<Repository>>('/api/github/repositories').then(res => {
+      dispatch(receiveGetRepositories(res.data))
+    })
+  }
+}
+
+export const requestCreateProject = () => ({
+  type: RequestCreateProject
+})
+
+export const receiveCreateProject = (project: Project) => ({
+  type: ReceiveCreateProject,
+  payload: project
+})
+
+export const createProject = (params: any) => {
+  return async (dispatch: Function) => {
+    dispatch(requestCreateProject())
+    return axios.post<ServerProject>('/api/projects', params).then(res => {
+      const data: Project = {
+        id: res.data.ID,
+        userID: res.data.UserID,
+        title: res.data.Title,
+        description: res.data.Description,
+        repositoryID: res.data.RepositoryID,
+        showIssues: res.data.ShowIssues,
+        showPullRequests: res.data.ShowPullRequests
+      }
+      dispatch(receiveCreateProject(data))
+      dispatch(getProjects())
+    })
+  }
+}
+
+type Actions = ReturnType<
+  | typeof requestGetProjects
+  | typeof receiveGetProjects
+  | typeof openNew
+  | typeof closeNew
+  | typeof requestGetRepositories
+  | typeof receiveGetRepositories
+  | typeof requestCreateProject
+  | typeof receiveCreateProject
+>
 
 export default Actions

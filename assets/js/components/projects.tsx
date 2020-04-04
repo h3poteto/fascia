@@ -4,7 +4,7 @@ import { Button } from 'react-bootstrap'
 
 import Project from './projects/project.tsx'
 import styles from './projects.scss'
-import Actions, { getProjects, openNew, closeNew } from '../actions/projects'
+import Actions, { getProjects, openNew, closeNew, getRepositories } from '../actions/projects'
 import { RootStore } from '../reducers/index'
 import New from './projects/new.tsx'
 
@@ -15,6 +15,7 @@ type Props = {
 class ProjectsComponent extends React.Component<Props> {
   componentDidMount() {
     this.props.dispatch(getProjects())
+    this.props.dispatch(getRepositories())
   }
 
   render() {
@@ -32,7 +33,7 @@ class ProjectsComponent extends React.Component<Props> {
           <Project key={p.id} id={p.id} title={p.title} />
         ))}
         <Button className={styles.newButton} onClick={openNewModal}>New</Button>
-        <New open={this.props.projects.newModal} close={closeNewModal}></New>
+        <New open={this.props.projects.newModal} close={closeNewModal} repositories={this.props.projects.repositories} dispatch={this.props.dispatch}></New>
       </div>
     )
   }
