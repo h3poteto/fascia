@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
-import { BrowserRouter, Route } from 'react-router-dom'
+import { Route, Switch } from 'react-router-dom'
 import { ConnectedRouter } from 'connected-react-router'
 import 'bootstrap/dist/css/bootstrap.min.css'
 
@@ -15,15 +15,13 @@ ReactDOM.render(
   <Provider store={store}>
     <ConnectedRouter history={history}>
       <div>
-        <BrowserRouter>
-          <div>
-            <Menu>
-              <Route exact path="/" component={projects} />
-              <Route path="/projects/:project_id" component={lists} />
-              <Route path="/projects/:project_id/lists/:list_id/tasks/:task_id" component={Task} />
-            </Menu>
-          </div>
-        </BrowserRouter>
+        <Menu>
+          <Switch>
+            <Route exact path="/" component={projects} />
+            <Route path="/projects/:project_id" component={lists} />
+            <Route exact path="/projects/:project_id/lists/:list_id/tasks/:task_id" component={Task} />
+          </Switch>
+        </Menu>
       </div>
     </ConnectedRouter>
   </Provider>,

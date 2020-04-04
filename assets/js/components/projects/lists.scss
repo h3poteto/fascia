@@ -1,3 +1,19 @@
+.title {
+  box-sizing: border-box;
+  border-bottom: 1px solid #ccc;
+
+  h3 {
+    display: inline-block;
+    font-size: 18px;
+    margin: 12px;
+  }
+
+  i {
+    cursor: pointer;
+  }
+}
+
+
 .lists {
   display: flex;
   flex-direction: row;

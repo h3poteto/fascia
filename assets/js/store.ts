@@ -8,7 +8,7 @@ import reducers from './reducers/index'
 
 export const history = createBrowserHistory()
 const logger = createLogger()
-const middlewares = [routerMiddleware(history), thunk, logger]
+const middlewares = [thunk, logger, routerMiddleware(history)]
 
 const store = createStore(reducers(history), {}, compose(applyMiddleware(...middlewares)))
 

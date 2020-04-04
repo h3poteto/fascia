@@ -54,10 +54,9 @@ class NewComponent extends React.Component<InjectedFormProps<{}, Props> & Props>
       this.props.close()
     }
 
-    const { handleSubmit } = this.props
+    const { handleSubmit, pristine, submitting } = this.props
 
     const create = (params: any) => {
-      console.log(params)
       this.props.dispatch(createProject(params))
     }
 
@@ -94,7 +93,7 @@ class NewComponent extends React.Component<InjectedFormProps<{}, Props> & Props>
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button type="submit">Submit</Button>
+            <Button type="submit" disabled={pristine || submitting}>Submit</Button>
           </Modal.Footer>
         </Form>
       </Modal>
