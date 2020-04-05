@@ -3,13 +3,14 @@ import { Button } from 'react-bootstrap'
 import { ThunkDispatch } from 'redux-thunk'
 import { Link, RouteComponentProps } from 'react-router-dom'
 
-import Actions, { getLists, getProject, openDelete, closeDelete, openNewList, closeNewList } from '@/actions/projects/lists'
+import Actions, { getLists, getProject, openDelete, closeDelete, openNewList, closeNewList, openEditProject, closeEditProject } from '@/actions/projects/lists'
 import { RootStore } from '@/reducers/index'
 import List from './lists/list.tsx'
 import styles from './lists.scss'
 import Delete from './lists/delete.tsx'
 import New from './lists/new.tsx'
 import Task from './lists/list/task.tsx'
+import EditProject from './lists/editProject.tsx'
 
 type Props = {
   dispatch: ThunkDispatch<any, any, Actions>
@@ -40,6 +41,14 @@ class ListsComponent extends React.Component<Props> {
       this.props.dispatch(closeNewList())
     }
 
+    const openEditProjectModal = () => {
+      this.props.dispatch(openEditProject())
+    }
+
+    const closeEditProjectModal = () => {
+      this.props.dispatch(closeEditProject())
+    }
+
     const id = parseInt(this.props.match.params.project_id)
 
     const lists = this.props.lists.lists
@@ -49,6 +58,7 @@ class ListsComponent extends React.Component<Props> {
       <div>
         <div className={styles.title}>
           <h3>{ project ? project.title : '' }</h3>
+          <span className="mr-2" onClick={openEditProjectModal}><i title="Edit project" className="fa fa-pencil"></i></span>
           <span onClick={openDeleteModal}><i title="Delete project" className="fa fa-trash"></i></span>
         </div>
         <div className={styles.backboard}>
@@ -60,7 +70,7 @@ class ListsComponent extends React.Component<Props> {
           </div>
           <div className={styles.noneList}>
             {noneList && noneList.tasks.map(t => (
-              <Link to={`/projects/${noneList.project_id}/lists/${noneList.id}/tasks/${t.id}`}>
+              <Link key={t.id} to={`/projects/${noneList.project_id}/lists/${noneList.id}/tasks/${t.id}`}>
                 <Task key={t.id} task={t} color="218838" />
               </Link>
             ))}
@@ -73,6 +83,7 @@ class ListsComponent extends React.Component<Props> {
         </div>
         <New open={this.props.lists.newListModal} close={closeNewListModal} color={this.props.lists.defaultColor} projectID={id} dispatch={this.props.dispatch} />
         <Delete open={this.props.lists.deleteModal} project={this.props.lists.project} close={closeDeleteModal} dispatch={this.props.dispatch} />
+        <EditProject open={this.props.lists.editProjectModal} close={closeEditProjectModal} project={project} dispatch={this.props.dispatch} />
       </div>
     )
   }

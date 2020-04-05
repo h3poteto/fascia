@@ -9,9 +9,12 @@ import Actions, {
   ReceiveDeleteProject,
   OpenNewList,
   CloseNewList,
-  ReceiveNoneList
+  ReceiveNoneList,
+  OpenEditProject,
+  CloseEditProject
 } from '@/actions/projects/lists'
 import NewActions, { ReceiveCreateList } from '@/actions/projects/lists/new'
+import EditProjectActions, { ReceiveUpdateProject } from '@/actions/projects/edit'
 import { Reducer } from 'redux'
 
 export type State = {
@@ -23,6 +26,7 @@ export type State = {
   deleteModal: boolean
   newListModal: boolean
   defaultColor: string
+  editProjectModal: boolean
 }
 
 const initState: State = {
@@ -33,10 +37,14 @@ const initState: State = {
   project: null,
   deleteModal: false,
   newListModal: false,
-  defaultColor: '008ed4'
+  defaultColor: '008ed4',
+  editProjectModal: false
 }
 
-const reducer: Reducer<State, Actions | NewActions> = (state: State = initState, action: Actions | NewActions): State => {
+const reducer: Reducer<State, Actions | NewActions> = (
+  state: State = initState,
+  action: Actions | NewActions | EditProjectActions
+): State => {
   switch (action.type) {
     case RequestGetLists:
       return {
@@ -66,10 +74,6 @@ const reducer: Reducer<State, Actions | NewActions> = (state: State = initState,
         deleteModal: true
       }
     case CloseDelete:
-      return {
-        ...state,
-        deleteModal: false
-      }
     case ReceiveDeleteProject:
       return {
         ...state,
@@ -81,14 +85,21 @@ const reducer: Reducer<State, Actions | NewActions> = (state: State = initState,
         newListModal: true
       }
     case CloseNewList:
-      return {
-        ...state,
-        newListModal: false
-      }
     case ReceiveCreateList:
       return {
         ...state,
         newListModal: false
+      }
+    case OpenEditProject:
+      return {
+        ...state,
+        editProjectModal: true
+      }
+    case CloseEditProject:
+    case ReceiveUpdateProject:
+      return {
+        ...state,
+        editProjectModal: false
       }
     default:
       return state

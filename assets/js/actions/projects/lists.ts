@@ -84,6 +84,8 @@ export const OpenDelete = 'OpenDelete' as const
 export const CloseDelete = 'CloseDelete' as const
 export const OpenNewList = 'OpenNewList' as const
 export const CloseNewList = 'CloseNewList' as const
+export const OpenEditProject = 'OpenEditProject' as const
+export const CloseEditProject = 'CloseEditProject' as const
 
 export const requestGetLists = () => ({
   type: RequestGetLists
@@ -210,6 +212,14 @@ export const closeNewList = () => ({
   type: CloseNewList
 })
 
+export const openEditProject = () => ({
+  type: OpenEditProject
+})
+
+export const closeEditProject = () => ({
+  type: CloseEditProject
+})
+
 type Actions = ReturnType<
   | typeof requestGetLists
   | typeof receiveGetLists
@@ -222,6 +232,8 @@ type Actions = ReturnType<
   | typeof closeDelete
   | typeof openNewList
   | typeof closeNewList
+  | typeof openEditProject
+  | typeof closeEditProject
 >
 
 export default Actions
