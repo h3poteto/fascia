@@ -97,7 +97,7 @@ class NewComponent extends React.Component<InjectedFormProps<{}, Props> & Props>
   }
 }
 
-export function validate(values: any) {
+const validate = (values: any) => {
   let errors = {}
   if (!values.title) {
     errors = {

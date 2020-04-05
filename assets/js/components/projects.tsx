@@ -32,6 +32,7 @@ class ProjectsComponent extends React.Component<Props> {
         {projects.map(p => (
           <Project key={p.id} id={p.id} title={p.title} />
         ))}
+        <div>{this.props.children}</div>
         <Button className={styles.newButton} onClick={openNewModal}>New</Button>
         <New open={this.props.projects.newModal} close={closeNewModal} repositories={this.props.projects.repositories} dispatch={this.props.dispatch}></New>
       </div>

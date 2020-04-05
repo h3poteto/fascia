@@ -1,6 +1,6 @@
 import { RootStore } from '../reducers'
 
-const mapStateToProps = (state: RootStore) => {
+const mapStateToProps = (state: RootStore): RootStore => {
   return state
 }
 

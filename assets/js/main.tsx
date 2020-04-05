@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
-import { Route, Switch } from 'react-router-dom'
+import {  Route, Switch } from 'react-router-dom'
 import { ConnectedRouter } from 'connected-react-router'
 import 'bootstrap/dist/css/bootstrap.min.css'
 
@@ -10,15 +10,17 @@ import projects from './containers/projects'
 import lists from './containers/projects/lists'
 import store, { history } from './store'
 import Task from '@/containers/projects/tasks/show'
+import NewTask from '@/containers/projects/tasks/new'
 
 ReactDOM.render(
   <Provider store={store}>
     <ConnectedRouter history={history}>
       <div>
         <Menu>
+          <Route exact path="/" component={projects} />
+          <Route path="/projects/:project_id" component={lists} />
           <Switch>
-            <Route exact path="/" component={projects} />
-            <Route path="/projects/:project_id" component={lists} />
+            <Route exact path="/projects/:project_id/lists/:list_id/tasks/new" component={NewTask} />
             <Route exact path="/projects/:project_id/lists/:list_id/tasks/:task_id" component={Task} />
           </Switch>
         </Menu>

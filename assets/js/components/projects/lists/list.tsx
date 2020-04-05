@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card } from 'react-bootstrap'
+import { Card, Button } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 
 import styles from './list.scss'
@@ -23,6 +23,9 @@ const list: React.FC<Props> = props => (
             </Link>
           </div>
         ))}
+        <Link to={`/projects/${props.list.project_id}/lists/${props.list.id}/tasks/new`}>
+          <Button style={{ width: '100%' }} variant="outline-info"><i className="fa fa-plus"></i></Button>
+        </Link>
       </Card.Body>
     </Card>
   </div>
