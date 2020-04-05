@@ -5,6 +5,7 @@ import { RouteComponentProps } from 'react-router-dom'
 
 import Actions, { getTask } from '@/actions/projects/tasks/show'
 import { RootStore } from '@/reducers/index'
+import styles from './show.scss'
 
 type Props = {
   dispatch: ThunkDispatch<any, any, Actions>
@@ -20,8 +21,14 @@ class Show extends React.Component<Props> {
 
   render() {
     const projectID = this.props.match.params.project_id
+    const listID = this.props.match.params.list_id
+    const taskID = this.props.match.params.task_id
+
     const hide = () => {
       this.props.history.push(`/projects/${projectID}`)
+    }
+    const edit = () => {
+      this.props.history.push(`/projects/${projectID}/lists/${listID}/tasks/${taskID}/edit`)
     }
     const { task } = this.props.task
     const show = true
@@ -36,6 +43,9 @@ class Show extends React.Component<Props> {
           <Modal.Title id="contained-modal-title-vcenter">
             {task ? task.title : ''}
           </Modal.Title>
+          <div className={styles.header}>
+            <i title="Edit" className="fa fa-pencil" onClick={edit}></i>
+          </div>
         </Modal.Header>
         <Modal.Body>
           <p>

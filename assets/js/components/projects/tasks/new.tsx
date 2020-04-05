@@ -25,7 +25,7 @@ class New extends React.Component<Props> {
 
     return (
       <div>
-        <TaskForm hide={hide} onSubmit={create} />
+        <TaskForm hide={hide} onSubmit={create} operation="New" task={null} />
       </div>
     )
   }
