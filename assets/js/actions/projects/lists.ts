@@ -1,5 +1,4 @@
 import { Action, Dispatch } from 'redux'
-import { push } from 'connected-react-router'
 import axios from 'axios'
 
 type Lists = {
@@ -53,7 +52,7 @@ export type List = {
   tasks: Array<Task>
 }
 
-type ServerProject = {
+export type ServerProject = {
   ID: number
   UserID: number
   Title: string
@@ -76,10 +75,6 @@ export type Project = {
 export const RequestGetLists = 'RequestGetLists' as const
 export const ReceiveGetLists = 'ReceiveGetLists' as const
 export const ReceiveNoneList = 'ReceiveNoneList' as const
-export const ReceiveGetProject = 'ReceiveGetProject' as const
-export const RequestGetProject = 'RequestGetProject' as const
-export const RequestDeleteProject = 'RequestDeleteProject' as const
-export const ReceiveDeleteProject = 'ReceiveDeleteProject' as const
 export const OpenDelete = 'OpenDelete' as const
 export const CloseDelete = 'CloseDelete' as const
 export const OpenNewList = 'OpenNewList' as const
@@ -151,33 +146,6 @@ export const getLists = (projectID: number) => {
   }
 }
 
-export const requestGetProject = () => ({
-  type: RequestGetProject
-})
-
-export const receiveGetProject = (project: Project) => ({
-  type: ReceiveGetProject,
-  payload: project
-})
-
-export const getProject = (id: number) => {
-  return (dispatch: Dispatch<Action>) => {
-    dispatch(requestGetProject())
-    axios.get<ServerProject>(`/api/projects/${id}/show`).then(res => {
-      const data: Project = {
-        id: res.data.ID,
-        userID: res.data.UserID,
-        title: res.data.Title,
-        description: res.data.Description,
-        repositoryID: res.data.RepositoryID,
-        showIssues: res.data.ShowIssues,
-        showPullRequests: res.data.ShowPullRequests
-      }
-      dispatch(receiveGetProject(data))
-    })
-  }
-}
-
 export const openDelete = () => ({
   type: OpenDelete
 })
@@ -185,24 +153,6 @@ export const openDelete = () => ({
 export const closeDelete = () => ({
   type: CloseDelete
 })
-
-export const requestDeleteProject = () => ({
-  type: RequestDeleteProject
-})
-
-export const receiveDeleteProject = () => ({
-  type: ReceiveDeleteProject
-})
-
-export const deleteProject = (id: number) => {
-  return (dispatch: Dispatch<Action>) => {
-    dispatch(requestDeleteProject())
-    axios.delete<{}>(`/api/projects/${id}`).then(() => {
-      dispatch(receiveDeleteProject())
-      dispatch(push('/'))
-    })
-  }
-}
 
 export const openNewList = () => ({
   type: OpenNewList
@@ -224,10 +174,6 @@ type Actions = ReturnType<
   | typeof requestGetLists
   | typeof receiveGetLists
   | typeof receiveNoneList
-  | typeof requestGetProject
-  | typeof receiveGetProject
-  | typeof requestDeleteProject
-  | typeof receiveDeleteProject
   | typeof openDelete
   | typeof closeDelete
   | typeof openNewList

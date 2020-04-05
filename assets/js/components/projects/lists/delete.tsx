@@ -1,15 +1,17 @@
 import React from 'react'
 import { Modal, Form, Button } from 'react-bootstrap'
 import { Field, reduxForm, InjectedFormProps } from 'redux-form'
+import { ThunkDispatch } from 'redux-thunk'
 
-import { Project, deleteProject } from '@/actions/projects/lists'
+import { Project } from '@/actions/projects/lists'
+import Actions, { deleteProject } from '@/actions/projects/delete'
 
 
 type Props = {
   project: Project | null
   open: boolean
   close: Function
-  dispatch: Function
+  dispatch: ThunkDispatch<any, any, Actions>
 }
 
 const renderField = (params: {

@@ -5,9 +5,9 @@ import Actions, {
   OpenNew,
   CloseNew,
   ReceiveGetRepositories,
-  Repository,
-  ReceiveCreateProject
+  Repository
 } from '../actions/projects'
+import NewActions, { ReceiveCreateProject } from '@/actions/projects/new'
 import { Reducer } from 'redux'
 
 export type State = {
@@ -26,7 +26,7 @@ const initState: State = {
   repositories: []
 }
 
-const reducer: Reducer<State, Actions> = (state: State = initState, action: Actions): State => {
+const reducer: Reducer<State, Actions> = (state: State = initState, action: Actions | NewActions): State => {
   switch (action.type) {
     case RequestGetProjects:
       return {

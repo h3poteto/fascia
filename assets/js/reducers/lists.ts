@@ -3,10 +3,8 @@ import Actions, {
   RequestGetLists,
   ReceiveGetLists,
   Project,
-  ReceiveGetProject,
   OpenDelete,
   CloseDelete,
-  ReceiveDeleteProject,
   OpenNewList,
   CloseNewList,
   ReceiveNoneList,
@@ -15,6 +13,8 @@ import Actions, {
 } from '@/actions/projects/lists'
 import NewActions, { ReceiveCreateList } from '@/actions/projects/lists/new'
 import EditProjectActions, { ReceiveUpdateProject } from '@/actions/projects/edit'
+import DeleteProjectActions, { ReceiveDeleteProject } from '@/actions/projects/delete'
+import ProjectActions, { ReceiveGetProject } from '@/actions/projects/show'
 import { Reducer } from 'redux'
 
 export type State = {
@@ -43,7 +43,7 @@ const initState: State = {
 
 const reducer: Reducer<State, Actions | NewActions> = (
   state: State = initState,
-  action: Actions | NewActions | EditProjectActions
+  action: Actions | NewActions | EditProjectActions | DeleteProjectActions | ProjectActions
 ): State => {
   switch (action.type) {
     case RequestGetLists:

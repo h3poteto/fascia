@@ -1,7 +1,7 @@
 import { Dispatch, Action } from 'redux'
 import axios from 'axios'
 
-type ServerProject = {
+export type ServerProject = {
   ID: number
   UserID: number
   Title: string
@@ -32,8 +32,6 @@ export const OpenNew = 'OpenNew' as const
 export const CloseNew = 'CloseNew' as const
 export const RequestGetRepositories = 'RequestGetRepositories' as const
 export const ReceiveGetRepositories = 'ReceiveGetRepositories' as const
-export const RequestCreateProject = 'RequestCreateProject' as const
-export const ReceiveCreateProject = 'ReceiveCreateProject' as const
 
 export const requestGetProjects = () => ({
   type: RequestGetProjects
@@ -94,34 +92,6 @@ export const getRepositories = () => {
   }
 }
 
-export const requestCreateProject = () => ({
-  type: RequestCreateProject
-})
-
-export const receiveCreateProject = (project: Project) => ({
-  type: ReceiveCreateProject,
-  payload: project
-})
-
-export const createProject = (params: any) => {
-  return async (dispatch: Function) => {
-    dispatch(requestCreateProject())
-    return axios.post<ServerProject>('/api/projects', params).then(res => {
-      const data: Project = {
-        id: res.data.ID,
-        userID: res.data.UserID,
-        title: res.data.Title,
-        description: res.data.Description,
-        repositoryID: res.data.RepositoryID,
-        showIssues: res.data.ShowIssues,
-        showPullRequests: res.data.ShowPullRequests
-      }
-      dispatch(receiveCreateProject(data))
-      dispatch(getProjects())
-    })
-  }
-}
-
 type Actions = ReturnType<
   | typeof requestGetProjects
   | typeof receiveGetProjects
@@ -129,8 +99,6 @@ type Actions = ReturnType<
   | typeof closeNew
   | typeof requestGetRepositories
   | typeof receiveGetRepositories
-  | typeof requestCreateProject
-  | typeof receiveCreateProject
 >
 
 export default Actions

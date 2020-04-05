@@ -3,9 +3,10 @@ import { Modal, Button, Form } from 'react-bootstrap'
 import { Field, reduxForm, InjectedFormProps } from 'redux-form'
 import { ThunkDispatch } from 'redux-thunk'
 
-import Actions, { Repository, createProject } from '@/actions/projects'
+import { Repository } from '@/actions/projects'
+import Actions, { createProject } from '@/actions/projects/new'
 
-type Props = {
+  type Props = {
   open: boolean,
   close: Function,
   repositories: Array<Repository>
