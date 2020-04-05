@@ -6,8 +6,11 @@ import Actions, {
   ReceiveGetProject,
   OpenDelete,
   CloseDelete,
-  ReceiveDeleteProject
+  ReceiveDeleteProject,
+  OpenNewList,
+  CloseNewList
 } from '@/actions/projects/lists'
+import NewActions, { ReceiveCreateList } from '@/actions/projects/lists/new'
 import { Reducer } from 'redux'
 
 export type State = {
@@ -16,6 +19,8 @@ export type State = {
   lists: Array<List>
   project: Project | null
   deleteModal: boolean
+  newListModal: boolean
+  defaultColor: string
 }
 
 const initState: State = {
@@ -23,10 +28,12 @@ const initState: State = {
   errors: null,
   lists: [],
   project: null,
-  deleteModal: false
+  deleteModal: false,
+  newListModal: false,
+  defaultColor: '008ed4'
 }
 
-const reducer: Reducer<State, Actions> = (state: State = initState, action: Actions): State => {
+const reducer: Reducer<State, Actions | NewActions> = (state: State = initState, action: Actions | NewActions): State => {
   switch (action.type) {
     case RequestGetLists:
       return {
@@ -58,6 +65,21 @@ const reducer: Reducer<State, Actions> = (state: State = initState, action: Acti
       return {
         ...state,
         deleteModal: false
+      }
+    case OpenNewList:
+      return {
+        ...state,
+        newListModal: true
+      }
+    case CloseNewList:
+      return {
+        ...state,
+        newListModal: false
+      }
+    case ReceiveCreateList:
+      return {
+        ...state,
+        newListModal: false
       }
     default:
       return state

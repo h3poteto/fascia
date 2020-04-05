@@ -17,7 +17,7 @@ type ServerTask = {
   PullRequest: boolean
 }
 
-type ServerList = {
+export type ServerList = {
   ID: number
   UserID: number
   ProjectID: number
@@ -80,6 +80,8 @@ export const RequestDeleteProject = 'RequestDeleteProject' as const
 export const ReceiveDeleteProject = 'ReceiveDeleteProject' as const
 export const OpenDelete = 'OpenDelete' as const
 export const CloseDelete = 'CloseDelete' as const
+export const OpenNewList = 'OpenNewList' as const
+export const CloseNewList = 'CloseNewList' as const
 
 export const requestGetLists = () => ({
   type: RequestGetLists
@@ -172,6 +174,14 @@ export const deleteProject = (id: number) => {
   }
 }
 
+export const openNewList = () => ({
+  type: OpenNewList
+})
+
+export const closeNewList = () => ({
+  type: CloseNewList
+})
+
 type Actions = ReturnType<
   | typeof requestGetLists
   | typeof receiveGetLists
@@ -181,6 +191,8 @@ type Actions = ReturnType<
   | typeof receiveDeleteProject
   | typeof openDelete
   | typeof closeDelete
+  | typeof openNewList
+  | typeof closeNewList
 >
 
 export default Actions
