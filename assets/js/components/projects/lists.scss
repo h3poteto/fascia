@@ -13,12 +13,15 @@
   }
 }
 
+.backboard {
+  background-color: #fafaff;
+}
 
 .lists {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  margin: 12px 24px;
+  padding: 12px 24px;
 }
 
 
@@ -35,4 +38,9 @@
     color: #fff;
     text-decoration: none;
   }
+}
+
+.noneList {
+  width: 18rem;
+  padding: 1.25rem;
 }

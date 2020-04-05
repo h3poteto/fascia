@@ -8,7 +8,8 @@ import Actions, {
   CloseDelete,
   ReceiveDeleteProject,
   OpenNewList,
-  CloseNewList
+  CloseNewList,
+  ReceiveNoneList
 } from '@/actions/projects/lists'
 import NewActions, { ReceiveCreateList } from '@/actions/projects/lists/new'
 import { Reducer } from 'redux'
@@ -17,6 +18,7 @@ export type State = {
   loading: boolean
   errors: Error | null
   lists: Array<List>
+  noneList: List | null
   project: Project | null
   deleteModal: boolean
   newListModal: boolean
@@ -27,6 +29,7 @@ const initState: State = {
   loading: false,
   errors: null,
   lists: [],
+  noneList: null,
   project: null,
   deleteModal: false,
   newListModal: false,
@@ -45,6 +48,12 @@ const reducer: Reducer<State, Actions | NewActions> = (state: State = initState,
         ...state,
         loading: false,
         lists: action.payload
+      }
+    case ReceiveNoneList:
+      return {
+        ...state,
+        loading: false,
+        noneList: action.payload
       }
     case ReceiveGetProject:
       return {

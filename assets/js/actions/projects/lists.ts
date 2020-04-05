@@ -4,6 +4,7 @@ import axios from 'axios'
 
 type Lists = {
   Lists: Array<ServerList>
+  NoneList: ServerList
 }
 
 type ServerTask = {
@@ -74,6 +75,7 @@ export type Project = {
 
 export const RequestGetLists = 'RequestGetLists' as const
 export const ReceiveGetLists = 'ReceiveGetLists' as const
+export const ReceiveNoneList = 'ReceiveNoneList' as const
 export const ReceiveGetProject = 'ReceiveGetProject' as const
 export const RequestGetProject = 'RequestGetProject' as const
 export const RequestDeleteProject = 'RequestDeleteProject' as const
@@ -90,6 +92,11 @@ export const requestGetLists = () => ({
 export const receiveGetLists = (lists: Array<List>) => ({
   type: ReceiveGetLists,
   payload: lists
+})
+
+export const receiveNoneList = (list: List) => ({
+  type: ReceiveNoneList,
+  payload: list
 })
 
 export const getLists = (projectID: number) => {
@@ -117,6 +124,27 @@ export const getLists = (projectID: number) => {
         }))
       }))
       dispatch(receiveGetLists(data))
+      const none: List = {
+        id: res.data.NoneList.ID,
+        user_id: res.data.NoneList.UserID,
+        project_id: res.data.NoneList.ProjectID,
+        title: res.data.NoneList.Title,
+        color: res.data.NoneList.Color,
+        list_option_id: res.data.NoneList.ListOptionID,
+        is_hidden: res.data.NoneList.IsHidden,
+        is_init_list: res.data.NoneList.IsInitList,
+        tasks: res.data.NoneList.ListTasks.map(t => ({
+          id: t.ID,
+          list_id: t.ListID,
+          user_id: t.UserID,
+          issue_number: t.IssueNumber,
+          title: t.Title,
+          description: t.Description,
+          html_url: t.HTMLURL,
+          pull_request: t.PullRequest
+        }))
+      }
+      dispatch(receiveNoneList(none))
     })
   }
 }
@@ -185,6 +213,7 @@ export const closeNewList = () => ({
 type Actions = ReturnType<
   | typeof requestGetLists
   | typeof receiveGetLists
+  | typeof receiveNoneList
   | typeof requestGetProject
   | typeof receiveGetProject
   | typeof requestDeleteProject

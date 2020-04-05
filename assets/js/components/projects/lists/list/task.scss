@@ -1,4 +1,6 @@
 .task {
+  overflow: hidden;
+  text-overflow: ellipsis;
   background-color: #fff;
   width: 100%;
   margin: 8px 0;

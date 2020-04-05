@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button } from 'react-bootstrap'
 import { ThunkDispatch } from 'redux-thunk'
-import { RouteComponentProps } from 'react-router-dom'
+import { Link, RouteComponentProps } from 'react-router-dom'
 
 import Actions, { getLists, getProject, openDelete, closeDelete, openNewList, closeNewList } from '@/actions/projects/lists'
 import { RootStore } from '@/reducers/index'
@@ -9,7 +9,7 @@ import List from './lists/list.tsx'
 import styles from './lists.scss'
 import Delete from './lists/delete.tsx'
 import New from './lists/new.tsx'
-
+import Task from './lists/list/task.tsx'
 
 type Props = {
   dispatch: ThunkDispatch<any, any, Actions>
@@ -44,17 +44,32 @@ class ListsComponent extends React.Component<Props> {
 
     const lists = this.props.lists.lists
     const project = this.props.lists.project
+    const noneList = this.props.lists.noneList
     return (
       <div>
         <div className={styles.title}>
           <h3>{ project ? project.title : '' }</h3>
           <span onClick={openDeleteModal}><i title="Delete project" className="fa fa-trash"></i></span>
         </div>
-        <div className={styles.lists}>
-          {lists.map(l => (
-            <List key={l.id} list={l} />
-          ))}
-          <Button className={styles.newButton} onClick={openNewListModal}>New</Button>
+        <div className={styles.backboard}>
+          <div className={styles.lists}>
+            {lists.map(l => (
+              <List key={l.id} list={l} />
+            ))}
+            <Button className={styles.newButton} onClick={openNewListModal}>New</Button>
+          </div>
+          <div className={styles.noneList}>
+            {noneList && noneList.tasks.map(t => (
+              <Link to={`/projects/${noneList.project_id}/lists/${noneList.id}/tasks/${t.id}`}>
+                <Task key={t.id} task={t} color="218838" />
+              </Link>
+            ))}
+            {noneList && (
+              <Link to={`/projects/${noneList.project_id}/lists/${noneList.id}/tasks/new`}>
+                <Button style={{ width: '100%' }} variant="outline-info"><i className="fa fa-plus"></i></Button>
+              </Link>
+            )}
+          </div>
         </div>
         <New open={this.props.lists.newListModal} close={closeNewListModal} color={this.props.lists.defaultColor} projectID={id} dispatch={this.props.dispatch} />
         <Delete open={this.props.lists.deleteModal} project={this.props.lists.project} close={closeDeleteModal} dispatch={this.props.dispatch} />
