@@ -46,7 +46,7 @@
     "mocha": "^5.2.0",
     "nock": "^12.0.0",
     "node-sass": "^4.12.0",
-    "prettier": "^1.18.2",
+    "prettier": "^2.0.3",
     "prop-types": "^15.6.2",
     "react-router-dom": "^5.0.1",
     "react-test-renderer": "^16.6.3",
