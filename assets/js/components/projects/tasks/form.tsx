@@ -2,7 +2,7 @@ import React from 'react'
 import { Modal, Button, Form } from 'react-bootstrap'
 import { reduxForm, Field, InjectedFormProps } from 'redux-form'
 
-import { Task } from '@/actions/projects/tasks/show'
+import { Task } from '@/entities/task'
 
 type Props = {
   hide: Function

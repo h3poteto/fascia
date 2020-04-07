@@ -1,14 +1,9 @@
-import Actions, {
-  Project,
-  RequestGetProjects,
-  ReceiveGetProjects,
-  OpenNew,
-  CloseNew,
-  ReceiveGetRepositories,
-  Repository
-} from '../actions/projects'
-import NewActions, { ReceiveCreateProject } from '@/actions/projects/new'
 import { Reducer } from 'redux'
+
+import Actions, { RequestGetProjects, ReceiveGetProjects, OpenNew, CloseNew, ReceiveGetRepositories } from '../actions/projects'
+import NewActions, { ReceiveCreateProject } from '@/actions/projects/new'
+import { Project } from '@/entities/project'
+import { Repository } from '@/entities/repository'
 
 export type State = {
   loading: boolean

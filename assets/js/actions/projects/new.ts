@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-import { Project, ServerProject, getProjects } from '@/actions/projects'
+import { getProjects } from '@/actions/projects'
+import { ServerProject, Project, converter } from '@/entities/project'
 
 export const RequestCreateProject = 'RequestCreateProject' as const
 export const ReceiveCreateProject = 'ReceiveCreateProject' as const
@@ -18,15 +19,7 @@ export const createProject = (params: any) => {
   return async (dispatch: Function) => {
     dispatch(requestCreateProject())
     return axios.post<ServerProject>('/api/projects', params).then(res => {
-      const data: Project = {
-        id: res.data.ID,
-        userID: res.data.UserID,
-        title: res.data.Title,
-        description: res.data.Description,
-        repositoryID: res.data.RepositoryID,
-        showIssues: res.data.ShowIssues,
-        showPullRequests: res.data.ShowPullRequests
-      }
+      const data = converter(res.data)
       dispatch(receiveCreateProject(data))
       dispatch(getProjects())
     })

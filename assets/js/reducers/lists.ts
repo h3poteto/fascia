@@ -1,8 +1,8 @@
+import { Reducer } from 'redux'
+
 import Actions, {
-  List,
   RequestGetLists,
   ReceiveGetLists,
-  Project,
   OpenDelete,
   CloseDelete,
   OpenNewList,
@@ -15,7 +15,8 @@ import NewActions, { ReceiveCreateList } from '@/actions/projects/lists/new'
 import EditProjectActions, { ReceiveUpdateProject } from '@/actions/projects/edit'
 import DeleteProjectActions, { ReceiveDeleteProject } from '@/actions/projects/delete'
 import ProjectActions, { ReceiveGetProject } from '@/actions/projects/show'
-import { Reducer } from 'redux'
+import { List } from '@/entities/list'
+import { Project } from '@/entities/project'
 
 export type State = {
   loading: boolean

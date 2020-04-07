@@ -1,4 +1,5 @@
-import Actions, { Task, RequestGetTask, ReceiveGetTask } from '@/actions/projects/tasks/show'
+import Actions, { RequestGetTask, ReceiveGetTask } from '@/actions/projects/tasks/show'
+import { Task } from '@/entities/task'
 import { Reducer } from 'redux'
 
 export type State = {

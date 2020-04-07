@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Task } from '@/actions/projects/lists'
+import { Task } from '@/entities/task'
 import styles from './task.scss'
 
 type Props = {

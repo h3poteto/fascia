@@ -3,7 +3,7 @@ import { Modal, Button, Form } from 'react-bootstrap'
 import { Field, reduxForm, InjectedFormProps } from 'redux-form'
 import { ThunkDispatch } from 'redux-thunk'
 
-import { Repository } from '@/actions/projects'
+import { Repository } from '@/entities/repository'
 import Actions, { createProject } from '@/actions/projects/new'
 
   type Props = {

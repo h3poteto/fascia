@@ -1,7 +1,7 @@
 import { Dispatch, Action } from 'redux'
 import axios from 'axios'
 
-import { Project, ServerProject } from '@/actions/projects/lists'
+import { Project, ServerProject } from '@/entities/project'
 
 export const ReceiveGetProject = 'ReceiveGetProject' as const
 export const RequestGetProject = 'RequestGetProject' as const

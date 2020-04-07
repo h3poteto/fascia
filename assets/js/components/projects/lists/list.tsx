@@ -4,8 +4,7 @@ import { Link } from 'react-router-dom'
 
 import styles from './list.scss'
 import Task from './list/task.tsx'
-import { List } from '@/actions/projects/lists'
-
+import { List } from '@/entities/list'
 
 type Props = {
   list: List,
