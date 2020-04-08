@@ -28,6 +28,7 @@ export type State = {
   newListModal: boolean
   defaultColor: string
   editProjectModal: boolean
+  editListModal: boolean
 }
 
 const initState: State = {
@@ -39,7 +40,8 @@ const initState: State = {
   deleteModal: false,
   newListModal: false,
   defaultColor: '008ed4',
-  editProjectModal: false
+  editProjectModal: false,
+  editListModal: false
 }
 
 const reducer: Reducer<State, Actions | NewActions> = (

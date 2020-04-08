@@ -47,7 +47,7 @@ class TaskForm extends React.Component<Props & InjectedFormProps<FormData, Props
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.task === null && this.props.task) {
+    if (this.props.task && prevProps.task !== this.props.task) {
       this.handleInitialize(this.props.task)
     }
   }

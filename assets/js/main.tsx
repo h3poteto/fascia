@@ -12,6 +12,7 @@ import store, { history } from './store'
 import Task from '@/containers/projects/tasks/show'
 import NewTask from '@/containers/projects/tasks/new'
 import EditTask from '@/containers/projects/tasks/edit'
+import EditList from '@/containers/projects/lists/edit'
 
 ReactDOM.render(
   <Provider store={store}>
@@ -24,6 +25,7 @@ ReactDOM.render(
             <Route exact path="/projects/:project_id/lists/:list_id/tasks/new" component={NewTask} />
             <Route exact path="/projects/:project_id/lists/:list_id/tasks/:task_id/edit" component={EditTask} />
             <Route exact path="/projects/:project_id/lists/:list_id/tasks/:task_id" component={Task} />
+            <Route exact path="/projects/:project_id/lists/:list_id/edit" component={EditList} />
           </Switch>
         </Menu>
       </div>
