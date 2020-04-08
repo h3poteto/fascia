@@ -3,7 +3,7 @@ import { Button } from 'react-bootstrap'
 import { ThunkDispatch } from 'redux-thunk'
 import { Link, RouteComponentProps } from 'react-router-dom'
 
-import Actions, { getLists, openDelete, closeDelete, openNewList, closeNewList, openEditProject, closeEditProject } from '@/actions/projects/lists'
+import Actions, { getLists, openDelete, closeDelete, openNewList, closeNewList, openEditProject, closeEditProject, syncGithub } from '@/actions/projects/lists'
 import { getProject } from '@/actions/projects/show'
 import { RootStore } from '@/reducers/index'
 import List from './lists/list.tsx'
@@ -23,6 +23,23 @@ class ListsComponent extends React.Component<Props> {
     const id = this.props.match.params.project_id
     this.props.dispatch(getLists(parseInt(id)))
     this.props.dispatch(getProject(parseInt(id)))
+  }
+
+  operations() {
+    const syncRepository = () => {
+      const id = parseInt(this.props.match.params.project_id)
+      this.props.dispatch(syncGithub(id))
+    }
+
+    if (this.props.lists.project?.repositoryID) {
+      return (
+        <div className="float-right pr-5 pt-2">
+          <span onClick={syncRepository}><i title="Sync GitHub issues" className="fa fa-repeat"></i></span>
+        </div>
+      )
+    } else {
+      return null
+    }
   }
 
   render() {
@@ -61,6 +78,8 @@ class ListsComponent extends React.Component<Props> {
           <h3>{ project ? project.title : '' }</h3>
           <span className="mr-2" onClick={openEditProjectModal}><i title="Edit project" className="fa fa-pencil"></i></span>
           <span onClick={openDeleteModal}><i title="Delete project" className="fa fa-trash"></i></span>
+          {this.operations()}
+          <div className="clearfix"></div>
         </div>
         <div className={styles.backboard}>
           <div className={styles.lists}>

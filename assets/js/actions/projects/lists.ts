@@ -12,6 +12,7 @@ export const OpenNewList = 'OpenNewList' as const
 export const CloseNewList = 'CloseNewList' as const
 export const OpenEditProject = 'OpenEditProject' as const
 export const CloseEditProject = 'CloseEditProject' as const
+export const RequestSyncGithub = 'RequestSyncGithub' as const
 
 export const requestGetLists = () => ({
   type: RequestGetLists
@@ -63,6 +64,22 @@ export const closeEditProject = () => ({
   type: CloseEditProject
 })
 
+export const requestSyncGithub = () => ({
+  type: RequestSyncGithub
+})
+
+export const syncGithub = (projectID: number) => {
+  return (dispatch: Dispatch<Action>) => {
+    dispatch(requestSyncGithub())
+    axios.post<Lists>(`/api/projects/${projectID}/fetch_github`).then(res => {
+      const data: Array<List> = res.data.Lists.map(l => converter(l))
+      dispatch(receiveGetLists(data))
+      const none = converter(res.data.NoneList)
+      dispatch(receiveNoneList(none))
+    })
+  }
+}
+
 type Actions = ReturnType<
   | typeof requestGetLists
   | typeof receiveGetLists
@@ -73,6 +90,7 @@ type Actions = ReturnType<
   | typeof closeNewList
   | typeof openEditProject
   | typeof closeEditProject
+  | typeof requestSyncGithub
 >
 
 export default Actions
