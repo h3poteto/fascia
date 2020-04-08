@@ -36,6 +36,7 @@ func Routes(e *echo.Echo) {
 	e.GET("/about", root.About)
 	e.GET("/", root.Index)
 	e.GET("/projects/:project_id", root.Index)
+	e.GET("/projects/:project_id/lists/:list_id/edit", root.Index)
 	e.GET("/projects/:project_id/lists/:list_id/tasks/new", root.Index)
 	e.GET("/projects/:project_id/lists/:list_id/tasks/:task_id", root.Index)
 	e.GET("/projects/:project_id/lists/:list_id/tasks/:task_id/edit", root.Index)
@@ -67,7 +68,6 @@ func Routes(e *echo.Echo) {
 	e.POST("/api/projects", projects.Create, middlewares.Login())
 	e.GET("/api/projects", projects.Index, middlewares.Login())
 
-	// TODO: APIはapi/に移動すべき．区別がつかない
 	p := e.Group("/api/projects/:project_id")
 	p.Use(middlewares.Login())
 	p.Use(middlewares.Project())
@@ -84,6 +84,7 @@ func Routes(e *echo.Echo) {
 
 	l := p.Group("/lists/:list_id")
 	l.Use(middlewares.List())
+	l.GET("", lists.Show)
 	l.PATCH("", lists.Update)
 	l.PATCH("/hide", lists.Hide)
 	l.PATCH("/display", lists.Display)

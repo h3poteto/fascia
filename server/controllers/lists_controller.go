@@ -215,3 +215,19 @@ func (u *Lists) Display(c echo.Context) error {
 	logging.SharedInstance().Controller(c).Info("success to display list")
 	return c.JSON(http.StatusOK, jsonAllLists)
 }
+
+func (u *Lists) Show(c echo.Context) error {
+	lc, ok := c.(*middlewares.ListContext)
+	if !ok {
+		err := errors.New("Can not cast context")
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
+	}
+	targetList := lc.List
+	jsonList, err := views.ParseListJSON(targetList)
+	if err != nil {
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
+	}
+	return c.JSON(http.StatusOK, jsonList)
+}
