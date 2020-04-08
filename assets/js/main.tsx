@@ -3,7 +3,9 @@ import * as ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import {  Route, Switch } from 'react-router-dom'
 import { ConnectedRouter } from 'connected-react-router'
+import { loadProgressBar } from 'axios-progress-bar'
 import 'bootstrap/dist/css/bootstrap.min.css'
+import 'axios-progress-bar/dist/nprogress.css'
 
 import Menu from './containers/menu'
 import projects from './containers/projects'
@@ -13,6 +15,9 @@ import Task from '@/containers/projects/tasks/show'
 import NewTask from '@/containers/projects/tasks/new'
 import EditTask from '@/containers/projects/tasks/edit'
 import EditList from '@/containers/projects/lists/edit'
+import './axios-progress-bar.css'
+
+loadProgressBar()
 
 ReactDOM.render(
   <Provider store={store}>
