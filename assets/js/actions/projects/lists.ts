@@ -13,6 +13,7 @@ export const CloseNewList = 'CloseNewList' as const
 export const OpenEditProject = 'OpenEditProject' as const
 export const CloseEditProject = 'CloseEditProject' as const
 export const RequestSyncGithub = 'RequestSyncGithub' as const
+export const RequestMoveTask = 'RequestMoveTask' as const
 
 export const requestGetLists = () => ({
   type: RequestGetLists
@@ -80,6 +81,27 @@ export const syncGithub = (projectID: number) => {
   }
 }
 
+export const requestMoveTask = () => ({
+  type: RequestMoveTask
+})
+
+export const moveTask = (projectID: number, fromListID: number, toListID: number, taskID: number, prevToTaskID: number | null) => {
+  return (dispatch: Dispatch<Action>) => {
+    dispatch(requestMoveTask())
+    axios
+      .post<Lists>(`/api/projects/${projectID}/lists/${fromListID}/tasks/${taskID}/move_task`, {
+        to_list_id: toListID,
+        prev_to_task_id: prevToTaskID
+      })
+      .then(res => {
+        const data: Array<List> = res.data.Lists.map(l => converter(l))
+        dispatch(receiveGetLists(data))
+        const none = converter(res.data.NoneList)
+        dispatch(receiveNoneList(none))
+      })
+  }
+}
+
 type Actions = ReturnType<
   | typeof requestGetLists
   | typeof receiveGetLists
@@ -91,6 +113,7 @@ type Actions = ReturnType<
   | typeof openEditProject
   | typeof closeEditProject
   | typeof requestSyncGithub
+  | typeof requestMoveTask
 >
 
 export default Actions
