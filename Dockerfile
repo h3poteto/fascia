@@ -1,14 +1,26 @@
-FROM node:10.16.3-alpine AS frontend
+FROM node:10.16.3-alpine AS assets
 
 ENV APPROOT /var/opt/app
 
-WORKDIR ${APPROOT}
-
 COPY . ${APPROOT}
+
+WORKDIR ${APPROOT}/assets
 
 RUN set -x \
     && npm install \
-    && npm run release-compile
+    && npm run compile
+
+FROM node:10.16.3-alpine AS lp
+
+ENV APPROOT /var/opt/app
+
+COPY . ${APPROOT}
+
+WORKDIR ${APPROOT}/lp
+
+RUN set -x \
+    && npm install \
+    && npm run compile
 
 
 FROM h3poteto/golang:1.13.4
@@ -28,7 +40,8 @@ RUN set -x \
 WORKDIR ${APPROOT}
 
 COPY --chown=go:go . ${APPROOT}
-COPY --chown=go:go --from=frontend /var/opt/app/public/assets ${APPROOT}/public/assets
+COPY --chown=go:go --from=assets /var/opt/app/public/assets ${APPROOT}/public/assets
+COPY --chown=go:go --from=lp /var/opt/app/public/lp ${APPROOT}/public/lp
 
 RUN chown -R go:go ${APPROOT}
 
