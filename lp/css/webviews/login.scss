@@ -1,0 +1,50 @@
+#content {
+  height: 100%;
+}
+
+.session {
+  height: 100%;
+  width: 100%;
+
+  .main {
+    color: rgb(255, 255, 255);
+    text-align: center;
+    max-width: 345px;
+    margin: 0 auto;
+  }
+
+  .sign-in-board,
+  .sign-up-board {
+    border-radius: 15px;
+    box-sizing: border-box;
+    color: rgb(51, 51, 51);
+    display: inline-block;
+    margin-top: 100px;
+    padding: 20px;
+    text-align: center;
+    min-width: 300px;
+    width: auto;
+
+    .session-button {
+      width: 100%;
+    }
+
+    .secondary-session-button {
+      margin-top: 12px;
+      width: auto;
+    }
+
+    .control-group {
+      margin: 14px 0;
+
+      input {
+        width: 100%;
+      }
+    }
+
+    .message {
+      color: #666;
+      font-size: small;
+    }
+  }
+}

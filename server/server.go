@@ -26,9 +26,9 @@ func Routes(e *echo.Echo) {
 	e.File("/robots.txt", filepath.Join(rootDir, "public/robots.txt"))
 
 	// assets
-	e.Static("/stylesheets", filepath.Join(rootDir, "public/assets/stylesheets"))
+	e.Static("/lp/css", filepath.Join(rootDir, "public/lp/css"))
+	e.Static("/lp/images", filepath.Join(rootDir, "public/lp/images"))
 	e.Static("/js", filepath.Join(rootDir, "public/assets/js"))
-	e.Static("/images", filepath.Join(rootDir, "public/assets/images"))
 	e.Static("/fonts", filepath.Join(rootDir, "public/assets/fonts"))
 	// routing
 	root := &controllers.Root{}

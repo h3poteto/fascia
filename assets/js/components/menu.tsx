@@ -21,7 +21,7 @@ class Menu extends React.Component<Props> {
             <Navbar.Brand href="/">
               <img
                 alt=""
-                src="/images/fascia-icon.png"
+                src="/lp/images/fascia-icon.png"
                 width="30"
                 height="30"
                 className="d-inline-block align-top"

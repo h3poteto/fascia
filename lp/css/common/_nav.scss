@@ -1,0 +1,21 @@
+header.not-login {
+  width: 100%;
+  box-sizing: border-box;
+
+  .menu-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+
+  .pure-menu-heading {
+    color: rgb(198, 198, 198);
+  }
+  .pure-menu-link {
+    color: rgb(211, 211, 211);
+  }
+  .pure-menu-link:hover, .pure-menu-link:focus {
+    background: none;
+  }
+}

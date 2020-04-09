@@ -26,6 +26,23 @@ services:
     command: |
       "npm install && \
       npm run dev"
+
+  lp:
+    image: node:10.16.3-alpine
+    user: node
+    volumes:
+      - .:/var/opt/app
+    working_dir: /var/opt/app/lp
+    entrypoint: sh -c
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "3"
+    command: |
+      "npm install && \
+      npm run dev"
+
   go:
     image: h3poteto/golang:1.13.4
     environment:

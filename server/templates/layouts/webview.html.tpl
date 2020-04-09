@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Fascia{% endblock %}</title>
-    <link rel="icon" href={{ "/images/favicon.ico" | suffixAssetsUpdate }} type="image/vnd.microsoft.icon">
+    <link rel="icon" href="/lp/images/favicon.ico" type="image/vnd.microsoft.icon">
     <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/octicons/4.4.0/font/octicons.css" rel="stylesheet" type="text/css">
-
+    <link rel="stylesheet" href="/lp/css/lp-webview.css" media="all">
   </head>
   <body>
     <div id="content">

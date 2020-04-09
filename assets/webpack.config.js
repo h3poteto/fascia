@@ -1,5 +1,4 @@
 const path = require('path')
-const CopyWebpackPlugin = require('copy-webpack-plugin')
 const ManifestPlugin = require('webpack-manifest-plugin')
 
 // eslint-disable-next-line no-undef
@@ -79,8 +78,5 @@ module.exports = {
       }
     ]
   },
-  plugins: [
-    new ManifestPlugin(),
-    new CopyWebpackPlugin([{ from: path.resolve(__dirname, './images'), to: path.resolve(__dirname, '../public/assets/images') }])
-  ]
+  plugins: [new ManifestPlugin()]
 }
