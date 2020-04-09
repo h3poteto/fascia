@@ -23,6 +23,7 @@
     "connected-react-router": "^6.7.0",
     "history": "^4.10.1",
     "react": "^16.12.0",
+    "react-beautiful-dnd": "^13.0.0",
     "react-bootstrap": "^1.0.0-beta.16",
     "react-color": "^2.18.0",
     "react-dom": "^16.12.0",
@@ -37,6 +38,7 @@
   "devDependencies": {
     "@babel/core": "^7.8.4",
     "@types/react": "^16.9.22",
+    "@types/react-beautiful-dnd": "^12.1.2",
     "@types/react-color": "^3.0.1",
     "@types/react-dom": "^16.9.5",
     "@types/react-redux": "^7.1.7",
