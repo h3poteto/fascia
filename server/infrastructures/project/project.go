@@ -106,7 +106,7 @@ func (p *Project) Delete(id int64) error {
 // Projects returns a project related a user.
 func (p *Project) Projects(targetUserID int64) ([]*project.Project, error) {
 	result := []*project.Project{}
-	rows, err := p.db.Query("SELECT id, user_id, repository_id, title, description, show_issues, show_pull_requests FROM projects WHERE user_id = $1;", targetUserID)
+	rows, err := p.db.Query("SELECT id, user_id, repository_id, title, description, show_issues, show_pull_requests FROM projects WHERE user_id = $1 ORDER BY created_at;", targetUserID)
 	if err != nil {
 		return nil, errors.Wrap(err, "project repository")
 	}
