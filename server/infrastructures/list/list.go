@@ -83,7 +83,7 @@ func (l *List) FindByTaskID(taskID int64) (*list.List, error) {
 
 // Lists returns all lists related a project.
 func (l *List) Lists(parentProjectID int64) ([]*list.List, error) {
-	rows, err := l.db.Query("SELECT id, project_id, user_id, title, color, list_option_id, is_hidden FROM lists WHERE project_id = $1 AND title != $2;", parentProjectID, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
+	rows, err := l.db.Query("SELECT id, project_id, user_id, title, color, list_option_id, is_hidden FROM lists WHERE project_id = $1 AND title != $2 ORDER BY id;", parentProjectID, config.Element("init_list").(map[interface{}]interface{})["none"].(string))
 	if err != nil {
 		return nil, errors.Wrap(err, "list repository")
 	}
