@@ -101,7 +101,7 @@ var _ = Describe("ListsController", func() {
 		Context("when action is null", func() {
 			JustBeforeEach(func() {
 				newList, _ := board.CreateList(p.ID, u.ID, "listTitle", "", sql.NullInt64{}, false)
-				j := `{"title":"newListTitle","color":"008ed5","option_id":"0"}`
+				j := `{"title":"newListTitle","color":"008ed5","option_id":0}`
 				req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id", strings.NewReader(j))
 				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 				c := e.NewContext(req, rec)
@@ -126,8 +126,7 @@ var _ = Describe("ListsController", func() {
 			JustBeforeEach(func() {
 				newList, _ := board.CreateList(p.ID, u.ID, "listTitle", "", sql.NullInt64{}, false)
 				closeListOption, _ := board.FindListOptionByAction("close")
-				optionID := strconv.FormatInt(closeListOption.ID, 10)
-				j := fmt.Sprintf(`{"title":"newListTitle","color":"008ed5","option_id":"%s"}`, optionID)
+				j := fmt.Sprintf(`{"title":"newListTitle","color":"008ed5","option_id":%d}`, closeListOption.ID)
 				req := httptest.NewRequest(echo.POST, "/projects/:project_id/lists/:list_id", strings.NewReader(j))
 				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 				c := e.NewContext(req, rec)

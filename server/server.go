@@ -26,9 +26,9 @@ func Routes(e *echo.Echo) {
 	e.File("/robots.txt", filepath.Join(rootDir, "public/robots.txt"))
 
 	// assets
-	e.Static("/stylesheets", filepath.Join(rootDir, "public/assets/stylesheets"))
-	e.Static("/javascripts", filepath.Join(rootDir, "public/assets/javascripts"))
-	e.Static("/images", filepath.Join(rootDir, "public/assets/images"))
+	e.Static("/lp/css", filepath.Join(rootDir, "public/lp/css"))
+	e.Static("/lp/images", filepath.Join(rootDir, "public/lp/images"))
+	e.Static("/js", filepath.Join(rootDir, "public/assets/js"))
 	e.Static("/fonts", filepath.Join(rootDir, "public/assets/fonts"))
 	// routing
 	root := &controllers.Root{}
@@ -36,6 +36,10 @@ func Routes(e *echo.Echo) {
 	e.GET("/about", root.About)
 	e.GET("/", root.Index)
 	e.GET("/projects/:project_id", root.Index)
+	e.GET("/projects/:project_id/lists/:list_id/edit", root.Index)
+	e.GET("/projects/:project_id/lists/:list_id/tasks/new", root.Index)
+	e.GET("/projects/:project_id/lists/:list_id/tasks/:task_id", root.Index)
+	e.GET("/projects/:project_id/lists/:list_id/tasks/:task_id/edit", root.Index)
 
 	sessions := &controllers.Sessions{}
 	e.GET("/sign_in", sessions.SignIn)
@@ -64,7 +68,6 @@ func Routes(e *echo.Echo) {
 	e.POST("/api/projects", projects.Create, middlewares.Login())
 	e.GET("/api/projects", projects.Index, middlewares.Login())
 
-	// TODO: APIはapi/に移動すべき．区別がつかない
 	p := e.Group("/api/projects/:project_id")
 	p.Use(middlewares.Login())
 	p.Use(middlewares.Project())
@@ -81,6 +84,7 @@ func Routes(e *echo.Echo) {
 
 	l := p.Group("/lists/:list_id")
 	l.Use(middlewares.List())
+	l.GET("", lists.Show)
 	l.PATCH("", lists.Update)
 	l.PATCH("/hide", lists.Hide)
 	l.PATCH("/display", lists.Display)

@@ -31,10 +31,10 @@
         <table class="github-images">
           <tr>
             <td>
-              <img src="/images/fascia-ss-2.png" class="fascia-ss-2">
+              <img src="/lp/images/fascia-ss-2.png" class="fascia-ss-2">
             </td>
             <td>
-              <img src="/images/github-ss-1.png" class="github-ss-1">
+              <img src="/lp/images/github-ss-1.png" class="github-ss-1">
             </td>
           </tr>
         </table>
@@ -48,7 +48,7 @@
       <div class="content">
         <p>Fascia can manage projects are not related GitHub repositories.</p>
         <p>Therefore, please manage your private tasks, for example, shopping list and domestic work.</p>
-        <img src="/images/fascia-ss-3.png" class="fascia-ss-3">
+        <img src="/lp/images/fascia-ss-3.png" class="fascia-ss-3">
       </div>
     </div>
   </div>

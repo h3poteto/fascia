@@ -15,4 +15,7 @@ bin
 config/bindata.go
 production
 test
-node_modules
+assets/node_modules
+lp/node_modules
+public/assets
+public/lp

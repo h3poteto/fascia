@@ -1,0 +1,46 @@
+.title {
+  box-sizing: border-box;
+  border-bottom: 1px solid #ccc;
+
+  h3 {
+    display: inline-block;
+    font-size: 18px;
+    margin: 12px;
+  }
+
+  i {
+    cursor: pointer;
+  }
+}
+
+.backboard {
+  background-color: #fafaff;
+}
+
+.lists {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding: 12px 24px;
+}
+
+
+.newButton {
+  height: 96px;
+  width: 240px;
+  border-radius: 8px;
+  padding: 8px 16px;
+  margin: 0 20px 12px 0;
+  color: #fff;
+  cursor: pointer;
+
+  &:hover, :visited, :active {
+    color: #fff;
+    text-decoration: none;
+  }
+}
+
+.noneList {
+  width: 18rem;
+  padding: 1.25rem;
+}

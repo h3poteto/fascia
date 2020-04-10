@@ -45,41 +45,6 @@ jobs:
           name: Server test
           command: ginkgo -r ./
 
-  frontend:
-    docker:
-      - image: node:10.16.3-alpine
-    working_directory: /go/src/github.com/h3poteto/fascia
-    steps:
-      - checkout
-      - run:
-          name: Check node version
-          command: |
-            node --version
-            npm --version
-      # キャッシュはS3に置いてあるがそれらのやり取り時に証明書が必要になる
-      # 自己証明書を生み出すためのca-certificatesがないと通信できない
-      - run:
-          name: Install ca-certificate
-          command: apk add --no-cache ca-certificates
-      - restore_cache:
-          name: Restoring cache - node_modules
-          keys:
-            - node_modules-{{ arch }}-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
-      - run:
-          name: Node packages install
-          command: npm install
-      - run:
-          name: Build manifest file
-          command: npm run compile
-      - run:
-          name: Frontend test
-          command: npm run test
-      - save_cache:
-          name: Saving cache - node_modules
-          key: node_modules-{{ arch }}-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
-          paths:
-            - "node_modules"
-
   image:
     machine: true
     steps:
@@ -139,7 +104,6 @@ workflows:
   build_and_deploy:
     jobs:
       - build
-      - frontend
       - image:
           filters:
             branches:
@@ -153,5 +117,4 @@ workflows:
           requires:
             - image
             - build
-            - frontend
 
