@@ -6,4 +6,8 @@
 .tasks {
   max-height: 600px;
   overflow-y: auto;
+
+  a:hover {
+    text-decoration: none;
+  }
 }
