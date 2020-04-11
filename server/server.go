@@ -40,6 +40,7 @@ func Routes(e *echo.Echo) {
 	e.GET("/projects/:project_id/lists/:list_id/tasks/new", root.Index)
 	e.GET("/projects/:project_id/lists/:list_id/tasks/:task_id", root.Index)
 	e.GET("/projects/:project_id/lists/:list_id/tasks/:task_id/edit", root.Index)
+	e.GET("/settings", root.Index)
 
 	sessions := &controllers.Sessions{}
 	e.GET("/sign_in", sessions.SignIn)

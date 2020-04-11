@@ -1,6 +1,7 @@
 import React from 'react'
 import { Navbar, NavDropdown, Nav } from 'react-bootstrap'
 import { ThunkDispatch } from 'redux-thunk'
+import { Link } from 'react-router-dom'
 
 import Actions, { logout } from '@/actions/menu'
 
@@ -35,9 +36,11 @@ class Menu extends React.Component<Props> {
                 </Nav>
                 <Nav>
                   <NavDropdown title="Accounts" id="basic-nav-dropdown">
-                    <NavDropdown.Item href="#action/settings">Settings</NavDropdown.Item>
+                    <NavDropdown.Item>
+                      <Link to="/settings">Settings</Link>
+                    </NavDropdown.Item>
                     <NavDropdown.Divider />
-                    <NavDropdown.Item href="#" onClick={handleLogout} >Logout</NavDropdown.Item>
+                    <NavDropdown.Item onClick={handleLogout} >Logout</NavDropdown.Item>
                   </NavDropdown>
                 </Nav>
               </Navbar.Collapse>
