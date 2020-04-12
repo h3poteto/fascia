@@ -160,3 +160,16 @@ func UpdatePassword(id int64, password, passwordConfirm string) (*domain.User, e
 	return user, nil
 
 }
+
+// Authenticate confirm login user.
+func Authenticate(email, password string) (*domain.User, error) {
+	user, err := FindUserByEmail(email)
+	if err != nil {
+		return nil, err
+	}
+	bytePassword := []byte(password)
+	if err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), bytePassword); err != nil {
+		return nil, errors.New("password is incorrect")
+	}
+	return user, nil
+}
