@@ -5,6 +5,7 @@ import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/middlewares"
 	"github.com/h3poteto/fascia/server/session"
+	"github.com/h3poteto/fascia/server/views"
 
 	"net/http"
 
@@ -67,4 +68,21 @@ func (u *Sessions) Update(c echo.Context) error {
 	}
 	logging.SharedInstance().Controller(c).Info("session update success")
 	return c.JSON(http.StatusOK, nil)
+}
+
+// Show returns current session and login user
+func (u *Sessions) Show(c echo.Context) error {
+	uc, ok := c.(*middlewares.LoginContext)
+	if !ok {
+		err := errors.New("Can not cast context")
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
+	}
+	userEntity := uc.CurrentUser
+	jsonUser, err := views.ParseUserJSON(userEntity)
+	if err != nil {
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
+	}
+	return c.JSON(http.StatusOK, jsonUser)
 }

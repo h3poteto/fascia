@@ -40,10 +40,12 @@ func Routes(e *echo.Echo) {
 	e.GET("/projects/:project_id/lists/:list_id/tasks/new", root.Index)
 	e.GET("/projects/:project_id/lists/:list_id/tasks/:task_id", root.Index)
 	e.GET("/projects/:project_id/lists/:list_id/tasks/:task_id/edit", root.Index)
+	e.GET("/settings", root.Index)
 
 	sessions := &controllers.Sessions{}
 	e.GET("/sign_in", sessions.SignIn)
 	e.PATCH("/session", sessions.Update, middlewares.Login())
+	e.GET("/session", sessions.Show, middlewares.Login())
 	e.DELETE("/sign_out", sessions.SignOut)
 
 	oauth := &controllers.Oauth{}
@@ -101,6 +103,9 @@ func Routes(e *echo.Echo) {
 
 	listOptions := &controllers.ListOptions{}
 	e.GET("/api/list_options", listOptions.Index, middlewares.Login())
+
+	settings := &controllers.Settings{}
+	e.PATCH("/api/settings/password", settings.Password, middlewares.Login())
 
 	repositories := &controllers.Repositories{}
 	e.POST("/repositories/hooks/github", repositories.Hook)

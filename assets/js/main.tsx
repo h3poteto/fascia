@@ -15,6 +15,7 @@ import Task from '@/containers/projects/tasks/show'
 import NewTask from '@/containers/projects/tasks/new'
 import EditTask from '@/containers/projects/tasks/edit'
 import EditList from '@/containers/projects/lists/edit'
+import Settings from '@/containers/settings'
 import './axios-progress-bar.css'
 
 loadProgressBar()
@@ -25,6 +26,7 @@ ReactDOM.render(
       <div>
         <Menu>
           <Route exact path="/" component={projects} />
+          <Route exact path="/settings" component={Settings} />
           <Route path="/projects/:project_id" component={lists} />
           <Switch>
             <Route exact path="/projects/:project_id/lists/:list_id/tasks/new" component={NewTask} />

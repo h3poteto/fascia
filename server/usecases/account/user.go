@@ -137,3 +137,26 @@ func randomString() string {
 	binary.Read(rand.Reader, binary.LittleEndian, &n)
 	return strconv.FormatUint(n, 36)
 }
+
+// UpdatePassword updates the user password.
+func UpdatePassword(id int64, password, passwordConfirm string) (*domain.User, error) {
+	user, err := FindUser(id)
+	if err != nil {
+		return nil, err
+	}
+	if password != passwordConfirm {
+		return nil, errors.New("password is not matched")
+	}
+	hashed, err := hashPassword(password)
+	if err != nil {
+		return nil, err
+	}
+	user.Update(user.Email, string(hashed), user.Provider, user.OauthToken, user.UUID, user.UserName, user.Avatar)
+
+	repo := InjectUserRepository()
+	if err := repo.UpdatePassword(user.ID, user.HashedPassword); err != nil {
+		return nil, err
+	}
+	return user, nil
+
+}
