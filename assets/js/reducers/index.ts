@@ -7,6 +7,7 @@ import projectsReducer, { State as ProjectsState } from './projects'
 import listsReducer, { State as ListsState } from './lists'
 import taskReducer, { State as TaskState } from './projects/tasks/show'
 import listReducer, { State as ListState } from './projects/lists/show'
+import settingsReducer, { State as SettingsState } from './settings'
 
 export type RootStore = {
   router: RouterState
@@ -14,6 +15,7 @@ export type RootStore = {
   lists: ListsState
   task: TaskState
   list: ListState
+  settings: SettingsState
   form: FormStateMap
 }
 
@@ -24,6 +26,7 @@ const reducers = (history: History) =>
     lists: listsReducer,
     task: taskReducer,
     list: listReducer,
+    settings: settingsReducer,
     form: formReducer
   })
 

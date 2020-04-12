@@ -1,10 +1,14 @@
 import React from 'react'
 import { Form, Button } from 'react-bootstrap'
 import { reduxForm, Field, InjectedFormProps } from 'redux-form'
+import { User } from '@/entities/user'
 
-type Props = {}
+type Props = {
+  user: User | null
+}
 
 type FormData = {
+  username: string
   password: string
   password_confirm: string
 }
@@ -27,6 +31,24 @@ const renderField = (params: {
 )
 
 class SettingsForm extends React.Component<InjectedFormProps<FormData, Props> & Props> {
+  componentDidMount() {
+    if (this.props.user) {
+      this.handleInitialize(this.props.user)
+    }
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.user && prevProps.user !== this.props.user) {
+      this.handleInitialize(this.props.user)
+    }
+  }
+
+  handleInitialize(user: User) {
+    this.props.initialize({
+      username: user.user_name
+    })
+  }
+
   render() {
     const { pristine, submitting, handleSubmit } = this.props
 
