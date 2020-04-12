@@ -6,7 +6,7 @@ type Props = {}
 
 type FormData = {
   password: string
-  passwordConfirm: string
+  password_confirm: string
 }
 
 const renderField = (params: {
@@ -41,9 +41,9 @@ class SettingsForm extends React.Component<InjectedFormProps<FormData, Props> & 
             <Form.Label>Password</Form.Label>
             <Field component={renderField} name="password" id="password" type="password" disabled={false} />
           </Form.Group>
-          <Form.Group controlId="passwordConfirm">
+          <Form.Group controlId="password_confirm">
             <Form.Label>Password Confirm</Form.Label>
-            <Field component={renderField} name="passwordConfirm" id="passwordConfirm" type="password" disabled={false} />
+            <Field component={renderField} name="password_confirm" id="password_confirm" type="password" disabled={false} />
           </Form.Group>
           <Button type="submit" disabled={pristine || submitting}>Submit</Button>
         </Form>
@@ -64,7 +64,7 @@ const validate = (values: FormData) => {
       password: 'password must be over 12 characters'
     })
   }
-  if (values.password !== values.passwordConfirm) {
+  if (values.password !== values.password_confirm) {
     errors = Object.assign(errors, {
       passwordConfirm: 'password is not matched'
     })

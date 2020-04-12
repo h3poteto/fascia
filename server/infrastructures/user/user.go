@@ -75,5 +75,17 @@ func (u *User) Create(email, hashedPassword string, provider sql.NullString, oau
 // Update update user model in database
 func (u *User) Update(id int64, email string, provider sql.NullString, oauthToken sql.NullString, uuid sql.NullInt64, userName sql.NullString, avatar sql.NullString) error {
 	_, err := u.db.Exec("UPDATE users SET email = $1, provider = $2, oauth_token = $3, uuid = $4, user_name = $5, avatar_url = $6 WHERE id = $7;", email, provider, oauthToken, uuid, userName, avatar, id)
-	return errors.Wrap(err, "user repository")
+	if err != nil {
+		return errors.Wrap(err, "user repository")
+	}
+	return nil
+}
+
+// UpdatePassword update only user password.
+func (u *User) UpdatePassword(id int64, password string) error {
+	_, err := u.db.Exec("UPDATE users SET password = $1 WHERE id = $2", password, id)
+	if err != nil {
+		return errors.Wrap(err, "user repository")
+	}
+	return nil
 }

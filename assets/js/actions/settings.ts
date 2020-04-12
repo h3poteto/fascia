@@ -15,7 +15,7 @@ export const receiveUpdatePassword = () => ({
 export const updatePassword = (params: any) => {
   return (dispatch: Dispatch<Action>) => {
     dispatch(requestUpdatePassword())
-    axios.patch<{}>('/settings/password', params).then(() => {
+    axios.patch<{}>('/api/settings/password', params).then(() => {
       dispatch(receiveUpdatePassword())
     })
   }

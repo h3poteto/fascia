@@ -104,6 +104,9 @@ func Routes(e *echo.Echo) {
 	listOptions := &controllers.ListOptions{}
 	e.GET("/api/list_options", listOptions.Index, middlewares.Login())
 
+	settings := &controllers.Settings{}
+	e.PATCH("/api/settings/password", settings.Password, middlewares.Login())
+
 	repositories := &controllers.Repositories{}
 	e.POST("/repositories/hooks/github", repositories.Hook)
 
