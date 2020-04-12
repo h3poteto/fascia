@@ -8,7 +8,7 @@ type Props = {
 }
 
 type FormData = {
-  username: string
+  email: string
   password: string
   password_confirm: string
 }
@@ -45,7 +45,7 @@ class SettingsForm extends React.Component<InjectedFormProps<FormData, Props> & 
 
   handleInitialize(user: User) {
     this.props.initialize({
-      username: user.user_name
+      email: user.email
     })
   }
 
@@ -55,9 +55,9 @@ class SettingsForm extends React.Component<InjectedFormProps<FormData, Props> & 
     return (
       <div>
         <Form onSubmit={handleSubmit}>
-          <Form.Group controlId="username">
-            <Form.Label>Username</Form.Label>
-            <Field component={renderField} name="username" id="username" type="text" disabled={true} />
+          <Form.Group controlId="email">
+            <Form.Label>Email</Form.Label>
+            <Field component={renderField} name="email" id="email" type="text" disabled={true} />
           </Form.Group>
           <Form.Group controlId="password">
             <Form.Label>Password</Form.Label>
