@@ -5,6 +5,7 @@ import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/middlewares"
 	"github.com/h3poteto/fascia/server/session"
+	"github.com/h3poteto/fascia/server/usecases/account"
 	"github.com/h3poteto/fascia/server/views"
 
 	"net/http"
@@ -16,6 +17,12 @@ import (
 
 // Sessions is controller struct for sessions
 type Sessions struct {
+}
+
+// NewSessionForm is form object.
+type NewSessionForm struct {
+	Email    string `json:"email" form:"email"`
+	Password string `json:"password" form:"password"`
 }
 
 // SignIn renders a sign in form
@@ -30,6 +37,31 @@ func (u *Sessions) SignIn(c echo.Context) error {
 		"title": "SignIn",
 		"token": token,
 	})
+}
+
+// Create sign in a new user.
+func (u *Sessions) Create(c echo.Context) error {
+	newSessionForm := new(NewSessionForm)
+	if err := c.Bind(newSessionForm); err != nil {
+		err := errors.Wrap(err, "wrong parameter")
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
+	}
+	user, err := account.Authenticate(newSessionForm.Email, newSessionForm.Password)
+	if err != nil {
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return c.Redirect(http.StatusFound, "/sign_in")
+	}
+	option := &sessions.Options{
+		Path:     "/",
+		MaxAge:   config.Element("session").(map[interface{}]interface{})["timeout"].(int),
+		HttpOnly: true,
+	}
+	if err := session.SharedInstance().Set(c.Request(), c.Response(), "current_user_id", user.ID, option); err != nil {
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return c.Redirect(http.StatusFound, "/sign_in")
+	}
+	return c.Redirect(http.StatusFound, "/")
 }
 
 // SignOut delete a session and logout
