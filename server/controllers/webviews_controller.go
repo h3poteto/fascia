@@ -22,6 +22,11 @@ type Webviews struct {
 func (u *Webviews) OauthSignIn(c echo.Context) error {
 	privateURL := githubPrivateConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
 	publicURL := githubPublicConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
+	token, err := GenerateCSRFToken(c)
+	if err != nil {
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Errorf("CSRF error: %v", err)
+		return err
+	}
 
 	// Set cookie for iOS application when authentication callback
 	cookie := http.Cookie{
@@ -36,6 +41,7 @@ func (u *Webviews) OauthSignIn(c echo.Context) error {
 		"title":      "SignIn",
 		"privateURL": privateURL,
 		"publicURL":  publicURL,
+		"token":      token,
 	})
 }
 
