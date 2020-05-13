@@ -30,5 +30,5 @@ require (
 	golang.org/x/oauth2 v0.0.0-20170928010508-bb50c06baba3
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e // indirect
 	google.golang.org/appengine v1.0.0 // indirect
-	gopkg.in/yaml.v2 v2.2.8
+	gopkg.in/yaml.v2 v2.3.0
 )
