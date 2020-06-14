@@ -2,7 +2,6 @@ linter:
   golangci_lint:
     disable:
       - unused
-      - goanalysis_metalinter
   eslint:
     npm_install: true
     root_dir: ./assets
