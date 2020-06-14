@@ -2,6 +2,7 @@ linter:
   golangci_lint:
     disable:
       - unused
+      - bodyclose
   eslint:
     npm_install: true
     root_dir: ./assets
