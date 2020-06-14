@@ -1,8 +1,8 @@
 linter:
   golangci_lint:
-    target: server/...
-    skip-dirs:
-      - ./config
+    disable:
+      - unused
+      - goanalysis_metalinter
   eslint:
     npm_install: true
     root_dir: ./assets
