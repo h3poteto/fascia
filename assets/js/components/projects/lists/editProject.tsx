@@ -29,18 +29,13 @@ const renderField = (params: {
 }) => (
   <div>
     <Form.Control {...params.input} type={params.type} placeholder={params.placeholder} />
-    {(params.meta.touched || params.type === 'hidden') && params.meta.error &&
-     <span className="text-danger">{params.meta.error}</span>}
+    {(params.meta.touched || params.type === 'hidden') && params.meta.error && <span className="text-danger">{params.meta.error}</span>}
   </div>
 )
 
-const renderTextarea = (params: {
-  input: any
-  placeholder: string
-}) => (
+const renderTextarea = (params: { input: any; placeholder: string }) => (
   <Form.Control {...params.input} as="textarea" placeholder={params.placeholder} />
 )
-
 
 class Edit extends React.Component<InjectedFormProps<FormData, Props> & Props> {
   componentDidMount() {
@@ -50,7 +45,10 @@ class Edit extends React.Component<InjectedFormProps<FormData, Props> & Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (!prevProps.project && this.props.project) {
+    if (!this.props.project) {
+      return
+    }
+    if ((!prevProps.project && this.props.project) || (prevProps.project && prevProps.project.id !== this.props.project.id)) {
       this.handleInitialize(this.props.project)
     }
   }
@@ -77,16 +75,9 @@ class Edit extends React.Component<InjectedFormProps<FormData, Props> & Props> {
     const { pristine, submitting, handleSubmit } = this.props
 
     return (
-      <Modal
-        show={this.props.open}
-        onHide={hide}
-        size="lg"
-        centered
-      >
+      <Modal show={this.props.open} onHide={hide} size="lg" centered>
         <Modal.Header closeButton>
-          <Modal.Title>
-            Edit Project
-          </Modal.Title>
+          <Modal.Title>Edit Project</Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleSubmit(update)}>
           <Modal.Body>
@@ -100,7 +91,9 @@ class Edit extends React.Component<InjectedFormProps<FormData, Props> & Props> {
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button type="submit" disabled={pristine || submitting}>Submit</Button>
+            <Button type="submit" disabled={pristine || submitting}>
+              Submit
+            </Button>
           </Modal.Footer>
         </Form>
       </Modal>
@@ -118,4 +111,4 @@ const validate = (values: any) => {
   return errors
 }
 
-export default reduxForm<FormData, Props>({form: 'edit-project-form', validate})(Edit)
+export default reduxForm<FormData, Props>({ form: 'edit-project-form', validate })(Edit)
