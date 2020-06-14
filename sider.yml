@@ -1,7 +1,8 @@
 linter:
   golangci_lint:
+    target: server/...
     skip-dirs:
-      - config
+      - ./config
   eslint:
     npm_install: true
     root_dir: ./assets
