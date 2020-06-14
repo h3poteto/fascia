@@ -1,8 +1,10 @@
 linter:
   golangci_lint:
-    disable:
-      - unused
-      - bodyclose
+    disable-all: true
+    enable:
+      - golint
+      - gosec
+      - govet
   eslint:
     npm_install: true
     root_dir: ./assets
