@@ -1,0 +1,4 @@
+golint:
+  enabled: true
+eslint:
+  enabled: false
