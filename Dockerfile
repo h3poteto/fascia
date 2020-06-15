@@ -1,4 +1,4 @@
-FROM node:10.16.3-alpine AS assets
+FROM node:12.18.0-alpine3.12 AS assets
 
 ENV APPROOT /var/opt/app
 
@@ -10,7 +10,7 @@ RUN set -x \
     && npm install \
     && npm run compile
 
-FROM node:10.16.3-alpine AS lp
+FROM node:12.18.0-alpine3.12 AS lp
 
 ENV APPROOT /var/opt/app
 
