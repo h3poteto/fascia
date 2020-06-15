@@ -1,0 +1,5 @@
+golint:
+  enabled: true
+eslint:
+  enabled: true
+  config_file: ./assets/.eslintrc.json
