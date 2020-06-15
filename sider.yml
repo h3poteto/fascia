@@ -1,0 +1,9 @@
+linter:
+  eslint:
+    npm_install: true
+    root_dir: ./assets
+    dir:
+      - js
+    config: '.eslintrc.json'
+    ext: '.ts,.tsx'
+    ignore-path: .eslintignore
