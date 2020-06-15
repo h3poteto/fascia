@@ -45,6 +45,32 @@ jobs:
           name: Server test
           command: ginkgo -r ./
 
+  assets:
+    docker:
+      - image: node:12.18.0-alpine3.12
+    working_directory: /var/opt/app
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restoring cache - node_modules
+          working_directory: /var/opt/app/assets
+          keys:
+            - node-{{ arch }}-12.18.0-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
+      - run:
+          name: Install
+          working_directory: /var/opt/app/assets
+          command: npm install
+      - run:
+          name: Build
+          working_directory: /var/opt/app/assets
+          command: npm run compile
+      - save_cache:
+          name: Saving cache - node_modules
+          working_directory: /var/opt/app/assets
+          key: node-{{ arch }}-12.18.0-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
+          paths:
+            - "/var/opt/app/assets/node_modules"
+
   image:
     machine: true
     steps:
@@ -104,6 +130,7 @@ workflows:
   build_and_deploy:
     jobs:
       - build
+      - assets
       - image:
           filters:
             branches:
@@ -117,4 +144,5 @@ workflows:
           requires:
             - image
             - build
+            - assets
 
