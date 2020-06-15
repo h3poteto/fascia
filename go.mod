@@ -8,7 +8,7 @@ require (
 	github.com/flosch/go-humanize v0.0.0-20140728123800-3ba51eabe506 // indirect
 	github.com/flosch/pongo2 v0.0.0-20170906222041-1f4be1efe3b3
 	github.com/flosch/pongo2-addons v0.0.0-20170902001113-86b9b7b80512
-	github.com/go-redis/redis v6.15.7+incompatible
+	github.com/go-redis/redis v6.15.8+incompatible
 	github.com/google/go-github v13.0.1-0.20171014143926-a021c14a5f19+incompatible
 	github.com/google/go-querystring v0.0.0-20170111101155-53e6ce116135 // indirect
 	github.com/gorilla/context v0.0.0-20160226214623-1ea25387ff6f // indirect
