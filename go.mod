@@ -20,8 +20,8 @@ require (
 	github.com/johntdyer/slackrus v0.0.0-20170926115001-3992f319fd0a
 	github.com/labstack/echo/v4 v4.1.11
 	github.com/lib/pq v1.3.0
-	github.com/onsi/ginkgo v1.12.0
-	github.com/onsi/gomega v1.9.0
+	github.com/onsi/ginkgo v1.12.1
+	github.com/onsi/gomega v1.10.1
 	github.com/pkg/errors v0.9.1
 	github.com/russross/blackfriday v1.5.2
 	github.com/sirupsen/logrus v1.6.0
@@ -30,5 +30,5 @@ require (
 	golang.org/x/oauth2 v0.0.0-20170928010508-bb50c06baba3
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e // indirect
 	google.golang.org/appengine v1.0.0 // indirect
-	gopkg.in/yaml.v2 v2.2.8
+	gopkg.in/yaml.v2 v2.3.0
 )
