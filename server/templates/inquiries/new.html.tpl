@@ -15,6 +15,7 @@
         <div class="contact-board">
           <form action="/inquiries" method="post" role="form" name="inquiries" id="inquirires" class="pure-form pure-form-stacked">
             <fieldset>
+              <input type="hidden" name="recaptcha_response" id="recaptchaResponse" />
               <div class="pure-control-group control-group">
                 <label for="message">Message</label>
                 <textarea class="form-control" name="message"></textarea>
