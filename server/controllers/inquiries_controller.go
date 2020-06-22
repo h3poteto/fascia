@@ -1,12 +1,18 @@
 package controllers
 
 import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
+
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	mailer "github.com/h3poteto/fascia/server/mailers/inquiry_mailer"
 	"github.com/h3poteto/fascia/server/usecases/contact"
 	"github.com/h3poteto/fascia/server/validators"
 
 	"net/http"
+	"net/url"
 
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
@@ -17,9 +23,10 @@ type Inquiries struct{}
 
 // NewInquiryForm is a form object for a new inquiry.
 type NewInquiryForm struct {
-	Email   string `json:"email" form:"email"`
-	Name    string `json:"name" form:"name"`
-	Message string `json:"message" form:"message"`
+	Email             string `json:"email" form:"email"`
+	Name              string `json:"name" form:"name"`
+	Message           string `json:"message" form:"message"`
+	RecaptchaResponse string `json:"recaptcha_response" form:"recaptcha_response"`
 }
 
 // New return inquiry form.
@@ -48,6 +55,39 @@ func (i *Inquiries) Create(c echo.Context) error {
 		})
 	}
 
+	val := url.Values{}
+	val.Add("secret", os.Getenv("RECAPTCHA_SECRET_KEY"))
+	val.Add("response", newInquiryFrom.RecaptchaResponse)
+	resp, err := http.PostForm(RecaptchaSiteverifyURL, val)
+	if err != nil {
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
+	}
+	defer resp.Body.Close()
+	byteArray, _ := ioutil.ReadAll(resp.Body)
+	jsonBytes := ([]byte)(byteArray)
+	result := new(RecaptchaResult)
+	if err := json.Unmarshal(jsonBytes, result); err != nil {
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
+	}
+	if !result.Success || result.RecaptchaSuccess == nil {
+		err := fmt.Errorf("Recaptcha failed: %v", result.RecaptchaFailed.ErrorCodes)
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Warn(err)
+		return c.Render(http.StatusUnprocessableEntity, "inquiries/new.html.tpl", map[string]interface{}{
+			"title": "Contact",
+			"error": "Session error",
+		})
+	}
+	if result.RecaptchaSuccess != nil && result.RecaptchaSuccess.Score < 0.5 {
+		err := errors.New("Recaptcha score is too low")
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Warn(err)
+		return c.Render(http.StatusUnprocessableEntity, "inquiries/new.html.tpl", map[string]interface{}{
+			"title": "Contact",
+			"error": "Session error",
+		})
+	}
+
 	inquiry, err := contact.CreateInquiry(newInquiryFrom.Email, newInquiryFrom.Name, newInquiryFrom.Message)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -55,7 +95,7 @@ func (i *Inquiries) Create(c echo.Context) error {
 	}
 	logging.SharedInstance().Controller(c).Info("success to create inquiry")
 
-	// ここでemail送信
+	// Send email
 	go mailer.Notify(inquiry)
 	logging.SharedInstance().Controller(c).Info("success to send inquiry")
 	return c.Render(http.StatusCreated, "inquiries/create.html.tpl", map[string]interface{}{
