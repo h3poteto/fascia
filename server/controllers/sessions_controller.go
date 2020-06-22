@@ -119,6 +119,12 @@ func (u *Sessions) Create(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return c.Redirect(http.StatusFound, "/sign_in")
 	}
+
+	// Redirect callback path when iOS login
+	cookie, err := c.Cookie("fascia-ios")
+	if cookie.Value == "login-session" {
+		return c.Redirect(http.StatusFound, "/webviews/callback")
+	}
 	return c.Redirect(http.StatusFound, "/")
 }
 

@@ -69,7 +69,7 @@ func (u *Oauth) Github(c echo.Context) error {
 	}
 	logging.SharedInstance().Controller(c).Info("github login success")
 
-	// iosからのセッションの場合はリダイレクト先を変更
+	// Redirect callback path when iOS login
 	cookie, err := c.Cookie("fascia-ios")
 	if err == nil && cookie.Value == "login-session" {
 		return c.Redirect(http.StatusFound, "/webviews/callback")
