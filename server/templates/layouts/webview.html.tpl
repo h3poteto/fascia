@@ -14,5 +14,14 @@
       {% block content %}{% endblock %}
     </div>
     <script src="https://use.fontawesome.com/080be9d465.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js?render=6Lf4lKcZAAAAAIHL6kGXMvMhmEFAJQvThnppcbZ9"></script>
+    <script>
+     grecaptcha.ready(function () {
+       grecaptcha.execute('6Lf4lKcZAAAAAIHL6kGXMvMhmEFAJQvThnppcbZ9', { action: 'contact' }).then(function (token) {
+         var recaptchaResponse = document.getElementById('recaptchaResponse');
+         recaptchaResponse.value = token;
+       });
+     });
+    </script>
   </body>
 </html>

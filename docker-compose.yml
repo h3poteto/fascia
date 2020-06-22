@@ -60,6 +60,8 @@ services:
       REDIS_PORT: 6379
       REDIS_DB_NUMBER: 0
       GMAIL_APP_PASSWORD: $GMAIL_APP_PASSWORD
+      RECAPTCHA_SITE_KEY: $RECAPTCHA_SITE_KEY
+      RECAPTCHA_SECRET_KEY: $RECAPTCHA_SECRET_KEY
     volumes:
       - .:/go/src/github.com/h3poteto/fascia
       - module:/go/pkg/mod

@@ -1,6 +1,11 @@
 package controllers
 
 import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
+
 	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/middlewares"
@@ -9,11 +14,15 @@ import (
 	"github.com/h3poteto/fascia/server/views"
 
 	"net/http"
+	"net/url"
 
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 )
+
+// RecaptchaSiteverifyURL is an url for google reCAPTCHA v3.
+var RecaptchaSiteverifyURL = "https://www.google.com/recaptcha/api/siteverify"
 
 // Sessions is controller struct for sessions
 type Sessions struct {
@@ -21,8 +30,30 @@ type Sessions struct {
 
 // NewSessionForm is form object.
 type NewSessionForm struct {
-	Email    string `json:"email" form:"email"`
-	Password string `json:"password" form:"password"`
+	Email             string `json:"email" form:"email"`
+	Password          string `json:"password" form:"password"`
+	RecaptchaResponse string `json:"recaptcha_response" form:"recaptcha_response"`
+}
+
+// RecaptchaResult contains response from recaptcha stieverify.
+// failed: "{\n  \"success\": false,\n  \"error-codes\": [\n    \"missing-input-response\"\n  ]\n}"
+// success: "{\n  \"success\": true,\n  \"challenge_ts\": \"2020-06-16T14:17:18Z\",\n  \"hostname\": \"localhost\",\n  \"score\": 0.9,\n  \"action\": \"contact\"\n
+type RecaptchaResult struct {
+	Success bool `json:"success"`
+	*RecaptchaFailed
+	*RecaptchaSuccess
+}
+
+// RecaptchaFailed defines failed response.
+type RecaptchaFailed struct {
+	ErrorCodes []string `json:"error-codes"`
+}
+
+// RecaptchaSuccess defines succeeded response.
+type RecaptchaSuccess struct {
+	Hostname string  `json:"hostname"`
+	Score    float64 `json:"score"`
+	Action   string  `json:"action"`
 }
 
 // SignIn renders a sign in form
@@ -47,9 +78,36 @@ func (u *Sessions) Create(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	user, err := account.Authenticate(newSessionForm.Email, newSessionForm.Password)
+	val := url.Values{}
+	val.Add("secret", os.Getenv("RECAPTCHA_SECRET_KEY"))
+	val.Add("response", newSessionForm.RecaptchaResponse)
+	resp, err := http.PostForm(RecaptchaSiteverifyURL, val)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
+	}
+	defer resp.Body.Close()
+	byteArray, _ := ioutil.ReadAll(resp.Body)
+	jsonBytes := ([]byte)(byteArray)
+	result := new(RecaptchaResult)
+	if err := json.Unmarshal(jsonBytes, result); err != nil {
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
+	}
+	if !result.Success || result.RecaptchaSuccess == nil {
+		err := fmt.Errorf("Recaptcha failed: %v", result.RecaptchaFailed.ErrorCodes)
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Warn(err)
+		return c.Redirect(http.StatusFound, "/sign_in")
+	}
+	if result.RecaptchaSuccess != nil && result.RecaptchaSuccess.Score < 0.5 {
+		err := errors.New("Recaptcha score is too low")
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Warn(err)
+		return c.Redirect(http.StatusFound, "/sign_in")
+	}
+
+	user, err := account.Authenticate(newSessionForm.Email, newSessionForm.Password)
+	if err != nil {
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Warn(err)
 		return c.Redirect(http.StatusFound, "/sign_in")
 	}
 	option := &sessions.Options{
