@@ -122,7 +122,7 @@ func (u *Sessions) Create(c echo.Context) error {
 
 	// Redirect callback path when iOS login
 	cookie, err := c.Cookie("fascia-ios")
-	if cookie.Value == "login-session" {
+	if err ==nil && cookie.Value == "login-session" {
 		return c.Redirect(http.StatusFound, "/webviews/callback")
 	}
 	return c.Redirect(http.StatusFound, "/")
