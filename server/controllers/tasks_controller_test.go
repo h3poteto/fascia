@@ -87,17 +87,17 @@ var _ = Describe("TasksController", func() {
 		})
 		It("can registration", func() {
 			Expect(err).To(BeNil())
-			var contents views.AllLists
+			var contents views.Task
 			json.Unmarshal(rec.Body.Bytes(), &contents)
 			Expect(rec.Code).To(Equal(http.StatusOK))
 			Expect(contents).NotTo(BeNil())
-			Expect(contents.Lists[3].ListTasks[0].Title).To(Equal("taskTitle"))
+			Expect(contents.Title).To(Equal("taskTitle"))
 		})
 		It("should exist in database", func() {
-			var contents views.AllLists
+			var contents views.Task
 			json.Unmarshal(rec.Body.Bytes(), &contents)
-			newTask, _ := board.FindTask(int64(contents.Lists[3].ListTasks[0].ID))
-			Expect(newTask.ID).To(BeEquivalentTo(int64(contents.Lists[3].ListTasks[0].ID)))
+			newTask, _ := board.FindTask(int64(contents.ID))
+			Expect(newTask.ID).To(BeEquivalentTo(int64(contents.ID)))
 			Expect(newTask.Title).To(Equal("taskTitle"))
 		})
 	})
@@ -178,11 +178,11 @@ var _ = Describe("TasksController", func() {
 			resource := Tasks{}
 			err := resource.Update(c)
 			Expect(err).To(BeNil())
-			var contents views.AllLists
+			var contents views.Task
 			json.Unmarshal(rec.Body.Bytes(), &contents)
 			Expect(rec.Code).To(Equal(http.StatusOK))
-			Expect(contents.Lists[3].ListTasks[0].Title).To(Equal("updateTitle"))
-			Expect(contents.Lists[3].ListTasks[0].Description).To(Equal("updateDescription"))
+			Expect(contents.Title).To(Equal("updateTitle"))
+			Expect(contents.Description).To(Equal("updateDescription"))
 		})
 	})
 
