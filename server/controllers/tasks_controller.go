@@ -79,13 +79,13 @@ func (u *Tasks) Create(c echo.Context) error {
 		return err
 	}
 
-	jsonAllLists, err := allListsResponse(p)
+	jsonTask, err := views.ParseTaskJSON(t)
 	if err != nil {
 		return err
 	}
 	logging.SharedInstance().Controller(c).Debugf("create task success: %+v", t)
 	logging.SharedInstance().Controller(c).Info("success to create task")
-	return c.JSON(http.StatusOK, jsonAllLists)
+	return c.JSON(http.StatusOK, jsonTask)
 }
 
 // Show render json with task detail
@@ -160,7 +160,6 @@ func (u *Tasks) Update(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
-	p := tc.Project
 	t := tc.Task
 
 	editTaskForm := new(EditTaskForm)
@@ -192,13 +191,13 @@ func (u *Tasks) Update(c echo.Context) error {
 		return err
 	}
 
-	jsonAllLists, err := allListsResponse(p)
+	jsonTask, err := views.ParseTaskJSON(t)
 	if err != nil {
 		return err
 	}
 	logging.SharedInstance().Controller(c).Debugf("update task: %+v", t)
 	logging.SharedInstance().Controller(c).Info("success to update task")
-	return c.JSON(http.StatusOK, jsonAllLists)
+	return c.JSON(http.StatusOK, jsonTask)
 }
 
 // Delete a task
