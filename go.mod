@@ -26,9 +26,9 @@ require (
 	github.com/russross/blackfriday v1.5.2
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/cobra v0.0.5
-	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	golang.org/x/net v0.0.0-20200625001655-4c5254603344 // indirect
 	golang.org/x/oauth2 v0.0.0-20170928010508-bb50c06baba3
-	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e // indirect
 	google.golang.org/appengine v1.0.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0
 )

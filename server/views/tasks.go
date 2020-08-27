@@ -8,6 +8,7 @@ import (
 type Task struct {
 	ID          int64  `json:ID`
 	ListID      int64  `json:ListID`
+	ProjectID   int64  `json:ProjectID`
 	UserID      int64  `json:UserID`
 	IssueNumber int64  `json:IssueNumber`
 	Title       string `json:Title`
@@ -21,6 +22,7 @@ func ParseTaskJSON(task *task.Task) (*Task, error) {
 	return &Task{
 		ID:          task.ID,
 		ListID:      task.ListID,
+		ProjectID:   task.ProjectID,
 		UserID:      task.UserID,
 		IssueNumber: task.IssueNumber.Int64,
 		Title:       task.Title,
