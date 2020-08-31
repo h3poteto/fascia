@@ -18,7 +18,7 @@ require (
 	github.com/jessevdk/go-assets v0.0.0-20160921144138-4f4301a06e15
 	github.com/johntdyer/slack-go v0.0.0-20150106011025-88736fd63eed // indirect
 	github.com/johntdyer/slackrus v0.0.0-20170926115001-3992f319fd0a
-	github.com/labstack/echo/v4 v4.1.11
+	github.com/labstack/echo/v4 v4.1.17
 	github.com/lib/pq v1.8.0
 	github.com/onsi/ginkgo v1.14.0
 	github.com/onsi/gomega v1.10.1
@@ -26,8 +26,7 @@ require (
 	github.com/russross/blackfriday v1.5.2
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/cobra v0.0.5
-	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
-	golang.org/x/net v0.0.0-20200625001655-4c5254603344 // indirect
+	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
 	golang.org/x/oauth2 v0.0.0-20170928010508-bb50c06baba3
 	google.golang.org/appengine v1.0.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0
