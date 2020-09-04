@@ -87,12 +87,7 @@ func TaskChangeList(task *domain.Task, listID int64, prevToTaskID *int64) error 
 		return err
 	}
 
-	isReorder := true
-	if listID != task.ListID {
-		isReorder = false
-	}
-
-	go services.AfterTaskChangeList(task, isReorder, InjectProjectRepository(), InjectListRepository(), InjectRepoRepository())
+	go services.AfterTaskChangeList(task, InjectProjectRepository(), InjectListRepository(), InjectRepoRepository())
 	return nil
 }
 
