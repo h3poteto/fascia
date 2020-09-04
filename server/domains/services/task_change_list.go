@@ -40,29 +40,34 @@ func TaskInsertLast(targetTask *task.Task, listID int64, taskInfra task.Reposito
 }
 
 // AfterTaskChangeList fetch the changed list.
-func AfterTaskChangeList(t *task.Task, isReorder bool, projectInfra project.Repository, listInfra list.Repository, repoInfra repo.Repository) {
+func AfterTaskChangeList(t *task.Task, projectInfra project.Repository, listInfra list.Repository, repoInfra repo.Repository) {
+	logging.SharedInstance().MethodInfo("services/task_change_list", "AfterTaskChangeList").Debug("Syncing changed task")
 	projectID := t.ProjectID
 	p, err := projectInfra.Find(projectID)
-	// TODO: log
 	if err != nil {
+		logging.SharedInstance().MethodInfo("services/task_change_list", "AfterTaskChangeList").Error(err)
 		return
 	}
 	token, err := projectInfra.OauthToken(p.ID)
 	if err != nil {
+		logging.SharedInstance().MethodInfo("services/task_change_list", "AfterTaskChangeList").Error(err)
 		return
 	}
 	repo, err := repoInfra.FindByProjectID(p.ID)
 	if err != nil {
+		logging.SharedInstance().MethodInfo("services/task_change_list", "AfterTaskChangeList").Error(err)
 		return
 	}
-	err = fetchChangedList(t, token, repo, isReorder, listInfra)
+	err = fetchChangedList(t, token, repo, listInfra)
 	if err != nil {
+		logging.SharedInstance().MethodInfo("services/task_change_list", "AfterTaskChangeList").Error(err)
 		return
 	}
+	logging.SharedInstance().MethodInfo("services/task_change_list", "AfterTaskChangeList").Debug("Sync completed")
 }
 
-func fetchChangedList(t *task.Task, oauthToken string, repo *repo.Repo, isReorder bool, listInfra list.Repository) error {
-	if !isReorder && repo != nil {
+func fetchChangedList(t *task.Task, oauthToken string, repo *repo.Repo, listInfra list.Repository) error {
+	if repo != nil {
 		_, err := syncTaskToIssue(t, repo, oauthToken, listInfra)
 		if err != nil {
 			logging.SharedInstance().MethodInfo("task", "ChangeList").Error(err)
