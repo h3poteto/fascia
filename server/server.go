@@ -22,6 +22,13 @@ import (
 // Routes defines all routes
 func Routes(e *echo.Echo) {
 	rootDir := os.Getenv("APPROOT")
+
+	jwtConfig := middleware.JWTConfig{
+		Skipper:    middlewares.JWTSkipper,
+		Claims:     &config.JwtCustomClaims{},
+		SigningKey: []byte(os.Getenv("SECRET")),
+	}
+
 	// robots
 	e.File("/robots.txt", filepath.Join(rootDir, "public/robots.txt"))
 
@@ -45,8 +52,8 @@ func Routes(e *echo.Echo) {
 	sessions := &controllers.Sessions{}
 	e.GET("/sign_in", sessions.SignIn)
 	e.POST("/sign_in", sessions.Create)
-	e.PATCH("/session", sessions.Update, middlewares.Login())
-	e.GET("/session", sessions.Show, middlewares.Login())
+	e.PATCH("/session", sessions.Update, middleware.JWTWithConfig(jwtConfig), middlewares.Login())
+	e.GET("/session", sessions.Show, middleware.JWTWithConfig(jwtConfig), middlewares.Login())
 	e.DELETE("/sign_out", sessions.SignOut)
 
 	oauth := &controllers.Oauth{}
@@ -65,13 +72,14 @@ func Routes(e *echo.Echo) {
 	e.POST("/inquiries", inquiries.Create)
 
 	github := &controllers.Github{}
-	e.GET("/api/github/repositories", github.Repositories, middlewares.Login())
+	e.GET("/api/github/repositories", github.Repositories, middleware.JWTWithConfig(jwtConfig), middlewares.Login())
 
 	projects := &controllers.Projects{}
-	e.POST("/api/projects", projects.Create, middlewares.Login())
-	e.GET("/api/projects", projects.Index, middlewares.Login())
+	e.POST("/api/projects", projects.Create, middleware.JWTWithConfig(jwtConfig), middlewares.Login())
+	e.GET("/api/projects", projects.Index, middleware.JWTWithConfig(jwtConfig), middlewares.Login())
 
 	p := e.Group("/api/projects/:project_id")
+	p.Use(middleware.JWTWithConfig(jwtConfig))
 	p.Use(middlewares.Login())
 	p.Use(middlewares.Project())
 	p.PATCH("", projects.Update)

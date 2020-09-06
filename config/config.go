@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/dgrijalva/jwt-go"
 	"gopkg.in/yaml.v2"
 )
 
@@ -30,4 +31,10 @@ func getenv(value, key string) string {
 		return os.Getenv(key)
 	}
 	return value
+}
+
+// JwtCustomClaims jwt claim
+type JwtCustomClaims struct {
+	CurrentUserID int64 `json:"current_user_id"`
+	jwt.StandardClaims
 }
