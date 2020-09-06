@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"os"
 	"time"
 
 	"github.com/h3poteto/fascia/config"
@@ -86,7 +87,7 @@ func (u *Oauth) Github(c echo.Context) error {
 		// Create token with claims
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 		// Generate encoded token and send it as response.
-		t, err := token.SignedString([]byte("secret"))
+		t, err := token.SignedString([]byte(os.Getenv("SECRET")))
 		if err != nil {
 			return err
 		}

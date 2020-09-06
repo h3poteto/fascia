@@ -26,7 +26,7 @@ func Routes(e *echo.Echo) {
 	jwtConfig := middleware.JWTConfig{
 		Skipper:    middlewares.JWTSkipper,
 		Claims:     &config.JwtCustomClaims{},
-		SigningKey: []byte("secret"),
+		SigningKey: []byte(os.Getenv("SECRET")),
 	}
 
 	// robots
