@@ -52,6 +52,7 @@ func Routes(e *echo.Echo) {
 	sessions := &controllers.Sessions{}
 	e.GET("/sign_in", sessions.SignIn)
 	e.POST("/sign_in", sessions.Create)
+	e.PATCH("/session/token", sessions.UpdateToken, middleware.JWTWithConfig(jwtConfig), middlewares.Login())
 	e.PATCH("/session", sessions.Update, middleware.JWTWithConfig(jwtConfig), middlewares.Login())
 	e.GET("/session", sessions.Show, middleware.JWTWithConfig(jwtConfig), middlewares.Login())
 	e.DELETE("/sign_out", sessions.SignOut)
