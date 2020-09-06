@@ -130,7 +130,7 @@ func (u *Sessions) Create(c echo.Context) error {
 		claims := &config.JwtCustomClaims{
 			user.ID,
 			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
+				ExpiresAt: time.Now().Add(time.Second * time.Duration(config.Element("session").(map[interface{}]interface{})["timeout"].(int))).Unix(),
 			},
 		}
 
@@ -139,6 +139,7 @@ func (u *Sessions) Create(c echo.Context) error {
 		// Generate encoded token and send it as response.
 		t, err := token.SignedString([]byte(os.Getenv("SECRET")))
 		if err != nil {
+			logging.SharedInstance().ControllerWithStacktrace(err, c).Warn(err)
 			return err
 		}
 
@@ -211,6 +212,39 @@ func (u *Sessions) Update(c echo.Context) error {
 	}
 	logging.SharedInstance().Controller(c).Info("session update success")
 	return c.JSON(http.StatusOK, nil)
+}
+
+// UpdateToken update jwt token
+func (u *Sessions) UpdateToken(c echo.Context) error {
+	uc, ok := c.(*middlewares.LoginContext)
+	if !ok {
+		err := errors.New("Can not cast context")
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+		return err
+	}
+	user := uc.CurrentUser
+
+	// Generate jwt token
+	claims := &config.JwtCustomClaims{
+		user.ID,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Second * time.Duration(config.Element("session").(map[interface{}]interface{})["timeout"].(int))).Unix(),
+		},
+	}
+
+	// Create token with claims
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	// Generate encoded token and send it as response.
+	t, err := token.SignedString([]byte(os.Getenv("SECRET")))
+	if err != nil {
+		logging.SharedInstance().ControllerWithStacktrace(err, c).Warn(err)
+		return err
+	}
+
+	logging.SharedInstance().Controller(c).Info("token update success")
+	return c.JSON(http.StatusOK, echo.Map{
+		"access_token": t,
+	})
 }
 
 // Show returns current session and login user

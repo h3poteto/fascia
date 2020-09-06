@@ -80,7 +80,7 @@ func (u *Oauth) Github(c echo.Context) error {
 		claims := &config.JwtCustomClaims{
 			user.ID,
 			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
+				ExpiresAt: time.Now().Add(time.Second * time.Duration(config.Element("session").(map[interface{}]interface{})["timeout"].(int))).Unix(),
 			},
 		}
 
@@ -89,6 +89,7 @@ func (u *Oauth) Github(c echo.Context) error {
 		// Generate encoded token and send it as response.
 		t, err := token.SignedString([]byte(os.Getenv("SECRET")))
 		if err != nil {
+			logging.SharedInstance().ControllerWithStacktrace(err, c).Warn(err)
 			return err
 		}
 
