@@ -50,6 +50,32 @@ func (u *Oauth) Github(c echo.Context) error {
 		return err
 	}
 
+	// for mobile login
+	cookie, err := c.Cookie("fascia-mobile")
+	if err == nil && cookie.Value == "login-session" {
+		userService, err := usecase.FindOrCreateUserFromGithub(token.AccessToken)
+		if err != nil {
+			logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+			return c.Redirect(http.StatusFound, "/webviews/oauth/sign_in")
+		}
+		logging.SharedInstance().Controller(c).Debugf("login success: %+v", userService)
+
+		option := &sessions.Options{
+			Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int),
+			HttpOnly: true,
+		}
+		err = session.SharedInstance().Set(c.Request(), c.Response(), "current_user_id", userService.ID, option)
+		if err != nil {
+			err := errors.Wrap(err, "session error")
+			logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+			return err
+		}
+		logging.SharedInstance().Controller(c).Info("github login success")
+
+		return c.Redirect(http.StatusFound, "/webviews/callback")
+	}
+
+	// for browser login
 	userService, err := usecase.FindOrCreateUserFromGithub(token.AccessToken)
 	if err != nil {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -69,10 +95,5 @@ func (u *Oauth) Github(c echo.Context) error {
 	}
 	logging.SharedInstance().Controller(c).Info("github login success")
 
-	// Redirect callback path when iOS login
-	cookie, err := c.Cookie("fascia-ios")
-	if err == nil && cookie.Value == "login-session" {
-		return c.Redirect(http.StatusFound, "/webviews/callback")
-	}
 	return c.Redirect(http.StatusFound, "/")
 }

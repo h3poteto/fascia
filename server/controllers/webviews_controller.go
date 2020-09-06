@@ -37,7 +37,7 @@ func (u *Webviews) OauthSignIn(c echo.Context) error {
 	// Set cookie for iOS application when authentication callback
 	cookie := http.Cookie{
 		Path:    "/",
-		Name:    "fascia-ios",
+		Name:    "fascia-mobile",
 		Value:   "login-session",
 		Expires: time.Now().AddDate(0, 0, 1),
 	}

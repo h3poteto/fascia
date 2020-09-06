@@ -94,6 +94,40 @@ func (u *Sessions) Create(c echo.Context) error {
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 		return err
 	}
+
+	// for mobile login
+	cookie, err := c.Cookie("fascia-mobile")
+	if err == nil && cookie.Value == "login-session" {
+		if !result.Success || result.RecaptchaSuccess == nil {
+			err := fmt.Errorf("Recaptcha failed: %v", result.RecaptchaFailed.ErrorCodes)
+			logging.SharedInstance().ControllerWithStacktrace(err, c).Warn(err)
+			return c.Redirect(http.StatusFound, "/webviews/oauth/sign_in")
+		}
+		if result.RecaptchaSuccess != nil && result.RecaptchaSuccess.Score < 0.5 {
+			err := errors.New("Recaptcha score is too low")
+			logging.SharedInstance().ControllerWithStacktrace(err, c).Warn(err)
+			return c.Redirect(http.StatusFound, "/webviews/oauth/sign_in")
+		}
+
+		user, err := account.Authenticate(newSessionForm.Email, newSessionForm.Password)
+		if err != nil {
+			logging.SharedInstance().ControllerWithStacktrace(err, c).Warn(err)
+			return c.Redirect(http.StatusFound, "/webviews/oauth/sign_in")
+		}
+		option := &sessions.Options{
+			Path:     "/",
+			MaxAge:   config.Element("session").(map[interface{}]interface{})["timeout"].(int),
+			HttpOnly: true,
+		}
+		if err := session.SharedInstance().Set(c.Request(), c.Response(), "current_user_id", user.ID, option); err != nil {
+			logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
+			return c.Redirect(http.StatusFound, "/webviews/oauth/sign_in")
+		}
+
+		return c.Redirect(http.StatusFound, "/webviews/callback")
+	}
+
+	// for browser login
 	if !result.Success || result.RecaptchaSuccess == nil {
 		err := fmt.Errorf("Recaptcha failed: %v", result.RecaptchaFailed.ErrorCodes)
 		logging.SharedInstance().ControllerWithStacktrace(err, c).Warn(err)
@@ -120,11 +154,6 @@ func (u *Sessions) Create(c echo.Context) error {
 		return c.Redirect(http.StatusFound, "/sign_in")
 	}
 
-	// Redirect callback path when iOS login
-	cookie, err := c.Cookie("fascia-ios")
-	if err ==nil && cookie.Value == "login-session" {
-		return c.Redirect(http.StatusFound, "/webviews/callback")
-	}
 	return c.Redirect(http.StatusFound, "/")
 }
 
