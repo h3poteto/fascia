@@ -1,6 +1,8 @@
 package middlewares
 
 import (
+	"github.com/dgrijalva/jwt-go"
+	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/domains/list"
 	"github.com/h3poteto/fascia/server/domains/project"
@@ -22,8 +24,8 @@ import (
 
 // JSONError is a struct for http error
 type JSONError struct {
-	Code    int    `json:code`
-	Message string `json:message`
+	Code    int    `json:"code"`
+	Message string `json:"message"`
 }
 
 // NewJSONError render error json response and return error
@@ -86,15 +88,37 @@ func Login() echo.MiddlewareFunc {
 
 // CheckLogin authenticate user
 func CheckLogin(c echo.Context) (*user.User, error) {
-	id, err := session.SharedInstance().Get(c.Request(), "current_user_id")
-	if id == nil {
-		return nil, errors.New("not logined")
+	id, err := checkJWT(c)
+	if err != nil || id == -1 {
+		id, err = checkSession(c)
+		if err != nil || id == -1 {
+			return nil, errors.New("not logged in")
+		}
 	}
-	currentUser, err := account.FindUser(id.(int64))
+
+	currentUser, err := account.FindUser(id)
 	if err != nil {
 		return nil, err
 	}
 	return currentUser, nil
+}
+
+func checkJWT(c echo.Context) (int64, error) {
+	u := c.Get("user")
+	if u == nil {
+		return -1, errors.New("JWT does not exist")
+	}
+	ut := u.(*jwt.Token)
+	claims := ut.Claims.(*config.JwtCustomClaims)
+	return claims.CurrentUserID, nil
+}
+
+func checkSession(c echo.Context) (int64, error) {
+	session_id, err := session.SharedInstance().Get(c.Request(), "current_user_id")
+	if err != nil || session_id == nil {
+		return -1, errors.New("Session does not exist")
+	}
+	return session_id.(int64), nil
 }
 
 // Project requires a project from project_id
@@ -239,4 +263,13 @@ func ErrorLogging(e *echo.Echo) func(error, echo.Context) {
 		}
 		e.DefaultHTTPErrorHandler(err, c)
 	}
+}
+
+// JWTSkipper skip jwt middleware when auth session exists.
+func JWTSkipper(c echo.Context) bool {
+	_, err := checkSession(c)
+	if err != nil {
+		return false
+	}
+	return true
 }

@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/middlewares"
@@ -124,7 +126,23 @@ func (u *Sessions) Create(c echo.Context) error {
 			return c.Redirect(http.StatusFound, "/webviews/oauth/sign_in")
 		}
 
-		return c.Redirect(http.StatusFound, "/webviews/callback")
+		// Generate jwt token
+		claims := &config.JwtCustomClaims{
+			user.ID,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
+			},
+		}
+
+		// Create token with claims
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		// Generate encoded token and send it as response.
+		t, err := token.SignedString([]byte("secret"))
+		if err != nil {
+			return err
+		}
+
+		return c.Redirect(http.StatusFound, "/webviews/callback?access_token="+t)
 	}
 
 	// for browser login

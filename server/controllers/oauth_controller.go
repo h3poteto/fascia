@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"time"
+
 	"github.com/h3poteto/fascia/config"
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/session"
@@ -8,6 +10,7 @@ import (
 
 	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
@@ -53,18 +56,18 @@ func (u *Oauth) Github(c echo.Context) error {
 	// for mobile login
 	cookie, err := c.Cookie("fascia-mobile")
 	if err == nil && cookie.Value == "login-session" {
-		userService, err := usecase.FindOrCreateUserFromGithub(token.AccessToken)
+		user, err := usecase.FindOrCreateUserFromGithub(token.AccessToken)
 		if err != nil {
 			logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
 			return c.Redirect(http.StatusFound, "/webviews/oauth/sign_in")
 		}
-		logging.SharedInstance().Controller(c).Debugf("login success: %+v", userService)
+		logging.SharedInstance().Controller(c).Debugf("login success: %+v", user)
 
 		option := &sessions.Options{
 			Path: "/", MaxAge: config.Element("session").(map[interface{}]interface{})["timeout"].(int),
 			HttpOnly: true,
 		}
-		err = session.SharedInstance().Set(c.Request(), c.Response(), "current_user_id", userService.ID, option)
+		err = session.SharedInstance().Set(c.Request(), c.Response(), "current_user_id", user.ID, option)
 		if err != nil {
 			err := errors.Wrap(err, "session error")
 			logging.SharedInstance().ControllerWithStacktrace(err, c).Error(err)
@@ -72,7 +75,23 @@ func (u *Oauth) Github(c echo.Context) error {
 		}
 		logging.SharedInstance().Controller(c).Info("github login success")
 
-		return c.Redirect(http.StatusFound, "/webviews/callback")
+		// Generate jwt token
+		claims := &config.JwtCustomClaims{
+			user.ID,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
+			},
+		}
+
+		// Create token with claims
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		// Generate encoded token and send it as response.
+		t, err := token.SignedString([]byte("secret"))
+		if err != nil {
+			return err
+		}
+
+		return c.Redirect(http.StatusFound, "/webviews/callback?access_token="+t)
 	}
 
 	// for browser login
