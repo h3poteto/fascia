@@ -114,11 +114,11 @@ func checkJWT(c echo.Context) (int64, error) {
 }
 
 func checkSession(c echo.Context) (int64, error) {
-	session_id, err := session.SharedInstance().Get(c.Request(), "current_user_id")
-	if err != nil || session_id == nil {
+	sessionID, err := session.SharedInstance().Get(c.Request(), "current_user_id")
+	if err != nil || sessionID == nil {
 		return -1, errors.New("Session does not exist")
 	}
-	return session_id.(int64), nil
+	return sessionID.(int64), nil
 }
 
 // Project requires a project from project_id
