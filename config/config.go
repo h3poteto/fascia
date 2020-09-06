@@ -33,6 +33,7 @@ func getenv(value, key string) string {
 	return value
 }
 
+// JwtCustomClaims jwt claim
 type JwtCustomClaims struct {
 	CurrentUserID int64 `json:"current_user_id"`
 	jwt.StandardClaims
