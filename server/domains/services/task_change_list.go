@@ -2,6 +2,7 @@ package services
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/h3poteto/fascia/lib/modules/logging"
 	"github.com/h3poteto/fascia/server/domains/list"
@@ -53,12 +54,18 @@ func AfterTaskChangeList(t *task.Task, projectInfra project.Repository, listInfr
 		logging.SharedInstance().MethodInfo("services/task_change_list", "AfterTaskChangeList").Error(err)
 		return
 	}
-	repo, err := repoInfra.FindByProjectID(p.ID)
+	r, err := repoInfra.FindByProjectID(p.ID)
 	if err != nil {
-		logging.SharedInstance().MethodInfo("services/task_change_list", "AfterTaskChangeList").Error(err)
+		var e *repo.NotFoundError
+		if errors.As(err, &e) {
+			// This project does not have repository.
+			logging.SharedInstance().MethodInfo("services/task_change_list", "AfterTaskChangeList").Debug(e)
+			return
+		}
+		logging.SharedInstance().MethodInfo("services/task_change_list", "AfterTaskChangeList").Errorf("Repository record is not found, %v", err)
 		return
 	}
-	err = fetchChangedList(t, token, repo, listInfra)
+	err = fetchChangedList(t, token, r, listInfra)
 	if err != nil {
 		logging.SharedInstance().MethodInfo("services/task_change_list", "AfterTaskChangeList").Error(err)
 		return
@@ -66,9 +73,9 @@ func AfterTaskChangeList(t *task.Task, projectInfra project.Repository, listInfr
 	logging.SharedInstance().MethodInfo("services/task_change_list", "AfterTaskChangeList").Debug("Sync completed")
 }
 
-func fetchChangedList(t *task.Task, oauthToken string, repo *repo.Repo, listInfra list.Repository) error {
-	if repo != nil {
-		_, err := syncTaskToIssue(t, repo, oauthToken, listInfra)
+func fetchChangedList(t *task.Task, oauthToken string, r *repo.Repo, listInfra list.Repository) error {
+	if r != nil {
+		_, err := syncTaskToIssue(t, r, oauthToken, listInfra)
 		if err != nil {
 			logging.SharedInstance().MethodInfo("task", "ChangeList").Error(err)
 			return err
