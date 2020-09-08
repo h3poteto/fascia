@@ -8,3 +8,13 @@ type Repository interface {
 	FindByProjectID(int64) (*Repo, error)
 	Create(int64, sql.NullString, sql.NullString, string) (int64, error)
 }
+
+// NotFoundError is an error when repository not found in DB
+type NotFoundError struct {
+	Err error
+}
+
+// Error interface method for error
+func (n *NotFoundError) Error() string {
+	return n.Err.Error()
+}
