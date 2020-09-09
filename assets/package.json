@@ -57,7 +57,7 @@
     "eslint-plugin-react": "^7.19.0",
     "fibers": "^5.0.0",
     "file-loader": "^6.0.0",
-    "mini-css-extract-plugin": "^0.10.0",
+    "mini-css-extract-plugin": "^0.11.1",
     "node-sass": "^4.13.1",
     "prettier": "^2.0.4",
     "redux-logger": "^3.0.6",
