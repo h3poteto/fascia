@@ -23,19 +23,13 @@ RUN set -x \
     && npm run compile
 
 
-FROM h3poteto/golang:1.13.4
+FROM ghcr.io/h3poteto/golang:1.15.2
 
 USER root
 ENV GOPATH /go
 ENV APPROOT ${GOPATH}/src/github.com/h3poteto/fascia
 ENV APPENV production
 ENV GO111MODULE on
-
-RUN set -x \
-    && apk add --no-cache \
-    curl && \
-    curl -fsSL https://github.com/minamijoyo/myaws/releases/download/v0.3.0/myaws_v0.3.0_linux_amd64.tar.gz \
-    | tar -xzC /usr/local/bin && chmod +x /usr/local/bin/myaws
 
 WORKDIR ${APPROOT}
 
