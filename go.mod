@@ -22,7 +22,7 @@ require (
 	github.com/johntdyer/slackrus v0.0.0-20170926115001-3992f319fd0a
 	github.com/labstack/echo/v4 v4.1.17
 	github.com/lib/pq v1.8.0
-	github.com/onsi/ginkgo v1.14.0
+	github.com/onsi/ginkgo v1.14.2
 	github.com/onsi/gomega v1.10.1
 	github.com/pkg/errors v0.9.1
 	github.com/russross/blackfriday v1.5.2
