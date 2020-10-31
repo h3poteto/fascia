@@ -47,7 +47,7 @@ jobs:
 
   assets:
     docker:
-      - image: node:12.18.0-alpine3.12
+      - image: node:12.19.0-buster-slim
     working_directory: /var/opt/app
     steps:
       - checkout
@@ -71,7 +71,7 @@ jobs:
 
   lp:
     docker:
-      - image: node:12.18.0-alpine3.12
+      - image: node:12.19-buster-slim
     working_directory: /var/opt/app
     steps:
       - checkout
