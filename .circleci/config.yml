@@ -47,10 +47,13 @@ jobs:
 
   assets:
     docker:
-      - image: node:12.19.0-buster-slim
+      - image: node:12.19.0-alpine3.12
     working_directory: /var/opt/app
     steps:
       - checkout
+      - run:
+          name: Certificates
+          command: apk add --no-cache ca-certificates
       - restore_cache:
           name: Restoring cache - node_modules
           keys:
@@ -71,10 +74,13 @@ jobs:
 
   lp:
     docker:
-      - image: node:12.19-buster-slim
+      - image: node:12.19-alpine3.12
     working_directory: /var/opt/app
     steps:
       - checkout
+      - run:
+          name: Certificates
+          command: apk add --no-cache ca-certificates
       - restore_cache:
           name: Restoring cache - node_modules
           keys:
