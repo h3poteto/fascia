@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "fascia",
   "scripts": {
-    "dev": "webpack --progress --colors --watch --mode development",
+    "dev": "webpack --progress --color --watch --mode development",
     "compile": "NODE_ENV=production webpack --mode production",
     "lint": "eslint --config .eslintrc.json --ext .ts,.tsx js"
   },
