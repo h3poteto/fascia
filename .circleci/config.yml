@@ -47,15 +47,17 @@ jobs:
 
   assets:
     docker:
-      - image: node:12.18.0-alpine3.12
+      - image: node:12.19.0-alpine3.12
     working_directory: /var/opt/app
     steps:
       - checkout
+      - run:
+          name: Certificates
+          command: apk add --no-cache ca-certificates
       - restore_cache:
           name: Restoring cache - node_modules
-          working_directory: /var/opt/app/assets
           keys:
-            - node-{{ arch }}-12.18.0-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
+            - node-{{ arch }}-12.18.0-{{ checksum "assets/package.json" }}-{{ checksum "assets/package-lock.json" }}
       - run:
           name: Install
           working_directory: /var/opt/app/assets
@@ -66,22 +68,23 @@ jobs:
           command: npm run compile
       - save_cache:
           name: Saving cache - node_modules
-          working_directory: /var/opt/app/assets
-          key: node-{{ arch }}-12.18.0-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
+          key: node-{{ arch }}-12.18.0-{{ checksum "assets/package.json" }}-{{ checksum "assets/package-lock.json" }}
           paths:
             - "/var/opt/app/assets/node_modules"
 
   lp:
     docker:
-      - image: node:12.18.0-alpine3.12
+      - image: node:12.19-alpine3.12
     working_directory: /var/opt/app
     steps:
       - checkout
+      - run:
+          name: Certificates
+          command: apk add --no-cache ca-certificates
       - restore_cache:
           name: Restoring cache - node_modules
-          working_directory: /var/opt/app/lp
           keys:
-            - node-{{ arch }}-12.18.0-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
+            - node-{{ arch }}-12.18.0-{{ checksum "lp/package.json" }}-{{ checksum "lp/package-lock.json" }}
       - run:
           name: Install
           working_directory: /var/opt/app/lp
@@ -92,8 +95,7 @@ jobs:
           command: npm run compile
       - save_cache:
           name: Saving cache - node_modules
-          working_directory: /var/opt/app/lp
-          key: node-{{ arch }}-12.18.0-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
+          key: node-{{ arch }}-12.18.0-{{ checksum "lp/package.json" }}-{{ checksum "lp/package-lock.json" }}
           paths:
             - "/var/opt/app/lp/node_modules"
 
