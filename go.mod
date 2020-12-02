@@ -21,7 +21,7 @@ require (
 	github.com/johntdyer/slack-go v0.0.0-20150106011025-88736fd63eed // indirect
 	github.com/johntdyer/slackrus v0.0.0-20170926115001-3992f319fd0a
 	github.com/labstack/echo/v4 v4.1.17
-	github.com/lib/pq v1.8.0
+	github.com/lib/pq v1.9.0
 	github.com/onsi/ginkgo v1.14.2
 	github.com/onsi/gomega v1.10.3
 	github.com/pkg/errors v0.9.1
