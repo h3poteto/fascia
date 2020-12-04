@@ -139,7 +139,6 @@ jobs:
             git init
             git checkout -b update-fascia-image-${CIRCLE_SHA1}
             sed -i -e "s/\(564677439943\.dkr\.ecr\.ap-northeast-1\.amazonaws\.com\/h3poteto\/fascia:\)[0-9a-z]\+.*$/\1$CIRCLE_SHA1/g" external-prd/fascia/deployment.yml
-            sed -i -e "s/\(564677439943\.dkr\.ecr\.ap-northeast-1\.amazonaws\.com\/h3poteto\/fascia:\)[0-9a-z]\+.*$/\1$CIRCLE_SHA1/g" external-prd/fascia/job.yml
             git add .
             git commit -m "Update docker image for fascia to ${CIRCLE_SHA1}"
             git push --set-upstream origin update-fascia-image-${CIRCLE_SHA1}
