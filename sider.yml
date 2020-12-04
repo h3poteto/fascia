@@ -2,7 +2,7 @@ linter:
   eslint:
     npm_install: true
     root_dir: ./assets
-    dir:
+    target:
       - js
     config: '.eslintrc.json'
     ext: '.ts,.tsx'
