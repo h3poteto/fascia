@@ -25,7 +25,7 @@ require (
 	github.com/onsi/ginkgo v1.14.2
 	github.com/onsi/gomega v1.10.3
 	github.com/pkg/errors v0.9.1
-	github.com/russross/blackfriday v1.5.2
+	github.com/russross/blackfriday v1.6.0
 	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/cobra v0.0.5
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
