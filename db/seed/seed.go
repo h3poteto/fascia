@@ -14,7 +14,7 @@ func Seeds() error {
 func TruncateAll() error {
 	db := database.SharedInstance().Connection
 
-	tables := []string{"tasks", "lists", "projects", "repositories", "reset_passwords", "users", "list_options"}
+	tables := []string{"tasks", "lists", "projects", "repositories", "users", "list_options"}
 	for _, t := range tables {
 		_, err := db.Exec("DELETE FROM " + t + ";")
 		if err != nil {
