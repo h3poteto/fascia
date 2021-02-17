@@ -26,7 +26,7 @@ require (
 	github.com/onsi/gomega v1.10.3
 	github.com/pkg/errors v0.9.1
 	github.com/russross/blackfriday v1.6.0
-	github.com/sirupsen/logrus v1.7.0
+	github.com/sirupsen/logrus v1.7.1
 	github.com/spf13/cobra v0.0.5
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
 	golang.org/x/oauth2 v0.0.0-20170928010508-bb50c06baba3
