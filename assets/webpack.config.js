@@ -1,5 +1,5 @@
 const path = require('path')
-const ManifestPlugin = require('webpack-manifest-plugin')
+const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
 
 // eslint-disable-next-line no-undef
 const production = process.env.NODE_ENV === 'production'
@@ -78,5 +78,5 @@ module.exports = {
       }
     ]
   },
-  plugins: [new ManifestPlugin()]
+  plugins: [new WebpackManifestPlugin()]
 }
