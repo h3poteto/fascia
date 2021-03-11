@@ -55,7 +55,7 @@ services:
       POSTGRES_DB: fascia
       CLIENT_ID: $CLIENT_ID
       CLIENT_SECRET: $CLIENT_SECRET
-      SLACK_URL: $SLACK_URL
+      ROLLBAR_TOKEN: $ROLLBAR_TOKEN
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_DB_NUMBER: 0
@@ -64,7 +64,6 @@ services:
       RECAPTCHA_SECRET_KEY: $RECAPTCHA_SECRET_KEY
     volumes:
       - .:/go/src/github.com/h3poteto/fascia
-      - module:/go/pkg/mod
     working_dir: /go/src/github.com/h3poteto/fascia
     links:
       - redis:redis

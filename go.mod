@@ -17,9 +17,8 @@ require (
 	github.com/gorilla/securecookie v0.0.0-20160422134519-667fe4e3466a // indirect
 	github.com/gorilla/sessions v0.0.0-20160922145804-ca9ada445741
 	github.com/h3poteto/pongo2echo v0.1.0
+	github.com/heroku/rollrus v0.2.0
 	github.com/jessevdk/go-assets v0.0.0-20160921144138-4f4301a06e15
-	github.com/johntdyer/slack-go v0.0.0-20150106011025-88736fd63eed // indirect
-	github.com/johntdyer/slackrus v0.0.0-20170926115001-3992f319fd0a
 	github.com/labstack/echo/v4 v4.2.0
 	github.com/lib/pq v1.9.0
 	github.com/onsi/ginkgo v1.15.0
