@@ -21,7 +21,7 @@ require (
 	github.com/jessevdk/go-assets v0.0.0-20160921144138-4f4301a06e15
 	github.com/labstack/echo/v4 v4.2.0
 	github.com/lib/pq v1.9.0
-	github.com/onsi/ginkgo v1.15.0
+	github.com/onsi/ginkgo v1.16.0
 	github.com/onsi/gomega v1.10.5
 	github.com/pkg/errors v0.9.1
 	github.com/russross/blackfriday v1.6.0
