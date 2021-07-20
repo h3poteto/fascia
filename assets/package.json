@@ -20,7 +20,7 @@
   "dependencies": {
     "axios": "^0.21.0",
     "axios-progress-bar": "^1.2.0",
-    "bootstrap": "^4.4.1",
+    "bootstrap": "^5.0.2",
     "connected-react-router": "^6.7.0",
     "history": "^4.10.1",
     "react": "^16.12.0",
