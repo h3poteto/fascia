@@ -33,7 +33,7 @@ class Menu extends React.Component<Props> {
               </Navbar.Collapse>
               <Navbar.Collapse className="justify-content-end">
                 <Nav>
-                  <NavDropdown title="Accounts" id="basic-nav-dropdown">
+                  <NavDropdown title="Accounts" id="basic-nav-dropdown" className={styles.accounts}>
                     <NavDropdown.Item>
                       <Link to="/settings">Settings</Link>
                     </NavDropdown.Item>
