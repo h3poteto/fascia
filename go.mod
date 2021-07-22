@@ -10,7 +10,6 @@ require (
 	github.com/flosch/pongo2 v0.0.0-20170906222041-1f4be1efe3b3
 	github.com/flosch/pongo2-addons v0.0.0-20170902001113-86b9b7b80512
 	github.com/go-redis/redis v6.15.9+incompatible
-	github.com/google/go-cmp v0.5.0 // indirect
 	github.com/google/go-github v13.0.1-0.20171014143926-a021c14a5f19+incompatible
 	github.com/google/go-querystring v0.0.0-20170111101155-53e6ce116135 // indirect
 	github.com/gorilla/context v0.0.0-20160226214623-1ea25387ff6f // indirect
@@ -20,8 +19,8 @@ require (
 	github.com/heroku/rollrus v0.2.0
 	github.com/labstack/echo/v4 v4.4.0
 	github.com/lib/pq v1.10.2
-	github.com/onsi/ginkgo v1.15.0
-	github.com/onsi/gomega v1.10.5
+	github.com/onsi/ginkgo v1.16.4
+	github.com/onsi/gomega v1.14.0
 	github.com/pkg/errors v0.9.1
 	github.com/russross/blackfriday v1.6.0
 	github.com/sirupsen/logrus v1.8.0
