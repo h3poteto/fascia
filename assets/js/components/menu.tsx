@@ -4,6 +4,7 @@ import { ThunkDispatch } from 'redux-thunk'
 import { Link } from 'react-router-dom'
 
 import Actions, { logout } from '@/actions/menu'
+import styles from './menu.scss'
 
 type Props = {
   dispatch: ThunkDispatch<any, any, Actions>
@@ -19,7 +20,7 @@ class Menu extends React.Component<Props> {
       <div>
         <header className="top-header">
           <Navbar bg="primary" variant="dark" expand="lg">
-            <Container>
+            <Container className={styles.container}>
               <Navbar.Brand href="/">
                 <img alt="" src="/lp/images/fascia-icon.png" width="30" height="30" className="d-inline-block align-top" /> Fascia
               </Navbar.Brand>

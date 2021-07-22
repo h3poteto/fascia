@@ -26,7 +26,8 @@ class ListComponent extends React.Component<Props> {
     return (
       <div className={styles.list}>
         <Card bg="light" style={{ width: '18rem' }}>
-          <Card.Header>{list.title}
+          <Card.Header>
+            {list.title}
             {this.listOperation(list)}
             <div className="clearfix"></div>
           </Card.Header>
@@ -35,7 +36,7 @@ class ListComponent extends React.Component<Props> {
               <Draggable key={t.id} draggableId={`${t.id}`} index={index}>
                 {(provided) => (
                   <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                    <Link to={`/projects/${list.project_id}/lists/${list.id}/tasks/${t.id}`}>
+                    <Link to={`/projects/${list.project_id}/lists/${list.id}/tasks/${t.id}`} className={styles.task}>
                       <Task key={t.id} task={t} color={list.color} />
                     </Link>
                   </div>
@@ -43,7 +44,9 @@ class ListComponent extends React.Component<Props> {
               </Draggable>
             ))}
             <Link to={`/projects/${list.project_id}/lists/${list.id}/tasks/new`}>
-              <Button style={{ width: '100%' }} variant="outline-info"><i className="fa fa-plus"></i></Button>
+              <Button style={{ width: '100%' }} variant="outline-info">
+                <i className="fa fa-plus"></i>
+              </Button>
             </Link>
           </Card.Body>
         </Card>
