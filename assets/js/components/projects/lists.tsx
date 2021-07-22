@@ -45,7 +45,7 @@ class ListsComponent extends React.Component<Props> {
 
     if (this.props.lists.project?.repositoryID) {
       return (
-        <div className="float-right pr-5 pt-2">
+        <div className="float-end pe-5 pt-2">
           <span onClick={syncRepository}>
             <i title="Sync GitHub issues" className="fa fa-repeat"></i>
           </span>
@@ -113,10 +113,10 @@ class ListsComponent extends React.Component<Props> {
       <div>
         <div className={styles.title}>
           <h3>{project ? project.title : ''}</h3>
-          <span className="mr-2" onClick={openEditProjectModal}>
+          <span className="me-2" onClick={openEditProjectModal}>
             <i title="Edit project" className="fa fa-pencil"></i>
           </span>
-          <span onClick={openDeleteModal}>
+          <span className="me-2" onClick={openDeleteModal}>
             <i title="Delete project" className="fa fa-trash"></i>
           </span>
           {this.operations()}

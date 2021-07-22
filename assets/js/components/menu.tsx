@@ -26,7 +26,7 @@ class Menu extends React.Component<Props> {
               </Navbar.Brand>
               <Navbar.Toggle aria-controls="basic-navbar-nav" />
               <Navbar.Collapse id="basic-navbar-nav">
-                <Nav className="mr-auto">
+                <Nav className="me-auto">
                   <Nav.Link href="/">Projects</Nav.Link>
                   <Nav.Link href="/inquiries/new">Contact</Nav.Link>
                 </Nav>
