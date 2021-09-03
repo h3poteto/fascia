@@ -17,9 +17,8 @@ require (
 	github.com/gorilla/sessions v0.0.0-20160922145804-ca9ada445741
 	github.com/h3poteto/pongo2echo v0.1.0
 	github.com/heroku/rollrus v0.2.0
-	github.com/jessevdk/go-assets v0.0.0-20160921144138-4f4301a06e15
 	github.com/labstack/echo/v4 v4.4.0
-	github.com/lib/pq v1.10.2
+	github.com/lib/pq v1.10.3
 	github.com/onsi/ginkgo v1.16.4
 	github.com/onsi/gomega v1.14.0
 	github.com/pkg/errors v0.9.1
