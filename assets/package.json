@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/h3poteto/fascia#readme",
   "dependencies": {
-    "axios": "^0.21.0",
+    "axios": "^0.23.0",
     "axios-progress-bar": "^1.2.0",
     "bootstrap": "^5.0.2",
     "connected-react-router": "^6.7.0",
