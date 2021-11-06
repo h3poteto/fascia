@@ -17,7 +17,7 @@ require (
 	github.com/gorilla/sessions v0.0.0-20160922145804-ca9ada445741
 	github.com/h3poteto/pongo2echo v0.1.0
 	github.com/heroku/rollrus v0.2.0
-	github.com/labstack/echo/v4 v4.4.0
+	github.com/labstack/echo/v4 v4.6.1
 	github.com/lib/pq v1.10.3
 	github.com/onsi/ginkgo v1.16.4
 	github.com/onsi/gomega v1.16.0
@@ -25,7 +25,7 @@ require (
 	github.com/russross/blackfriday v1.6.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v0.0.7
-	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
+	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
 	golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be
 	gopkg.in/yaml.v2 v2.4.0
 )
