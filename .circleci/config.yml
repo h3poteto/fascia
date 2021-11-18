@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: ghcr.io/h3poteto/golang:1.15.2
+      - image: ghcr.io/h3poteto/golang:1.16.1
         environment:
           GO111MODULE: "on"
           APPROOT: /go/src/github.com/h3poteto/fascia
@@ -11,7 +11,7 @@ jobs:
           POSTGRES_DB: fascia_test
           POSTGRES_USER: master
           POSTGRES_PASSWORD: docker
-      - image: postgres:11.2-alpine
+      - image: postgres:13.5-alpine
         environment:
           POSTGRES_USER: master
           POSTGRES_PASSWORD: docker
@@ -26,7 +26,7 @@ jobs:
       - restore_cache:
           name: Restoring cache - vendor
           keys:
-            - mod-{{ arch }}-{{ checksum "go.mod" }}-{{ checksum "go.sum" }}
+            - mod-{{ arch }}-1.16-{{ checksum "go.mod" }}-{{ checksum "go.sum" }}
       - run:
           name: Install
           command: go mod download
@@ -35,7 +35,7 @@ jobs:
           command: go generate
       - save_cache:
           name: Saving cache - vendor
-          key: mod-{{arch }}-{{ checksum "go.mod" }}-{{ checksum "go.sum" }}
+          key: mod-{{arch }}-1.16-{{ checksum "go.mod" }}-{{ checksum "go.sum" }}
           paths:
             - "/go/pkg/mod"
       - run:
@@ -47,17 +47,19 @@ jobs:
 
   assets:
     docker:
-      - image: node:12.19.0-alpine3.12
+      - image: node:14.18-buster-slim
     working_directory: /var/opt/app
     steps:
       - checkout
       - run:
           name: Certificates
-          command: apk add --no-cache ca-certificates
+          command: |
+            apt-get update
+            apt-get install -y ca-certificates
       - restore_cache:
           name: Restoring cache - node_modules
           keys:
-            - node-{{ arch }}-12.18.0-{{ checksum "assets/package.json" }}-{{ checksum "assets/package-lock.json" }}
+            - node-{{ arch }}-14.18-{{ checksum "assets/package.json" }}-{{ checksum "assets/package-lock.json" }}
       - run:
           name: Install
           working_directory: /var/opt/app/assets
@@ -68,23 +70,25 @@ jobs:
           command: npm run compile
       - save_cache:
           name: Saving cache - node_modules
-          key: node-{{ arch }}-12.18.0-{{ checksum "assets/package.json" }}-{{ checksum "assets/package-lock.json" }}
+          key: node-{{ arch }}-14.18-{{ checksum "assets/package.json" }}-{{ checksum "assets/package-lock.json" }}
           paths:
             - "/var/opt/app/assets/node_modules"
 
   lp:
     docker:
-      - image: node:12.19-alpine3.12
+      - image: node:14.18-buster-slim
     working_directory: /var/opt/app
     steps:
       - checkout
       - run:
           name: Certificates
-          command: apk add --no-cache ca-certificates
+          command: |
+            apt-get update
+            apt-get install -y ca-certificates
       - restore_cache:
           name: Restoring cache - node_modules
           keys:
-            - node-{{ arch }}-12.18.0-{{ checksum "lp/package.json" }}-{{ checksum "lp/package-lock.json" }}
+            - node-{{ arch }}-14.18-{{ checksum "lp/package.json" }}-{{ checksum "lp/package-lock.json" }}
       - run:
           name: Install
           working_directory: /var/opt/app/lp
@@ -95,7 +99,7 @@ jobs:
           command: npm run compile
       - save_cache:
           name: Saving cache - node_modules
-          key: node-{{ arch }}-12.18.0-{{ checksum "lp/package.json" }}-{{ checksum "lp/package-lock.json" }}
+          key: node-{{ arch }}-14.18-{{ checksum "lp/package.json" }}-{{ checksum "lp/package-lock.json" }}
           paths:
             - "/var/opt/app/lp/node_modules"
 

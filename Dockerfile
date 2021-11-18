@@ -1,4 +1,4 @@
-FROM node:12.18.0-alpine3.12 AS assets
+FROM node:16.13-slim AS assets
 
 ENV APPROOT /var/opt/app
 
@@ -10,7 +10,7 @@ RUN set -x \
     && npm install \
     && npm run compile
 
-FROM node:12.18.0-alpine3.12 AS lp
+FROM node:16.13-slim AS lp
 
 ENV APPROOT /var/opt/app
 
@@ -23,7 +23,7 @@ RUN set -x \
     && npm run compile
 
 
-FROM ghcr.io/h3poteto/golang:1.15.2
+FROM ghcr.io/h3poteto/golang:1.16.1
 
 USER root
 ENV GOPATH /go
