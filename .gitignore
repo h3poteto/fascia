@@ -3,5 +3,4 @@ node_modules
 public
 bin
 .docker-env
-config/bindata.go
 .cache-loader
