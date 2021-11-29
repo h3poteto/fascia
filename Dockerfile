@@ -23,7 +23,7 @@ RUN set -x \
     && npm run compile
 
 
-FROM ghcr.io/h3poteto/golang:1.16.1
+FROM ghcr.io/h3poteto/golang:1.16.10
 
 USER root
 ENV GOPATH /go
@@ -43,7 +43,6 @@ USER go
 
 RUN set -x \
    && go mod download \
-   && go generate \
    && go build -o bin/fascia
 
 EXPOSE 9090:9090

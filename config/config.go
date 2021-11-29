@@ -1,25 +1,20 @@
 package config
 
 import (
-	"io/ioutil"
+	_ "embed"
 	"os"
 
 	"github.com/dgrijalva/jwt-go"
 	"gopkg.in/yaml.v2"
 )
 
+//go:embed settings.yml
+var settings []byte
+
 func Element(elem string) interface{} {
 	env := os.Getenv("APPENV")
-	file, err := Assets.Open("/settings.yml")
-	if err != nil {
-		panic(err)
-	}
-	buf, err := ioutil.ReadAll(file)
-	if err != nil {
-		panic(err)
-	}
 	m := make(map[interface{}]interface{})
-	err = yaml.Unmarshal(buf, &m)
+	err := yaml.Unmarshal(settings, &m)
 	if err != nil {
 		panic(err)
 	}

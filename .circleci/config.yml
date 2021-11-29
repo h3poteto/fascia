@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: ghcr.io/h3poteto/golang:1.16.1
+      - image: ghcr.io/h3poteto/golang:1.16.10
         environment:
           GO111MODULE: "on"
           APPROOT: /go/src/github.com/h3poteto/fascia
@@ -30,9 +30,6 @@ jobs:
       - run:
           name: Install
           command: go mod download
-      - run:
-          name: Generate assets file
-          command: go generate
       - save_cache:
           name: Saving cache - vendor
           key: mod-{{arch }}-1.16-{{ checksum "go.mod" }}-{{ checksum "go.sum" }}
