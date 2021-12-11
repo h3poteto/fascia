@@ -2,6 +2,7 @@ name: Go
 
 on:
   pull_request:
+    branches:
 
 jobs:
 
@@ -19,6 +20,7 @@ jobs:
 
     container:
       image: ghcr.io/h3poteto/golang:1.16.10
+      user: root
       env:
         APPROOT: /go/src/github.com/h3poteto/fascia
         APPENV: test
@@ -44,6 +46,11 @@ jobs:
         key: ${{ runner.os }}-go1.16-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go1.16-
+
+    # - name: Install tools
+    #   run: |
+    #     go install bitbucket.org/liamstask/goose/cmd/goose@latest
+    #     go install github.com/onsi/ginkgo/ginkgo@v1.16.5
 
     - name: Install
       run: go mod download
