@@ -15,7 +15,7 @@ class ListComponent extends React.Component<Props> {
   listOperation(list: List) {
     if (list.is_init_list) return null
     return (
-      <Link to={`/projects/${list.project_id}/lists/${list.id}/edit`} className="float-right m-0">
+      <Link to={`/projects/${list.project_id}/lists/${list.id}/edit`} className="float-end m-0">
         <i className="fa fa-pencil"></i>
       </Link>
     )
