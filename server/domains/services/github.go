@@ -163,6 +163,10 @@ func taskApplyLabel(p *project.Project, targetTask *task.Task, issue *github.Iss
 
 // createNewTask create a task from github issue
 func createNewTask(p *project.Project, issue *github.Issue, listInfra list.Repository, taskInfra task.Repository) error {
+	body := ""
+	if issue.Body != nil {
+		body = *issue.Body
+	}
 	issueTask := task.New(
 		0,
 		0,
@@ -170,7 +174,7 @@ func createNewTask(p *project.Project, issue *github.Issue, listInfra list.Repos
 		p.UserID,
 		sql.NullInt64{Int64: int64(*issue.Number), Valid: true},
 		*issue.Title,
-		*issue.Body,
+		body,
 		hub.IsPullRequest(issue),
 		sql.NullString{String: *issue.HTMLURL, Valid: true},
 	)
