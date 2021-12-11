@@ -14,6 +14,10 @@ export const OpenEditProject = 'OpenEditProject' as const
 export const CloseEditProject = 'CloseEditProject' as const
 export const RequestSyncGithub = 'RequestSyncGithub' as const
 export const RequestMoveTask = 'RequestMoveTask' as const
+export const RequestHideList = 'RequestHideList' as const
+export const ReceiveHideList = 'ReceiveHideList' as const
+export const RequestDisplayList = 'RequestDisplayList' as const
+export const ReceiveDisplayList = 'ReceiveDisplayList' as const
 
 export const requestGetLists = () => ({
   type: RequestGetLists
@@ -32,8 +36,8 @@ export const receiveNoneList = (list: List) => ({
 export const getLists = (projectID: number) => {
   return (dispatch: Dispatch<Action>) => {
     dispatch(requestGetLists())
-    axios.get<Lists>(`/api/projects/${projectID}/lists`).then(res => {
-      const data: Array<List> = res.data.Lists.map(l => converter(l))
+    axios.get<Lists>(`/api/projects/${projectID}/lists`).then((res) => {
+      const data: Array<List> = res.data.Lists.map((l) => converter(l))
       dispatch(receiveGetLists(data))
       const none = converter(res.data.NoneList)
       dispatch(receiveNoneList(none))
@@ -72,8 +76,8 @@ export const requestSyncGithub = () => ({
 export const syncGithub = (projectID: number) => {
   return (dispatch: Dispatch<Action>) => {
     dispatch(requestSyncGithub())
-    axios.post<Lists>(`/api/projects/${projectID}/fetch_github`).then(res => {
-      const data: Array<List> = res.data.Lists.map(l => converter(l))
+    axios.post<Lists>(`/api/projects/${projectID}/fetch_github`).then((res) => {
+      const data: Array<List> = res.data.Lists.map((l) => converter(l))
       dispatch(receiveGetLists(data))
       const none = converter(res.data.NoneList)
       dispatch(receiveNoneList(none))
@@ -93,12 +97,54 @@ export const moveTask = (projectID: number, fromListID: number, toListID: number
         to_list_id: toListID,
         prev_to_task_id: prevToTaskID
       })
-      .then(res => {
-        const data: Array<List> = res.data.Lists.map(l => converter(l))
+      .then((res) => {
+        const data: Array<List> = res.data.Lists.map((l) => converter(l))
         dispatch(receiveGetLists(data))
         const none = converter(res.data.NoneList)
         dispatch(receiveNoneList(none))
       })
+  }
+}
+
+export const requestHideList = () => ({
+  type: RequestHideList
+})
+
+export const receiveHideList = () => ({
+  type: ReceiveHideList
+})
+
+export const hideList = (projectID: number, listID: number) => {
+  return (dispatch: Dispatch<Action>) => {
+    dispatch(requestHideList())
+    axios.patch<Lists>(`/api/projects/${projectID}/lists/${listID}/hide`).then((res) => {
+      dispatch(receiveHideList())
+      const data: Array<List> = res.data.Lists.map((l) => converter(l))
+      dispatch(receiveGetLists(data))
+      const none = converter(res.data.NoneList)
+      dispatch(receiveNoneList(none))
+    })
+  }
+}
+
+export const requestDisplayList = () => ({
+  type: RequestDisplayList
+})
+
+export const receiveDisplayList = () => ({
+  type: ReceiveDisplayList
+})
+
+export const displayList = (projectID: number, listID: number) => {
+  return (dispatch: Dispatch<Action>) => {
+    dispatch(requestHideList())
+    axios.patch<Lists>(`/api/projects/${projectID}/lists/${listID}/display`).then((res) => {
+      dispatch(receiveDisplayList())
+      const data: Array<List> = res.data.Lists.map((l) => converter(l))
+      dispatch(receiveGetLists(data))
+      const none = converter(res.data.NoneList)
+      dispatch(receiveNoneList(none))
+    })
   }
 }
 
@@ -114,6 +160,10 @@ type Actions = ReturnType<
   | typeof closeEditProject
   | typeof requestSyncGithub
   | typeof requestMoveTask
+  | typeof requestHideList
+  | typeof receiveHideList
+  | typeof requestDisplayList
+  | typeof requestDisplayList
 >
 
 export default Actions

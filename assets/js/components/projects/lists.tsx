@@ -129,7 +129,7 @@ class ListsComponent extends React.Component<Props> {
                 <Droppable key={l.id} droppableId={`${l.id}`}>
                   {(provided) => (
                     <div ref={provided.innerRef}>
-                      <ListComponent list={l} />
+                      <ListComponent list={l} project_id={id} dispatch={this.props.dispatch} />
                       {provided.placeholder}
                     </div>
                   )}
