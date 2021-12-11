@@ -8,6 +8,10 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: /go/src/github.com/h3poteto/fascia
     services:
       postgres:
         image: postgres:13.5-alpine
@@ -20,7 +24,6 @@ jobs:
 
     container:
       image: ghcr.io/h3poteto/golang:1.16.10
-      user: root
       env:
         APPROOT: /go/src/github.com/h3poteto/fascia
         APPENV: test
