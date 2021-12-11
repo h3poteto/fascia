@@ -23,18 +23,9 @@ jobs:
       - run:
           name: Check golang version
           command: go version
-      - restore_cache:
-          name: Restoring cache - vendor
-          keys:
-            - mod-{{ arch }}-1.16-{{ .Environment.CACHE_KEY }}-{{ checksum "go.mod" }}-{{ checksum "go.sum" }}
       - run:
           name: Install
           command: go mod download
-      - save_cache:
-          name: Saving cache - vendor
-          key: mod-{{ arch }}-1.16-{{ .Environment.CACHE_KEY }}-{{ checksum "go.mod" }}-{{ checksum "go.sum" }}
-          paths:
-            - "/go/pkg/mod"
       - run:
           name: Migration database
           command: goose -env test up
