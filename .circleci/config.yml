@@ -26,13 +26,13 @@ jobs:
       - restore_cache:
           name: Restoring cache - vendor
           keys:
-            - mod-{{ arch }}-1.16-{{ checksum "go.mod" }}-{{ checksum "go.sum" }}
+            - mod-{{ arch }}-1.16-{{ .Environment.CACHE_KEY }}-{{ checksum "go.mod" }}-{{ checksum "go.sum" }}
       - run:
           name: Install
           command: go mod download
       - save_cache:
           name: Saving cache - vendor
-          key: mod-{{arch }}-1.16-{{ checksum "go.mod" }}-{{ checksum "go.sum" }}
+          key: mod-{{ arch }}-1.16-{{ .Environment.CACHE_KEY }}-{{ checksum "go.mod" }}-{{ checksum "go.sum" }}
           paths:
             - "/go/pkg/mod"
       - run:
@@ -56,7 +56,7 @@ jobs:
       - restore_cache:
           name: Restoring cache - node_modules
           keys:
-            - node-{{ arch }}-14.18-{{ checksum "assets/package.json" }}-{{ checksum "assets/package-lock.json" }}
+            - node-{{ arch }}-14.18-{{ .Environment.CACHE_KEY }}-{{ checksum "assets/package.json" }}-{{ checksum "assets/package-lock.json" }}
       - run:
           name: Install
           working_directory: /var/opt/app/assets
@@ -67,7 +67,7 @@ jobs:
           command: npm run compile
       - save_cache:
           name: Saving cache - node_modules
-          key: node-{{ arch }}-14.18-{{ checksum "assets/package.json" }}-{{ checksum "assets/package-lock.json" }}
+          key: node-{{ arch }}-14.18-{{ .Environment.CACHE_KEY }}-{{ checksum "assets/package.json" }}-{{ checksum "assets/package-lock.json" }}
           paths:
             - "/var/opt/app/assets/node_modules"
 
@@ -85,7 +85,7 @@ jobs:
       - restore_cache:
           name: Restoring cache - node_modules
           keys:
-            - node-{{ arch }}-14.18-{{ checksum "lp/package.json" }}-{{ checksum "lp/package-lock.json" }}
+            - node-{{ arch }}-14.18-{{ .Environment.CACHE_KEY }}-{{ checksum "lp/package.json" }}-{{ checksum "lp/package-lock.json" }}
       - run:
           name: Install
           working_directory: /var/opt/app/lp
@@ -96,7 +96,7 @@ jobs:
           command: npm run compile
       - save_cache:
           name: Saving cache - node_modules
-          key: node-{{ arch }}-14.18-{{ checksum "lp/package.json" }}-{{ checksum "lp/package-lock.json" }}
+          key: node-{{ arch }}-14.18-{{ .Environment.CACHE_KEY }}-{{ checksum "lp/package.json" }}-{{ checksum "lp/package-lock.json" }}
           paths:
             - "/var/opt/app/lp/node_modules"
 
