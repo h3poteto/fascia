@@ -152,7 +152,7 @@ func CreateInitialLists(project *project.Project, listInfra list.Repository, tx 
 func CreateRepo(targetRepositoryID int64, oauthToken string, repoInfra repo.Repository) (*repo.Repo, error) {
 	// confirm github
 	h := hub.New(oauthToken)
-	githubRepo, err := h.GetRepository(int(targetRepositoryID))
+	githubRepo, err := h.GetRepository(targetRepositoryID)
 	if err != nil {
 		return nil, err
 	}
