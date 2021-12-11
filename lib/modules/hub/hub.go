@@ -4,10 +4,11 @@ import (
 	"github.com/h3poteto/fascia/lib/modules/logging"
 
 	"context"
+	"time"
+
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
-	"time"
 )
 
 // Hub has github client struct
@@ -56,7 +57,7 @@ func (h *Hub) AllRepositories() ([]*github.Repository, error) {
 }
 
 // GetRepository returns a repository struct
-func (h *Hub) GetRepository(ID int) (*github.Repository, error) {
+func (h *Hub) GetRepository(ID int64) (*github.Repository, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	repo, _, err := h.client.Repositories.GetByID(ctx, ID)
