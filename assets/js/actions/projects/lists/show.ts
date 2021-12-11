@@ -21,7 +21,7 @@ export const receiveGetList = (list: List) => ({
 export const getList = (projectID: number, id: number) => {
   return (dispatch: Dispatch<Action>) => {
     dispatch(requestGetList())
-    axios.get<ServerList>(`/api/projects/${projectID}/lists/${id}`).then(res => {
+    axios.get<ServerList>(`/api/projects/${projectID}/lists/${id}`).then((res) => {
       const data: List = converter(res.data)
       dispatch(receiveGetList(data))
     })
@@ -40,8 +40,8 @@ export const receiveGetListOptions = (listOptions: Array<ListOption>) => ({
 export const getListOptions = () => {
   return (dispatch: Dispatch<Action>) => {
     dispatch(requestGetListOptions())
-    axios.get<Array<ServerListOption>>(`/api/list_options`).then(res => {
-      const data: Array<ListOption> = res.data.map(s => optionConverter(s))
+    axios.get<Array<ServerListOption>>(`/api/list_options`).then((res) => {
+      const data: Array<ListOption> = res.data.map((s) => optionConverter(s))
       dispatch(receiveGetListOptions(data))
     })
   }
