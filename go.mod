@@ -24,8 +24,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/russross/blackfriday v1.6.0
 	github.com/sirupsen/logrus v1.8.1
-	github.com/spf13/cobra v1.2.1
+	github.com/spf13/cobra v1.3.0
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
-	golang.org/x/oauth2 v0.0.0-20210402161424-2e8d93401602
+	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 	gopkg.in/yaml.v2 v2.4.0
 )
