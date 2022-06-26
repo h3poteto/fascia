@@ -18,7 +18,7 @@ require (
 	github.com/h3poteto/pongo2echo v0.1.0
 	github.com/heroku/rollrus v0.2.0
 	github.com/labstack/echo/v4 v4.7.2
-	github.com/lib/pq v1.10.4
+	github.com/lib/pq v1.10.6
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.19.0
 	github.com/pkg/errors v0.9.1
