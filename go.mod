@@ -20,7 +20,7 @@ require (
 	github.com/labstack/echo/v4 v4.7.2
 	github.com/lib/pq v1.10.4
 	github.com/onsi/ginkgo v1.16.5
-	github.com/onsi/gomega v1.17.0
+	github.com/onsi/gomega v1.19.0
 	github.com/pkg/errors v0.9.1
 	github.com/russross/blackfriday v1.6.0
 	github.com/sirupsen/logrus v1.8.1
