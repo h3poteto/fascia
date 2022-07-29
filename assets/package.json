@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "webpack --progress --color --watch --mode development",
     "compile": "NODE_ENV=production webpack --mode production",
-    "lint": "eslint --config .eslintrc.json --ext .ts,.tsx js"
+    "lint": "eslint --config ./.eslintrc.json --ext .ts,.tsx js"
   },
   "repository": {
     "type": "git",
