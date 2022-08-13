@@ -27,6 +27,9 @@
       <span class="message">This service does not access your private repository. If you want to management private repository, please click the button below.</span>
       <a href={{ privateURL }}><span class="pure-button button-small pure-button-primary secondary-session-button"><span class="octicon octicon-mark-github"></span> Sign In with Github Private Access</span></a>
     </div>
+    <div class="sign-in-footer">
+      <a href="/privacy_policy">Privacy Policy</a>
+    </div>
   </div>
 </div>
 {% endblock %}
