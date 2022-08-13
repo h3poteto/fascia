@@ -28,8 +28,9 @@ class Menu extends React.Component<Props> {
               <Navbar.Collapse id="basic-navbar-nav">
                 <Nav className="me-auto">
                   <Nav.Link href="/">Projects</Nav.Link>
+                  <Nav.Link href="/privacy_policy">PrivacyPolicy</Nav.Link>
                   <Nav.Link href="/inquiries/new">Contact</Nav.Link>
-                </Nav>
+                  </Nav>
               </Navbar.Collapse>
               <Navbar.Collapse className="justify-content-end">
                 <Nav>
