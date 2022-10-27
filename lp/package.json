@@ -29,6 +29,6 @@
     "webpack-manifest-plugin": "^5.0.0"
   },
   "dependencies": {
-    "purecss": "^2.0.3"
+    "purecss": "^3.0.0"
   }
 }
