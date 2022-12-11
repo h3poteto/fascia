@@ -12,7 +12,7 @@ services:
       - storage:/var/lib/postgres/data
 
   assets:
-    image: node:14.18-buster-slim
+    image: node:14.21-buster-slim
     user: node
     volumes:
       - .:/var/opt/app
@@ -28,7 +28,7 @@ services:
       npm run dev"
 
   lp:
-    image: node:14.18-slim
+    image: node:14.21-slim
     user: node
     volumes:
       - .:/var/opt/app
