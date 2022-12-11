@@ -23,7 +23,7 @@ RUN set -x \
     && npm run compile
 
 
-FROM ghcr.io/h3poteto/golang:1.16.10
+FROM ghcr.io/h3poteto/golang:1.17.3
 
 USER root
 ENV GOPATH /go

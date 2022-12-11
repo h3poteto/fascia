@@ -44,7 +44,7 @@ services:
       npm run dev"
 
   go:
-    image: ghcr.io/h3poteto/golang:1.16.10
+    image: ghcr.io/h3poteto/golang:1.17.3
     environment:
       GO111MODULE: "on"
       APPROOT: /go/src/github.com/h3poteto/fascia
