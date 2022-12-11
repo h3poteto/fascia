@@ -7,8 +7,8 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/extemporalgenome/slug v0.0.0-20150414033109-0320c85e32e0 // indirect
 	github.com/flosch/go-humanize v0.0.0-20140728123800-3ba51eabe506 // indirect
-	github.com/flosch/pongo2 v0.0.0-20170906222041-1f4be1efe3b3
-	github.com/flosch/pongo2-addons v0.0.0-20170902001113-86b9b7b80512
+	github.com/flosch/pongo2 v0.0.0-20200529170236-5abacdfa4915
+	github.com/flosch/pongo2-addons v0.0.0-20210526150811-f969446c5b72
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v0.0.0-20170111101155-53e6ce116135 // indirect
