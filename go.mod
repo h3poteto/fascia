@@ -3,7 +3,7 @@ module github.com/h3poteto/fascia
 go 1.16
 
 require (
-	github.com/asaskevich/govalidator v0.0.0-20170903095215-73945b6115bf
+	github.com/asaskevich/govalidator/v11 v11.0.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/extemporalgenome/slug v0.0.0-20150414033109-0320c85e32e0 // indirect
 	github.com/flosch/go-humanize v0.0.0-20140728123800-3ba51eabe506 // indirect
