@@ -1,4 +1,4 @@
-FROM node:14.21-slim AS assets
+FROM node:18-bullseye AS assets
 
 ENV APPROOT /var/opt/app
 
@@ -10,7 +10,7 @@ RUN set -x \
     && npm install \
     && npm run compile
 
-FROM node:14.21-slim AS lp
+FROM node:18-bullseye AS lp
 
 ENV APPROOT /var/opt/app
 
