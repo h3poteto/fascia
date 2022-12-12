@@ -9,6 +9,7 @@ require (
 	github.com/flosch/go-humanize v0.0.0-20140728123800-3ba51eabe506 // indirect
 	github.com/flosch/pongo2 v0.0.0-20200529170236-5abacdfa4915
 	github.com/flosch/pongo2-addons v0.0.0-20210526150811-f969446c5b72
+	github.com/flosch/pongo2/v6 v6.0.0
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v0.0.0-20170111101155-53e6ce116135 // indirect
