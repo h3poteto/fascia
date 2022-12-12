@@ -35,7 +35,7 @@ jobs:
 
   assets:
     docker:
-      - image: node:14.21-buster-slim
+      - image: node:18-bullseye
     working_directory: /var/opt/app
     steps:
       - checkout
@@ -64,7 +64,7 @@ jobs:
 
   lp:
     docker:
-      - image: node:14.21-buster-slim
+      - image: node:18-bullseye
     working_directory: /var/opt/app
     steps:
       - checkout
