@@ -11,7 +11,7 @@ jobs:
           POSTGRES_DB: fascia_test
           POSTGRES_USER: master
           POSTGRES_PASSWORD: docker
-      - image: postgres:13.5-alpine
+      - image: postgres:13.9-alpine
         environment:
           POSTGRES_USER: master
           POSTGRES_PASSWORD: docker
