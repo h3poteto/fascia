@@ -1,6 +1,6 @@
 module github.com/h3poteto/fascia
 
-go 1.16
+go 1.19
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20170903095215-73945b6115bf
