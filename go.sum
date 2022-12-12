@@ -139,8 +139,12 @@ github.com/gorilla/context v0.0.0-20160226214623-1ea25387ff6f h1:9oNbS1z4rVpbnkH
 github.com/gorilla/context v0.0.0-20160226214623-1ea25387ff6f/go.mod h1:kBGZzfjB9CEq2AlWe17Uuf7NDRt0dE0s8S51q0aT7Yg=
 github.com/gorilla/securecookie v0.0.0-20160422134519-667fe4e3466a h1:YH0IojQwndMQdeRWdw1aPT8bkbiWaYR3WD+Zf5e09DU=
 github.com/gorilla/securecookie v0.0.0-20160422134519-667fe4e3466a/go.mod h1:ra0sb63/xPlUeL+yeDciTfxMRAA+MP+HVt/4epWDjd4=
+github.com/gorilla/securecookie v1.1.1 h1:miw7JPhV+b/lAHSXz4qd/nN9jRiAFV5FwjeKyCS8BvQ=
+github.com/gorilla/securecookie v1.1.1/go.mod h1:ra0sb63/xPlUeL+yeDciTfxMRAA+MP+HVt/4epWDjd4=
 github.com/gorilla/sessions v0.0.0-20160922145804-ca9ada445741 h1:OuuPl66BpF1q3OEkaPpp+VfzxrBBY62ATGdWqql/XX8=
 github.com/gorilla/sessions v0.0.0-20160922145804-ca9ada445741/go.mod h1:+WVp8kdw6VhyKExm03PAMRn2ZxnPtm58pV0dBVPdhHE=
+github.com/gorilla/sessions v1.2.1 h1:DHd3rPN5lE3Ts3D8rKkQ8x/0kqfeNmBAaiSi+o7FsgI=
+github.com/gorilla/sessions v1.2.1/go.mod h1:dk2InVEVJ0sfLlnXv9EAgkf6ecYs/i80K/zI+bUmuGM=
 github.com/h3poteto/pongo2echo v0.1.0 h1:xgZxaLLCh3JR3cxyNwIeLtR/SXMcMWPxo6VPdYDqHLk=
 github.com/h3poteto/pongo2echo v0.1.0/go.mod h1:JI4kIvmZsIAWgPM+yGxkf+I5k9c4rOhP7qa/E7w9nlU=
 github.com/hashicorp/golang-lru v0.5.0/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
