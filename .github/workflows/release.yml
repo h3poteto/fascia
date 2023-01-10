@@ -1,0 +1,88 @@
+name: Release
+
+on:
+  push:
+    branches: [ "master"]
+
+permissions:
+  id-token: write
+  contents: read
+
+
+env:
+  ECR: 564677439943.dkr.ecr.ap-northeast-1.amazonaws.com/h3poteto/fascia
+
+jobs:
+  build:
+    name: Docker build
+    runs-on: ubuntu-latest
+
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Docker buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::564677439943:role/github-actions-ci
+          aws-region: ap-northeast-1
+      - name: Login to ECR
+        uses: docker/login-action@v2
+        with:
+          registry: 564677439943.dkr.ecr.ap-northeast-1.amazonaws.com
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.ECR }}
+          tags: |
+            type=sha,format=long
+            type=raw,value=latest,enable={{is_default_branch}}
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  release:
+    name: Create release PR
+    needs: [build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install hub
+        run: |
+          curl -sSLf https://github.com/github/hub/releases/download/v2.14.2/hub-linux-amd64-2.14.2.tgz | \
+          tar zxf - --strip-components=1 -C /tmp/ && \
+          sudo mv /tmp/bin/hub /usr/local/bin/hub
+          hub --version
+      - name: Install kustomize
+        run: |
+          curl -sSLf https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv4.5.7/kustomize_v4.5.7_linux_amd64.tar.gz | \
+          tar zxf - -C /tmp/ && \
+          sudo mv /tmp/kustomize /usr/local/bin/kustomize
+          kustomize version
+      - name: Update tag and create PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        run: |
+          git config --global user.name h3poteto
+          git config --global user.email ${{ secrets.EMAIL }}
+          git clone https://h3poteto:${{ secrets.TOKEN }}@github.com/h3poteto/k8s-services.git
+          cd k8s-services
+          git init
+          git checkout -b update-fascia-image-${{ github.sha }}
+          cd external-prd/fascia
+          kustomize edit set image "go=${{ env.ECR }}:sha-${{ github.sha }}"
+          git add .
+          git commit -m "Update docker image for fascia to ${{ github.sha }}"
+          git push --set-upstream origin update-fascia-image-${{ github.sha }}
+          hub pull-request -m "[Image update] fascia ${{ github.sha }}"
+

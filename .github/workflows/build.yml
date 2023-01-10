@@ -1,0 +1,91 @@
+name: Build
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  server:
+    name: Server
+    runs-on: ubuntu-latest
+
+    env:
+      APPENV: test
+      APPROOT: /home/runner/work/fascia/fascia
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_DB: fascia_test
+      POSTGRES_USER: master
+      POSTGRES_PASSWORD: docker
+      CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+      TEST_TOKEN: ${{ secrets.TEST_TOKEN }}
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: master
+          POSTGRES_PASSWORD: docker
+          POSTGRES_DB: fascia_test
+        ports:
+          - 5432:5432
+
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: "go.mod"
+      - name: Tools
+        run: |
+          go get -u bitbucket.org/liamstask/goose/cmd/goose
+          go get -u github.com/onsi/ginkgo/ginkgo
+      - name: Install
+        run: |
+          go mod download
+          go mod tidy
+      - name: Migration
+        run: |
+          goose -env test up
+      - name: Test
+        run: |
+          ginkgo -r ./
+
+  assets:
+    name: Assets
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install
+        working-directory: assets
+        run: |
+          npm install
+      - name: Build
+        working-directory: assets
+        run: |
+          npm run compile
+
+
+  lp:
+    name: LP
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install
+        working-directory: lp
+        run: |
+          npm install
+      - name: Build
+        working-directory: lp
+        run: |
+          npm run compile
