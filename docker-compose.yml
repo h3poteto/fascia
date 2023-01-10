@@ -12,7 +12,7 @@ services:
       - storage:/var/lib/postgres/data
 
   assets:
-    image: node:18-bullseye
+    image: node:19-bullseye
     user: node
     volumes:
       - .:/var/opt/app
@@ -28,7 +28,7 @@ services:
       npm run dev"
 
   lp:
-    image: node:18-bullseye
+    image: node:19-bullseye
     user: node
     volumes:
       - .:/var/opt/app
