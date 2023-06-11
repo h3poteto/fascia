@@ -79,7 +79,7 @@ jobs:
           cd k8s-services
           git init
           git checkout -b update-fascia-image-${{ github.sha }}
-          cd external-prd/fascia
+          cd external-prd/services/fascia
           kustomize edit set image "go=${{ env.ECR }}:sha-${{ github.sha }}"
           git add .
           git commit -m "Update docker image for fascia to ${{ github.sha }}"
