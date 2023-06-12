@@ -10,7 +10,7 @@ require (
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/gorilla/sessions v1.2.1
-	github.com/h3poteto/pongo2echo v0.1.0
+	github.com/h3poteto/pongo2echo v0.1.1
 	github.com/heroku/rollrus v0.2.0
 	github.com/labstack/echo/v4 v4.9.1
 	github.com/lib/pq v1.10.7
@@ -29,6 +29,7 @@ require (
 	github.com/extemporalgenome/slug v0.0.0-20150414033109-0320c85e32e0 // indirect
 	github.com/flosch/go-humanize v0.0.0-20140728123800-3ba51eabe506 // indirect
 	github.com/flosch/pongo2/v4 v4.0.2 // indirect
+	github.com/flosch/pongo2/v6 v6.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
