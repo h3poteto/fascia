@@ -6,6 +6,9 @@
 <div class="about">
   {% include "layouts/_login_header.html.tpl" %}
   <div class="main-board">
+    <aside>
+      <p>This service will end on August 1, 2023. Thank you for using this service until today.</p>
+    </aside>
     <h1>Simple Task Management</h1>
     <h2>Fascia is a free task management solution.</h2>
     <article>
@@ -18,6 +21,7 @@
         </div>
       </div>
     </article>
+
   </div>
   <div class="main-area">
     <div class="store-link">

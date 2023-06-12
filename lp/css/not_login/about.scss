@@ -16,6 +16,14 @@
       width: 22.5rem;
     }
 
+    aside {
+      background: #1f8dd6;
+      border-radius: 3px;
+      color: #fff;
+      padding: .3em 1em;
+      margin: 1em;
+    }
+
     .sign-in-board, .sign-up-board {
       display: inline-block;
       text-align: center;
@@ -81,3 +89,5 @@
     padding: 2.5rem 0;
   }
 }
+
+
