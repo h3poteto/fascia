@@ -3,7 +3,7 @@ module github.com/h3poteto/fascia
 go 1.17
 
 require (
-	github.com/asaskevich/govalidator v0.0.0-20170903095215-73945b6115bf
+	github.com/asaskevich/govalidator/v11 v11.0.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/flosch/pongo2 v0.0.0-20200529170236-5abacdfa4915
 	github.com/flosch/pongo2-addons v0.0.0-20210526150811-f969446c5b72
